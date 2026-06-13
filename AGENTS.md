@@ -24,6 +24,9 @@
 
 - The top-level planning document is `docs/planning.md`.
 - Screen-specific planning documents live in `docs/screens/`.
+- Android source analysis is documented in `docs/android-analysis.md`.
+- iOS development planning is documented in `docs/ios-development-plan.md`.
+- Development progress is tracked in `docs/development-progress.md`.
 - Organize planning/specification documents by screen.
 - Before implementing or modifying a screen, always find and consult that screen's planning document.
 - If the relevant planning document does not exist, create or update it before implementing the screen.

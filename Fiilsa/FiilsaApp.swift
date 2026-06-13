@@ -6,12 +6,17 @@
 //
 
 import SwiftUI
+import ComposableArchitecture
 
 @main
 struct FiilsaApp: App {
     var body: some Scene {
         WindowGroup {
-            ContentView()
+            AppView(
+                store: Store(initialState: AppFeature.State()) {
+                    AppFeature()
+                }
+            )
         }
     }
 }
