@@ -1,5 +1,7 @@
 import Foundation
+import Alamofire
 
+@preconcurrency
 protocol APIClientProtocol {
     func send<Response: Decodable, Body: Encodable>(
         _ request: APIRequest<Body>,
@@ -8,59 +10,54 @@ protocol APIClientProtocol {
 }
 
 struct APIClient: APIClientProtocol {
-    typealias AccessTokenProvider = @Sendable () async -> String?
-
     private let environment: APIEnvironment
-    private let session: URLSession
+    private let session: Session
     private let encoder: JSONEncoder
     private let decoder: JSONDecoder
-    private let accessTokenProvider: AccessTokenProvider
 
     init(
         environment: APIEnvironment = .production,
-        session: URLSession = .shared,
+        session: Session = .default,
         encoder: JSONEncoder = JSONEncoder(),
-        decoder: JSONDecoder = JSONDecoder(),
-        accessTokenProvider: @escaping AccessTokenProvider = { nil }
+        decoder: JSONDecoder = JSONDecoder()
     ) {
         self.environment = environment
         self.session = session
         self.encoder = encoder
         self.decoder = decoder
-        self.accessTokenProvider = accessTokenProvider
     }
 
     func send<Response: Decodable, Body: Encodable>(
         _ request: APIRequest<Body>,
         responseType: Response.Type = Response.self
     ) async throws -> Response {
-        let urlRequest = try await makeURLRequest(from: request)
-        let (data, response) = try await session.data(for: urlRequest)
-
-        guard let httpResponse = response as? HTTPURLResponse else {
-            throw ErrorResponse.networkError
-        }
-
-        guard (200..<300).contains(httpResponse.statusCode) else {
-            if let error = try? decoder.decode(ErrorResponse.self, from: data) {
-                throw error
-            }
-            throw ErrorResponse(
-                timestamp: "",
-                httpStatus: httpResponse.statusCode,
-                errorCode: httpResponse.statusCode,
-                message: HTTPURLResponse.localizedString(forStatusCode: httpResponse.statusCode)
-            )
-        }
-
         if Response.self == EmptyResponse.self {
+            _ = try await data(for: request)
             return EmptyResponse() as! Response
         }
 
+        let data = try await data(for: request)
         return try decoder.decode(Response.self, from: data)
     }
 
-    private func makeURLRequest<Body: Encodable>(from request: APIRequest<Body>) async throws -> URLRequest {
+    private func data<Body: Encodable>(for request: APIRequest<Body>) async throws -> Data {
+        let response = await session
+            .request(try makeURLRequest(from: request))
+            .validate(statusCode: 200..<300)
+            .serializingData()
+            .response
+
+        if let error = response.error {
+            throw apiError(from: response, fallback: error)
+        }
+
+        guard let data = response.data else {
+            return Data()
+        }
+        return data
+    }
+
+    private func makeURLRequest<Body: Encodable>(from request: APIRequest<Body>) throws -> URLRequest {
         var components = URLComponents(
             url: environment.baseURL.appendingPathComponent(request.path),
             resolvingAgainstBaseURL: false
@@ -72,21 +69,39 @@ struct APIClient: APIClientProtocol {
         }
 
         var urlRequest = URLRequest(url: url)
-        urlRequest.httpMethod = request.method.rawValue
-        urlRequest.setValue("application/json", forHTTPHeaderField: "Accept")
-
-        if request.requiresAuthorization, let accessToken = await accessTokenProvider(), !accessToken.isEmpty {
-            urlRequest.setValue("Bearer \(accessToken)", forHTTPHeaderField: "Authorization")
-        }
+        urlRequest.method = request.method.alamofireMethod
+        urlRequest.headers = headers(for: request)
 
         if let body = request.body {
             urlRequest.httpBody = try encoder.encode(body)
-            urlRequest.setValue("application/json", forHTTPHeaderField: "Content-Type")
         }
 
         return urlRequest
     }
+
+    private func headers<Body: Encodable>(for request: APIRequest<Body>) -> HTTPHeaders {
+        var headers: HTTPHeaders = ["Accept": "application/json"]
+        if request.body != nil { headers.add(name: "Content-Type", value: "application/json") }
+        if !request.requiresAuthorization {
+            headers.add(name: FillsaRequestHeader.authorizationBehavior, value: FillsaRequestHeader.noAuthorization)
+        }
+        return headers
+    }
+
+    private func apiError(from response: AFDataResponse<Data>, fallback: AFError) -> Error {
+        if let data = response.data, let error = try? decoder.decode(ErrorResponse.self, from: data) {
+            return error
+        }
+        if let statusCode = response.response?.statusCode {
+            return ErrorResponse(
+                timestamp: "",
+                httpStatus: statusCode,
+                errorCode: statusCode,
+                message: HTTPURLResponse.localizedString(forStatusCode: statusCode)
+            )
+        }
+        return fallback
+    }
 }
 
 struct EmptyResponse: Decodable, Equatable {}
-

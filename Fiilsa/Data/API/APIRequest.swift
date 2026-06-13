@@ -1,4 +1,5 @@
 import Foundation
+import Alamofire
 
 struct APIRequest<Body: Encodable> {
     enum Method: String {
@@ -28,5 +29,17 @@ struct APIRequest<Body: Encodable> {
     }
 }
 
-struct EmptyRequestBody: Encodable {}
+extension APIRequest.Method {
+    var alamofireMethod: HTTPMethod {
+        switch self {
+        case .get:
+            .get
+        case .post:
+            .post
+        case .delete:
+            .delete
+        }
+    }
+}
 
+struct EmptyRequestBody: Encodable {}

@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		51D6A0012FDD793200E49226 /* ComposableArchitecture in Frameworks */ = {isa = PBXBuildFile; productRef = 51D6A0022FDD793200E49226 /* ComposableArchitecture */; };
+		51D6A0112FDD793200E49226 /* Alamofire in Frameworks */ = {isa = PBXBuildFile; productRef = 51D6A0122FDD793200E49226 /* Alamofire */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -56,6 +57,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				51D6A0112FDD793200E49226 /* Alamofire in Frameworks */,
 				51D6A0012FDD793200E49226 /* ComposableArchitecture in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -118,6 +120,7 @@
 			name = Fiilsa;
 			packageProductDependencies = (
 				51D6A0022FDD793200E49226 /* ComposableArchitecture */,
+				51D6A0122FDD793200E49226 /* Alamofire */,
 			);
 			productName = Fiilsa;
 			productReference = 51D6017D2FDD793100E49226 /* Fiilsa.app */;
@@ -203,6 +206,7 @@
 			minimizedProjectReferenceProxies = 1;
 			packageReferences = (
 				51D6A0032FDD793200E49226 /* XCRemoteSwiftPackageReference "swift-composable-architecture" */,
+				51D6A0132FDD793200E49226 /* XCRemoteSwiftPackageReference "Alamofire" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 51D6017E2FDD793100E49226 /* Products */;
@@ -597,6 +601,14 @@
 				minimumVersion = 1.0.0;
 			};
 		};
+		51D6A0132FDD793200E49226 /* XCRemoteSwiftPackageReference "Alamofire" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/Alamofire/Alamofire.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 5.12.0;
+			};
+		};
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
@@ -604,6 +616,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 51D6A0032FDD793200E49226 /* XCRemoteSwiftPackageReference "swift-composable-architecture" */;
 			productName = ComposableArchitecture;
+		};
+		51D6A0122FDD793200E49226 /* Alamofire */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 51D6A0132FDD793200E49226 /* XCRemoteSwiftPackageReference "Alamofire" */;
+			productName = Alamofire;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};

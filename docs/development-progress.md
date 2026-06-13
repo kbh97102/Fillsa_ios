@@ -4,6 +4,13 @@
 
 Phase 2: Local Storage And Session
 
+Current status:
+
+- Keychain-backed token storage is in place.
+- UserDefaults-backed settings storage is in place.
+- Authenticated/no-token Alamofire API client factories are in place.
+- Local quote and streak persistence is still pending.
+
 ## Phase Checklist
 
 ### Phase 0. Project Foundation
@@ -70,7 +77,8 @@ Notes:
 - [x] Add `YN` support enum.
 - [x] Add endpoint constants matching Android `ApiEndPoint.kt`.
 - [x] Add `APIEnvironment` with Android production base URL `https://api.fillsa.com`.
-- [x] Add URLSession-backed `APIClient` skeleton.
+- [x] Add Alamofire-backed `APIClient` skeleton.
+- [x] Add `FillsaRequestInterceptor` skeleton for bearer token injection and one-time refresh retry.
 - [x] Add repository protocols:
   - `AuthRepository`
   - `HomeRepository`
@@ -93,14 +101,33 @@ Result:
 BUILD SUCCEEDED
 ```
 
+Notes:
+
+- API networking uses Alamofire 5.12.0.
+- `APIClient` now wraps `Alamofire.Session` and keeps endpoint/path/body construction in project-owned request types.
+- Token refresh retry is wired through `FillsaRequestInterceptor` and `APIClientFactory.authenticated(...)`.
+
 ## Next Phase
 
 Phase 2: Local Storage And Session
 
 Planned next tasks:
 
-- Implement Keychain-backed token storage.
-- Implement UserDefaults-backed settings.
-- Choose and implement local quote/streak persistence.
-- Wire login/session state dependency.
+- [x] Implement Keychain-backed token storage.
+- [x] Implement UserDefaults-backed settings.
+- [x] Wire token storage into Alamofire interceptor/client factory.
+- [x] Add session state check through `LocalRepository.isLoggedIn()`.
+- [ ] Choose and implement local quote/streak persistence.
 - Add local data clearing and guest/member local quote behavior.
+
+Build command used:
+
+```bash
+xcodebuild -project Fiilsa.xcodeproj -scheme Fiilsa -configuration Debug -destination generic/platform=iOS -derivedDataPath /private/tmp/FiilsaDerivedData CODE_SIGNING_ALLOWED=NO -skipMacroValidation build
+```
+
+Result:
+
+```text
+BUILD SUCCEEDED
+```
