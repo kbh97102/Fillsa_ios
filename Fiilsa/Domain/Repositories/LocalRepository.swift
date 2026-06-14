@@ -32,4 +32,11 @@ protocol LocalRepository {
     func getQuoteLocal(seq: Int) async throws -> LocalQuoteInfo?
     func deleteQuote(seq: Int) async throws
     func clear() async throws
+
+    func setTodayStreakInfo() async throws
+    func getYesterdayStreakInfo() async throws -> StreakInfo?
+    func getAllStreakInfos() async throws -> [StreakInfo]
+    func getStreakDateCount() async throws -> Int
+    func checkYesterdayStreak() async throws
+    func getTodayLocalStreakInfo() async throws -> StreakInfo?
 }

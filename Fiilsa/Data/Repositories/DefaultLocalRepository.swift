@@ -1,13 +1,20 @@
 final class DefaultLocalRepository: LocalRepository {
     private let tokenStore: KeychainTokenStore
     private let settingsStore: UserDefaultsLocalSettingsStore
+    private let localStore: SQLiteLocalStore
 
     init(
         tokenStore: KeychainTokenStore = KeychainTokenStore(),
-        settingsStore: UserDefaultsLocalSettingsStore = UserDefaultsLocalSettingsStore()
-    ) {
+        settingsStore: UserDefaultsLocalSettingsStore = UserDefaultsLocalSettingsStore(),
+        localStore: SQLiteLocalStore? = nil
+    ) throws {
         self.tokenStore = tokenStore
         self.settingsStore = settingsStore
+        if let localStore {
+            self.localStore = localStore
+        } else {
+            self.localStore = try SQLiteLocalStore()
+        }
     }
 
     func setAccessToken(_ token: String) async throws {
@@ -115,34 +122,54 @@ final class DefaultLocalRepository: LocalRepository {
     }
 
     func getLocalQuotes() async throws -> [LocalQuoteInfo] {
-        throw LocalRepositoryStorageError.localQuoteStoreNotImplemented
+        try await localStore.getAllQuotes()
     }
 
     func addLocalQuote(_ quote: LocalQuoteInfo) async throws {
-        throw LocalRepositoryStorageError.localQuoteStoreNotImplemented
+        try await localStore.insertQuote(quote)
     }
 
     func updateLocalQuoteMemo(_ memo: String, seq: Int) async throws {
-        throw LocalRepositoryStorageError.localQuoteStoreNotImplemented
+        try await localStore.updateMemo(memo, seq: seq)
     }
 
     func updateLocalQuoteLike(_ likeYN: YN, seq: Int) async throws -> Int {
-        throw LocalRepositoryStorageError.localQuoteStoreNotImplemented
+        try await localStore.updateLike(likeYN, seq: seq)
     }
 
     func getQuoteLocal(seq: Int) async throws -> LocalQuoteInfo? {
-        throw LocalRepositoryStorageError.localQuoteStoreNotImplemented
+        try await localStore.findQuoteById(seq: seq)
     }
 
     func deleteQuote(seq: Int) async throws {
-        throw LocalRepositoryStorageError.localQuoteStoreNotImplemented
+        try await localStore.deleteQuoteById(seq)
     }
 
     func clear() async throws {
-        try await tokenStore.clear()
+        try await localStore.clearQuotes()
     }
-}
 
-enum LocalRepositoryStorageError: Error, Equatable {
-    case localQuoteStoreNotImplemented
+    func setTodayStreakInfo() async throws {
+        try await localStore.setTodayStreakInfo()
+    }
+
+    func getYesterdayStreakInfo() async throws -> StreakInfo? {
+        try await localStore.getYesterdayStreakInfo()
+    }
+
+    func getAllStreakInfos() async throws -> [StreakInfo] {
+        try await localStore.getAllStreakInfos()
+    }
+
+    func getStreakDateCount() async throws -> Int {
+        try await localStore.getStreakDateCount()
+    }
+
+    func checkYesterdayStreak() async throws {
+        try await localStore.checkYesterdayStreak()
+    }
+
+    func getTodayLocalStreakInfo() async throws -> StreakInfo? {
+        try await localStore.getTodayLocalStreakInfo()
+    }
 }
