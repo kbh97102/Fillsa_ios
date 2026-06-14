@@ -18,6 +18,7 @@ struct SplashView: View {
 
                 SplashLottieView(animationName: animationName)
                     .frame(width: 192, height: 192)
+                    .clipped()
                     .id(animationName)
             }
 
@@ -46,16 +47,35 @@ struct SplashView: View {
 private struct SplashLottieView: UIViewRepresentable {
     let animationName: String
 
-    func makeUIView(context: Context) -> LottieAnimationView {
+    func makeUIView(context: Context) -> UIView {
+        let containerView = UIView()
+        containerView.clipsToBounds = true
+
         let animationView = LottieAnimationView()
+        animationView.translatesAutoresizingMaskIntoConstraints = false
         animationView.contentMode = .scaleAspectFit
+        animationView.clipsToBounds = true
         animationView.loopMode = .loop
         animationView.backgroundBehavior = .pauseAndRestore
-        updateUIView(animationView, context: context)
-        return animationView
+        containerView.addSubview(animationView)
+
+        NSLayoutConstraint.activate([
+            animationView.leadingAnchor.constraint(equalTo: containerView.leadingAnchor),
+            animationView.trailingAnchor.constraint(equalTo: containerView.trailingAnchor),
+            animationView.topAnchor.constraint(equalTo: containerView.topAnchor),
+            animationView.bottomAnchor.constraint(equalTo: containerView.bottomAnchor)
+        ])
+
+        context.coordinator.animationView = animationView
+        updateUIView(containerView, context: context)
+        return containerView
     }
 
-    func updateUIView(_ animationView: LottieAnimationView, context: Context) {
+    func updateUIView(_ containerView: UIView, context: Context) {
+        guard let animationView = context.coordinator.animationView else {
+            return
+        }
+
         guard context.coordinator.animationName != animationName else {
             if !animationView.isAnimationPlaying {
                 animationView.play()
@@ -77,6 +97,7 @@ private struct SplashLottieView: UIViewRepresentable {
 
     final class Coordinator {
         var animationName: String?
+        var animationView: LottieAnimationView?
     }
 }
 

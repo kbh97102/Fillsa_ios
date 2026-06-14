@@ -38,3 +38,23 @@
 - Preserve naming, copy, layout intent, and user-visible behavior from Android wherever possible.
 - Ask for confirmation before making product decisions that are not directly supported by the Android implementation or the screen planning document.
 - Keep changes scoped to the requested screen or feature.
+
+## Collaboration And Explanation Style
+
+- The user knows Android development but has no Swift or iOS background.
+- When introducing or using an iOS/Swift concept, explain it in beginner-friendly terms.
+- Prefer Android comparisons when explaining iOS concepts:
+  - TCA feature/reducer/state/action vs Android ViewModel/MVI state/event.
+  - SwiftUI View vs Jetpack Compose UI.
+  - `@Dependency` vs Hilt dependency injection.
+  - UserDefaults vs Android DataStore for lightweight settings.
+  - Keychain vs secure token storage.
+  - Bundle resources vs Android `res`.
+  - Swift Package Manager vs Gradle dependencies.
+- During implementation, explain:
+  - Why the chosen iOS/Swift tool or pattern is being used.
+  - What practical alternatives exist.
+  - What tradeoffs those alternatives have.
+  - Which Android concept it is closest to.
+- After meaningful feature work, briefly summarize the iOS/Swift basics involved so the user can build context over time.
+- Avoid assuming the user knows Swift syntax, iOS app lifecycle, Xcode behavior, simulator behavior, package resolution, resource bundling, or Apple permission flows.
