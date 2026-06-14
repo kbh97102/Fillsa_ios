@@ -9,6 +9,7 @@
 /* Begin PBXBuildFile section */
 		51D6A0012FDD793200E49226 /* ComposableArchitecture in Frameworks */ = {isa = PBXBuildFile; productRef = 51D6A0022FDD793200E49226 /* ComposableArchitecture */; };
 		51D6A0112FDD793200E49226 /* Alamofire in Frameworks */ = {isa = PBXBuildFile; productRef = 51D6A0122FDD793200E49226 /* Alamofire */; };
+		51D6A0212FDD793200E49226 /* Lottie in Frameworks */ = {isa = PBXBuildFile; productRef = 51D6A0222FDD793200E49226 /* Lottie */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -59,6 +60,7 @@
 			files = (
 				51D6A0112FDD793200E49226 /* Alamofire in Frameworks */,
 				51D6A0012FDD793200E49226 /* ComposableArchitecture in Frameworks */,
+				51D6A0212FDD793200E49226 /* Lottie in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -121,6 +123,7 @@
 			packageProductDependencies = (
 				51D6A0022FDD793200E49226 /* ComposableArchitecture */,
 				51D6A0122FDD793200E49226 /* Alamofire */,
+				51D6A0222FDD793200E49226 /* Lottie */,
 			);
 			productName = Fiilsa;
 			productReference = 51D6017D2FDD793100E49226 /* Fiilsa.app */;
@@ -207,6 +210,7 @@
 			packageReferences = (
 				51D6A0032FDD793200E49226 /* XCRemoteSwiftPackageReference "swift-composable-architecture" */,
 				51D6A0132FDD793200E49226 /* XCRemoteSwiftPackageReference "Alamofire" */,
+				51D6A0232FDD793200E49226 /* XCRemoteSwiftPackageReference "lottie-spm" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 51D6017E2FDD793100E49226 /* Products */;
@@ -609,6 +613,14 @@
 				minimumVersion = 5.12.0;
 			};
 		};
+		51D6A0232FDD793200E49226 /* XCRemoteSwiftPackageReference "lottie-spm" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/airbnb/lottie-spm.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 4.6.1;
+			};
+		};
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
@@ -621,6 +633,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 51D6A0132FDD793200E49226 /* XCRemoteSwiftPackageReference "Alamofire" */;
 			productName = Alamofire;
+		};
+		51D6A0222FDD793200E49226 /* Lottie */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 51D6A0232FDD793200E49226 /* XCRemoteSwiftPackageReference "lottie-spm" */;
+			productName = Lottie;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};

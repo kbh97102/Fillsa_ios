@@ -3,6 +3,7 @@ import SwiftUI
 enum FillsaColor {
     static let purple01 = Color(hex: 0x5C65FF)
     static let purple02 = Color(hex: 0xD3D5FF)
+    static let yellow01 = Color(hex: 0xFFF7E6)
     static let primary = Color(hex: 0xFFEFCC)
     static let yellow02 = Color(hex: 0xFFCB5C)
     static let green1A = Color(hex: 0x1ACE35)
@@ -31,4 +32,3 @@ extension Color {
         self.init(.sRGB, red: red, green: green, blue: blue, opacity: alpha)
     }
 }
-

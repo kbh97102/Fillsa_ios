@@ -12,6 +12,7 @@ Current status:
 - Local quote and streak persistence is implemented with system SQLite.
 - Android-matching local/session use cases are in place.
 - TCA dependency clients are in place for local quote, session, settings, streak, hidden popup, and common APIs.
+- The app now starts from a TCA-backed splash route.
 
 ## Phase Checklist
 
@@ -129,7 +130,13 @@ Planned next tasks:
 - [x] Add member/local streak selection use cases.
 - [x] Add TCA dependency clients that expose repositories/use cases to features.
 - [x] Add default `CommonRepository` implementation for notice, popup, resign, and member streak APIs.
-- [ ] Start wiring dependencies into the first real TCA screen feature.
+- [x] Start wiring dependencies into the first real TCA screen feature.
+- [x] Add notification permission dependency for splash startup behavior.
+- [x] Add SplashFeature state/action/reducer.
+- [x] Add SplashView matching the Android splash text, layout size, and startup timing structure.
+- [x] Route app startup through splash.
+- [x] Route first open to login and later opens to home, matching Android splash logic.
+- [x] Replace the temporary splash animation placeholder with the Android Lottie asset/rendering path.
 
 Build command used:
 
@@ -150,3 +157,5 @@ Notes:
 - `streak_info` uses `date` as the primary key and keeps Android's today/yesterday streak count behavior.
 - Use cases are value-type wrappers with `callAsFunction`, matching Android's `operator fun invoke()` usage style.
 - TCA features can now access live dependencies through `@Dependency(\.localQuoteClient)`, `@Dependency(\.sessionClient)`, `@Dependency(\.settingsClient)`, `@Dependency(\.streakClient)`, `@Dependency(\.hiddenPopupClient)`, and `@Dependency(\.commonClient)`.
+- `SplashFeature` checks notification permission only once, persists alarm usage/request state, waits for the splash animation completion signal, then routes through `AppFeature`.
+- Splash uses Lottie 4.6.1 through Swift Package Manager and renders the Android `lottie_splash` / `lottie_splash_dark` JSON assets.
