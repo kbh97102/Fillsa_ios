@@ -10,6 +10,7 @@ Current status:
 - UserDefaults-backed settings storage is in place.
 - Authenticated/no-token Alamofire API client factories are in place.
 - Local quote and streak persistence is implemented with system SQLite.
+- Android-matching local/session use cases are in place.
 
 ## Phase Checklist
 
@@ -122,7 +123,10 @@ Planned next tasks:
 - [x] Implement `streak_info` persistence.
 - [x] Match Android local quote deletion rule when like is changed to `N` and typing/memo are empty.
 - [x] Add local quote clearing through `LocalRepository.clear()`.
-- [ ] Wire guest/member local quote behavior into screen/domain use cases.
+- [x] Wire guest/member local quote behavior into domain use cases.
+- [x] Add session/settings use cases for first-open, login status, token, alarm, user name, dark mode, and token-expired state.
+- [x] Add member/local streak selection use cases.
+- [ ] Add TCA dependency clients that expose repositories/use cases to features.
 
 Build command used:
 
@@ -141,3 +145,4 @@ Notes:
 - `SQLiteLocalStore` mirrors Android Room table names `quoteInfo` and `streak_info`.
 - `quoteInfo` uses `dailyQuoteSeq` as the primary key and saves with `INSERT OR REPLACE`, matching Android `OnConflictStrategy.REPLACE`.
 - `streak_info` uses `date` as the primary key and keeps Android's today/yesterday streak count behavior.
+- Use cases are value-type wrappers with `callAsFunction`, matching Android's `operator fun invoke()` usage style.

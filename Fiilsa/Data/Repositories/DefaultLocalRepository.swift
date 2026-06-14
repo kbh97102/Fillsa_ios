@@ -125,8 +125,22 @@ final class DefaultLocalRepository: LocalRepository {
         try await localStore.getAllQuotes()
     }
 
+    func getLocalQuotes(likeYN: YN, startDate: String, endDate: String, offset: Int, limit: Int) async throws -> [LocalQuoteInfo] {
+        try await localStore.getQuotes(
+            likeYN: likeYN,
+            startDate: startDate,
+            endDate: endDate,
+            offset: offset,
+            limit: limit
+        )
+    }
+
     func addLocalQuote(_ quote: LocalQuoteInfo) async throws {
         try await localStore.insertQuote(quote)
+    }
+
+    func updateQuote(_ quote: LocalQuoteInfo) async throws {
+        try await localStore.updateQuote(quote)
     }
 
     func updateLocalQuoteMemo(_ memo: String, seq: Int) async throws {
@@ -139,6 +153,14 @@ final class DefaultLocalRepository: LocalRepository {
 
     func getQuoteLocal(seq: Int) async throws -> LocalQuoteInfo? {
         try await localStore.findQuoteById(seq: seq)
+    }
+
+    func findLocalQuoteById(seq: Int) async throws -> LocalQuoteInfo? {
+        try await localStore.findQuoteById(seq: seq)
+    }
+
+    func deleteQuote(_ quote: LocalQuoteInfo) async throws {
+        try await localStore.deleteQuote(quote)
     }
 
     func deleteQuote(seq: Int) async throws {

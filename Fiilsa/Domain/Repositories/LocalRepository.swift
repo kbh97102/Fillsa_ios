@@ -26,10 +26,14 @@ protocol LocalRepository {
     func clearAllHiddenPopup() async throws
 
     func getLocalQuotes() async throws -> [LocalQuoteInfo]
+    func getLocalQuotes(likeYN: YN, startDate: String, endDate: String, offset: Int, limit: Int) async throws -> [LocalQuoteInfo]
     func addLocalQuote(_ quote: LocalQuoteInfo) async throws
+    func updateQuote(_ quote: LocalQuoteInfo) async throws
     func updateLocalQuoteMemo(_ memo: String, seq: Int) async throws
     func updateLocalQuoteLike(_ likeYN: YN, seq: Int) async throws -> Int
     func getQuoteLocal(seq: Int) async throws -> LocalQuoteInfo?
+    func findLocalQuoteById(seq: Int) async throws -> LocalQuoteInfo?
+    func deleteQuote(_ quote: LocalQuoteInfo) async throws
     func deleteQuote(seq: Int) async throws
     func clear() async throws
 

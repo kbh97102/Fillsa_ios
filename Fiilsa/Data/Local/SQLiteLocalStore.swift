@@ -23,6 +23,30 @@ actor SQLiteLocalStore {
         try queryQuotes("SELECT * FROM quoteInfo ORDER BY date DESC")
     }
 
+    func getQuotes(likeYN: YN, startDate: String, endDate: String, offset: Int, limit: Int = 10) throws -> [LocalQuoteInfo] {
+        if likeYN == .yes {
+            return try queryQuotes(
+                """
+                SELECT * FROM quoteInfo
+                WHERE likeYn = ? AND date BETWEEN ? AND ?
+                ORDER BY date DESC
+                LIMIT ? OFFSET ?
+                """,
+                bindings: [.text(likeYN.rawValue), .text(startDate), .text(endDate), .int(limit), .int(offset)]
+            )
+        }
+
+        return try queryQuotes(
+            """
+            SELECT * FROM quoteInfo
+            WHERE date BETWEEN ? AND ?
+            ORDER BY date DESC
+            LIMIT ? OFFSET ?
+            """,
+            bindings: [.text(startDate), .text(endDate), .int(limit), .int(offset)]
+        )
+    }
+
     func findQuoteById(seq: Int) throws -> LocalQuoteInfo? {
         try queryQuotes("SELECT * FROM quoteInfo WHERE id = ? LIMIT 1", bindings: [.int(seq)]).first
     }
@@ -62,6 +86,10 @@ actor SQLiteLocalStore {
 
     func deleteQuoteById(_ seq: Int) throws {
         try execute("DELETE FROM quoteInfo WHERE id = ?", bindings: [.int(seq)])
+    }
+
+    func deleteQuote(_ quote: LocalQuoteInfo) throws {
+        try deleteQuoteById(quote.dailyQuoteSeq)
     }
 
     func clearQuotes() throws {
