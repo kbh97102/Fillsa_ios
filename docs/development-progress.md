@@ -11,6 +11,7 @@ Current status:
 - Authenticated/no-token Alamofire API client factories are in place.
 - Local quote and streak persistence is implemented with system SQLite.
 - Android-matching local/session use cases are in place.
+- TCA dependency clients are in place for local quote, session, settings, streak, hidden popup, and common APIs.
 
 ## Phase Checklist
 
@@ -126,7 +127,9 @@ Planned next tasks:
 - [x] Wire guest/member local quote behavior into domain use cases.
 - [x] Add session/settings use cases for first-open, login status, token, alarm, user name, dark mode, and token-expired state.
 - [x] Add member/local streak selection use cases.
-- [ ] Add TCA dependency clients that expose repositories/use cases to features.
+- [x] Add TCA dependency clients that expose repositories/use cases to features.
+- [x] Add default `CommonRepository` implementation for notice, popup, resign, and member streak APIs.
+- [ ] Start wiring dependencies into the first real TCA screen feature.
 
 Build command used:
 
@@ -146,3 +149,4 @@ Notes:
 - `quoteInfo` uses `dailyQuoteSeq` as the primary key and saves with `INSERT OR REPLACE`, matching Android `OnConflictStrategy.REPLACE`.
 - `streak_info` uses `date` as the primary key and keeps Android's today/yesterday streak count behavior.
 - Use cases are value-type wrappers with `callAsFunction`, matching Android's `operator fun invoke()` usage style.
+- TCA features can now access live dependencies through `@Dependency(\.localQuoteClient)`, `@Dependency(\.sessionClient)`, `@Dependency(\.settingsClient)`, `@Dependency(\.streakClient)`, `@Dependency(\.hiddenPopupClient)`, and `@Dependency(\.commonClient)`.
