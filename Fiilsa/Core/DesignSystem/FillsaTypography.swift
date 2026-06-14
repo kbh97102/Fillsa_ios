@@ -1,7 +1,7 @@
 import SwiftUI
 
 enum FillsaTypography {
-    static let heading1 = Font.custom("Pretendard-Bold", size: 32)
+static let heading1 = Font.custom("Pretendard-Bold", size: 32)
     static let heading2 = Font.custom("Pretendard-Bold", size: 28)
     static let heading3 = Font.custom("Pretendard-Bold", size: 24)
     static let heading4 = Font.custom("Pretendard-Bold", size: 20)

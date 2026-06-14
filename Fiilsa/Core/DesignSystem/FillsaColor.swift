@@ -10,6 +10,7 @@ enum FillsaColor {
 
     static let white = Color(hex: 0xFFFFFF)
     static let black = Color(hex: 0x000000)
+    static let black0C = Color(hex: 0x0C0C0C)
     static let gray100 = Color(hex: 0xEEEEEE)
     static let gray200 = Color(hex: 0xE0E0E0)
     static let gray300 = Color(hex: 0xBDBDBD)
