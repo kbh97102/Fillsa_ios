@@ -90,13 +90,7 @@ struct AppView: View {
 
         case .notice:
             NoticeView(
-                items: NoticeSampleData.items,
-                back: {
-                    viewStore.send(.backToMain)
-                },
-                select: { notice in
-                    viewStore.send(.noticeDetailSelected(notice))
-                }
+                store: store.scope(state: \.notice, action: \.notice)
             )
 
         case let .noticeDetail(notice):

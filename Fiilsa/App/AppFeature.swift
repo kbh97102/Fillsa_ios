@@ -6,11 +6,13 @@ struct AppFeature {
     struct State: Equatable {
         var screen: AppScreen = .splash
         var splash = SplashFeature.State()
+        var notice = NoticeFeature.State()
         var selectedTab: AppTab = .home
     }
 
     enum Action: Equatable {
         case splash(SplashFeature.Action)
+        case notice(NoticeFeature.Action)
         case loginClosed
         case loginNonMemberSelected
         case loginSelected
@@ -33,6 +35,10 @@ struct AppFeature {
             SplashFeature()
         }
 
+        Scope(state: \.notice, action: \.notice) {
+            NoticeFeature()
+        }
+
         Reduce { state, action in
             switch action {
             case let .splash(.delegate(.move(destination))):
@@ -46,6 +52,17 @@ struct AppFeature {
                 return .none
 
             case .splash:
+                return .none
+
+            case .notice(.delegate(.back)):
+                state.screen = .main
+                return .none
+
+            case let .notice(.delegate(.noticeSelected(notice))):
+                state.screen = .noticeDetail(notice)
+                return .none
+
+            case .notice:
                 return .none
 
             case .loginClosed:
@@ -89,6 +106,7 @@ struct AppFeature {
 
             case .noticeSelected:
                 state.screen = .notice
+                state.notice = NoticeFeature.State()
                 return .none
 
             case let .noticeDetailSelected(notice):

@@ -1,27 +1,41 @@
+import ComposableArchitecture
 import SwiftUI
 
 struct NoticeView: View {
-    let items: [NoticeResponse]
-    let back: () -> Void
-    let select: (NoticeResponse) -> Void
+    let store: StoreOf<NoticeFeature>
 
     var body: some View {
-        VStack(spacing: 0) {
-            HeaderSection(title: "공지사항", back: back)
+        WithViewStore(store, observe: { $0 }) { viewStore in
+            VStack(spacing: 0) {
+                HeaderSection(
+                    title: "공지사항",
+                    back: {
+                        viewStore.send(.backTapped)
+                    }
+                )
                 .background(FillsaColor.background)
 
-            NoticeListSection(items: items, select: select)
+                NoticeListSection(
+                    items: viewStore.notices,
+                    select: { notice in
+                        viewStore.send(.noticeTapped(notice))
+                    }
+                )
                 .padding(.horizontal, 20)
+            }
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
+            .background(FillsaColor.background.ignoresSafeArea())
+            .onAppear {
+                viewStore.send(.onAppear)
+            }
         }
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .background(FillsaColor.background.ignoresSafeArea())
     }
 }
 
 #Preview {
     NoticeView(
-        items: NoticeSampleData.items,
-        back: {},
-        select: { _ in }
+        store: Store(initialState: NoticeFeature.State(notices: NoticeSampleData.items, hasLoaded: true)) {
+            NoticeFeature()
+        }
     )
 }

@@ -14,7 +14,8 @@ struct DefaultCommonRepository: CommonRepository {
             queryItems: [
                 .init(name: "page", value: String(page)),
                 .init(name: "size", value: String(size))
-            ]
+            ],
+            requiresAuthorization: false
         )
         return try await apiClient.send(request, responseType: PageResponseNoticeResponse.self)
     }
