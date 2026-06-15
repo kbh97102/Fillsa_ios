@@ -14,15 +14,18 @@ struct QuoteListView: View {
     @State private var likeFilter = false
 
     let list: [MemberQuotesResponse]
+    let openDetail: (MemberQuotesResponse) -> Void
 
     init(
         list: [MemberQuotesResponse] = [],
         startDate: Date = FillsaCalendarDateSupport.startDay,
-        endDate: Date = Date()
+        endDate: Date = Date(),
+        openDetail: @escaping (MemberQuotesResponse) -> Void = { _ in }
     ) {
         self.list = list
         self._startDate = State(initialValue: startDate)
         self._endDate = State(initialValue: endDate)
+        self.openDetail = openDetail
     }
 
     var body: some View {
@@ -63,7 +66,7 @@ struct QuoteListView: View {
 
                 QuoteListSection(
                     list: filteredList,
-                    onClick: { _ in }
+                    onClick: openDetail
                 )
                 .padding(.top, 10)
             }

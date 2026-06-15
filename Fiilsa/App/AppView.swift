@@ -67,6 +67,26 @@ struct AppView: View {
                     viewStore.send(.backToMain)
                 }
             )
+
+        case let .quoteDetail(data):
+            QuoteDetailView(
+                data: data,
+                back: {
+                    viewStore.send(.backToMain)
+                },
+                openMemo: { savedMemo, memberQuoteSeq in
+                    viewStore.send(.memoSelected(savedMemo: savedMemo, memberQuoteSeq: memberQuoteSeq))
+                }
+            )
+
+        case let .memoInsert(savedMemo, memberQuoteSeq):
+            MemoInsertView(
+                savedMemo: savedMemo,
+                memberQuoteSeq: memberQuoteSeq,
+                back: { _ in
+                    viewStore.send(.backToMain)
+                }
+            )
         }
     }
 
@@ -111,7 +131,12 @@ struct AppView: View {
                 }
             )
         case .quoteList:
-            QuoteListView()
+            QuoteListView(
+                list: QuoteListSampleData.items,
+                openDetail: { data in
+                    viewStore.send(.quoteDetailSelected(data))
+                }
+            )
         case .calendar:
             CalendarView()
         case .myPage:

@@ -15,6 +15,8 @@ struct AppFeature {
         case loginNonMemberSelected
         case homeTypingSelected
         case shareSelected(quote: String, author: String)
+        case quoteDetailSelected(MemberQuotesResponse)
+        case memoSelected(savedMemo: String, memberQuoteSeq: Int)
         case backToMain
         case onboardingGuideFinished
         case selectedTabChanged(AppTab)
@@ -55,6 +57,14 @@ struct AppFeature {
 
             case let .shareSelected(quote, author):
                 state.screen = .share(quote: quote, author: author)
+                return .none
+
+            case let .quoteDetailSelected(data):
+                state.screen = .quoteDetail(data)
+                return .none
+
+            case let .memoSelected(savedMemo, memberQuoteSeq):
+                state.screen = .memoInsert(savedMemo: savedMemo, memberQuoteSeq: memberQuoteSeq)
                 return .none
 
             case .backToMain:

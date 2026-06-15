@@ -29,4 +29,6 @@ enum AppScreen: Equatable {
     case main
     case typing
     case share(quote: String, author: String)
+    case quoteDetail(MemberQuotesResponse)
+    case memoInsert(savedMemo: String, memberQuoteSeq: Int)
 }
