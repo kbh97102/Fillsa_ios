@@ -155,9 +155,24 @@ struct AppView: View {
                 }
             )
         case .calendar:
-            CalendarView()
+            CalendarView(
+                memberQuotes: CalendarSampleData.memberQuotes,
+                monthlySummary: CalendarSampleData.monthlySummary,
+                openHome: {
+                    viewStore.send(.homeTabSelected)
+                },
+                openQuoteList: {
+                    viewStore.send(.quoteListTabSelected)
+                }
+            )
         case .myPage:
             MyPageView(
+                openHome: {
+                    viewStore.send(.homeTabSelected)
+                },
+                openLogin: {
+                    viewStore.send(.loginSelected)
+                },
                 openNotice: {
                     viewStore.send(.noticeSelected)
                 },

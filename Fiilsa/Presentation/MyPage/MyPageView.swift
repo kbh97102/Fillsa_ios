@@ -14,13 +14,19 @@ struct MyPageView: View {
     @State private var selectedTheme: DarkModeType = .system
     @State private var isThemeDialogPresented = false
 
+    let openHome: () -> Void
+    let openLogin: () -> Void
     let openNotice: () -> Void
     let openAlert: () -> Void
 
     init(
+        openHome: @escaping () -> Void = {},
+        openLogin: @escaping () -> Void = {},
         openNotice: @escaping () -> Void = {},
         openAlert: @escaping () -> Void = {}
     ) {
+        self.openHome = openHome
+        self.openLogin = openLogin
         self.openNotice = openNotice
         self.openAlert = openAlert
     }
@@ -43,7 +49,7 @@ struct MyPageView: View {
 
     private var content: some View {
         VStack(spacing: 0) {
-            Button(action: {}) {
+            Button(action: openHome) {
                 Image("icn_top_logo")
                     .resizable()
                     .scaledToFit()
@@ -57,7 +63,7 @@ struct MyPageView: View {
                 isLogged: isLogged,
                 userName: userName,
                 imagePath: imagePath,
-                loginEvent: {}
+                loginEvent: openLogin
             )
             .padding(.top, 10)
 

@@ -13,6 +13,9 @@ struct AppFeature {
         case splash(SplashFeature.Action)
         case loginClosed
         case loginNonMemberSelected
+        case loginSelected
+        case homeTabSelected
+        case quoteListTabSelected
         case homeTypingSelected
         case shareSelected(quote: String, author: String)
         case quoteDetailSelected(MemberQuotesResponse)
@@ -52,6 +55,20 @@ struct AppFeature {
 
             case .loginNonMemberSelected:
                 state.screen = .onboardingGuide
+                return .none
+
+            case .loginSelected:
+                state.screen = .login(isOnboarding: false)
+                return .none
+
+            case .homeTabSelected:
+                state.screen = .main
+                state.selectedTab = .home
+                return .none
+
+            case .quoteListTabSelected:
+                state.screen = .main
+                state.selectedTab = .quoteList
                 return .none
 
             case .homeTypingSelected:

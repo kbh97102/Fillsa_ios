@@ -13,14 +13,20 @@ struct CalendarView: View {
 
     let memberQuotes: [MemberQuotesData]
     let monthlySummary: MonthlySummaryData
+    let openHome: () -> Void
+    let openQuoteList: () -> Void
 
     init(
         memberQuotes: [MemberQuotesData] = [],
         monthlySummary: MonthlySummaryData = MonthlySummaryData(typingCount: 0, likeCount: 0, streakCount: 0),
-        selectedDay: Date = Date()
+        selectedDay: Date = Date(),
+        openHome: @escaping () -> Void = {},
+        openQuoteList: @escaping () -> Void = {}
     ) {
         self.memberQuotes = memberQuotes
         self.monthlySummary = monthlySummary
+        self.openHome = openHome
+        self.openQuoteList = openQuoteList
         self._selectedDay = State(initialValue: selectedDay)
         self._currentMonth = State(initialValue: FillsaCalendarDateSupport.startOfMonth(for: selectedDay))
     }
@@ -45,13 +51,15 @@ struct CalendarView: View {
                     CalendarCountSection(
                         likeCount: monthlySummary.likeCount,
                         typingCount: monthlySummary.typingCount,
-                        todayCompleteCount: monthlySummary.streakCount
+                        todayCompleteCount: monthlySummary.streakCount,
+                        countOnClick: openQuoteList
                     )
                     .padding(.top, 15)
 
                     CalendarSelectedQuoteSection(
                         selectedDayQuote: selectedDayQuote,
-                        selectedDay: selectedDay
+                        selectedDay: selectedDay,
+                        onClick: openHome
                     )
                     .padding(.top, 15)
                     .padding(.bottom, 30)
