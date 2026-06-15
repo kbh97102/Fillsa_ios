@@ -28,4 +28,3 @@ enum APIEndpoint {
         "/api/v1/member-quotes/\(dailyQuoteSeq)/typing"
     }
 }
-

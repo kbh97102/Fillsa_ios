@@ -6,13 +6,23 @@ struct AppFeature {
     struct State: Equatable {
         var screen: AppScreen = .splash
         var splash = SplashFeature.State()
+        var home = HomeFeature.State()
+        var quoteList = QuoteListFeature.State()
+        var calendar = CalendarFeature.State()
         var notice = NoticeFeature.State()
+        var memoInsert = MemoInsertFeature.State()
+        var typing = TypingFeature.State()
         var selectedTab: AppTab = .home
     }
 
     enum Action: Equatable {
         case splash(SplashFeature.Action)
+        case home(HomeFeature.Action)
+        case quoteList(QuoteListFeature.Action)
+        case calendar(CalendarFeature.Action)
         case notice(NoticeFeature.Action)
+        case memoInsert(MemoInsertFeature.Action)
+        case typing(TypingFeature.Action)
         case loginClosed
         case loginNonMemberSelected
         case loginSelected
@@ -37,6 +47,26 @@ struct AppFeature {
 
         Scope(state: \.notice, action: \.notice) {
             NoticeFeature()
+        }
+
+        Scope(state: \.home, action: \.home) {
+            HomeFeature()
+        }
+
+        Scope(state: \.quoteList, action: \.quoteList) {
+            QuoteListFeature()
+        }
+
+        Scope(state: \.calendar, action: \.calendar) {
+            CalendarFeature()
+        }
+
+        Scope(state: \.memoInsert, action: \.memoInsert) {
+            MemoInsertFeature()
+        }
+
+        Scope(state: \.typing, action: \.typing) {
+            TypingFeature()
         }
 
         Reduce { state, action in
@@ -65,6 +95,27 @@ struct AppFeature {
             case .notice:
                 return .none
 
+            case .memoInsert(.delegate(.back)):
+                state.screen = .main
+                state.selectedTab = .quoteList
+                state.quoteList = QuoteListFeature.State()
+                return .none
+
+            case .memoInsert:
+                return .none
+
+            case .typing(.delegate(.back)):
+                state.screen = .main
+                state.selectedTab = .home
+                state.home = HomeFeature.State()
+                return .none
+
+            case .typing:
+                return .none
+
+            case .home, .quoteList, .calendar:
+                return .none
+
             case .loginClosed:
                 state.screen = .main
                 state.selectedTab = .home
@@ -90,6 +141,14 @@ struct AppFeature {
 
             case .homeTypingSelected:
                 state.screen = .typing
+                state.typing = TypingFeature.State(
+                    dailyQuoteSeq: state.home.quote.dailyQuoteSeq,
+                    korQuote: state.home.quote.korQuote ?? "",
+                    engQuote: state.home.quote.engQuote ?? "",
+                    korAuthor: state.home.quote.korAuthor ?? "",
+                    engAuthor: state.home.quote.engAuthor ?? "",
+                    likeYn: state.home.quote.likeYn
+                )
                 return .none
 
             case let .shareSelected(quote, author):
@@ -102,6 +161,10 @@ struct AppFeature {
 
             case let .memoSelected(savedMemo, memberQuoteSeq):
                 state.screen = .memoInsert(savedMemo: savedMemo, memberQuoteSeq: memberQuoteSeq)
+                state.memoInsert = MemoInsertFeature.State(
+                    savedMemo: savedMemo,
+                    memberQuoteSeq: memberQuoteSeq
+                )
                 return .none
 
             case .noticeSelected:

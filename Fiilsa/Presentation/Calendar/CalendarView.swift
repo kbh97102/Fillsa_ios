@@ -6,25 +6,25 @@
 //
 
 import SwiftUI
+import ComposableArchitecture
 
 struct CalendarView: View {
     @State private var currentMonth: Date
     @State private var selectedDay: Date
 
-    let memberQuotes: [MemberQuotesData]
-    let monthlySummary: MonthlySummaryData
+    let store: StoreOf<CalendarFeature>
     let openHome: () -> Void
     let openQuoteList: () -> Void
 
     init(
-        memberQuotes: [MemberQuotesData] = [],
-        monthlySummary: MonthlySummaryData = MonthlySummaryData(typingCount: 0, likeCount: 0, streakCount: 0),
+        store: StoreOf<CalendarFeature> = Store(initialState: CalendarFeature.State()) {
+            CalendarFeature()
+        },
         selectedDay: Date = Date(),
         openHome: @escaping () -> Void = {},
         openQuoteList: @escaping () -> Void = {}
     ) {
-        self.memberQuotes = memberQuotes
-        self.monthlySummary = monthlySummary
+        self.store = store
         self.openHome = openHome
         self.openQuoteList = openQuoteList
         self._selectedDay = State(initialValue: selectedDay)
@@ -32,64 +32,58 @@ struct CalendarView: View {
     }
 
     var body: some View {
-        VStack(spacing: 0) {
-            HomeTopBar()
+        WithViewStore(store, observe: { $0 }) { viewStore in
+            VStack(spacing: 0) {
+                HomeTopBar()
 
-            GeometryReader { proxy in
-                let calendarHeight = proxy.size.height * 0.75
+                GeometryReader { proxy in
+                    let calendarHeight = proxy.size.height * 0.75
 
-                VStack(spacing: 0) {
-                    CalendarMonthSection(
-                        memberQuotes: memberQuotes,
-                        currentMonth: $currentMonth,
-                        selectedDay: $selectedDay,
-                        changeMonth: { _ in },
-                        selectDay: { selectedDay = $0 }
-                    )
-                    .frame(height: calendarHeight)
+                    VStack(spacing: 0) {
+                        CalendarMonthSection(
+                            memberQuotes: viewStore.memberQuotes,
+                            currentMonth: $currentMonth,
+                            selectedDay: $selectedDay,
+                            changeMonth: {
+                                viewStore.send(.monthChanged($0))
+                            },
+                            selectDay: { selectedDay = $0 }
+                        )
+                        .frame(height: calendarHeight)
 
-                    CalendarCountSection(
-                        likeCount: monthlySummary.likeCount,
-                        typingCount: monthlySummary.typingCount,
-                        todayCompleteCount: monthlySummary.streakCount,
-                        countOnClick: openQuoteList
-                    )
-                    .padding(.top, 15)
+                        CalendarCountSection(
+                            likeCount: viewStore.monthlySummary.likeCount,
+                            typingCount: viewStore.monthlySummary.typingCount,
+                            todayCompleteCount: viewStore.monthlySummary.streakCount,
+                            countOnClick: openQuoteList
+                        )
+                        .padding(.top, 15)
 
-                    CalendarSelectedQuoteSection(
-                        selectedDayQuote: selectedDayQuote,
-                        selectedDay: selectedDay,
-                        onClick: openHome
-                    )
-                    .padding(.top, 15)
-                    .padding(.bottom, 30)
+                        CalendarSelectedQuoteSection(
+                            selectedDayQuote: selectedDayQuote(from: viewStore.memberQuotes),
+                            selectedDay: selectedDay,
+                            onClick: openHome
+                        )
+                        .padding(.top, 15)
+                        .padding(.bottom, 30)
+                    }
                 }
             }
+            .padding(.horizontal, 20)
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
+            .background(FillsaColor.background.ignoresSafeArea())
+            .onAppear {
+                viewStore.send(.onAppear)
+            }
         }
-        .padding(.horizontal, 20)
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .background(FillsaColor.background.ignoresSafeArea())
     }
 
-    private var selectedDayQuote: String {
+    private func selectedDayQuote(from memberQuotes: [MemberQuotesData]) -> String {
         let targetDate = FillsaCalendarDateSupport.quoteDateString(for: selectedDay)
         return memberQuotes.first { $0.quoteDate == targetDate }?.quote ?? ""
     }
 }
 
 #Preview {
-    CalendarView(
-        memberQuotes: [
-            MemberQuotesData(
-                dailyQuoteSeq: 1,
-                quoteDate: FillsaCalendarDateSupport.quoteDateString(for: Date()),
-                quote: "상황을 가장 잘 활용하는 사람이 가장 좋은 상황을 맞는다.",
-                author: "John Wooden",
-                completed: true,
-                likeYn: "Y",
-                todayCompleted: true
-            )
-        ],
-        monthlySummary: MonthlySummaryData(typingCount: 3, likeCount: 5, streakCount: 2)
-    )
+    CalendarView()
 }

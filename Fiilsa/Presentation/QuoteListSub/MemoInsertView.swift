@@ -5,29 +5,26 @@
 //  Created by Codex on 6/15/26.
 //
 
+import ComposableArchitecture
 import SwiftUI
 
 struct MemoInsertView: View {
     @State private var memo: String
 
-    let memberQuoteSeq: Int
-    let back: (String) -> Void
+    let store: StoreOf<MemoInsertFeature>
 
     init(
-        savedMemo: String,
-        memberQuoteSeq: Int,
-        back: @escaping (String) -> Void
+        store: StoreOf<MemoInsertFeature>
     ) {
-        self._memo = State(initialValue: savedMemo)
-        self.memberQuoteSeq = memberQuoteSeq
-        self.back = back
+        self.store = store
+        self._memo = State(initialValue: store.withState { $0.savedMemo })
     }
 
     var body: some View {
         VStack(spacing: 0) {
             HStack {
                 Button {
-                    back(memo)
+                    ViewStore(store, observe: { $0 }).send(.saveAndBack(memo))
                 } label: {
                     Image(systemName: "chevron.left")
                         .font(.system(size: 22, weight: .semibold))
@@ -58,7 +55,7 @@ struct MemoInsertView: View {
 
                 HStack {
                     Button {
-                        back(memo)
+                        ViewStore(store, observe: { $0 }).send(.saveAndBack(memo))
                     } label: {
                         Text("나가기")
                             .font(FillsaTypography.body3)
@@ -84,5 +81,9 @@ struct MemoInsertView: View {
 }
 
 #Preview {
-    MemoInsertView(savedMemo: "", memberQuoteSeq: 1, back: { _ in })
+    MemoInsertView(
+        store: Store(initialState: MemoInsertFeature.State(savedMemo: "", memberQuoteSeq: 1)) {
+            MemoInsertFeature()
+        }
+    )
 }

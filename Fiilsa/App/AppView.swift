@@ -47,13 +47,7 @@ struct AppView: View {
 
         case .typing:
             TypingQuoteView(
-                korQuote: "상황을 가장 잘 활용하는 사람이 가장 좋은 상황을 맞는다.",
-                engQuote: "Things turn out best for the people who make the best of the way things turn out.",
-                korAuthor: "존 우든",
-                engAuthor: "John Wooden",
-                back: {
-                    viewStore.send(.backToMain)
-                },
+                store: store.scope(state: \.typing, action: \.typing),
                 share: { quote, author in
                     viewStore.send(.shareSelected(quote: quote, author: author))
                 }
@@ -81,11 +75,7 @@ struct AppView: View {
 
         case let .memoInsert(savedMemo, memberQuoteSeq):
             MemoInsertView(
-                savedMemo: savedMemo,
-                memberQuoteSeq: memberQuoteSeq,
-                back: { _ in
-                    viewStore.send(.backToMain)
-                }
+                store: store.scope(state: \.memoInsert, action: \.memoInsert)
             )
 
         case .notice:
@@ -134,6 +124,7 @@ struct AppView: View {
         switch tab {
         case .home:
             HomeView(
+                store: store.scope(state: \.home, action: \.home),
                 openTyping: {
                     viewStore.send(.homeTypingSelected)
                 },
@@ -143,15 +134,14 @@ struct AppView: View {
             )
         case .quoteList:
             QuoteListView(
-                list: QuoteListSampleData.items,
+                store: store.scope(state: \.quoteList, action: \.quoteList),
                 openDetail: { data in
                     viewStore.send(.quoteDetailSelected(data))
                 }
             )
         case .calendar:
             CalendarView(
-                memberQuotes: CalendarSampleData.memberQuotes,
-                monthlySummary: CalendarSampleData.monthlySummary,
+                store: store.scope(state: \.calendar, action: \.calendar),
                 openHome: {
                     viewStore.send(.homeTabSelected)
                 },
