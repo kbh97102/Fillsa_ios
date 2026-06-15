@@ -21,8 +21,19 @@ struct AppView: View {
                 store: store.scope(state: \.splash, action: \.splash)
             )
 
-        case .login:
-            PlaceholderScreen(title: "Login")
+        case let .login(isOnboarding):
+            LoginView(
+                isOnboarding: isOnboarding,
+                close: {
+                    viewStore.send(.loginClosed)
+                },
+                moveHome: {
+                    viewStore.send(.loginClosed)
+                },
+                moveOnboardingGuide: {
+                    viewStore.send(.loginNonMemberSelected)
+                }
+            )
 
         case .onboardingGuide:
             OnboardingGuideView(

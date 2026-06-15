@@ -11,6 +11,8 @@ struct AppFeature {
 
     enum Action: Equatable {
         case splash(SplashFeature.Action)
+        case loginClosed
+        case loginNonMemberSelected
         case onboardingGuideFinished
         case selectedTabChanged(AppTab)
     }
@@ -33,6 +35,15 @@ struct AppFeature {
                 return .none
 
             case .splash:
+                return .none
+
+            case .loginClosed:
+                state.screen = .main
+                state.selectedTab = .home
+                return .none
+
+            case .loginNonMemberSelected:
+                state.screen = .onboardingGuide
                 return .none
 
             case .onboardingGuideFinished:
