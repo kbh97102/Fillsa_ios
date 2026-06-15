@@ -67,7 +67,7 @@ struct AppView: View {
         case .calendar:
             CalendarView()
         case .myPage:
-            PlaceholderScreen(title: "My page")
+            MyPageView()
         }
     }
 }
