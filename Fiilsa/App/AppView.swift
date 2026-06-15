@@ -122,21 +122,12 @@ struct AppView: View {
         VStack(spacing: 0) {
             selectedContent(for: viewStore.selectedTab, viewStore: viewStore)
 
-            Picker(
-                "",
-                selection: viewStore.binding(
-                    get: \.selectedTab,
-                    send: AppFeature.Action.selectedTabChanged
-                )
-            ) {
-                ForEach(AppTab.allCases) { tab in
-                    Text(tab.title).tag(tab)
+            FillsaBottomNavigationBar(
+                selectedTab: viewStore.selectedTab,
+                select: { tab in
+                    viewStore.send(.selectedTabChanged(tab))
                 }
-            }
-            .pickerStyle(.segmented)
-            .padding(.horizontal, 16)
-            .padding(.vertical, 12)
-            .background(FillsaColor.background)
+            )
         }
         .background(FillsaColor.background.ignoresSafeArea())
     }
