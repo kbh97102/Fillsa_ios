@@ -87,6 +87,32 @@ struct AppView: View {
                     viewStore.send(.backToMain)
                 }
             )
+
+        case .notice:
+            NoticeView(
+                items: NoticeSampleData.items,
+                back: {
+                    viewStore.send(.backToMain)
+                },
+                select: { notice in
+                    viewStore.send(.noticeDetailSelected(notice))
+                }
+            )
+
+        case let .noticeDetail(notice):
+            NoticeDetailView(
+                notice: notice,
+                back: {
+                    viewStore.send(.noticeSelected)
+                }
+            )
+
+        case .alert:
+            AlertView(
+                back: {
+                    viewStore.send(.backToMain)
+                }
+            )
         }
     }
 
@@ -140,7 +166,14 @@ struct AppView: View {
         case .calendar:
             CalendarView()
         case .myPage:
-            MyPageView()
+            MyPageView(
+                openNotice: {
+                    viewStore.send(.noticeSelected)
+                },
+                openAlert: {
+                    viewStore.send(.alertSelected)
+                }
+            )
         }
     }
 }

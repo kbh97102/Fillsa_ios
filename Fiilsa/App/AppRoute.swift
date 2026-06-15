@@ -31,4 +31,7 @@ enum AppScreen: Equatable {
     case share(quote: String, author: String)
     case quoteDetail(MemberQuotesResponse)
     case memoInsert(savedMemo: String, memberQuoteSeq: Int)
+    case notice
+    case noticeDetail(NoticeResponse)
+    case alert
 }

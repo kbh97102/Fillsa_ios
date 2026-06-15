@@ -17,6 +17,9 @@ struct AppFeature {
         case shareSelected(quote: String, author: String)
         case quoteDetailSelected(MemberQuotesResponse)
         case memoSelected(savedMemo: String, memberQuoteSeq: Int)
+        case noticeSelected
+        case noticeDetailSelected(NoticeResponse)
+        case alertSelected
         case backToMain
         case onboardingGuideFinished
         case selectedTabChanged(AppTab)
@@ -65,6 +68,18 @@ struct AppFeature {
 
             case let .memoSelected(savedMemo, memberQuoteSeq):
                 state.screen = .memoInsert(savedMemo: savedMemo, memberQuoteSeq: memberQuoteSeq)
+                return .none
+
+            case .noticeSelected:
+                state.screen = .notice
+                return .none
+
+            case let .noticeDetailSelected(notice):
+                state.screen = .noticeDetail(notice)
+                return .none
+
+            case .alertSelected:
+                state.screen = .alert
                 return .none
 
             case .backToMain:

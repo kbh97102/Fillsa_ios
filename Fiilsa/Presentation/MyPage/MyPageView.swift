@@ -14,6 +14,17 @@ struct MyPageView: View {
     @State private var selectedTheme: DarkModeType = .system
     @State private var isThemeDialogPresented = false
 
+    let openNotice: () -> Void
+    let openAlert: () -> Void
+
+    init(
+        openNotice: @escaping () -> Void = {},
+        openAlert: @escaping () -> Void = {}
+    ) {
+        self.openNotice = openNotice
+        self.openAlert = openAlert
+    }
+
     var body: some View {
         ZStack {
             content
@@ -50,10 +61,18 @@ struct MyPageView: View {
             )
             .padding(.top, 10)
 
-            MyPageItem(icon: .info, text: "공지사항")
+            MyPageItem(
+                icon: .info,
+                text: "공지사항",
+                onClick: openNotice
+            )
                 .padding(.top, 12)
 
-            MyPageItem(icon: .bell, text: "알림")
+            MyPageItem(
+                icon: .bell,
+                text: "알림",
+                onClick: openAlert
+            )
                 .padding(.top, 12)
 
             MyPageItem(
