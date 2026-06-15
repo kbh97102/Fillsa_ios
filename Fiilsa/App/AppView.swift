@@ -61,7 +61,7 @@ struct AppView: View {
     private func selectedContent(for tab: AppTab) -> some View {
         switch tab {
         case .home:
-            PlaceholderScreen(title: "Home")
+            HomeView()
         case .quoteList:
             PlaceholderScreen(title: "List")
         case .calendar:
