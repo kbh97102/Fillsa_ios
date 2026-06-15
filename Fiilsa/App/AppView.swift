@@ -63,7 +63,7 @@ struct AppView: View {
         case .home:
             HomeView()
         case .quoteList:
-            PlaceholderScreen(title: "List")
+            QuoteListView()
         case .calendar:
             CalendarView()
         case .myPage:
