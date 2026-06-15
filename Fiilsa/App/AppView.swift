@@ -65,7 +65,7 @@ struct AppView: View {
         case .quoteList:
             PlaceholderScreen(title: "List")
         case .calendar:
-            PlaceholderScreen(title: "Calendar")
+            CalendarView()
         case .myPage:
             PlaceholderScreen(title: "My page")
         }
