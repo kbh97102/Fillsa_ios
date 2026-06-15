@@ -44,6 +44,29 @@ struct AppView: View {
 
         case .main:
             mainTabContent(viewStore: viewStore)
+
+        case .typing:
+            TypingQuoteView(
+                korQuote: "상황을 가장 잘 활용하는 사람이 가장 좋은 상황을 맞는다.",
+                engQuote: "Things turn out best for the people who make the best of the way things turn out.",
+                korAuthor: "존 우든",
+                engAuthor: "John Wooden",
+                back: {
+                    viewStore.send(.backToMain)
+                },
+                share: { quote, author in
+                    viewStore.send(.shareSelected(quote: quote, author: author))
+                }
+            )
+
+        case let .share(quote, author):
+            ShareView(
+                quote: quote,
+                author: author,
+                back: {
+                    viewStore.send(.backToMain)
+                }
+            )
         }
     }
 
@@ -51,7 +74,7 @@ struct AppView: View {
         viewStore: ViewStore<AppFeature.State, AppFeature.Action>
     ) -> some View {
         VStack(spacing: 0) {
-            selectedContent(for: viewStore.selectedTab)
+            selectedContent(for: viewStore.selectedTab, viewStore: viewStore)
 
             Picker(
                 "",
@@ -73,10 +96,20 @@ struct AppView: View {
     }
 
     @ViewBuilder
-    private func selectedContent(for tab: AppTab) -> some View {
+    private func selectedContent(
+        for tab: AppTab,
+        viewStore: ViewStore<AppFeature.State, AppFeature.Action>
+    ) -> some View {
         switch tab {
         case .home:
-            HomeView()
+            HomeView(
+                openTyping: {
+                    viewStore.send(.homeTypingSelected)
+                },
+                openShare: { quote, author in
+                    viewStore.send(.shareSelected(quote: quote, author: author))
+                }
+            )
         case .quoteList:
             QuoteListView()
         case .calendar:

@@ -27,4 +27,6 @@ enum AppScreen: Equatable {
     case login(isOnboarding: Bool)
     case onboardingGuide
     case main
+    case typing
+    case share(quote: String, author: String)
 }

@@ -18,59 +18,92 @@ struct HomeView: View {
     let engQuote: String
     let korAuthor: String
     let engAuthor: String
+    let openTyping: () -> Void
+    let openShare: (String, String) -> Void
+
+    @State private var isImageDialogPresented = false
 
     init(
         date: Date = Date(),
-        korQuote: String = "",
-        engQuote: String = "",
-        korAuthor: String = "",
-        engAuthor: String = ""
+        korQuote: String = "상황을 가장 잘 활용하는 사람이 가장 좋은 상황을 맞는다.",
+        engQuote: String = "Things turn out best for the people who make the best of the way things turn out.",
+        korAuthor: String = "존 우든",
+        engAuthor: String = "John Wooden",
+        openTyping: @escaping () -> Void = {},
+        openShare: @escaping (String, String) -> Void = { _, _ in }
     ) {
         self.date = date
         self.korQuote = korQuote
         self.engQuote = engQuote
         self.korAuthor = korAuthor
         self.engAuthor = engAuthor
+        self.openTyping = openTyping
+        self.openShare = openShare
     }
 
     var body: some View {
-        VStack(spacing: 0) {
-            HomeTopBar()
+        ZStack {
+            VStack(spacing: 0) {
+                HomeTopBar()
 
-            HStack(alignment: .center, spacing: 20) {
-                DateSection(date: date)
+                HStack(alignment: .center, spacing: 20) {
+                    DateSection(date: date)
 
-                HomeImageSection()
-            }
-            .padding(.top, 20)
-            .padding(.horizontal, 20)
+                    HomeImageSection(
+                        onClick: {
+                            isImageDialogPresented = true
+                        }
+                    )
+                }
+                .padding(.top, 20)
+                .padding(.horizontal, 20)
 
-            HStack {
+                HStack {
+                    Spacer()
+
+                    HomeLocaleSwitch(selected: $selectedLocale)
+                }
+                .padding(.top, 20)
+                .padding(.horizontal, 20)
+
+                DailyQuoteSection(
+                    text: quote,
+                    author: author,
+                    date: date,
+                    navigate: openTyping
+                )
+                .padding(.top, 20)
+                .padding(.horizontal, 20)
+
+                HomeInteractionButtonSection(
+                    copy: {
+                        UIPasteboard.general.string = "\(quote)\n\(author)"
+                    },
+                    share: {
+                        openShare(quote, author)
+                    },
+                    isLike: isLike,
+                    setIsLike: { isLike = $0 }
+                )
+                .padding(.top, 28)
+
                 Spacer()
-
-                HomeLocaleSwitch(selected: $selectedLocale)
             }
-            .padding(.top, 20)
-            .padding(.horizontal, 20)
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
+            .background(FillsaColor.background.ignoresSafeArea())
 
-            DailyQuoteSection(
-                text: quote,
-                author: author,
-                date: date
-            )
-            .padding(.top, 20)
-            .padding(.horizontal, 20)
-
-            HomeInteractionButtonSection(
-                isLike: isLike,
-                setIsLike: { isLike = $0 }
-            )
-            .padding(.top, 28)
-
-            Spacer()
+            if isImageDialogPresented {
+                HomeImageDialog(
+                    quote: quote,
+                    author: author,
+                    imagePath: "",
+                    dismiss: {
+                        isImageDialogPresented = false
+                    },
+                    delete: {}
+                )
+            }
         }
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .background(FillsaColor.background.ignoresSafeArea())
     }
 
     private var quote: String {
