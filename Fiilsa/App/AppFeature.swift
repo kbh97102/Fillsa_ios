@@ -11,6 +11,7 @@ struct AppFeature {
 
     enum Action: Equatable {
         case splash(SplashFeature.Action)
+        case onboardingGuideFinished
         case selectedTabChanged(AppTab)
     }
 
@@ -32,6 +33,11 @@ struct AppFeature {
                 return .none
 
             case .splash:
+                return .none
+
+            case .onboardingGuideFinished:
+                state.screen = .main
+                state.selectedTab = .home
                 return .none
 
             case let .selectedTabChanged(tab):

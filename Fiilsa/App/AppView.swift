@@ -25,7 +25,11 @@ struct AppView: View {
             PlaceholderScreen(title: "Login")
 
         case .onboardingGuide:
-            PlaceholderScreen(title: "Onboarding guide")
+            OnboardingGuideView(
+                finish: {
+                    viewStore.send(.onboardingGuideFinished)
+                }
+            )
 
         case .main:
             mainTabContent(viewStore: viewStore)
