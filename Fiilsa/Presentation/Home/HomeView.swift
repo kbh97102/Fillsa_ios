@@ -63,7 +63,13 @@ struct HomeView: View {
                     DailyQuoteSection(
                         text: quote(from: viewStore.quote),
                         author: author(from: viewStore.quote),
-                        date: date,
+                        date: viewStore.date,
+                        next: {
+                            viewStore.send(.nextTapped)
+                        },
+                        before: {
+                            viewStore.send(.beforeTapped)
+                        },
                         navigate: openTyping
                     )
                     .padding(.top, 20)
