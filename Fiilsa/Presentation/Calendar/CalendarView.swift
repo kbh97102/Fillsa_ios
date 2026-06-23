@@ -9,26 +9,14 @@ import SwiftUI
 import ComposableArchitecture
 
 struct CalendarView: View {
-    @State private var currentMonth: Date
-    @State private var selectedDay: Date
-
     let store: StoreOf<CalendarFeature>
-    let openHome: () -> Void
-    let openQuoteList: () -> Void
 
     init(
         store: StoreOf<CalendarFeature> = Store(initialState: CalendarFeature.State()) {
             CalendarFeature()
-        },
-        selectedDay: Date = Date(),
-        openHome: @escaping () -> Void = {},
-        openQuoteList: @escaping () -> Void = {}
+        }
     ) {
         self.store = store
-        self.openHome = openHome
-        self.openQuoteList = openQuoteList
-        self._selectedDay = State(initialValue: selectedDay)
-        self._currentMonth = State(initialValue: FillsaCalendarDateSupport.startOfMonth(for: selectedDay))
     }
 
     var body: some View {
@@ -42,12 +30,20 @@ struct CalendarView: View {
                     VStack(spacing: 0) {
                         CalendarMonthSection(
                             memberQuotes: viewStore.memberQuotes,
-                            currentMonth: $currentMonth,
-                            selectedDay: $selectedDay,
+                            currentMonth: Binding(
+                                get: { viewStore.currentMonth },
+                                set: { viewStore.send(.monthChanged($0)) }
+                            ),
+                            selectedDay: Binding(
+                                get: { viewStore.selectedDay },
+                                set: { viewStore.send(.daySelected($0)) }
+                            ),
                             changeMonth: {
                                 viewStore.send(.monthChanged($0))
                             },
-                            selectDay: { selectedDay = $0 }
+                            selectDay: {
+                                viewStore.send(.daySelected($0))
+                            }
                         )
                         .frame(height: calendarHeight)
 
@@ -55,14 +51,21 @@ struct CalendarView: View {
                             likeCount: viewStore.monthlySummary.likeCount,
                             typingCount: viewStore.monthlySummary.typingCount,
                             todayCompleteCount: viewStore.monthlySummary.streakCount,
-                            countOnClick: openQuoteList
+                            countOnClick: {
+                                viewStore.send(.countTapped)
+                            }
                         )
                         .padding(.top, 15)
 
                         CalendarSelectedQuoteSection(
-                            selectedDayQuote: selectedDayQuote(from: viewStore.memberQuotes),
-                            selectedDay: selectedDay,
-                            onClick: openHome
+                            selectedDayQuote: selectedDayQuote(
+                                from: viewStore.memberQuotes,
+                                selectedDay: viewStore.selectedDay
+                            ),
+                            selectedDay: viewStore.selectedDay,
+                            onClick: {
+                                viewStore.send(.bottomQuoteTapped)
+                            }
                         )
                         .padding(.top, 15)
                         .padding(.bottom, 30)
@@ -78,7 +81,7 @@ struct CalendarView: View {
         }
     }
 
-    private func selectedDayQuote(from memberQuotes: [MemberQuotesData]) -> String {
+    private func selectedDayQuote(from memberQuotes: [MemberQuotesData], selectedDay: Date) -> String {
         let targetDate = FillsaCalendarDateSupport.quoteDateString(for: selectedDay)
         return memberQuotes.first { $0.quoteDate == targetDate }?.quote ?? ""
     }

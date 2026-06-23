@@ -47,7 +47,6 @@ struct CalendarMonthSection: View {
                         isEnabled: isEnabled(day),
                         isCurrentMonth: FillsaCalendarDateSupport.isSameMonth(day, currentMonth),
                         onClick: {
-                            selectedDay = day
                             selectDay(day)
                         }
                     )
@@ -85,14 +84,12 @@ struct CalendarMonthSection: View {
     private func moveToPreviousMonth() {
         let target = FillsaCalendarDateSupport.addMonths(-1, to: currentMonth)
         guard target >= FillsaCalendarDateSupport.startMonth else { return }
-        currentMonth = target
         changeMonth(target)
     }
 
     private func moveToNextMonth() {
         let target = FillsaCalendarDateSupport.addMonths(1, to: currentMonth)
         guard target <= FillsaCalendarDateSupport.startOfMonth(for: Date()) else { return }
-        currentMonth = target
         changeMonth(target)
     }
 }

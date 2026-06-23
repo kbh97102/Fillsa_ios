@@ -1,4 +1,5 @@
 import ComposableArchitecture
+import Foundation
 
 @Reducer
 struct AppFeature {
@@ -113,6 +114,21 @@ struct AppFeature {
             case .typing:
                 return .none
 
+            case let .calendar(.delegate(.homeSelected(date))):
+                state.screen = .main
+                state.selectedTab = .home
+                state.home = HomeFeature.State()
+                state.home.date = date
+                return .none
+
+            case let .calendar(.delegate(.quoteListSelected(date))):
+                state.screen = .main
+                state.selectedTab = .quoteList
+                state.quoteList = QuoteListFeature.State()
+                state.quoteList.startDate = FillsaCalendarDateSupport.startOfMonth(for: date)
+                state.quoteList.endDate = min(endOfMonth(for: date), Date())
+                return .none
+
             case .home, .quoteList, .calendar:
                 return .none
 
@@ -194,5 +210,11 @@ struct AppFeature {
                 return .none
             }
         }
+    }
+
+    private func endOfMonth(for date: Date) -> Date {
+        let startOfMonth = FillsaCalendarDateSupport.startOfMonth(for: date)
+        let nextMonth = FillsaCalendarDateSupport.addMonths(1, to: startOfMonth)
+        return FillsaCalendarDateSupport.calendar.date(byAdding: .day, value: -1, to: nextMonth) ?? startOfMonth
     }
 }

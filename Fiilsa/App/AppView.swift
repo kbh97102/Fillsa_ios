@@ -144,13 +144,7 @@ struct AppView: View {
             )
         case .calendar:
             CalendarView(
-                store: store.scope(state: \.calendar, action: \.calendar),
-                openHome: {
-                    viewStore.send(.homeTabSelected)
-                },
-                openQuoteList: {
-                    viewStore.send(.quoteListTabSelected)
-                }
+                store: store.scope(state: \.calendar, action: \.calendar)
             )
         case .myPage:
             MyPageView(
