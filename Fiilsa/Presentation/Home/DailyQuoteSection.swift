@@ -15,6 +15,7 @@ struct DailyQuoteSection: View {
     let next: () -> Void
     let before: () -> Void
     let navigate: () -> Void
+    let authorTapped: () -> Void
 
     private let cardAspectRatio: CGFloat = 320 / 250
     private let cornerRadius: CGFloat = 12
@@ -25,7 +26,8 @@ struct DailyQuoteSection: View {
         date: Date = Date(),
         next: @escaping () -> Void = {},
         before: @escaping () -> Void = {},
-        navigate: @escaping () -> Void = {}
+        navigate: @escaping () -> Void = {},
+        authorTapped: @escaping () -> Void = {}
     ) {
         self.text = text
         self.author = author
@@ -33,6 +35,7 @@ struct DailyQuoteSection: View {
         self.next = next
         self.before = before
         self.navigate = navigate
+        self.authorTapped = authorTapped
     }
 
     var body: some View {
@@ -51,7 +54,7 @@ struct DailyQuoteSection: View {
                             .multilineTextAlignment(.center)
                             .frame(maxWidth: .infinity)
 
-                        Button(action: {}) {
+                        Button(action: authorTapped) {
                             Text(author)
                                 .font(FillsaTypography.quote)
                                 .foregroundStyle(FillsaColor.gray700)

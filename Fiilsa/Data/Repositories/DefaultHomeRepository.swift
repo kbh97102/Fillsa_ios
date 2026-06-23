@@ -36,7 +36,11 @@ struct DefaultHomeRepository: HomeRepository {
     }
 
     func postUploadImage(fileURL: URL, dailyQuoteSeq: Int) async throws -> MemberQuoteImageResponse {
-        throw ErrorResponse.defaultError
+        try await apiClient.uploadImage(
+            fileURL: fileURL,
+            path: APIEndpoint.uploadImage(dailyQuoteSeq: dailyQuoteSeq),
+            fieldName: "image"
+        )
     }
 
     func deleteUploadImage(dailyQuoteSeq: Int) async throws -> Int {

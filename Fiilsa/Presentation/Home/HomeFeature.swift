@@ -10,22 +10,33 @@ struct HomeFeature {
         var isLoggedIn = false
         var hasLoaded = false
         var isLoading = false
+        var isImageDialogPresented = false
+        var isLoginRequiredDialogPresented = false
+        var isDeleteImageConfirmationPresented = false
+        var toastMessage: String?
     }
 
     enum Action: Equatable {
         case onAppear
         case beforeTapped
         case nextTapped
-        case loginStatusLoaded(Bool)
-        case dailyQuoteLoaded(Result<DailyQuote, ErrorResponse>)
+        case dailyQuoteLoaded(Result<HomeDailyQuoteResult, ErrorResponse>)
         case likeTapped(Bool)
         case likeUpdated(Result<Int, ErrorResponse>)
-        case localLikeUpdated(Result<Int, ErrorResponse>)
+        case imageTapped
+        case imageDialogDismissed
+        case loginRequiredDialogDismissed
+        case deleteImageTapped
+        case deleteImageCancelled
+        case deleteImageConfirmed
+        case imageDeleted(Result<Int, ErrorResponse>)
+        case imagePicked(URL)
+        case imageUploaded(Result<MemberQuoteImageResponse, ErrorResponse>)
+        case copyCompleted
+        case toastDismissed
     }
 
-    @Dependency(\.homeClient) private var homeClient
-    @Dependency(\.localQuoteClient) private var localQuoteClient
-    @Dependency(\.sessionClient) private var sessionClient
+    @Dependency(\.homeUseCases) private var homeUseCases
 
     var body: some Reducer<State, Action> {
         Reduce { state, action in
@@ -50,12 +61,9 @@ struct HomeFeature {
                 state.hasLoaded = false
                 return load(state: &state)
 
-            case let .loginStatusLoaded(isLoggedIn):
-                state.isLoggedIn = isLoggedIn
-                return .none
-
-            case let .dailyQuoteLoaded(.success(quote)):
-                state.quote = quote
+            case let .dailyQuoteLoaded(.success(result)):
+                state.quote = result.quote
+                state.isLoggedIn = result.isLoggedIn
                 state.hasLoaded = true
                 state.isLoading = false
                 return .none
@@ -79,47 +87,17 @@ struct HomeFeature {
                 )
 
                 guard state.quote.dailyQuoteSeq > 0 else { return .none }
-                let dailyQuoteSeq = state.quote.dailyQuoteSeq
-                guard state.isLoggedIn else {
-                    let quote = state.quote
-                    let date = state.date
-                    let dayOfWeek = dayOfWeekString(for: date)
-                    return .run { send in
-                        do {
-                            if try await localQuoteClient.findById(dailyQuoteSeq) == nil {
-                                try await localQuoteClient.add(
-                                    LocalQuoteInfo(
-                                        dailyQuoteSeq: quote.dailyQuoteSeq,
-                                        korQuote: quote.korQuote ?? "",
-                                        engQuote: quote.engQuote ?? "",
-                                        korAuthor: quote.korAuthor ?? "",
-                                        engAuthor: quote.engAuthor ?? "",
-                                        korTyping: "",
-                                        engTyping: "",
-                                        likeYn: isLike ? "Y" : "N",
-                                        memo: "",
-                                        date: FillsaCalendarDateSupport.quoteDateString(for: date),
-                                        dayOfWeek: dayOfWeek
-                                    )
-                                )
-                                await send(.localLikeUpdated(.success(1)))
-                            } else {
-                                let result = try await localQuoteClient.updateLike(isLike ? .yes : .no, dailyQuoteSeq)
-                                await send(.localLikeUpdated(.success(result)))
-                            }
-                        } catch let error as ErrorResponse {
-                            await send(.localLikeUpdated(.failure(error)))
-                        } catch {
-                            await send(.localLikeUpdated(.failure(.defaultError)))
-                        }
-                    }
-                }
+                let quote = state.quote
+                let quoteDate = FillsaCalendarDateSupport.quoteDateString(for: state.date)
+                let dayOfWeek = dayOfWeekString(for: state.date)
 
                 return .run { send in
                     do {
-                        let response = try await homeClient.postLike(
-                            LikeRequest(likeYn: isLike ? "Y" : "N"),
-                            dailyQuoteSeq
+                        let response = try await homeUseCases.updateLike(
+                            isLike,
+                            quote,
+                            quoteDate,
+                            dayOfWeek
                         )
                         await send(.likeUpdated(.success(response)))
                     } catch let error as ErrorResponse {
@@ -129,7 +107,88 @@ struct HomeFeature {
                     }
                 }
 
-            case .likeUpdated, .localLikeUpdated:
+            case .likeUpdated:
+                return .none
+
+            case .imageTapped:
+                guard state.isLoggedIn else {
+                    state.isLoginRequiredDialogPresented = true
+                    return .none
+                }
+                state.isImageDialogPresented = true
+                return .none
+
+            case .imageDialogDismissed:
+                state.isImageDialogPresented = false
+                return .none
+
+            case .loginRequiredDialogDismissed:
+                state.isLoginRequiredDialogPresented = false
+                return .none
+
+            case .deleteImageTapped:
+                state.isDeleteImageConfirmationPresented = true
+                return .none
+
+            case .deleteImageCancelled:
+                state.isDeleteImageConfirmationPresented = false
+                return .none
+
+            case .deleteImageConfirmed:
+                state.isDeleteImageConfirmationPresented = false
+                guard state.quote.dailyQuoteSeq > 0 else { return .none }
+                let dailyQuoteSeq = state.quote.dailyQuoteSeq
+
+                return .run { send in
+                    do {
+                        let response = try await homeUseCases.deleteUploadImage(dailyQuoteSeq)
+                        await send(.imageDeleted(.success(response)))
+                    } catch let error as ErrorResponse {
+                        await send(.imageDeleted(.failure(error)))
+                    } catch {
+                        await send(.imageDeleted(.failure(.defaultError)))
+                    }
+                }
+
+            case .imageDeleted(.success):
+                state.quote = state.quote.copy(imagePath: "")
+                state.toastMessage = "이미지가 삭제되었습니다."
+                return .none
+
+            case .imageDeleted(.failure):
+                state.toastMessage = "이미지 삭제에 실패했습니다."
+                return .none
+
+            case let .imagePicked(fileURL):
+                guard state.quote.dailyQuoteSeq > 0 else { return .none }
+                let dailyQuoteSeq = state.quote.dailyQuoteSeq
+
+                return .run { send in
+                    do {
+                        let response = try await homeUseCases.postUploadImage(fileURL, dailyQuoteSeq)
+                        await send(.imageUploaded(.success(response)))
+                    } catch let error as ErrorResponse {
+                        await send(.imageUploaded(.failure(error)))
+                    } catch {
+                        await send(.imageUploaded(.failure(.defaultError)))
+                    }
+                }
+
+            case let .imageUploaded(.success(response)):
+                state.quote = state.quote.copy(imagePath: response.imagePath)
+                state.toastMessage = "이미지가 변경되었습니다."
+                return .none
+
+            case .imageUploaded(.failure):
+                state.toastMessage = "이미지 변경에 실패했습니다."
+                return .none
+
+            case .copyCompleted:
+                state.toastMessage = "복사되었습니다."
+                return .none
+
+            case .toastDismissed:
+                state.toastMessage = nil
                 return .none
             }
         }
@@ -140,43 +199,13 @@ struct HomeFeature {
         let quoteDate = FillsaCalendarDateSupport.quoteDateString(for: state.date)
 
         return .run { send in
-            let isLoggedIn = (try? await sessionClient.isLoggedIn()) ?? false
-            await send(.loginStatusLoaded(isLoggedIn))
-
-            if isLoggedIn {
-                do {
-                    let response = try await homeClient.getDailyQuote(quoteDate)
-                    await send(.dailyQuoteLoaded(.success(response)))
-                } catch let error as ErrorResponse {
-                    await send(.dailyQuoteLoaded(.failure(error)))
-                } catch {
-                    await send(.dailyQuoteLoaded(.failure(.defaultError)))
-                }
-            } else {
-                do {
-                    let response = try await homeClient.getDailyQuoteNoToken(quoteDate)
-                    let localQuote = try await localQuoteClient.findById(response.dailyQuoteSeq)
-                    await send(
-                        .dailyQuoteLoaded(
-                            .success(
-                                DailyQuote(
-                                    likeYn: localQuote?.likeYn ?? "N",
-                                    dailyQuoteSeq: response.dailyQuoteSeq,
-                                    korQuote: response.korQuote,
-                                    engQuote: response.engQuote,
-                                    korAuthor: response.korAuthor,
-                                    engAuthor: response.engAuthor,
-                                    authorUrl: response.authorUrl,
-                                    quoteDate: quoteDate
-                                )
-                            )
-                        )
-                    )
-                } catch let error as ErrorResponse {
-                    await send(.dailyQuoteLoaded(.failure(error)))
-                } catch {
-                    await send(.dailyQuoteLoaded(.failure(.defaultError)))
-                }
+            do {
+                let response = try await homeUseCases.loadDailyQuote(quoteDate)
+                await send(.dailyQuoteLoaded(.success(response)))
+            } catch let error as ErrorResponse {
+                await send(.dailyQuoteLoaded(.failure(error)))
+            } catch {
+                await send(.dailyQuoteLoaded(.failure(.defaultError)))
             }
         }
     }
@@ -186,5 +215,24 @@ struct HomeFeature {
         formatter.locale = Locale(identifier: "en_US_POSIX")
         formatter.dateFormat = "EEEE"
         return formatter.string(from: date).uppercased()
+    }
+}
+
+private extension DailyQuote {
+    func copy(
+        likeYn: String? = nil,
+        imagePath: String? = nil
+    ) -> DailyQuote {
+        DailyQuote(
+            likeYn: likeYn ?? self.likeYn,
+            imagePath: imagePath ?? self.imagePath,
+            dailyQuoteSeq: dailyQuoteSeq,
+            korQuote: korQuote,
+            engQuote: engQuote,
+            korAuthor: korAuthor,
+            engAuthor: engAuthor,
+            authorUrl: authorUrl,
+            quoteDate: quoteDate
+        )
     }
 }

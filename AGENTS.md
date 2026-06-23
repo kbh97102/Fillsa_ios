@@ -26,6 +26,8 @@
 - Screen-specific planning documents live in `docs/screens/`.
 - Android source analysis is documented in `docs/android-analysis.md`.
 - iOS development planning is documented in `docs/ios-development-plan.md`.
+- TCA and SwiftUI lifecycle guidance for Android developers is documented in `docs/tca-guide.md`.
+- The TCA learning entry point is `docs/tca-learning-roadmap.md`, with basic and advanced guides in `docs/tca-basic-guide.md` and `docs/tca-advanced-guide.md`.
 - Development progress is tracked in `docs/development-progress.md`.
 - Organize planning/specification documents by screen.
 - Before implementing or modifying a screen, always find and consult that screen's planning document.

@@ -5,6 +5,7 @@
 //  Created by Codex on 6/15/26.
 //
 
+import PhotosUI
 import SwiftUI
 
 struct HomeImageDialog: View {
@@ -13,6 +14,7 @@ struct HomeImageDialog: View {
     let imagePath: String
     let dismiss: () -> Void
     let delete: () -> Void
+    @Binding var selectedPhotoItem: PhotosPickerItem?
 
     var body: some View {
         ZStack {
@@ -60,7 +62,22 @@ struct HomeImageDialog: View {
                         .padding(.top, 12)
 
                     HStack(spacing: 10) {
-                        dialogButton("이미지 변경", action: {})
+                        PhotosPicker(
+                            selection: $selectedPhotoItem,
+                            matching: .images
+                        ) {
+                            Text("이미지 변경")
+                                .font(FillsaTypography.subtitle1)
+                                .foregroundStyle(FillsaColor.gray700)
+                                .frame(maxWidth: .infinity)
+                                .padding(.vertical, 15)
+                                .background(
+                                    RoundedRectangle(cornerRadius: 12)
+                                        .fill(FillsaColor.white.opacity(0.9))
+                                )
+                        }
+                        .buttonStyle(.plain)
+
                         dialogButton("확인", action: dismiss)
                     }
                     .padding(.top, 86)
@@ -120,6 +137,7 @@ struct HomeImageDialog: View {
         author: "존 우든",
         imagePath: "",
         dismiss: {},
-        delete: {}
+        delete: {},
+        selectedPhotoItem: .constant(nil)
     )
 }

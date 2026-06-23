@@ -96,6 +96,27 @@ struct HomeFeature {
 
 ## Dependency Plan
 
+Layer ownership:
+
+```text
+Presentation Feature/Reducer
+-> @Dependency(\.someUseCase)
+-> Core/Dependencies liveValue
+-> Domain UseCase
+-> Domain Repository protocol
+-> Data Repository implementation
+-> API / local DB / UserDefaults / Keychain
+```
+
+- `Domain/UseCases` contains plain Swift use case structs. They must not import `ComposableArchitecture` and must not know concrete data implementations.
+- `Domain/Repositories` contains repository protocols used by use cases.
+- `Data/Repositories` contains concrete repository implementations and may use `APIClient`, SQLite, UserDefaults, Keychain, or other platform storage.
+- `Core/Dependencies` is the TCA composition layer. It registers `DependencyKey` / `DependencyValues` and builds `liveValue` by connecting `LiveRepositories` to Domain use cases.
+- `App` owns app startup, routing, and root feature wiring. Do not put per-feature use case `liveValue` registration in `App` unless the dependency is truly app-wide orchestration.
+- Reducers should call use case dependencies, not repositories or API clients directly.
+
+Use cases are the place for business flows that combine multiple data operations. For example, login should call the auth repository, then save access token, refresh token, user name, or other local session data through the local repository inside the login use case. Reducers should only send the login action, receive the result action, and update screen state.
+
 Required early dependencies:
 
 | Need | Proposed iOS choice |
@@ -178,11 +199,19 @@ Tasks:
   - `CommonRepository`
   - `LocalQuoteRepository`
   - `SettingsRepository`
+- Create Domain use cases that mirror Android use cases and keep feature-facing business flows out of reducers:
+  - login and token/session flows
+  - daily quote loading and like flows
+  - local quote insert/update/delete/memo/like flows
+  - calendar monthly quote loading
+  - quote list and memo save flows
+  - settings and notification preference flows
 - Build URLSession client with:
   - base URL configuration
   - token injection
   - refresh token retry for 401/403
   - no-token API path support
+- Register TCA dependencies in `Core/Dependencies` by wrapping Domain use cases in dependency structs. `liveValue` belongs in this composition layer, not in `Domain` or `Data`.
 
 Verification:
 

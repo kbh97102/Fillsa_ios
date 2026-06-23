@@ -7,6 +7,12 @@ protocol APIClientProtocol {
         _ request: APIRequest<Body>,
         responseType: Response.Type
     ) async throws -> Response
+
+    func uploadImage<Response: Decodable>(
+        fileURL: URL,
+        path: String,
+        fieldName: String
+    ) async throws -> Response
 }
 
 struct APIClient: APIClientProtocol {
@@ -37,6 +43,51 @@ struct APIClient: APIClientProtocol {
         }
 
         let data = try await data(for: request)
+        do {
+            return try decoder.decode(Response.self, from: data)
+        } catch {
+            HTTPLogger.logDecodeError(error, responseType: Response.self, data: data)
+            throw error
+        }
+    }
+
+    func uploadImage<Response: Decodable>(
+        fileURL: URL,
+        path: String,
+        fieldName: String
+    ) async throws -> Response {
+        let url = environment.baseURL.appendingPathComponent(path)
+        let response = await session
+            .upload(
+                multipartFormData: { formData in
+                    formData.append(
+                        fileURL,
+                        withName: fieldName,
+                        fileName: fileURL.lastPathComponent,
+                        mimeType: "image/jpeg"
+                    )
+                },
+                to: url,
+                method: .post,
+                headers: [
+                    "Accept": "application/json",
+                    "X-App-Version": APIAppVersion.current
+                ]
+            )
+            .validate(statusCode: 200..<300)
+            .serializingData()
+            .response
+
+        HTTPLogger.logResponse(response)
+
+        if let error = response.error {
+            throw apiError(from: response, fallback: error)
+        }
+
+        guard let data = response.data else {
+            throw ErrorResponse.defaultError
+        }
+
         do {
             return try decoder.decode(Response.self, from: data)
         } catch {
