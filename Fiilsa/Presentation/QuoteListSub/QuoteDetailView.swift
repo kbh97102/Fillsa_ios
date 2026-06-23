@@ -9,6 +9,7 @@ import SwiftUI
 
 struct QuoteDetailView: View {
     @State private var selectedLocale: HomeLocaleType = .kor
+    @Environment(\.openURL) private var openURL
 
     let data: MemberQuotesResponse
     let back: () -> Void
@@ -30,7 +31,15 @@ struct QuoteDetailView: View {
                         HomeLocaleSwitch(selected: $selectedLocale)
                     }
 
-                    MemoQuoteSection(quote: quote, author: author)
+                    MemoQuoteSection(
+                        quote: quote,
+                        author: author,
+                        authorTapped: {
+                            if let url = URL(string: data.authorUrl), !data.authorUrl.isEmpty {
+                                openURL(url)
+                            }
+                        }
+                    )
                         .padding(.top, 20)
 
                     MemoSection(

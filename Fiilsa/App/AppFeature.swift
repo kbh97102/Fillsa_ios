@@ -129,6 +129,13 @@ struct AppFeature {
                 state.quoteList.endDate = min(endOfMonth(for: date), Date())
                 return .none
 
+            case .home(.likeUpdated(.success)):
+                guard state.screen == .main, state.selectedTab == .quoteList else {
+                    state.quoteList.hasLoaded = false
+                    return .none
+                }
+                return .send(.quoteList(.refresh))
+
             case .home, .quoteList, .calendar:
                 return .none
 
@@ -207,6 +214,9 @@ struct AppFeature {
 
             case let .selectedTabChanged(tab):
                 state.selectedTab = tab
+                if tab == .quoteList {
+                    return .send(.quoteList(.refresh))
+                }
                 return .none
             }
         }

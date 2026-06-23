@@ -10,6 +10,15 @@ import Foundation
 enum QuoteListDateSupport {
     static let calendar = FillsaCalendarDateSupport.calendar
 
+    static var defaultStartDate: Date {
+        let now = Date()
+        let year = calendar.component(.year, from: now)
+        if year <= 2025 {
+            return calendar.date(from: DateComponents(year: 2025, month: 6, day: 1)) ?? FillsaCalendarDateSupport.startDay
+        }
+        return calendar.date(byAdding: .month, value: -6, to: now) ?? FillsaCalendarDateSupport.startDay
+    }
+
     static func displayDate(_ date: Date) -> String {
         displayFormatter.string(from: date)
     }

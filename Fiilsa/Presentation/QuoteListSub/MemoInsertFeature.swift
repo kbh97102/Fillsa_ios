@@ -19,7 +19,7 @@ struct MemoInsertFeature {
         }
     }
 
-    @Dependency(\.quoteListClient) private var quoteListClient
+    @Dependency(\.quoteListUseCases) private var quoteListUseCases
 
     var body: some Reducer<State, Action> {
         Reduce { state, action in
@@ -34,8 +34,8 @@ struct MemoInsertFeature {
 
                 return .run { send in
                     do {
-                        let response = try await quoteListClient.postSaveMemo(
-                            MemoRequest(memo: memo),
+                        let response = try await quoteListUseCases.saveMemo(
+                            memo,
                             String(memberQuoteSeq)
                         )
                         await send(.memoSaved(.success(response)))

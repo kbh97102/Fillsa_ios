@@ -70,7 +70,10 @@ struct QuoteListView: View {
 
                     QuoteListSection(
                         list: viewStore.list,
-                        onClick: openDetail
+                        onClick: openDetail,
+                        loadMore: {
+                            viewStore.send(.loadNextPage)
+                        }
                     )
                     .padding(.top, 10)
                 }

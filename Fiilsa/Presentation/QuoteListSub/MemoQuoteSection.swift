@@ -10,6 +10,17 @@ import SwiftUI
 struct MemoQuoteSection: View {
     let quote: String
     let author: String
+    let authorTapped: () -> Void
+
+    init(
+        quote: String,
+        author: String,
+        authorTapped: @escaping () -> Void = {}
+    ) {
+        self.quote = quote
+        self.author = author
+        self.authorTapped = authorTapped
+    }
 
     var body: some View {
         VStack(spacing: 12) {
@@ -19,12 +30,15 @@ struct MemoQuoteSection: View {
                 .multilineTextAlignment(.center)
                 .frame(maxWidth: .infinity)
 
-            Text(author)
-                .font(FillsaTypography.body2)
-                .foregroundStyle(FillsaColor.gray700)
-                .underline()
-                .multilineTextAlignment(.center)
-                .frame(maxWidth: .infinity)
+            Button(action: authorTapped) {
+                Text(author)
+                    .font(FillsaTypography.body2)
+                    .foregroundStyle(FillsaColor.gray700)
+                    .underline()
+                    .multilineTextAlignment(.center)
+                    .frame(maxWidth: .infinity)
+            }
+            .buttonStyle(.plain)
         }
         .padding(.horizontal, 10)
         .padding(.vertical, 20)

@@ -10,6 +10,7 @@ import SwiftUI
 struct QuoteListSection: View {
     let list: [MemberQuotesResponse]
     let onClick: (MemberQuotesResponse) -> Void
+    let loadMore: () -> Void
 
     private let columns = [
         GridItem(.flexible(), spacing: 20),
@@ -28,6 +29,11 @@ struct QuoteListSection: View {
                             .onTapGesture {
                                 onClick(item)
                             }
+                            .onAppear {
+                                if item.id == list.last?.id {
+                                    loadMore()
+                                }
+                            }
                     }
                 }
                 .padding(.top, 10)
@@ -37,7 +43,7 @@ struct QuoteListSection: View {
 }
 
 #Preview {
-    QuoteListSection(list: QuoteListSampleData.items, onClick: { _ in })
+    QuoteListSection(list: QuoteListSampleData.items, onClick: { _ in }, loadMore: {})
         .padding()
         .background(FillsaColor.background)
 }
