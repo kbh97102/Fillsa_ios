@@ -46,6 +46,14 @@ struct GetUserNameUseCase {
     }
 }
 
+struct GetShareDescriptionVisibleUseCase {
+    let localRepository: LocalRepository
+
+    func callAsFunction() async throws -> Bool {
+        try await localRepository.getShareDescriptionVisible()
+    }
+}
+
 struct GetImageURIUseCase {
     let localRepository: LocalRepository
 
@@ -83,5 +91,13 @@ struct SetUserNameUseCase {
 
     func callAsFunction(_ name: String) async throws {
         try await localRepository.setName(name)
+    }
+}
+
+struct SetShareDescriptionVisibleUseCase {
+    let localRepository: LocalRepository
+
+    func callAsFunction(_ isVisible: Bool) async throws {
+        try await localRepository.setShareDescriptionVisible(isVisible)
     }
 }

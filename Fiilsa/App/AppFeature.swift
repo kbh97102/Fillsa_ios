@@ -14,6 +14,7 @@ struct AppFeature {
         var notice = NoticeFeature.State()
         var memoInsert = MemoInsertFeature.State()
         var typing = TypingFeature.State()
+        var share = ShareFeature.State()
         var selectedTab: AppTab = .home
     }
 
@@ -26,6 +27,7 @@ struct AppFeature {
         case notice(NoticeFeature.Action)
         case memoInsert(MemoInsertFeature.Action)
         case typing(TypingFeature.Action)
+        case share(ShareFeature.Action)
         case loginClosed
         case loginNonMemberSelected
         case loginSelected
@@ -76,6 +78,10 @@ struct AppFeature {
             TypingFeature()
         }
 
+        Scope(state: \.share, action: \.share) {
+            ShareFeature()
+        }
+
         Reduce { state, action in
             switch action {
             case let .splash(.delegate(.move(destination))):
@@ -118,6 +124,13 @@ struct AppFeature {
                 return .none
 
             case .typing:
+                return .none
+
+            case .share(.delegate(.back)):
+                state.screen = .main
+                return .none
+
+            case .share:
                 return .none
 
             case let .calendar(.delegate(.homeSelected(date))):
@@ -203,6 +216,7 @@ struct AppFeature {
 
             case let .shareSelected(quote, author):
                 state.screen = .share(quote: quote, author: author)
+                state.share = ShareFeature.State(quote: quote, author: author)
                 return .none
 
             case let .quoteDetailSelected(data):

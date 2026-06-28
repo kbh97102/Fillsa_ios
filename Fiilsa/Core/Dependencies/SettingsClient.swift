@@ -10,6 +10,8 @@ struct SettingsClient {
     var getUserName: @Sendable () async throws -> String
     var setUserName: @Sendable (_ name: String) async throws -> Void
     var getImageURI: @Sendable () async throws -> String
+    var getShareDescriptionVisible: @Sendable () async throws -> Bool
+    var setShareDescriptionVisible: @Sendable (_ isVisible: Bool) async throws -> Void
     var getTokenExpired: @Sendable () async throws -> String
     var emitTokenExpired: @Sendable (_ errorCode: String) async throws -> Void
 }
@@ -45,6 +47,12 @@ extension SettingsClient: DependencyKey {
             },
             getImageURI: {
                 try await GetImageURIUseCase(localRepository: repository)()
+            },
+            getShareDescriptionVisible: {
+                try await GetShareDescriptionVisibleUseCase(localRepository: repository)()
+            },
+            setShareDescriptionVisible: { isVisible in
+                try await SetShareDescriptionVisibleUseCase(localRepository: repository)(isVisible)
             },
             getTokenExpired: {
                 try await GetTokenExpiredUseCase(localRepository: repository)()

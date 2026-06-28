@@ -51,6 +51,7 @@
 | 파일 | 내용 |
 |------|------|
 | [ios-development-plan.md](ios-development-plan.md) | iOS 전환 개발 계획과 Clean Architecture/TCA 레이어 기준 |
+| [unfinished-features.md](unfinished-features.md) | 미완성 기능과 구현 우선순위 추적 |
 | [async/README.md](async/README.md) | Swift 비동기 처리 학습 로드맵 |
 | [async/basics.md](async/basics.md) | Swift 비동기 처리 기초 상세 설명 |
 | [async/interview.md](async/interview.md) | Swift 비동기 처리 면접 질문과 심화 주제 |

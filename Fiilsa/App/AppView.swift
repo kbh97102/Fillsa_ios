@@ -54,13 +54,9 @@ struct AppView: View {
                 }
             )
 
-        case let .share(quote, author):
+        case .share:
             ShareView(
-                quote: quote,
-                author: author,
-                back: {
-                    viewStore.send(.backToMain)
-                }
+                store: store.scope(state: \.share, action: \.share)
             )
 
         case let .quoteDetail(data):
