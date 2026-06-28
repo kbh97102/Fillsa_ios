@@ -46,6 +46,14 @@ struct GetUserNameUseCase {
     }
 }
 
+struct GetImageURIUseCase {
+    let localRepository: LocalRepository
+
+    func callAsFunction() async throws -> String {
+        try await localRepository.getImageURI()
+    }
+}
+
 struct SetAlarmPermissionRequestedBeforeUseCase {
     let localRepository: LocalRepository
 

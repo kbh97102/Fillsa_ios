@@ -9,6 +9,7 @@ struct SettingsClient {
     var setDarkModeType: @Sendable (_ darkModeType: DarkModeType) async throws -> Void
     var getUserName: @Sendable () async throws -> String
     var setUserName: @Sendable (_ name: String) async throws -> Void
+    var getImageURI: @Sendable () async throws -> String
     var getTokenExpired: @Sendable () async throws -> String
     var emitTokenExpired: @Sendable (_ errorCode: String) async throws -> Void
 }
@@ -41,6 +42,9 @@ extension SettingsClient: DependencyKey {
             },
             setUserName: { name in
                 try await SetUserNameUseCase(localRepository: repository)(name)
+            },
+            getImageURI: {
+                try await GetImageURIUseCase(localRepository: repository)()
             },
             getTokenExpired: {
                 try await GetTokenExpiredUseCase(localRepository: repository)()

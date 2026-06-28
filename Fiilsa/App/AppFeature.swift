@@ -10,6 +10,7 @@ struct AppFeature {
         var home = HomeFeature.State()
         var quoteList = QuoteListFeature.State()
         var calendar = CalendarFeature.State()
+        var myPage = MyPageFeature.State()
         var notice = NoticeFeature.State()
         var memoInsert = MemoInsertFeature.State()
         var typing = TypingFeature.State()
@@ -21,6 +22,7 @@ struct AppFeature {
         case home(HomeFeature.Action)
         case quoteList(QuoteListFeature.Action)
         case calendar(CalendarFeature.Action)
+        case myPage(MyPageFeature.Action)
         case notice(NoticeFeature.Action)
         case memoInsert(MemoInsertFeature.Action)
         case typing(TypingFeature.Action)
@@ -60,6 +62,10 @@ struct AppFeature {
 
         Scope(state: \.calendar, action: \.calendar) {
             CalendarFeature()
+        }
+
+        Scope(state: \.myPage, action: \.myPage) {
+            MyPageFeature()
         }
 
         Scope(state: \.memoInsert, action: \.memoInsert) {
@@ -137,6 +143,27 @@ struct AppFeature {
                 return .send(.quoteList(.refresh))
 
             case .home, .quoteList, .calendar:
+                return .none
+
+            case .myPage(.delegate(.homeSelected)):
+                state.screen = .main
+                state.selectedTab = .home
+                return .none
+
+            case .myPage(.delegate(.loginSelected)):
+                state.screen = .login(isOnboarding: false)
+                return .none
+
+            case .myPage(.delegate(.noticeSelected)):
+                state.screen = .notice
+                state.notice = NoticeFeature.State()
+                return .none
+
+            case .myPage(.delegate(.alertSelected)):
+                state.screen = .alert
+                return .none
+
+            case .myPage:
                 return .none
 
             case .loginClosed:

@@ -7,6 +7,7 @@ struct AppView: View {
     var body: some View {
         WithViewStore(store, observe: { $0 }) { viewStore in
             content(for: viewStore.screen, viewStore: viewStore)
+                .preferredColorScheme(viewStore.myPage.selectedTheme.colorScheme)
         }
     }
 
@@ -148,18 +149,7 @@ struct AppView: View {
             )
         case .myPage:
             MyPageView(
-                openHome: {
-                    viewStore.send(.homeTabSelected)
-                },
-                openLogin: {
-                    viewStore.send(.loginSelected)
-                },
-                openNotice: {
-                    viewStore.send(.noticeSelected)
-                },
-                openAlert: {
-                    viewStore.send(.alertSelected)
-                }
+                store: store.scope(state: \.myPage, action: \.myPage)
             )
         }
     }
@@ -171,4 +161,17 @@ struct AppView: View {
             AppFeature()
         }
     )
+}
+
+private extension DarkModeType {
+    var colorScheme: ColorScheme? {
+        switch self {
+        case .dark:
+            return .dark
+        case .light:
+            return .light
+        case .system:
+            return nil
+        }
+    }
 }
