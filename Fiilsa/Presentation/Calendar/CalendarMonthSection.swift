@@ -31,7 +31,7 @@ struct CalendarMonthSection: View {
                 ForEach(weekdays, id: \.self) { weekday in
                     Text(weekday)
                         .font(FillsaTypography.subtitle2)
-                        .foregroundStyle(FillsaColor.gray700)
+                        .foregroundStyle(FillsaColor.onBackground1)
                         .frame(maxWidth: .infinity)
                 }
             }
@@ -58,11 +58,11 @@ struct CalendarMonthSection: View {
         .padding(.top, 20)
         .background(
             RoundedRectangle(cornerRadius: 12)
-                .fill(FillsaColor.yellow01)
+                .fill(FillsaColor.backgroundContainer)
         )
         .overlay {
             RoundedRectangle(cornerRadius: 12)
-                .stroke(FillsaColor.yellow02, lineWidth: 1)
+                .stroke(FillsaColor.outline, lineWidth: 1)
         }
     }
 

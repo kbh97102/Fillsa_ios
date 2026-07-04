@@ -42,7 +42,7 @@ struct MyPageThemeDialog: View {
             .padding(.bottom, 12)
             .background(
                 RoundedRectangle(cornerRadius: 12)
-                    .fill(FillsaColor.white)
+                    .fill(FillsaColor.backgroundContainer)
             )
             .padding(.horizontal, 20)
         }
@@ -55,7 +55,7 @@ struct MyPageThemeDialog: View {
             HStack(spacing: 0) {
                 Text(title)
                     .font(FillsaTypography.subtitle1)
-                    .foregroundStyle(FillsaColor.gray700)
+                    .foregroundStyle(FillsaColor.onBackground1)
 
                 Spacer()
 

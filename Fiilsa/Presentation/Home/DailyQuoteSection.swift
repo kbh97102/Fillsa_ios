@@ -42,22 +42,22 @@ struct DailyQuoteSection: View {
         ZStack {
             Button(action: navigate) {
                 ZStack {
-                    FillsaColor.yellow01
+                    FillsaColor.backgroundContainer
 
                     NotebookLineBackground()
-                        .foregroundStyle(FillsaColor.purple02.opacity(0.6))
+                        .foregroundStyle(FillsaColor.tertiaryOutline1.opacity(0.6))
 
                     VStack(spacing: 12) {
                         Text(text)
                             .font(FillsaTypography.quote)
-                            .foregroundStyle(FillsaColor.gray700)
+                            .foregroundStyle(FillsaColor.onBackground1)
                             .multilineTextAlignment(.center)
                             .frame(maxWidth: .infinity)
 
                         Button(action: authorTapped) {
                             Text(author)
                                 .font(FillsaTypography.quote)
-                                .foregroundStyle(FillsaColor.gray700)
+                                .foregroundStyle(FillsaColor.onBackground1)
                                 .underline()
                                 .multilineTextAlignment(.center)
                                 .frame(maxWidth: .infinity)
@@ -141,7 +141,7 @@ private struct ArrowCircleButton: View {
         Button(action: action) {
             ZStack {
                 Circle()
-                    .fill(FillsaColor.purple02)
+                    .fill(FillsaColor.secondaryContainer)
 
                 Image(systemName: "chevron.left")
                     .font(.system(size: 15, weight: .bold))

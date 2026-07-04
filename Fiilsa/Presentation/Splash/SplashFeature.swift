@@ -1,4 +1,5 @@
 import ComposableArchitecture
+import UserNotifications
 
 @Reducer
 struct SplashFeature {
@@ -35,6 +36,20 @@ struct SplashFeature {
                         let allowed = await notificationPermissionClient.requestAuthorization()
                         try? await settingsClient.setAlarmPermissionRequestedBefore(true)
                         try? await settingsClient.setAlarm(allowed)
+                        if allowed {
+                            try? await notificationPermissionClient.scheduleDailyQuoteNotification()
+                        } else {
+                            await notificationPermissionClient.cancelDailyQuoteNotification()
+                        }
+                    } else if ((try? await settingsClient.getAlarm()) ?? false) {
+                        let status = await notificationPermissionClient.authorizationStatus()
+                        switch status {
+                        case .authorized, .provisional, .ephemeral:
+                            try? await notificationPermissionClient.scheduleDailyQuoteNotification()
+                        default:
+                            await notificationPermissionClient.cancelDailyQuoteNotification()
+                            try? await settingsClient.setAlarm(false)
+                        }
                     }
                     await send(.permissionChecked)
                 }

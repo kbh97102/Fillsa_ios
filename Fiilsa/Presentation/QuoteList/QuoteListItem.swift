@@ -48,18 +48,18 @@ struct QuoteListItem: View {
             Text(data.quoteDate.replacingOccurrences(of: "-", with: "."))
                 .font(FillsaTypography.body4)
                 .bold()
-                .foregroundStyle(FillsaColor.gray700)
+                .foregroundStyle(FillsaColor.onSecondaryContainer1)
                 .lineLimit(1)
 
             Text(QuoteListDateSupport.koreanWeekday(data.quoteDayOfWeek))
                 .font(FillsaTypography.body4)
-                .foregroundStyle(FillsaColor.gray700)
+                .foregroundStyle(FillsaColor.onSecondaryContainer1)
                 .lineLimit(1)
         }
         .frame(maxWidth: .infinity)
         .padding(.vertical, 12)
         .padding(.horizontal, 27)
-        .background(FillsaColor.purple02)
+        .background(FillsaColor.secondaryContainer)
     }
 
     @ViewBuilder
@@ -166,13 +166,13 @@ private struct QuoteListItemBottomSection: View {
         HStack(spacing: 4) {
             content()
                 .font(FillsaTypography.body4)
-                .foregroundStyle(FillsaColor.gray700)
+                .foregroundStyle(FillsaColor.onBackground1)
         }
         .frame(maxWidth: .infinity)
         .padding(.vertical, 3)
         .background(
             Capsule()
-                .fill(FillsaColor.white.opacity(0.6))
+                .fill(FillsaColor.backgroundContainer.opacity(0.6))
         )
     }
 }

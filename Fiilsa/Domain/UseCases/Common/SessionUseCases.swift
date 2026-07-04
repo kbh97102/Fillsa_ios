@@ -36,6 +36,8 @@ struct LogoutUseCase {
     func callAsFunction() async throws {
         try await localRepository.setAccessToken("")
         try await localRepository.setRefreshToken("")
+        try await localRepository.setName("")
+        try await localRepository.setImageURI("")
     }
 }
 

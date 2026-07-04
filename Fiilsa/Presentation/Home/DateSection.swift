@@ -28,27 +28,27 @@ struct DateSection: View {
                 Text(weekdayText)
             }
             .font(FillsaTypography.subtitle2)
-            .foregroundStyle(FillsaColor.gray700)
+            .foregroundStyle(FillsaColor.onSecondaryContainer1)
             .padding(12)
             .frame(maxWidth: .infinity)
-            .background(FillsaColor.purple02)
+            .background(FillsaColor.secondaryContainer)
 
             ZStack {
-                FillsaColor.white
+                FillsaColor.backgroundContainer
 
                 Text(dayText)
                     .font(.system(size: 40, weight: .bold))
-                    .foregroundStyle(FillsaColor.gray700)
+                    .foregroundStyle(FillsaColor.onBackground1)
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
             .padding(.top, 16)
             .padding(.bottom, 18)
-            .background(FillsaColor.white)
+            .background(FillsaColor.backgroundContainer)
         }
         .clipShape(RoundedRectangle(cornerRadius: cornerRadius))
         .overlay {
             RoundedRectangle(cornerRadius: cornerRadius)
-                .stroke(FillsaColor.purple02, lineWidth: 1)
+                .stroke(FillsaColor.tertiaryOutline1, lineWidth: 1)
         }
         .aspectRatio(cardAspectRatio, contentMode: .fit)
         .frame(maxWidth: .infinity)

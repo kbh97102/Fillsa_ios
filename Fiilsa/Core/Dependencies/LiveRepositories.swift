@@ -8,6 +8,7 @@ enum LiveRepositories {
     }()
 
     static let common: CommonRepository = DefaultCommonRepository()
+    static let auth: AuthRepository = DefaultAuthRepository()
     static let home: HomeRepository = DefaultHomeRepository()
     static let quoteList: QuoteListRepository = DefaultQuoteListRepository()
     static let calendar: CalendarRepository = DefaultCalendarRepository()

@@ -211,6 +211,11 @@ Tasks:
   - token injection
   - refresh token retry for 401/403
   - no-token API path support
+- Route refresh token failure to the app root:
+  - authenticated requests retry refresh only once
+  - missing/failed refresh token emits a session expiration event
+  - `AppFeature` clears the local token session and rebuilds member-sensitive screen state as guest state
+  - full Android `WithBaseErrorHandling` error-code dialog/snackbar parity remains a separate common UI task
 - Register TCA dependencies in `Core/Dependencies` by wrapping Domain use cases in dependency structs. `liveValue` belongs in this composition layer, not in `Domain` or `Data`.
 
 Verification:

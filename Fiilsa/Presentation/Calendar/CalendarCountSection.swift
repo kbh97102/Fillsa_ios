@@ -60,7 +60,7 @@ struct CalendarCountSection: View {
     private func countText(_ count: Int) -> some View {
         Text(count.description)
             .font(FillsaTypography.body3)
-            .foregroundStyle(FillsaColor.gray700)
+            .foregroundStyle(FillsaColor.onBackground1)
     }
 }
 

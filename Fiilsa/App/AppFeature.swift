@@ -7,27 +7,35 @@ struct AppFeature {
     struct State: Equatable {
         var screen: AppScreen = .splash
         var splash = SplashFeature.State()
+        var login = LoginFeature.State()
         var home = HomeFeature.State()
         var quoteList = QuoteListFeature.State()
         var calendar = CalendarFeature.State()
         var myPage = MyPageFeature.State()
         var notice = NoticeFeature.State()
+        var alert = AlertFeature.State()
         var memoInsert = MemoInsertFeature.State()
         var typing = TypingFeature.State()
         var share = ShareFeature.State()
+        var generalPopup = GeneralPopupFeature.State()
         var selectedTab: AppTab = .home
+        var isHandlingSessionExpiration = false
     }
 
     enum Action: Equatable {
+        case task
         case splash(SplashFeature.Action)
+        case login(LoginFeature.Action)
         case home(HomeFeature.Action)
         case quoteList(QuoteListFeature.Action)
         case calendar(CalendarFeature.Action)
         case myPage(MyPageFeature.Action)
         case notice(NoticeFeature.Action)
+        case alert(AlertFeature.Action)
         case memoInsert(MemoInsertFeature.Action)
         case typing(TypingFeature.Action)
         case share(ShareFeature.Action)
+        case generalPopup(GeneralPopupFeature.Action)
         case loginClosed
         case loginNonMemberSelected
         case loginSelected
@@ -43,15 +51,28 @@ struct AppFeature {
         case backToMain
         case onboardingGuideFinished
         case selectedTabChanged(AppTab)
+        case sessionExpired(SessionExpirationEvent)
+        case sessionExpiredHandled
     }
+
+    @Dependency(\.sessionClient) var sessionClient
+    @Dependency(\.sessionExpirationClient) var sessionExpirationClient
 
     var body: some Reducer<State, Action> {
         Scope(state: \.splash, action: \.splash) {
             SplashFeature()
         }
 
+        Scope(state: \.login, action: \.login) {
+            LoginFeature()
+        }
+
         Scope(state: \.notice, action: \.notice) {
             NoticeFeature()
+        }
+
+        Scope(state: \.alert, action: \.alert) {
+            AlertFeature()
         }
 
         Scope(state: \.home, action: \.home) {
@@ -82,19 +103,52 @@ struct AppFeature {
             ShareFeature()
         }
 
+        Scope(state: \.generalPopup, action: \.generalPopup) {
+            GeneralPopupFeature()
+        }
+
         Reduce { state, action in
             switch action {
+            case .task:
+                return .run { send in
+                    for await event in sessionExpirationClient.events() {
+                        await send(.sessionExpired(event))
+                    }
+                }
+                .cancellable(id: "sessionExpiration", cancelInFlight: true)
+
             case let .splash(.delegate(.move(destination))):
                 switch destination {
                 case let .login(isOnboarding):
                     state.screen = .login(isOnboarding: isOnboarding)
+                    state.login = LoginFeature.State(isOnboarding: isOnboarding)
                 case .home:
                     state.screen = .main
                     state.selectedTab = .home
+                    return .send(.generalPopup(.loadIfNeeded))
                 }
                 return .none
 
             case .splash:
+                return .none
+
+            case .login(.delegate(.close)):
+                state.screen = .main
+                state.selectedTab = .home
+                return .send(.generalPopup(.loadIfNeeded))
+
+            case .login(.delegate(.moveHome)):
+                state.screen = .main
+                state.selectedTab = .home
+                state.myPage = MyPageFeature.State()
+                state.home = HomeFeature.State()
+                return .send(.generalPopup(.loadIfNeeded))
+
+            case .login(.delegate(.moveOnboardingGuide)):
+                state.screen = .onboardingGuide
+                return .none
+
+            case .login:
                 return .none
 
             case .notice(.delegate(.back)):
@@ -106,6 +160,23 @@ struct AppFeature {
                 return .none
 
             case .notice:
+                return .none
+
+            case .alert(.delegate(.back)):
+                state.screen = .main
+                return .none
+
+            case .alert(.delegate(.resignCompleted)):
+                state.screen = .main
+                state.selectedTab = .home
+                state.home = HomeFeature.State()
+                state.quoteList = QuoteListFeature.State()
+                state.calendar = CalendarFeature.State()
+                state.myPage = MyPageFeature.State()
+                state.alert = AlertFeature.State()
+                return .none
+
+            case .alert:
                 return .none
 
             case .memoInsert(.delegate(.back)):
@@ -131,6 +202,9 @@ struct AppFeature {
                 return .none
 
             case .share:
+                return .none
+
+            case .generalPopup:
                 return .none
 
             case let .calendar(.delegate(.homeSelected(date))):
@@ -161,10 +235,11 @@ struct AppFeature {
             case .myPage(.delegate(.homeSelected)):
                 state.screen = .main
                 state.selectedTab = .home
-                return .none
+                return .send(.generalPopup(.loadIfNeeded))
 
             case .myPage(.delegate(.loginSelected)):
                 state.screen = .login(isOnboarding: false)
+                state.login = LoginFeature.State(isOnboarding: false)
                 return .none
 
             case .myPage(.delegate(.noticeSelected)):
@@ -174,6 +249,7 @@ struct AppFeature {
 
             case .myPage(.delegate(.alertSelected)):
                 state.screen = .alert
+                state.alert = AlertFeature.State()
                 return .none
 
             case .myPage:
@@ -182,7 +258,7 @@ struct AppFeature {
             case .loginClosed:
                 state.screen = .main
                 state.selectedTab = .home
-                return .none
+                return .send(.generalPopup(.loadIfNeeded))
 
             case .loginNonMemberSelected:
                 state.screen = .onboardingGuide
@@ -190,12 +266,13 @@ struct AppFeature {
 
             case .loginSelected:
                 state.screen = .login(isOnboarding: false)
+                state.login = LoginFeature.State(isOnboarding: false)
                 return .none
 
             case .homeTabSelected:
                 state.screen = .main
                 state.selectedTab = .home
-                return .none
+                return .send(.generalPopup(.loadIfNeeded))
 
             case .quoteListTabSelected:
                 state.screen = .main
@@ -251,13 +328,38 @@ struct AppFeature {
             case .onboardingGuideFinished:
                 state.screen = .main
                 state.selectedTab = .home
-                return .none
+                return .send(.generalPopup(.loadIfNeeded))
 
             case let .selectedTabChanged(tab):
                 state.selectedTab = tab
                 if tab == .quoteList {
                     return .send(.quoteList(.refresh))
                 }
+                if tab == .home || tab == .myPage {
+                    return .send(.generalPopup(.loadIfNeeded))
+                }
+                return .none
+
+            case .sessionExpired:
+                guard !state.isHandlingSessionExpiration else {
+                    return .none
+                }
+                state.isHandlingSessionExpiration = true
+                return .run { send in
+                    try await sessionClient.logout()
+                    await send(.sessionExpiredHandled)
+                } catch: { _, send in
+                    await send(.sessionExpiredHandled)
+                }
+
+            case .sessionExpiredHandled:
+                state.isHandlingSessionExpiration = false
+                state.screen = .main
+                state.selectedTab = .home
+                state.home = HomeFeature.State()
+                state.quoteList = QuoteListFeature.State()
+                state.calendar = CalendarFeature.State()
+                state.myPage = MyPageFeature.State()
                 return .none
             }
         }

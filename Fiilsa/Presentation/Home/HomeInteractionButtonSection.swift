@@ -59,12 +59,12 @@ private struct CopyActionIcon: View {
 
             context.stroke(
                 Path(roundedRect: CGRect(x: 2.4, y: 2.4, width: 13.77, height: 13.77), cornerRadius: 2.35),
-                with: .color(FillsaColor.gray700),
+                with: .color(FillsaColor.onBackground1),
                 lineWidth: 1.1
             )
             context.fill(
                 Path(roundedRect: CGRect(x: 7.834, y: 7.834, width: 13.766, height: 13.766), cornerRadius: 2.35),
-                with: .color(FillsaColor.gray700)
+                with: .color(FillsaColor.onBackground1)
             )
             context.fill(
                 Path(roundedRect: CGRect(x: 8.921, y: 8.921, width: 11.592, height: 11.592), cornerRadius: 1.27),
@@ -85,10 +85,10 @@ private struct ShareActionIcon: View {
             linePath.move(to: CGPoint(x: 8.713, y: 14.409))
             linePath.addLine(to: CGPoint(x: 14.287, y: 17.909))
 
-            context.stroke(linePath, with: .color(FillsaColor.gray700), lineWidth: 1)
-            context.stroke(Path(ellipseIn: CGRect(x: 4, y: 9.5, width: 5, height: 5)), with: .color(FillsaColor.gray700), lineWidth: 1)
-            context.stroke(Path(ellipseIn: CGRect(x: 14, y: 3, width: 5, height: 5)), with: .color(FillsaColor.gray700), lineWidth: 1)
-            context.stroke(Path(ellipseIn: CGRect(x: 14, y: 16, width: 5, height: 5)), with: .color(FillsaColor.gray700), lineWidth: 1)
+            context.stroke(linePath, with: .color(FillsaColor.onBackground1), lineWidth: 1)
+            context.stroke(Path(ellipseIn: CGRect(x: 4, y: 9.5, width: 5, height: 5)), with: .color(FillsaColor.onBackground1), lineWidth: 1)
+            context.stroke(Path(ellipseIn: CGRect(x: 14, y: 3, width: 5, height: 5)), with: .color(FillsaColor.onBackground1), lineWidth: 1)
+            context.stroke(Path(ellipseIn: CGRect(x: 14, y: 16, width: 5, height: 5)), with: .color(FillsaColor.onBackground1), lineWidth: 1)
         }
     }
 }
@@ -103,7 +103,7 @@ private struct HeartActionIcon: View {
             if isFilled {
                 context.fill(heartPath, with: .color(Color(hex: 0xFF3434)))
             } else {
-                context.stroke(heartPath, with: .color(FillsaColor.gray700), lineWidth: 1.2)
+                context.stroke(heartPath, with: .color(FillsaColor.onBackground1), lineWidth: 1.2)
             }
         }
     }

@@ -39,7 +39,7 @@ struct CalendarSelectedQuoteSection: View {
 
                 Text(selectedDayQuote)
                     .font(FillsaTypography.body3)
-                    .foregroundStyle(FillsaColor.gray700)
+                    .foregroundStyle(FillsaColor.onBackground1)
                     .lineLimit(3)
                     .multilineTextAlignment(.leading)
                     .frame(maxWidth: .infinity, alignment: .leading)
@@ -49,7 +49,7 @@ struct CalendarSelectedQuoteSection: View {
             }
             .background(
                 RoundedRectangle(cornerRadius: 10)
-                    .fill(FillsaColor.white)
+                    .fill(FillsaColor.backgroundContainer)
             )
         }
         .buttonStyle(.plain)

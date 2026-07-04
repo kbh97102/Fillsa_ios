@@ -18,25 +18,25 @@ struct QuoteListDateSelectSection: View {
             HStack(spacing: 0) {
                 CalendarSelectIcon()
                     .frame(width: 20, height: 20)
-                    .foregroundStyle(isCalendarDisplayed ? FillsaColor.purple01 : FillsaColor.gray700)
+                    .foregroundStyle(isCalendarDisplayed ? FillsaColor.onBackground2 : FillsaColor.onBackground1)
 
                 Text("\(QuoteListDateSupport.displayDate(startDate)) - \(QuoteListDateSupport.displayDate(endDate))")
                     .font(FillsaTypography.body2)
-                    .foregroundStyle(FillsaColor.gray700)
+                    .foregroundStyle(FillsaColor.onBackground1)
                     .padding(.leading, 10)
 
                 Spacer()
 
                 Image(systemName: "chevron.down")
                     .font(.system(size: 16, weight: .semibold))
-                    .foregroundStyle(FillsaColor.gray700)
+                    .foregroundStyle(FillsaColor.onBackground1)
                     .rotationEffect(isCalendarDisplayed ? .degrees(180) : .degrees(0))
             }
             .padding(.horizontal, 16)
             .padding(.vertical, 8)
             .background(
                 RoundedRectangle(cornerRadius: 8)
-                    .fill(FillsaColor.yellow01)
+                    .fill(FillsaColor.backgroundContainer)
             )
         }
         .buttonStyle(.plain)

@@ -1,25 +1,37 @@
-//
-//  LoginView.swift
-//  Fiilsa
-//
-//  Created by Codex on 6/15/26.
-//
-
+import ComposableArchitecture
 import SwiftUI
 
 struct LoginView: View {
-    let isOnboarding: Bool
-    let close: () -> Void
-    let moveHome: () -> Void
-    let moveOnboardingGuide: () -> Void
+    let store: StoreOf<LoginFeature>
 
     @Environment(\.openURL) private var openURL
     @State private var testClickCount = 0
 
     var body: some View {
+        WithViewStore(store, observe: { $0 }) { viewStore in
+            ZStack {
+                content(viewStore: viewStore)
+
+                if let message = viewStore.toastMessage {
+                    toast(message)
+                        .transition(.opacity)
+                        .onAppear {
+                            Task {
+                                try? await Task.sleep(nanoseconds: 1_600_000_000)
+                                await viewStore.send(.toastDismissed).finish()
+                            }
+                        }
+                }
+            }
+        }
+    }
+
+    private func content(
+        viewStore: ViewStore<LoginFeature.State, LoginFeature.Action>
+    ) -> some View {
         VStack(spacing: 0) {
-            if isOnboarding {
-                topSection
+            if viewStore.isOnboarding {
+                topSection(viewStore: viewStore)
             }
 
             Image("icn_top_logo")
@@ -40,24 +52,32 @@ struct LoginView: View {
                 icon: .kakao,
                 text: "카카오 계정으로 시작하기",
                 backgroundColor: Color(hex: 0xFEE500),
-                onClick: {}
+                onClick: {
+                    viewStore.send(.kakaoTapped)
+                }
             )
             .padding(.top, 12)
+            .disabled(viewStore.isProcessing)
 
             LoginButton(
                 icon: .google,
                 text: "구글 계정으로 시작하기",
                 backgroundColor: Color(hex: 0xF2F2F2),
-                onClick: {}
+                onClick: {
+                    viewStore.send(.googleTapped)
+                }
             )
             .padding(.top, 16)
+            .disabled(viewStore.isProcessing)
 
-            if !isOnboarding {
+            if !viewStore.isOnboarding {
                 LoginButton(
                     icon: .pencil,
                     text: "비회원으로 시작하기",
                     backgroundColor: FillsaColor.white,
-                    onClick: moveOnboardingGuide
+                    onClick: {
+                        viewStore.send(.nonMemberTapped)
+                    }
                 )
                 .padding(.top, 16)
             }
@@ -80,11 +100,15 @@ struct LoginView: View {
         .background(FillsaColor.background.ignoresSafeArea())
     }
 
-    private var topSection: some View {
+    private func topSection(
+        viewStore: ViewStore<LoginFeature.State, LoginFeature.Action>
+    ) -> some View {
         HStack {
             Spacer()
 
-            Button(action: close) {
+            Button {
+                viewStore.send(.closeTapped)
+            } label: {
                 Image(systemName: "xmark")
                     .font(.system(size: 20, weight: .semibold))
                     .foregroundStyle(FillsaColor.gray700)
@@ -94,13 +118,28 @@ struct LoginView: View {
         }
         .padding(.vertical, 13)
     }
+
+    private func toast(_ message: String) -> some View {
+        VStack {
+            Spacer()
+            Text(message)
+                .font(FillsaTypography.body2)
+                .foregroundStyle(FillsaColor.white)
+                .padding(.horizontal, 18)
+                .padding(.vertical, 12)
+                .background(
+                    Capsule()
+                        .fill(FillsaColor.black0C.opacity(0.84))
+                )
+                .padding(.bottom, 28)
+        }
+    }
 }
 
 #Preview {
     LoginView(
-        isOnboarding: false,
-        close: {},
-        moveHome: {},
-        moveOnboardingGuide: {}
+        store: Store(initialState: LoginFeature.State(isOnboarding: false)) {
+            LoginFeature()
+        }
     )
 }

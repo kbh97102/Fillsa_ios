@@ -14,16 +14,20 @@ protocol TokenStore {
 
 final class FillsaRequestInterceptor: RequestInterceptor {
     typealias RefreshTokenHandler = @Sendable (_ refreshToken: String) async throws -> TokenInfo?
+    typealias SessionExpiredHandler = @Sendable (_ event: SessionExpirationEvent) -> Void
 
     private let tokenStore: TokenStore
     private let refreshTokenHandler: RefreshTokenHandler
+    private let sessionExpiredHandler: SessionExpiredHandler
 
     init(
         tokenStore: TokenStore,
-        refreshTokenHandler: @escaping RefreshTokenHandler
+        refreshTokenHandler: @escaping RefreshTokenHandler,
+        sessionExpiredHandler: @escaping SessionExpiredHandler = SessionExpirationEventCenter.emit
     ) {
         self.tokenStore = tokenStore
         self.refreshTokenHandler = refreshTokenHandler
+        self.sessionExpiredHandler = sessionExpiredHandler
     }
 
     func adapt(
@@ -55,11 +59,15 @@ final class FillsaRequestInterceptor: RequestInterceptor {
         dueTo error: Error,
         completion: @escaping (RetryResult) -> Void
     ) {
-        guard
-            request.retryCount == 0,
-            let statusCode = request.response?.statusCode,
-            statusCode == 401 || statusCode == 403
-        else {
+        guard let statusCode = request.response?.statusCode, statusCode == 401 || statusCode == 403 else {
+            completion(.doNotRetryWithError(error))
+            return
+        }
+
+        guard request.retryCount == 0 else {
+            sessionExpiredHandler(
+                SessionExpirationEvent(statusCode: statusCode, reason: .retryRejected)
+            )
             completion(.doNotRetryWithError(error))
             return
         }
@@ -68,6 +76,9 @@ final class FillsaRequestInterceptor: RequestInterceptor {
             do {
                 let refreshToken = await tokenStore.refreshToken()
                 guard !refreshToken.isEmpty, let tokenInfo = try await refreshTokenHandler(refreshToken) else {
+                    sessionExpiredHandler(
+                        SessionExpirationEvent(statusCode: statusCode, reason: .missingRefreshToken)
+                    )
                     completion(.doNotRetryWithError(error))
                     return
                 }
@@ -78,6 +89,9 @@ final class FillsaRequestInterceptor: RequestInterceptor {
                 )
                 completion(.retry)
             } catch {
+                sessionExpiredHandler(
+                    SessionExpirationEvent(statusCode: statusCode, reason: .refreshFailed)
+                )
                 completion(.doNotRetryWithError(error))
             }
         }

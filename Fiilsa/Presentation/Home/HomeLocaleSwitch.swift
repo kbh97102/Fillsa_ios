@@ -29,7 +29,7 @@ struct HomeLocaleSwitch: View {
             }
             .padding(.horizontal, 3)
             .padding(.vertical, 4)
-            .background(Capsule().fill(FillsaColor.purple02))
+            .background(Capsule().fill(FillsaColor.secondaryContainer))
         }
         .buttonStyle(.plain)
     }
@@ -37,12 +37,12 @@ struct HomeLocaleSwitch: View {
     private func localeItem(_ title: String, isSelected: Bool) -> some View {
         Text(title)
             .font(FillsaTypography.subtitle2)
-            .foregroundStyle(FillsaColor.gray700)
+            .foregroundStyle(FillsaColor.onSecondaryContainer1)
             .padding(.horizontal, 8)
             .padding(.vertical, 2)
             .background {
                 if isSelected {
-                    Capsule().fill(FillsaColor.white)
+                    Capsule().fill(FillsaColor.backgroundContainer)
                 }
             }
     }

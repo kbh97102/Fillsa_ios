@@ -2,6 +2,7 @@ import SwiftUI
 
 struct AlertSwitchSection: View {
     @Binding var selected: Bool
+    var isEnabled = true
 
     var body: some View {
         HStack(alignment: .center, spacing: 16) {
@@ -20,6 +21,7 @@ struct AlertSwitchSection: View {
             Toggle("", isOn: $selected)
                 .labelsHidden()
                 .tint(FillsaColor.purple01)
+                .disabled(!isEnabled)
         }
         .padding(.horizontal, 20)
         .background(FillsaColor.yellow01)

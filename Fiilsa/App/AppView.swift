@@ -6,8 +6,17 @@ struct AppView: View {
 
     var body: some View {
         WithViewStore(store, observe: { $0 }) { viewStore in
-            content(for: viewStore.screen, viewStore: viewStore)
-                .preferredColorScheme(viewStore.myPage.selectedTheme.colorScheme)
+            ZStack {
+                content(for: viewStore.screen, viewStore: viewStore)
+
+                GeneralPopupView(
+                    store: store.scope(state: \.generalPopup, action: \.generalPopup)
+                )
+            }
+            .preferredColorScheme(viewStore.myPage.selectedTheme.colorScheme)
+            .task {
+                await viewStore.send(.task).finish()
+            }
         }
     }
 
@@ -22,18 +31,9 @@ struct AppView: View {
                 store: store.scope(state: \.splash, action: \.splash)
             )
 
-        case let .login(isOnboarding):
+        case .login:
             LoginView(
-                isOnboarding: isOnboarding,
-                close: {
-                    viewStore.send(.loginClosed)
-                },
-                moveHome: {
-                    viewStore.send(.loginClosed)
-                },
-                moveOnboardingGuide: {
-                    viewStore.send(.loginNonMemberSelected)
-                }
+                store: store.scope(state: \.login, action: \.login)
             )
 
         case .onboardingGuide:
@@ -90,9 +90,7 @@ struct AppView: View {
 
         case .alert:
             AlertView(
-                back: {
-                    viewStore.send(.backToMain)
-                }
+                store: store.scope(state: \.alert, action: \.alert)
             )
         }
     }

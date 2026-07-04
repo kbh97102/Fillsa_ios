@@ -27,13 +27,13 @@ struct MyPageBottomButtonSection: View {
             HStack {
                 Text("버전")
                     .font(FillsaTypography.subtitle1)
-                    .foregroundStyle(FillsaColor.gray700)
+                    .foregroundStyle(FillsaColor.onBackground1)
 
                 Spacer()
 
                 Text(version)
                     .font(FillsaTypography.body2)
-                    .foregroundStyle(FillsaColor.gray700)
+                    .foregroundStyle(FillsaColor.onBackground1)
             }
             .padding(.vertical, 13)
 
@@ -41,7 +41,7 @@ struct MyPageBottomButtonSection: View {
                 Button(action: logout) {
                     Text("로그아웃")
                         .font(FillsaTypography.subtitle1)
-                        .foregroundStyle(FillsaColor.gray700)
+                        .foregroundStyle(FillsaColor.onBackground1)
                         .padding(.top, 13)
                 }
                 .buttonStyle(.plain)

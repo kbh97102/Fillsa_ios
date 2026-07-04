@@ -1,4 +1,5 @@
 import SwiftUI
+import UIKit
 
 enum FillsaColor {
     static let purple01 = Color(hex: 0x5C65FF)
@@ -19,9 +20,41 @@ enum FillsaColor {
     static let gray600 = Color(hex: 0x424242)
     static let gray700 = Color(hex: 0x212121)
 
-    static let background = primary
-    static let onBackgroundPrimary = gray700
-    static let onBackgroundAccent = purple01
+    // Android FillsaColorScheme parity. Use these semantic tokens for UI roles
+    // that change between light and dark mode.
+    static let background = dynamic(light: primary, dark: gray700)
+    static let onBackground1 = dynamic(light: gray700, dark: white)
+    static let onBackground2 = purple01
+    static let backgroundContainer = dynamic(light: white, dark: gray600)
+    static let primaryContainer = dynamic(light: purple01, dark: gray600)
+    static let onPrimaryContainer = white
+    static let outline = dynamic(light: purple01, dark: gray500)
+    static let outlineVariant = gray200
+    static let toastMessageBackground = dynamic(light: gray700, dark: gray500)
+    static let onToastMessage1 = white
+    static let onToastMessage2 = green1A
+    static let backgroundDim = gray700.opacity(0.8)
+    static let secondaryContainer = purple02
+    static let onSecondaryContainer1 = gray700
+    static let onSecondaryContainer2 = purple01
+    static let tertiaryContainer = white
+    static let onTertiaryContainer = purple01
+    static let tertiaryOutline1 = purple02
+    static let tertiaryOutline2 = purple01
+    static let tertiary = yellow02
+    static let onTertiary1 = white
+    static let onTertiary2 = purple01
+
+    static let onBackgroundPrimary = onBackground1
+    static let onBackgroundAccent = onBackground2
+
+    static func dynamic(light: Color, dark: Color) -> Color {
+        Color(
+            UIColor { traitCollection in
+                traitCollection.userInterfaceStyle == .dark ? UIColor(dark) : UIColor(light)
+            }
+        )
+    }
 }
 
 extension Color {

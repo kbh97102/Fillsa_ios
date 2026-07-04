@@ -36,7 +36,7 @@ private struct BottomNavigationItem: View {
                 Text(tab.title)
                     .font(FillsaTypography.body4)
             }
-            .foregroundStyle(isSelected ? FillsaColor.purple01 : FillsaColor.gray700)
+            .foregroundStyle(isSelected ? FillsaColor.onBackground2 : FillsaColor.onBackground1)
             .frame(maxWidth: .infinity)
             .frame(height: 52)
             .contentShape(Rectangle())

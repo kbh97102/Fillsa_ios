@@ -16,7 +16,7 @@ struct HeaderSection: View {
             Button(action: back) {
                 Image(systemName: "chevron.left")
                     .font(.system(size: 22, weight: .semibold))
-                    .foregroundStyle(FillsaColor.gray700)
+                    .foregroundStyle(FillsaColor.onBackground1)
                     .frame(width: 44, height: 44)
             }
             .buttonStyle(.plain)
@@ -25,7 +25,7 @@ struct HeaderSection: View {
 
             Text(title)
                 .font(FillsaTypography.subtitle1)
-                .foregroundStyle(FillsaColor.gray700)
+                .foregroundStyle(FillsaColor.onBackground1)
 
             Spacer()
 

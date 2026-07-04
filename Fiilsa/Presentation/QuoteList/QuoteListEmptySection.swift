@@ -20,7 +20,7 @@ struct QuoteListEmptySection: View {
 
             Text("필사하거나 좋아요한 문장이 여기에 보여요 :)")
                 .font(FillsaTypography.body2)
-                .foregroundStyle(FillsaColor.gray700)
+                .foregroundStyle(FillsaColor.onBackground1)
                 .padding(.top, 8)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)

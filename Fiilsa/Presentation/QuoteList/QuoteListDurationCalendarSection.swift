@@ -30,7 +30,7 @@ struct QuoteListDurationCalendarSection: View {
                     ForEach(weekdays, id: \.self) { weekday in
                         Text(weekday)
                             .font(FillsaTypography.subtitle2)
-                            .foregroundStyle(FillsaColor.gray700)
+                            .foregroundStyle(FillsaColor.onBackground1)
                             .frame(maxWidth: .infinity)
                     }
                 }
@@ -73,11 +73,11 @@ struct QuoteListDurationCalendarSection: View {
             .padding(.top, 20)
             .background(
                 RoundedRectangle(cornerRadius: 12)
-                    .fill(FillsaColor.white)
+                    .fill(FillsaColor.backgroundContainer)
             )
             .overlay {
                 RoundedRectangle(cornerRadius: 12)
-                    .stroke(FillsaColor.purple01, lineWidth: 1)
+                    .stroke(FillsaColor.outline, lineWidth: 1)
             }
             .transition(.move(edge: .top).combined(with: .opacity))
         }
@@ -92,7 +92,7 @@ struct QuoteListDurationCalendarSection: View {
                     } label: {
                         Image(systemName: "chevron.left")
                             .font(.system(size: 18, weight: .semibold))
-                            .foregroundStyle(FillsaColor.gray700)
+                            .foregroundStyle(FillsaColor.onBackground1)
                             .frame(width: 24, height: 24)
                     }
                     .buttonStyle(.plain)
@@ -103,7 +103,7 @@ struct QuoteListDurationCalendarSection: View {
 
             Text(QuoteListDateSupport.monthTitle(currentMonth))
                 .font(FillsaTypography.heading4)
-                .foregroundStyle(FillsaColor.gray700)
+                .foregroundStyle(FillsaColor.onBackground1)
 
             if currentMonth < FillsaCalendarDateSupport.startOfMonth(for: Date()) {
                 HStack {
@@ -114,7 +114,7 @@ struct QuoteListDurationCalendarSection: View {
                     } label: {
                         Image(systemName: "chevron.right")
                             .font(.system(size: 18, weight: .semibold))
-                            .foregroundStyle(FillsaColor.gray700)
+                            .foregroundStyle(FillsaColor.onBackground1)
                             .frame(width: 24, height: 24)
                     }
                     .buttonStyle(.plain)
@@ -218,8 +218,8 @@ private struct QuoteListRangeDayCell: View {
     }
 
     private var textColor: Color {
-        if isRangeEdge { return FillsaColor.white }
-        if FillsaCalendarDateSupport.isSameMonth(date, currentMonth) { return FillsaColor.gray700 }
+        if isRangeEdge { return FillsaColor.onPrimaryContainer }
+        if FillsaCalendarDateSupport.isSameMonth(date, currentMonth) { return FillsaColor.onBackground1 }
         return FillsaColor.gray400.opacity(0.4)
     }
 }

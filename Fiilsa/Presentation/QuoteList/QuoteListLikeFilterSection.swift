@@ -21,7 +21,7 @@ struct QuoteListLikeFilterSection: View {
 
                 Text("좋아요")
                     .font(FillsaTypography.body2)
-                    .foregroundStyle(FillsaColor.gray700)
+                    .foregroundStyle(FillsaColor.onBackground1)
                     .padding(.leading, 4)
 
                 QuoteListCheckBox(isChecked: isLike)

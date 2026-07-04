@@ -60,7 +60,7 @@ struct CalendarDayCell: View {
 
     private var dayTextColor: Color {
         if isEnabled {
-            isSelected ? FillsaColor.white : FillsaColor.gray700
+            isSelected ? FillsaColor.onPrimaryContainer : FillsaColor.onBackground1
         } else {
             isCurrentMonth ? FillsaColor.gray400 : FillsaColor.gray400
         }
@@ -85,5 +85,5 @@ struct CalendarDayCell: View {
         onClick: {}
     )
     .frame(width: 52, height: 64)
-    .background(FillsaColor.yellow01)
+    .background(FillsaColor.backgroundContainer)
 }

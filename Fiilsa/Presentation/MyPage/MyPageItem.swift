@@ -33,7 +33,7 @@ struct MyPageItem: View {
 
                 Text(text)
                     .font(FillsaTypography.subtitle1)
-                    .foregroundStyle(FillsaColor.gray700)
+                    .foregroundStyle(FillsaColor.onBackground1)
                     .padding(.leading, 8)
 
                 Spacer()
@@ -41,7 +41,7 @@ struct MyPageItem: View {
                 if useArrow {
                     Image(systemName: "chevron.left")
                         .font(.system(size: 18, weight: .semibold))
-                        .foregroundStyle(FillsaColor.gray700)
+                        .foregroundStyle(FillsaColor.onBackground1)
                         .frame(width: 24, height: 24)
                 }
             }
@@ -49,11 +49,11 @@ struct MyPageItem: View {
             .padding(.horizontal, 12)
             .background(
                 RoundedRectangle(cornerRadius: 12)
-                    .fill(FillsaColor.white)
+                    .fill(FillsaColor.backgroundContainer)
             )
             .overlay {
                 RoundedRectangle(cornerRadius: 12)
-                    .stroke(FillsaColor.purple02, lineWidth: 1)
+                    .stroke(FillsaColor.tertiaryOutline1, lineWidth: 1)
             }
         }
         .buttonStyle(.plain)
