@@ -11,6 +11,7 @@ struct LoginButton: View {
     let icon: LoginButtonIcon
     let text: String
     let backgroundColor: Color
+    var textColor: Color = Color(hex: 0x1F1F1F)
     let onClick: () -> Void
 
     var body: some View {
@@ -21,7 +22,7 @@ struct LoginButton: View {
 
                 Text(text)
                     .font(FillsaTypography.subtitle2)
-                    .foregroundStyle(Color(hex: 0x1F1F1F))
+                    .foregroundStyle(textColor)
             }
             .frame(maxWidth: .infinity)
             .padding(.vertical, 10)
@@ -36,7 +37,7 @@ struct LoginButton: View {
 
 enum LoginButtonIcon {
     case kakao
-    case google
+    case apple
     case pencil
 }
 
@@ -54,14 +55,10 @@ private struct LoginIcon: View {
                         .foregroundStyle(Color(hex: 0xFEE500))
                 }
 
-        case .google:
-            ZStack {
-                Circle()
-                    .fill(FillsaColor.white)
-                Text("G")
-                    .font(.system(size: 15, weight: .bold))
-                    .foregroundStyle(Color(hex: 0x4285F4))
-            }
+        case .apple:
+            Image(systemName: "apple.logo")
+                .font(.system(size: 18, weight: .semibold))
+                .foregroundStyle(FillsaColor.white)
 
         case .pencil:
             Image(systemName: "pencil")

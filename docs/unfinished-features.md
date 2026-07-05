@@ -7,7 +7,7 @@
 
 | 우선순위 | 영역 | 상태 | 이유 |
 |----------|------|------|------|
-| P0 | 소셜 로그인 | 부분 구현 | 코드 흐름은 연결됨. iOS OAuth 앱 설정/실기기 검증 필요 |
+| P0 | 소셜 로그인 | 부분 구현 | Apple 로그인 앱 설정은 연결됨. Kakao provider 콘솔 키 등록/실기기 검증 필요 |
 | P0 | 공유 화면 저장/공유 | 부분 구현 | 카카오 SDK 템플릿 공유 여부만 결정 필요 |
 | P1 | 알림 설정/예약 | 부분 구현 | 로컬 알림 예약/해제는 구현됨. 오늘 명언 본문 동적 구성은 남음 |
 | P1 | 회원 탈퇴 | 미구현 | Android 회원 전용 기능 parity 필요 |
@@ -25,27 +25,32 @@
 
 현재 상태:
 
-- `LoginView`는 `LoginFeature`와 연결되어 카카오/구글/비회원 버튼 action을 처리한다.
-- `SocialAuthClient`가 `ASWebAuthenticationSession` 기반으로 구글/카카오 OAuth 인증창을 연다.
+- `LoginView`는 `LoginFeature`와 연결되어 카카오/Apple/비회원 버튼 action을 처리한다.
+- `SocialAuthClient`가 카카오는 `ASWebAuthenticationSession`, Apple은 `ASAuthorizationAppleIDProvider` 기반 인증창을 연다.
 - `DefaultAuthRepository`가 서버 로그인/토큰 갱신 API와 연결되어 있다.
 - `AuthUseCases`가 Android `LoginViewModel.login()`처럼 deviceData, userData, syncData를 구성한다.
 - 로그인 성공 후 access token, refresh token, userName, profileImage를 로컬 저장소에 저장하고 로컬 필사 데이터를 정리한다.
 - 로그인 성공 후 Home으로 이동한다.
 - OAuth 설정값이 없으면 `"소셜 로그인 설정이 필요합니다."` toast를 표시한다.
+- `Fiilsa/Info.plist`에 Kakao OAuth callback scheme `fillsa`가 등록되어 있다.
+- Kakao 기본 redirect URI는 `fillsa://oauth/kakao`로 연결되어 있다.
+- `Fiilsa/Fiilsa.entitlements`에 Sign in with Apple entitlement가 연결되어 있다.
 
 남은 작업:
 
 - [x] 카카오 로그인 SDK 연동 또는 iOS용 인증 흐름 결정
-- [x] 구글 로그인 SDK 연동 또는 iOS용 인증 흐름 결정
+- [x] Apple 로그인 인증 흐름 구현
 - [x] `DefaultAuthRepository` 구현
 - [x] 로그인 request/response를 서버 API와 연결
 - [x] 성공 시 Keychain에 access/refresh token 저장
 - [x] 성공 시 UserDefaults에 userName/profileImage 저장
 - [x] 로그인 성공 후 Home 이동
 - [x] 실패/취소 상태 처리
-- [ ] iOS용 Google client id, redirect URI 준비
-- [ ] iOS용 Kakao REST API key, redirect URI 준비
-- [ ] Xcode URL Types에 OAuth callback scheme 등록
+- [ ] iOS용 Kakao REST API key 준비
+- [x] Xcode URL Types에 OAuth callback scheme 등록
+- [x] iOS 앱 build setting과 Info.plist OAuth 설정 연결
+- [x] Sign in with Apple entitlement 연결
+- [ ] Apple Developer App ID에서 Sign in with Apple capability 활성화 확인
 - [ ] 실제 provider 콘솔 설정 후 실기기/시뮬레이터 로그인 검증
 - [ ] 카카오톡 앱 직접 로그인 SDK가 필요한지 결정
 

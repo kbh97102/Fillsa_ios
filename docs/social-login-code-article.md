@@ -1,5 +1,8 @@
 # iOS 소셜 로그인 코드 이해하기
 
+> 업데이트: 현재 iOS 구현은 Google 로그인을 제거하고 Apple/Kakao 로그인으로 구성한다.
+> 이 문서의 Google OAuth 설명은 이전 구현을 설명하는 참고 내용이며, 현재 코드 기준의 최신 요약은 `docs/social-login-implementation.md`를 우선 확인한다.
+
 이 문서는 필사앱 iOS 소셜 로그인 구현을 처음 보는 개발자를 위한 설명이다. Swift, SwiftUI, TCA, iOS OAuth 흐름을 잘 모른다고 가정하고 작성했다.
 
 Android 개발자 관점으로 비교하면 다음과 같다.

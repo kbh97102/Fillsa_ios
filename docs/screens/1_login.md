@@ -11,7 +11,7 @@
 | 버튼 | 동작 |
 |------|------|
 | 카카오 간편 로그인 | 카카오 로그인 진행 / 카카오톡 미설치 시 하단 팝업 '카카오톡 설치 후 이용해주세요.' |
-| 구글 간편 로그인 | 구글 로그인 진행 |
+| Apple로 시작하기 | Apple 로그인 진행 |
 | 비회원으로 시작하기 | 비회원 상태로 Home 이동 |
 
 ### 문구
@@ -29,7 +29,7 @@
 | 버튼 | 동작 |
 |------|------|
 | 카카오 간편 로그인 | 카카오 로그인 진행 |
-| 구글 간편 로그인 | 구글 로그인 진행 |
+| Apple로 시작하기 | Apple 로그인 진행 |
 | X (닫기) | 현재 화면에서 벗어남 |
 
 ### 문구
@@ -68,6 +68,13 @@ POST /api/v1/auth/login
 | (Firebase/Kakao SDK 토큰 등 소셜 인증 정보) | — | 소셜 로그인 후 서버 인증 |
 
 **Response: `LoginResponse`**
+
+### iOS 전환 결정
+
+- Android 원본은 Google/Kakao 로그인을 제공하지만, iOS 앱에서는 Google 로그인을 제거하고 Apple/Kakao 로그인으로 구성한다.
+- Apple 로그인은 `AuthenticationServices`의 `ASAuthorizationAppleIDProvider`를 사용한다.
+- Apple 로그인 결과의 `credential.user`를 서버 로그인 요청의 `oAuthId`로 전달하고, provider 값은 `"APPLE"`을 사용한다.
+- Apple 로그인은 앱의 entitlements와 Apple Developer App ID capability에서 `Sign in with Apple`이 활성화되어야 한다.
 
 ### 토큰 갱신 (인터셉터 자동 처리)
 

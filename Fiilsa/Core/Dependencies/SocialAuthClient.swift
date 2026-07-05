@@ -1,6 +1,5 @@
 import AuthenticationServices
 import ComposableArchitecture
-import CryptoKit
 import Foundation
 import UIKit
 
@@ -12,14 +11,14 @@ struct SocialAuthUser: Equatable {
 }
 
 struct SocialAuthClient {
-    var signInWithGoogle: @Sendable () async throws -> SocialAuthUser
+    var signInWithApple: @Sendable () async throws -> SocialAuthUser
     var signInWithKakao: @Sendable () async throws -> SocialAuthUser
 }
 
 extension SocialAuthClient: DependencyKey {
     static let liveValue = SocialAuthClient(
-        signInWithGoogle: {
-            try await WebSocialAuthClient(config: .current).signInWithGoogle()
+        signInWithApple: {
+            try await AppleSocialAuthClient().signIn()
         },
         signInWithKakao: {
             try await WebSocialAuthClient(config: .current).signInWithKakao()
@@ -44,57 +43,6 @@ enum SocialAuthError: Error, Equatable {
 
 private struct WebSocialAuthClient {
     let config: AuthConfig
-
-    func signInWithGoogle() async throws -> SocialAuthUser {
-        guard !config.googleClientID.isEmpty,
-              let redirectURI = URL(string: config.googleRedirectURI),
-              let callbackScheme = redirectURI.scheme else {
-            throw SocialAuthError.missingConfiguration
-        }
-
-        let verifier = Self.codeVerifier()
-        let challenge = Self.codeChallenge(from: verifier)
-
-        var components = URLComponents(string: "https://accounts.google.com/o/oauth2/v2/auth")
-        components?.queryItems = [
-            URLQueryItem(name: "client_id", value: config.googleClientID),
-            URLQueryItem(name: "redirect_uri", value: config.googleRedirectURI),
-            URLQueryItem(name: "response_type", value: "code"),
-            URLQueryItem(name: "scope", value: "openid email profile"),
-            URLQueryItem(name: "code_challenge", value: challenge),
-            URLQueryItem(name: "code_challenge_method", value: "S256")
-        ]
-
-        guard let authURL = components?.url else {
-            throw SocialAuthError.missingConfiguration
-        }
-
-        let callbackURL = try await authenticate(url: authURL, callbackScheme: callbackScheme)
-        let code = try authorizationCode(from: callbackURL)
-        let tokenData = try await requestForm(
-            url: URL(string: "https://oauth2.googleapis.com/token")!,
-            items: [
-                "grant_type": "authorization_code",
-                "code": code,
-                "client_id": config.googleClientID,
-                "redirect_uri": config.googleRedirectURI,
-                "code_verifier": verifier
-            ]
-        )
-
-        guard let token = try JSONSerialization.jsonObject(with: tokenData) as? [String: Any],
-              let idToken = token["id_token"] as? String,
-              let payload = Self.jwtPayload(idToken) else {
-            throw SocialAuthError.invalidTokenResponse
-        }
-
-        return SocialAuthUser(
-            provider: "GOOGLE",
-            oauthID: payload["sub"] as? String ?? "",
-            nickname: payload["name"] as? String ?? "",
-            profileImageURL: payload["picture"] as? String ?? ""
-        )
-    }
 
     func signInWithKakao() async throws -> SocialAuthUser {
         guard !config.kakaoRestAPIKey.isEmpty,
@@ -206,28 +154,24 @@ private struct WebSocialAuthClient {
         return data
     }
 
-    private static func codeVerifier() -> String {
-        let bytes = (0..<32).map { _ in UInt8.random(in: 0...255) }
-        return Data(bytes).base64URLEncodedString()
-    }
-
-    private static func codeChallenge(from verifier: String) -> String {
-        let digest = SHA256.hash(data: Data(verifier.utf8))
-        return Data(digest).base64URLEncodedString()
-    }
-
-    private static func jwtPayload(_ jwt: String) -> [String: Any]? {
-        let parts = jwt.split(separator: ".")
-        guard parts.count >= 2,
-              let data = Data(base64URLEncoded: String(parts[1])),
-              let object = try? JSONSerialization.jsonObject(with: data) as? [String: Any] else {
-            return nil
-        }
-        return object
-    }
-
     private static func percentEncode(_ value: String) -> String {
         value.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? value
+    }
+}
+
+private struct AppleSocialAuthClient {
+    func signIn() async throws -> SocialAuthUser {
+        try await withCheckedThrowingContinuation { continuation in
+            let request = ASAuthorizationAppleIDProvider().createRequest()
+            request.requestedScopes = [.fullName, .email]
+
+            let coordinator = AppleSignInCoordinator(continuation: continuation)
+            let controller = ASAuthorizationController(authorizationRequests: [request])
+            controller.delegate = coordinator
+            controller.presentationContextProvider = coordinator
+            AppleSignInSessionStore.shared.currentCoordinator = coordinator
+            controller.performRequests()
+        }
     }
 }
 
@@ -247,22 +191,60 @@ private final class PresentationContextProvider: NSObject, ASWebAuthenticationPr
     }
 }
 
-private extension Data {
-    init?(base64URLEncoded value: String) {
-        var base64 = value
-            .replacingOccurrences(of: "-", with: "+")
-            .replacingOccurrences(of: "_", with: "/")
-        let padding = 4 - base64.count % 4
-        if padding < 4 {
-            base64 += String(repeating: "=", count: padding)
-        }
-        self.init(base64Encoded: base64)
+private final class AppleSignInSessionStore {
+    static let shared = AppleSignInSessionStore()
+    var currentCoordinator: AppleSignInCoordinator?
+}
+
+private final class AppleSignInCoordinator: NSObject, ASAuthorizationControllerDelegate, ASAuthorizationControllerPresentationContextProviding {
+    private let continuation: CheckedContinuation<SocialAuthUser, Error>
+
+    init(continuation: CheckedContinuation<SocialAuthUser, Error>) {
+        self.continuation = continuation
     }
 
-    func base64URLEncodedString() -> String {
-        base64EncodedString()
-            .replacingOccurrences(of: "+", with: "-")
-            .replacingOccurrences(of: "/", with: "_")
-            .replacingOccurrences(of: "=", with: "")
+    func presentationAnchor(for controller: ASAuthorizationController) -> ASPresentationAnchor {
+        UIApplication.shared.connectedScenes
+            .compactMap { $0 as? UIWindowScene }
+            .flatMap(\.windows)
+            .first { $0.isKeyWindow } ?? ASPresentationAnchor()
+    }
+
+    func authorizationController(
+        controller: ASAuthorizationController,
+        didCompleteWithAuthorization authorization: ASAuthorization
+    ) {
+        AppleSignInSessionStore.shared.currentCoordinator = nil
+
+        guard let credential = authorization.credential as? ASAuthorizationAppleIDCredential,
+              !credential.user.isEmpty else {
+            continuation.resume(throwing: SocialAuthError.invalidUserResponse)
+            return
+        }
+
+        continuation.resume(
+            returning: SocialAuthUser(
+                provider: "APPLE",
+                oauthID: credential.user,
+                nickname: Self.displayName(from: credential.fullName),
+                profileImageURL: ""
+            )
+        )
+    }
+
+    func authorizationController(controller: ASAuthorizationController, didCompleteWithError error: Error) {
+        AppleSignInSessionStore.shared.currentCoordinator = nil
+
+        if let authorizationError = error as? ASAuthorizationError,
+           authorizationError.code == .canceled {
+            continuation.resume(throwing: SocialAuthError.cancelled)
+            return
+        }
+        continuation.resume(throwing: error)
+    }
+
+    private static func displayName(from components: PersonNameComponents?) -> String {
+        guard let components else { return "" }
+        return PersonNameComponentsFormatter().string(from: components)
     }
 }

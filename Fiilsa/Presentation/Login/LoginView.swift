@@ -60,11 +60,12 @@ struct LoginView: View {
             .disabled(viewStore.isProcessing)
 
             LoginButton(
-                icon: .google,
-                text: "구글 계정으로 시작하기",
-                backgroundColor: Color(hex: 0xF2F2F2),
+                icon: .apple,
+                text: "Apple로 시작하기",
+                backgroundColor: FillsaColor.black0C,
+                textColor: FillsaColor.white,
                 onClick: {
-                    viewStore.send(.googleTapped)
+                    viewStore.send(.appleTapped)
                 }
             )
             .padding(.top, 16)
