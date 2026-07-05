@@ -13,7 +13,7 @@ struct AppView: View {
                     store: store.scope(state: \.generalPopup, action: \.generalPopup)
                 )
             }
-            .preferredColorScheme(viewStore.myPage.selectedTheme.colorScheme)
+            .preferredColorScheme(viewStore.selectedTheme.colorScheme)
             .task {
                 await viewStore.send(.task).finish()
             }

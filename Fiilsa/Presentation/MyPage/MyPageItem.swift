@@ -53,7 +53,7 @@ struct MyPageItem: View {
             )
             .overlay {
                 RoundedRectangle(cornerRadius: 12)
-                    .stroke(FillsaColor.tertiaryOutline1, lineWidth: 1)
+                    .stroke(FillsaColor.myPageCardOutline, lineWidth: 1)
             }
         }
         .buttonStyle(.plain)

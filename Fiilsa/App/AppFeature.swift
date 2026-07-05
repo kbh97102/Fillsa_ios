@@ -19,11 +19,13 @@ struct AppFeature {
         var share = ShareFeature.State()
         var generalPopup = GeneralPopupFeature.State()
         var selectedTab: AppTab = .home
+        var selectedTheme: DarkModeType = .system
         var isHandlingSessionExpiration = false
     }
 
     enum Action: Equatable {
         case task
+        case themeLoaded(DarkModeType)
         case splash(SplashFeature.Action)
         case login(LoginFeature.Action)
         case home(HomeFeature.Action)
@@ -57,6 +59,7 @@ struct AppFeature {
 
     @Dependency(\.sessionClient) var sessionClient
     @Dependency(\.sessionExpirationClient) var sessionExpirationClient
+    @Dependency(\.settingsClient) var settingsClient
 
     var body: some Reducer<State, Action> {
         Scope(state: \.splash, action: \.splash) {
@@ -110,12 +113,23 @@ struct AppFeature {
         Reduce { state, action in
             switch action {
             case .task:
-                return .run { send in
-                    for await event in sessionExpirationClient.events() {
-                        await send(.sessionExpired(event))
+                return .merge(
+                    .run { send in
+                        let selectedTheme = (try? await settingsClient.getDarkModeType()) ?? .system
+                        await send(.themeLoaded(selectedTheme))
+                    },
+                    .run { send in
+                        for await event in sessionExpirationClient.events() {
+                            await send(.sessionExpired(event))
+                        }
                     }
-                }
-                .cancellable(id: "sessionExpiration", cancelInFlight: true)
+                    .cancellable(id: "sessionExpiration", cancelInFlight: true)
+                )
+
+            case let .themeLoaded(selectedTheme):
+                state.selectedTheme = selectedTheme
+                state.myPage.selectedTheme = selectedTheme
+                return .none
 
             case let .splash(.delegate(.move(destination))):
                 switch destination {
@@ -140,7 +154,7 @@ struct AppFeature {
             case .login(.delegate(.moveHome)):
                 state.screen = .main
                 state.selectedTab = .home
-                state.myPage = MyPageFeature.State()
+                state.myPage = MyPageFeature.State(selectedTheme: state.selectedTheme)
                 state.home = HomeFeature.State()
                 return .send(.generalPopup(.loadIfNeeded))
 
@@ -172,7 +186,7 @@ struct AppFeature {
                 state.home = HomeFeature.State()
                 state.quoteList = QuoteListFeature.State()
                 state.calendar = CalendarFeature.State()
-                state.myPage = MyPageFeature.State()
+                state.myPage = MyPageFeature.State(selectedTheme: state.selectedTheme)
                 state.alert = AlertFeature.State()
                 return .none
 
@@ -250,6 +264,10 @@ struct AppFeature {
             case .myPage(.delegate(.alertSelected)):
                 state.screen = .alert
                 state.alert = AlertFeature.State()
+                return .none
+
+            case let .myPage(.themeSelected(theme)):
+                state.selectedTheme = theme
                 return .none
 
             case .myPage:
@@ -359,7 +377,7 @@ struct AppFeature {
                 state.home = HomeFeature.State()
                 state.quoteList = QuoteListFeature.State()
                 state.calendar = CalendarFeature.State()
-                state.myPage = MyPageFeature.State()
+                state.myPage = MyPageFeature.State(selectedTheme: state.selectedTheme)
                 return .none
             }
         }

@@ -43,9 +43,9 @@ struct MyPageLoginSection: View {
         )
         .overlay {
             RoundedRectangle(cornerRadius: 12)
-                .stroke(FillsaColor.tertiaryOutline1, lineWidth: 1)
+                .stroke(FillsaColor.myPageCardOutline, lineWidth: 1)
         }
-        .shadow(color: Color(hex: 0xCBC0A8).opacity(0.7), radius: 16, x: 0, y: 0)
+        .shadow(color: FillsaColor.myPageShadow, radius: 16, x: 0, y: 0)
     }
 
     private var loggedOutContent: some View {
@@ -57,13 +57,13 @@ struct MyPageLoginSection: View {
 
                     Text("로그인 후 사용해 주세요!")
                         .font(FillsaTypography.subtitle1)
-                        .foregroundStyle(FillsaColor.onBackground1)
+                        .foregroundStyle(FillsaColor.gray700)
                 }
                 .frame(maxWidth: .infinity)
                 .padding(.vertical, 18)
                 .background(
                     UnevenRoundedRectangle(topLeadingRadius: 12, bottomLeadingRadius: 0, bottomTrailingRadius: 0, topTrailingRadius: 12)
-                        .fill(FillsaColor.backgroundContainer)
+                        .fill(FillsaColor.white)
                 )
 
                 Text("로그인")
@@ -76,7 +76,7 @@ struct MyPageLoginSection: View {
                             .fill(Color(hex: 0x5E67FD))
                     )
             }
-            .shadow(color: Color(hex: 0xCBC0A8).opacity(0.7), radius: 16, x: 0, y: 0)
+            .shadow(color: FillsaColor.myPageShadow, radius: 16, x: 0, y: 0)
         }
         .buttonStyle(.plain)
     }

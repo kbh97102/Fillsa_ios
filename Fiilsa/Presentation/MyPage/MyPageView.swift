@@ -4,6 +4,8 @@ import SwiftUI
 struct MyPageView: View {
     let store: StoreOf<MyPageFeature>
 
+    @Environment(\.colorScheme) private var colorScheme
+
     var body: some View {
         WithViewStore(store, observe: { $0 }) { viewStore in
             ZStack {
@@ -35,10 +37,7 @@ struct MyPageView: View {
             Button {
                 viewStore.send(.logoTapped)
             } label: {
-                Image("icn_top_logo")
-                    .resizable()
-                    .scaledToFit()
-                    .frame(width: 154, height: 70)
+                logoImage
             }
             .buttonStyle(.plain)
             .frame(maxWidth: .infinity)
@@ -92,6 +91,13 @@ struct MyPageView: View {
             Spacer()
         }
         .padding(.horizontal, 20)
+    }
+
+    private var logoImage: some View {
+        Image(colorScheme == .dark ? "icn_top_logo_dark" : "icn_top_logo")
+            .resizable()
+            .scaledToFit()
+        .frame(width: 154, height: 70)
     }
 }
 

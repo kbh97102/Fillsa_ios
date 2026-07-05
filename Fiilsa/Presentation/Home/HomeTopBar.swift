@@ -8,10 +8,12 @@
 import SwiftUI
 
 struct HomeTopBar: View {
+    @Environment(\.colorScheme) private var colorScheme
+
     var body: some View {
         HStack{
-            
-            Image("icn_top_logo")
+
+            Image(colorScheme == .dark ? "icn_top_logo_dark" : "icn_top_logo")
             
             Spacer()
             
