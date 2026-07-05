@@ -42,8 +42,10 @@ struct TypingQuoteView: View {
                     bottomSection(viewStore: viewStore)
                 }
                 .padding(.horizontal, 20)
+                .frame(maxWidth: .infinity)
             }
-            .background(FillsaColor.white.ignoresSafeArea())
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
+            .background(FillsaColor.background.ignoresSafeArea())
             .onAppear {
                 viewStore.send(.onAppear)
             }
@@ -57,7 +59,7 @@ struct TypingQuoteView: View {
             } label: {
                 Image(systemName: "chevron.left")
                     .font(.system(size: 22, weight: .semibold))
-                    .foregroundStyle(FillsaColor.gray700)
+                    .foregroundStyle(FillsaColor.onBackground1)
                     .frame(width: 44, height: 44)
             }
             .buttonStyle(.plain)
@@ -66,6 +68,7 @@ struct TypingQuoteView: View {
 
             HomeLocaleSwitch(selected: $selectedLocale)
         }
+        .frame(maxWidth: .infinity)
         .padding(.horizontal, 15)
         .padding(.vertical, 7)
     }
@@ -80,7 +83,9 @@ struct TypingQuoteView: View {
                     share(quote(from: viewStore), author(from: viewStore))
                 },
                 isLike: viewStore.likeYn == "Y",
-                setIsLike: { _ in }
+                setIsLike: {
+                    viewStore.send(.likeTapped($0))
+                }
             )
             .frame(maxWidth: 180)
 
@@ -101,6 +106,7 @@ struct TypingQuoteView: View {
             }
             .buttonStyle(.plain)
         }
+        .frame(maxWidth: .infinity)
         .padding(.bottom, 24)
     }
 

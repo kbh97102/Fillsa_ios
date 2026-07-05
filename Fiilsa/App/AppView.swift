@@ -128,6 +128,9 @@ struct AppView: View {
                 },
                 openLogin: {
                     viewStore.send(.loginSelected)
+                },
+                openMyPage: {
+                    viewStore.send(.selectedTabChanged(.myPage))
                 }
             )
         case .quoteList:
@@ -135,11 +138,17 @@ struct AppView: View {
                 store: store.scope(state: \.quoteList, action: \.quoteList),
                 openDetail: { data in
                     viewStore.send(.quoteDetailSelected(data))
+                },
+                openMyPage: {
+                    viewStore.send(.selectedTabChanged(.myPage))
                 }
             )
         case .calendar:
             CalendarView(
-                store: store.scope(state: \.calendar, action: \.calendar)
+                store: store.scope(state: \.calendar, action: \.calendar),
+                openMyPage: {
+                    viewStore.send(.selectedTabChanged(.myPage))
+                }
             )
         case .myPage:
             MyPageView(

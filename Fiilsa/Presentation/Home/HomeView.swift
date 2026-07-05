@@ -20,6 +20,7 @@ struct HomeView: View {
     let openTyping: () -> Void
     let openShare: (String, String) -> Void
     let openLogin: () -> Void
+    let openMyPage: () -> Void
 
     @Environment(\.openURL) private var openURL
 
@@ -30,20 +31,22 @@ struct HomeView: View {
         date: Date = Date(),
         openTyping: @escaping () -> Void = {},
         openShare: @escaping (String, String) -> Void = { _, _ in },
-        openLogin: @escaping () -> Void = {}
+        openLogin: @escaping () -> Void = {},
+        openMyPage: @escaping () -> Void = {}
     ) {
         self.store = store
         self.date = date
         self.openTyping = openTyping
         self.openShare = openShare
         self.openLogin = openLogin
+        self.openMyPage = openMyPage
     }
 
     var body: some View {
         WithViewStore(store, observe: { $0 }) { viewStore in
             ZStack {
                 VStack(spacing: 0) {
-                    HomeTopBar()
+                    HomeTopBar(myPage: openMyPage)
                         .padding(.horizontal, 20)
 
                     HStack(alignment: .center, spacing: 20) {

@@ -305,7 +305,9 @@ struct AppFeature {
                     engQuote: state.home.quote.engQuote ?? "",
                     korAuthor: state.home.quote.korAuthor ?? "",
                     engAuthor: state.home.quote.engAuthor ?? "",
-                    likeYn: state.home.quote.likeYn
+                    likeYn: state.home.quote.likeYn,
+                    quoteDate: FillsaCalendarDateSupport.quoteDateString(for: state.home.date),
+                    dayOfWeek: dayOfWeekString(for: state.home.date)
                 )
                 return .none
 
@@ -387,5 +389,12 @@ struct AppFeature {
         let startOfMonth = FillsaCalendarDateSupport.startOfMonth(for: date)
         let nextMonth = FillsaCalendarDateSupport.addMonths(1, to: startOfMonth)
         return FillsaCalendarDateSupport.calendar.date(byAdding: .day, value: -1, to: nextMonth) ?? startOfMonth
+    }
+
+    private func dayOfWeekString(for date: Date) -> String {
+        let formatter = DateFormatter()
+        formatter.locale = Locale(identifier: "en_US_POSIX")
+        formatter.dateFormat = "EEEE"
+        return formatter.string(from: date).uppercased()
     }
 }

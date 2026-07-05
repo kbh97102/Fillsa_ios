@@ -8,7 +8,13 @@
 import SwiftUI
 
 struct HomeTopBar: View {
+    let myPage: () -> Void
+
     @Environment(\.colorScheme) private var colorScheme
+
+    init(myPage: @escaping () -> Void = {}) {
+        self.myPage = myPage
+    }
 
     var body: some View {
         HStack {
@@ -19,11 +25,14 @@ struct HomeTopBar: View {
             
             Spacer()
             
-            Image("icn_my_page")
-                .renderingMode(.template)
-                .resizable()
-                .foregroundStyle(FillsaColor.onBackground1)
-                .frame(width: 24, height: 24)
+            Button(action: myPage) {
+                Image("icn_my_page")
+                    .renderingMode(.template)
+                    .resizable()
+                    .foregroundStyle(FillsaColor.onBackground1)
+                    .frame(width: 24, height: 24)
+            }
+            .buttonStyle(.plain)
         }
         .padding(.vertical, 10)
     }

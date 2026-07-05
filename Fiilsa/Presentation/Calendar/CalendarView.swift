@@ -10,19 +10,22 @@ import ComposableArchitecture
 
 struct CalendarView: View {
     let store: StoreOf<CalendarFeature>
+    let openMyPage: () -> Void
 
     init(
         store: StoreOf<CalendarFeature> = Store(initialState: CalendarFeature.State()) {
             CalendarFeature()
-        }
+        },
+        openMyPage: @escaping () -> Void = {}
     ) {
         self.store = store
+        self.openMyPage = openMyPage
     }
 
     var body: some View {
         WithViewStore(store, observe: { $0 }) { viewStore in
             VStack(spacing: 0) {
-                HomeTopBar()
+                HomeTopBar(myPage: openMyPage)
 
                 GeometryReader { proxy in
                     let calendarHeight = proxy.size.height * 0.75

@@ -13,21 +13,24 @@ struct QuoteListView: View {
 
     let store: StoreOf<QuoteListFeature>
     let openDetail: (MemberQuotesResponse) -> Void
+    let openMyPage: () -> Void
 
     init(
         store: StoreOf<QuoteListFeature> = Store(initialState: QuoteListFeature.State()) {
             QuoteListFeature()
         },
-        openDetail: @escaping (MemberQuotesResponse) -> Void = { _ in }
+        openDetail: @escaping (MemberQuotesResponse) -> Void = { _ in },
+        openMyPage: @escaping () -> Void = {}
     ) {
         self.store = store
         self.openDetail = openDetail
+        self.openMyPage = openMyPage
     }
 
     var body: some View {
         WithViewStore(store, observe: { $0 }) { viewStore in
             VStack(spacing: 0) {
-                HomeTopBar()
+                HomeTopBar(myPage: openMyPage)
 
                 VStack(spacing: 0) {
                     QuoteListDateSelectSection(
