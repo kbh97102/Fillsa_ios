@@ -42,7 +42,7 @@ struct HomeLocaleSwitch: View {
             .padding(.vertical, 2)
             .background {
                 if isSelected {
-                    Capsule().fill(FillsaColor.backgroundContainer)
+                    Capsule().fill(FillsaColor.white)
                 }
             }
     }

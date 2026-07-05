@@ -44,6 +44,7 @@ struct HomeView: View {
             ZStack {
                 VStack(spacing: 0) {
                     HomeTopBar()
+                        .padding(.horizontal, 20)
 
                     HStack(alignment: .center, spacing: 20) {
                         DateSection(date: date)

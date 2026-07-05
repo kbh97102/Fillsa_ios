@@ -39,7 +39,7 @@ struct MyPageItem: View {
                 Spacer()
 
                 if useArrow {
-                    Image(systemName: "chevron.left")
+                    Image(systemName: "chevron.right")
                         .font(.system(size: 18, weight: .semibold))
                         .foregroundStyle(FillsaColor.onBackground1)
                         .frame(width: 24, height: 24)
