@@ -5,6 +5,7 @@ struct APIRequest<Body: Encodable> {
     enum Method: String {
         case get = "GET"
         case post = "POST"
+        case put = "PUT"
         case delete = "DELETE"
     }
 
@@ -36,6 +37,8 @@ extension APIRequest.Method {
             .get
         case .post:
             .post
+        case .put:
+            .put
         case .delete:
             .delete
         }

@@ -119,6 +119,9 @@ GET /api/v1/member-quotes/daily?quoteDate={quoteDate}
 
 **Response: `DailyQuoteDto`**
 
+- 회원 일일 명언 응답에는 `quoteDate` 필드가 포함되지 않는다.
+- iOS는 응답 디코딩 시 `quoteDate`를 빈 기본값으로 처리한다. 화면의 현재 날짜와 필사 화면 전달 날짜는 선택한 날짜 상태에서 별도로 계산한다.
+
 ### 좋아요
 
 ```

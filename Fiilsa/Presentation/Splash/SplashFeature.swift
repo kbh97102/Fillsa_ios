@@ -23,6 +23,7 @@ struct SplashFeature {
     }
 
     @Dependency(\.notificationPermissionClient) var notificationPermissionClient
+    @Dependency(\.pushRegistrationClient) var pushRegistrationClient
     @Dependency(\.sessionClient) var sessionClient
     @Dependency(\.settingsClient) var settingsClient
 
@@ -52,6 +53,7 @@ struct SplashFeature {
                         }
                     }
                     await send(.permissionChecked)
+                    await pushRegistrationClient.synchronize(nil)
                 }
 
             case .permissionChecked:

@@ -13,4 +13,5 @@ enum LiveRepositories {
     static let quoteList: QuoteListRepository = DefaultQuoteListRepository()
     static let calendar: CalendarRepository = DefaultCalendarRepository()
     static let typing: TypingRepository = DefaultTypingRepository()
+    static let pushRegistration: PushRegistrationRepository = DefaultPushRegistrationRepository()
 }

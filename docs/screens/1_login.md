@@ -77,6 +77,7 @@ POST /api/v1/auth/login
 - `loginData.userData.nickname`: Apple이 최초 인증에서 제공한 `fullName`으로 만든 표시 이름
 - Apple은 이름을 최초 동의 시 한 번만 제공하므로, 재로그인에서 `fullName`이 없으면 빈 nickname을 보내고 서버의 기존 회원정보를 사용한다.
 - Apple은 프로필 이미지를 제공하지 않으므로 `profileImageUrl`은 빈 문자열을 보낸다.
+- FCM 토큰을 이미 받을 수 있으면 `deviceData.pushToken`, `deviceData.pushAgreed`를 함께 보낸다. 토큰이 아직 없으면 두 필드는 생략하고, 토큰 발급 뒤 별도 푸시 기기 등록 API로 보정한다.
 
 ### iOS 전환 결정
 

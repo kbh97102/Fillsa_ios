@@ -21,8 +21,30 @@
 - iOS의 단순 반복 로컬 알림은 트리거 실행 시점에 네트워크 API를 호출하지 않는다.
 - 현재 iOS 구현은 매일 오전 9시에 고정 문구 `"오늘의 필사 문장을 확인해보세요."`를 표시한다.
 - 오늘 명언 본문을 Android처럼 매일 동적으로 넣으려면 `BGTaskScheduler` 기반 백그라운드 갱신 또는 푸시 서버 방식이 추가로 필요하다.
-- Firebase Cloud Messaging SDK와 APNs 등록 기반은 추가한다. FCM 토큰을 Fiilsa 서버에 등록하는 API는 현재 Android/iOS 코드와 문서에서 확인되지 않아 서버 전송은 API 계약 확정 후 연결한다.
+- Firebase Cloud Messaging SDK와 APNs 등록 기반을 사용한다. 로그인 요청에는 가능한 경우 FCM 토큰과 동의 상태를 동봉하고, 이후 상태 변경은 아래 푸시 기기 등록 API로 동기화한다.
 - 서버 푸시로 전환하기 전까지 알림 토글은 기존 로컬 반복 알림을 예약/취소한다.
+
+### 푸시 기기 등록
+
+```
+PUT /api/v1/member-devices/push
+```
+
+**Request Body**
+
+```json
+{
+  "deviceId": "기기별 UUID",
+  "pushToken": "FCM registration token",
+  "agreed": true
+}
+```
+
+- Bearer 인증이 필요하다.
+- 성공 응답 본문은 없으며 iOS 공통 `EmptyResponse`로 처리한다.
+- `agreed`는 시스템 알림 권한이 허용되고, 이 화면의 알림 토글도 ON인 경우에만 `true`다.
+- 호출 시점: 최초 권한 허용/거부 직후, 알림 토글 변경 직후, 로그인 성공 직후, FCM 토큰 갱신 시점이다.
+- 로그인 전이거나 FCM 토큰이 아직 없으면 동기화를 보류하고, 로그인·앱 시작·토큰 갱신의 다음 기회에 재시도한다.
 
 ---
 

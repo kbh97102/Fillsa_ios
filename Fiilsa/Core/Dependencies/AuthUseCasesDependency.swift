@@ -10,12 +10,20 @@ extension AuthUseCases: DependencyKey {
     static let liveValue: AuthUseCases = {
         let authRepository = LiveRepositories.auth
         let localRepository = LiveRepositories.local
+        let pushTokenClient = PushTokenClient.liveValue
+        let notificationPermissionClient = NotificationPermissionClient.liveValue
 
         return AuthUseCases(
             login: { user in
                 try await LoginUseCase(
                     authRepository: authRepository,
-                    localRepository: localRepository
+                    localRepository: localRepository,
+                    currentPushToken: pushTokenClient.currentToken,
+                    currentPushAgreement: {
+                        let alarmEnabled = (try? await localRepository.getAlarm()) ?? false
+                        let authorizationStatus = await notificationPermissionClient.authorizationStatus()
+                        return alarmEnabled && authorizationStatus.isPushPermissionGranted
+                    }
                 )(user: user)
             }
         )
@@ -32,9 +40,12 @@ extension DependencyValues {
 private struct LoginUseCase {
     let authRepository: AuthRepository
     let localRepository: LocalRepository
+    let currentPushToken: @Sendable () async -> String?
+    let currentPushAgreement: @Sendable () async -> Bool
 
     func callAsFunction(user: SocialAuthUser) async throws -> LoginResponse {
         let localQuotes = try await GetLocalQuoteListUseCase(localRepository: localRepository)()
+        let pushToken = await currentPushToken()
         let request = LoginRequest(
             loginData: LoginData(
                 deviceData: DeviceData(
@@ -42,7 +53,9 @@ private struct LoginUseCase {
                     osType: "IOS",
                     appVersion: APIAppVersionProvider.current(),
                     osVersion: UIDevice.current.systemVersion,
-                    deviceModel: UIDevice.current.model
+                    deviceModel: UIDevice.current.model,
+                    pushToken: pushToken,
+                    pushAgreed: pushToken == nil ? nil : await currentPushAgreement()
                 ),
                 userData: UserData(
                     oAuthProvider: user.provider,
@@ -71,19 +84,6 @@ private struct LoginUseCase {
         try await localRepository.setImageURI(response.profileImageUrl)
         try await ClearLocalDataUseCase(localRepository: localRepository)()
         return response
-    }
-}
-
-private enum DeviceIDProvider {
-    private static let key = "fillsa_device_id"
-
-    static func current() -> String {
-        if let value = UserDefaults.standard.string(forKey: key), !value.isEmpty {
-            return value
-        }
-        let value = UUID().uuidString
-        UserDefaults.standard.set(value, forKey: key)
-        return value
     }
 }
 

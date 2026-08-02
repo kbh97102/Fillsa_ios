@@ -42,9 +42,7 @@ extension AppDelegate: MessagingDelegate {
         FCMTokenEventCenter.post(token: fcmToken)
 
         #if DEBUG
-        let prefix = fcmToken.prefix(8)
-        let suffix = fcmToken.suffix(4)
-        print("FCM registration token updated: \(prefix)…\(suffix)")
+        print("[FCM] registration token: \(fcmToken)")
         #endif
     }
 }

@@ -14,6 +14,8 @@ struct DeviceData: Codable, Equatable {
     let appVersion: String
     let osVersion: String
     let deviceModel: String
+    let pushToken: String?
+    let pushAgreed: Bool?
 }
 
 struct UserData: Codable, Equatable {
@@ -34,4 +36,3 @@ struct TokenRefreshRequest: Codable, Equatable {
     let deviceId: String
     let refreshToken: String
 }
-

@@ -18,6 +18,18 @@ struct DailyQuote: Codable, Equatable {
     let authorUrl: String?
     var quoteDate: String
 
+    private enum CodingKeys: String, CodingKey {
+        case likeYn
+        case imagePath
+        case dailyQuoteSeq
+        case korQuote
+        case engQuote
+        case korAuthor
+        case engAuthor
+        case authorUrl
+        case quoteDate
+    }
+
     init(
         likeYn: String = "",
         imagePath: String? = "",
@@ -38,6 +50,19 @@ struct DailyQuote: Codable, Equatable {
         self.engAuthor = engAuthor
         self.authorUrl = authorUrl
         self.quoteDate = quoteDate
+    }
+
+    init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        likeYn = try container.decode(String.self, forKey: .likeYn)
+        imagePath = try container.decodeIfPresent(String.self, forKey: .imagePath)
+        dailyQuoteSeq = try container.decode(Int.self, forKey: .dailyQuoteSeq)
+        korQuote = try container.decodeIfPresent(String.self, forKey: .korQuote)
+        engQuote = try container.decodeIfPresent(String.self, forKey: .engQuote)
+        korAuthor = try container.decodeIfPresent(String.self, forKey: .korAuthor)
+        engAuthor = try container.decodeIfPresent(String.self, forKey: .engAuthor)
+        authorUrl = try container.decodeIfPresent(String.self, forKey: .authorUrl)
+        quoteDate = try container.decodeIfPresent(String.self, forKey: .quoteDate) ?? ""
     }
 }
 
@@ -81,4 +106,3 @@ struct PageResponseMemberQuotesResponse: Codable, Equatable {
 struct SimpleIntResponse: Codable, Equatable {
     let value: Int
 }
-

@@ -38,6 +38,7 @@ struct AlertFeature {
 
     @Dependency(\.settingsClient) private var settingsClient
     @Dependency(\.notificationPermissionClient) private var notificationPermissionClient
+    @Dependency(\.pushRegistrationClient) private var pushRegistrationClient
     @Dependency(\.commonClient) private var commonClient
     @Dependency(\.sessionClient) private var sessionClient
 
@@ -84,16 +85,19 @@ struct AlertFeature {
                                 await notificationPermissionClient.cancelDailyQuoteNotification()
                                 try await settingsClient.setAlarm(false)
                                 await send(.alarmUpdateCompleted(.failure(.denied)))
+                                await pushRegistrationClient.synchronize(nil)
                                 return
                             }
 
                             try await notificationPermissionClient.scheduleDailyQuoteNotification()
                             try await settingsClient.setAlarm(true)
                             await send(.alarmUpdateCompleted(.success(true)))
+                            await pushRegistrationClient.synchronize(nil)
                         } catch {
                             await notificationPermissionClient.cancelDailyQuoteNotification()
                             try? await settingsClient.setAlarm(false)
                             await send(.alarmUpdateCompleted(.failure(.failed)))
+                            await pushRegistrationClient.synchronize(nil)
                         }
                     }
                 }
@@ -103,6 +107,7 @@ struct AlertFeature {
                     do {
                         try await settingsClient.setAlarm(false)
                         await send(.alarmUpdateCompleted(.success(false)))
+                        await pushRegistrationClient.synchronize(nil)
                     } catch {
                         await send(.alarmUpdateCompleted(.failure(.failed)))
                     }

@@ -55,11 +55,14 @@ struct AppFeature {
         case selectedTabChanged(AppTab)
         case sessionExpired(SessionExpirationEvent)
         case sessionExpiredHandled
+        case fcmTokenUpdated(String)
     }
 
     @Dependency(\.sessionClient) var sessionClient
     @Dependency(\.sessionExpirationClient) var sessionExpirationClient
     @Dependency(\.settingsClient) var settingsClient
+    @Dependency(\.pushTokenClient) var pushTokenClient
+    @Dependency(\.pushRegistrationClient) var pushRegistrationClient
 
     var body: some Reducer<State, Action> {
         Scope(state: \.splash, action: \.splash) {
@@ -123,13 +126,27 @@ struct AppFeature {
                             await send(.sessionExpired(event))
                         }
                     }
-                    .cancellable(id: "sessionExpiration", cancelInFlight: true)
+                    .cancellable(id: "sessionExpiration", cancelInFlight: true),
+                    .run { _ in
+                        await pushRegistrationClient.synchronizeIfNeeded()
+                    },
+                    .run { send in
+                        for await token in pushTokenClient.tokenUpdates() {
+                            await send(.fcmTokenUpdated(token))
+                        }
+                    }
+                    .cancellable(id: "fcmTokenUpdates", cancelInFlight: true)
                 )
 
             case let .themeLoaded(selectedTheme):
                 state.selectedTheme = selectedTheme
                 state.myPage.selectedTheme = selectedTheme
                 return .none
+
+            case let .fcmTokenUpdated(token):
+                return .run { _ in
+                    await pushRegistrationClient.synchronize(token)
+                }
 
             case let .splash(.delegate(.move(destination))):
                 switch destination {

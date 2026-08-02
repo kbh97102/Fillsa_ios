@@ -40,6 +40,7 @@ struct LoginFeature {
     @Dependency(\.socialAuthClient) private var socialAuthClient
     @Dependency(\.authUseCases) private var authUseCases
     @Dependency(\.sessionClient) private var sessionClient
+    @Dependency(\.pushRegistrationClient) private var pushRegistrationClient
 
     var body: some Reducer<State, Action> {
         Reduce { state, action in
@@ -94,7 +95,12 @@ struct LoginFeature {
 
             case .socialLoginCompleted(.success):
                 state.isProcessing = false
-                return .send(.delegate(.moveHome))
+                return .merge(
+                    .send(.delegate(.moveHome)),
+                    .run { _ in
+                        await pushRegistrationClient.synchronize(nil)
+                    }
+                )
 
             case let .socialLoginCompleted(.failure(error)):
                 state.isProcessing = false
