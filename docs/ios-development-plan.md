@@ -130,7 +130,7 @@ Required early dependencies:
 | Share sheet | `UIActivityViewController` bridge |
 | Clipboard | `UIPasteboard` dependency |
 | Notifications | `UserNotifications` dependency |
-| Social login | Kakao/Google SDKs after confirming app keys and bundle setup |
+| Social login | Kakao OAuth and Apple Sign in after confirming provider keys, entitlements, and bundle setup |
 
 Avoid adding nonessential packages until a feature requires them.
 

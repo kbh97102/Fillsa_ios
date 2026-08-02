@@ -222,6 +222,19 @@ private final class AppleSignInCoordinator: NSObject, ASAuthorizationControllerD
             return
         }
 
+#if DEBUG
+        let formattedName = Self.displayName(from: credential.fullName)
+        print("""
+        [Apple Sign In] Credential received
+        user: <redacted>
+        fullName: \(formattedName.isEmpty ? "<not provided>" : formattedName)
+        email: \(credential.email ?? "<not provided>")
+        realUserStatus: \(credential.realUserStatus.rawValue)
+        identityTokenBytes: \(credential.identityToken?.count ?? 0)
+        authorizationCodeBytes: \(credential.authorizationCode?.count ?? 0)
+        """)
+#endif
+
         continuation.resume(
             returning: SocialAuthUser(
                 provider: "APPLE",

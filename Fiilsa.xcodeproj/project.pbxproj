@@ -10,6 +10,7 @@
 		51D6A0012FDD793200E49226 /* ComposableArchitecture in Frameworks */ = {isa = PBXBuildFile; productRef = 51D6A0022FDD793200E49226 /* ComposableArchitecture */; };
 		51D6A0112FDD793200E49226 /* Alamofire in Frameworks */ = {isa = PBXBuildFile; productRef = 51D6A0122FDD793200E49226 /* Alamofire */; };
 		51D6A0212FDD793200E49226 /* Lottie in Frameworks */ = {isa = PBXBuildFile; productRef = 51D6A0222FDD793200E49226 /* Lottie */; };
+		51D6A0312FDD793200E49226 /* FirebaseMessaging in Frameworks */ = {isa = PBXBuildFile; productRef = 51D6A0322FDD793200E49226 /* FirebaseMessaging */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -73,6 +74,7 @@
 			files = (
 				51D6A0112FDD793200E49226 /* Alamofire in Frameworks */,
 				51D6A0012FDD793200E49226 /* ComposableArchitecture in Frameworks */,
+				51D6A0312FDD793200E49226 /* FirebaseMessaging in Frameworks */,
 				51D6A0212FDD793200E49226 /* Lottie in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -136,6 +138,7 @@
 			packageProductDependencies = (
 				51D6A0022FDD793200E49226 /* ComposableArchitecture */,
 				51D6A0122FDD793200E49226 /* Alamofire */,
+				51D6A0322FDD793200E49226 /* FirebaseMessaging */,
 				51D6A0222FDD793200E49226 /* Lottie */,
 			);
 			productName = Fiilsa;
@@ -200,6 +203,11 @@
 				TargetAttributes = {
 					51D6017C2FDD793100E49226 = {
 						CreatedOnToolsVersion = 26.4.1;
+						SystemCapabilities = {
+							com.apple.Push = {
+								enabled = 1;
+							};
+						};
 					};
 					51D601892FDD793200E49226 = {
 						CreatedOnToolsVersion = 26.4.1;
@@ -223,6 +231,7 @@
 			packageReferences = (
 				51D6A0032FDD793200E49226 /* XCRemoteSwiftPackageReference "swift-composable-architecture" */,
 				51D6A0132FDD793200E49226 /* XCRemoteSwiftPackageReference "Alamofire" */,
+				51D6A0332FDD793200E49226 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */,
 				51D6A0232FDD793200E49226 /* XCRemoteSwiftPackageReference "lottie-spm" */,
 			);
 			preferredProjectObjectVersion = 77;
@@ -423,12 +432,13 @@
 		51D6019F2FDD793200E49226 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				APS_ENVIRONMENT = development;
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = Fiilsa/Fiilsa.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = Y9283U4Q46;
+				DEVELOPMENT_TEAM = F4Z6NM55Q9;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = NO;
 				INFOPLIST_FILE = Fiilsa/Info.plist;
@@ -454,12 +464,13 @@
 		51D601A02FDD793200E49226 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				APS_ENVIRONMENT = production;
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = Fiilsa/Fiilsa.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = Y9283U4Q46;
+				DEVELOPMENT_TEAM = F4Z6NM55Q9;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = NO;
 				INFOPLIST_FILE = Fiilsa/Info.plist;
@@ -632,6 +643,14 @@
 				minimumVersion = 4.6.1;
 			};
 		};
+		51D6A0332FDD793200E49226 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/firebase/firebase-ios-sdk.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 12.16.0;
+			};
+		};
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
@@ -649,6 +668,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 51D6A0232FDD793200E49226 /* XCRemoteSwiftPackageReference "lottie-spm" */;
 			productName = Lottie;
+		};
+		51D6A0322FDD793200E49226 /* FirebaseMessaging */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 51D6A0332FDD793200E49226 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseMessaging;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};

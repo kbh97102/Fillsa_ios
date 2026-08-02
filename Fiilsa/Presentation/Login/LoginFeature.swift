@@ -17,6 +17,7 @@ struct LoginFeature {
     enum Action: Equatable {
         case kakaoTapped
         case appleTapped
+        case appleAuthenticationCompleted(Result<SocialAuthUser, LoginError>)
         case nonMemberTapped
         case closeTapped
         case socialLoginCompleted(Result<LoginResponse, LoginError>)
@@ -62,12 +63,24 @@ struct LoginFeature {
                 return .run { send in
                     do {
                         let user = try await socialAuthClient.signInWithApple()
+                        await send(.appleAuthenticationCompleted(.success(user)))
+                    } catch {
+                        await send(.appleAuthenticationCompleted(.failure(map(error))))
+                    }
+                }
+
+            case let .appleAuthenticationCompleted(.success(user)):
+                return .run { send in
+                    do {
                         let response = try await authUseCases.login(user)
                         await send(.socialLoginCompleted(.success(response)))
                     } catch {
                         await send(.socialLoginCompleted(.failure(map(error))))
                     }
                 }
+
+            case let .appleAuthenticationCompleted(.failure(error)):
+                return .send(.socialLoginCompleted(.failure(error)))
 
             case .nonMemberTapped:
                 return .run { send in

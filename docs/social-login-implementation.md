@@ -42,6 +42,8 @@ Android로 비교하면 `LoginFeature`는 MVI ViewModel, `SocialAuthClient`는 K
 현재 구현은 별도 SDK를 바로 추가하지 않고 `ASWebAuthenticationSession`을 사용한다. Android의 AppAuth 브라우저 인증 플로우와 비슷하다.
 
 - Apple은 iOS 기본 `ASAuthorizationAppleIDProvider`로 인증한다.
+- Apple의 `credential.user`를 `oAuthId`, `"APPLE"`을 `oAuthProvider`, `"IOS"`를 `deviceData.osType`으로 기존 로그인 API에 보낸다.
+- Apple의 `fullName`은 최초 로그인에서만 제공되므로, 값이 있을 때 표시 이름으로 조합해 nickname에 넣고 이후 nil이면 빈 문자열을 보낸다.
 - 카카오는 REST API OAuth 인증 코드 방식으로 인증한다.
 - 카카오는 인증 성공 후 callback URL에서 `code`를 받고, token endpoint로 교환한다.
 - Apple은 `ASAuthorizationAppleIDCredential.user`를 서버 로그인용 `oAuthId`로 사용한다.
@@ -57,12 +59,16 @@ Android로 비교하면 `LoginFeature`는 MVI ViewModel, `SocialAuthClient`는 K
 
 `Fiilsa/Info.plist`에는 Kakao용 URL scheme `fillsa`가 등록되어 있다. Kakao 콘솔에도 위 redirect URI를 정확히 같은 문자열로 등록해야 Safari 인증 후 앱으로 돌아올 수 있다.
 
+Apple 로그인 출시 전 설정은 `docs/apple-login-release-checklist.md`를 기준으로 확인한다.
+TestFlight 배포와 실기기 검증은 `docs/testflight-distribution-guide.md`를 기준으로 진행한다.
+
 ## 6. 현재 사용자 경험
 
 - Kakao 설정값이 없으면 카카오 버튼을 눌렀을 때 `"소셜 로그인 설정이 필요합니다."` toast가 표시된다.
 - 사용자가 인증창을 닫으면 별도 에러 toast 없이 로그인 화면에 남는다.
 - 서버 로그인 실패나 provider 응답 파싱 실패는 `"로그인에 실패했습니다."` toast로 표시된다.
 - 로그인 성공 시 Home으로 이동한다.
+- Apple 로그인도 인증 성공 후 카카오와 같은 `/api/v1/auth/login` 서버 흐름을 사용한다.
 
 ## 7. 검증 결과
 

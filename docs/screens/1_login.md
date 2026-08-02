@@ -69,11 +69,21 @@ POST /api/v1/auth/login
 
 **Response: `LoginResponse`**
 
+#### Apple 로그인 요청값
+
+- `loginData.userData.oAuthProvider`: `"APPLE"`
+- `loginData.userData.oAuthId`: `ASAuthorizationAppleIDCredential.user` (`sub`)
+- `loginData.deviceData.osType`: `"IOS"`
+- `loginData.userData.nickname`: Apple이 최초 인증에서 제공한 `fullName`으로 만든 표시 이름
+- Apple은 이름을 최초 동의 시 한 번만 제공하므로, 재로그인에서 `fullName`이 없으면 빈 nickname을 보내고 서버의 기존 회원정보를 사용한다.
+- Apple은 프로필 이미지를 제공하지 않으므로 `profileImageUrl`은 빈 문자열을 보낸다.
+
 ### iOS 전환 결정
 
 - Android 원본은 Google/Kakao 로그인을 제공하지만, iOS 앱에서는 Google 로그인을 제거하고 Apple/Kakao 로그인으로 구성한다.
 - Apple 로그인은 `AuthenticationServices`의 `ASAuthorizationAppleIDProvider`를 사용한다.
 - Apple 로그인 결과의 `credential.user`를 서버 로그인 요청의 `oAuthId`로 전달하고, provider 값은 `"APPLE"`을 사용한다.
+- Apple 인증 성공 후 카카오와 동일하게 `POST /api/v1/auth/login`을 호출하고, 응답의 access/refresh token과 사용자 정보를 로컬에 저장한다.
 - Apple 로그인은 앱의 entitlements와 Apple Developer App ID capability에서 `Sign in with Apple`이 활성화되어야 한다.
 
 ### 토큰 갱신 (인터셉터 자동 처리)

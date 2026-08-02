@@ -10,6 +10,8 @@ import ComposableArchitecture
 
 @main
 struct FiilsaApp: App {
+    @UIApplicationDelegateAdaptor(AppDelegate.self) private var appDelegate
+
     var body: some Scene {
         WindowGroup {
             AppView(

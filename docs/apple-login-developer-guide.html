@@ -1,0 +1,244 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light">
+  <title>Fiilsa Apple 로그인, 개발자 계정 생성 다음부터</title>
+  <style>
+    :root { --ink:#172033; --muted:#667085; --line:#e4e7ec; --paper:#fff; --bg:#f4f6fa; --blue:#2563eb; --blue-soft:#eff6ff; --green:#087a55; --green-soft:#ecfdf3; --amber:#a15c00; --amber-soft:#fffaeb; --red:#b42318; --red-soft:#fff1f0; --code:#101828; }
+    * { box-sizing:border-box; }
+    html { scroll-behavior:smooth; }
+    body { margin:0; color:var(--ink); background:var(--bg); font:16px/1.72 -apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Noto Sans KR",sans-serif; }
+    a { color:var(--blue); text-decoration:none; }
+    a:hover { text-decoration:underline; }
+    .hero { background:linear-gradient(130deg,#0b1220 0%,#172554 55%,#1d4ed8 100%); color:#fff; padding:72px 24px 82px; }
+    .hero-inner, .layout { max-width:1120px; margin:auto; }
+    .eyebrow { display:inline-flex; gap:8px; align-items:center; padding:6px 11px; border:1px solid #ffffff38; border-radius:999px; background:#ffffff12; font-size:13px; font-weight:700; }
+    h1 { max-width:830px; margin:20px 0 14px; font-size:clamp(36px,6vw,66px); line-height:1.09; letter-spacing:-.045em; }
+    .hero p { max-width:760px; margin:0; color:#dbeafe; font-size:19px; }
+    .hero-meta { display:flex; flex-wrap:wrap; gap:10px; margin-top:28px; }
+    .pill { padding:7px 12px; border-radius:9px; background:#ffffff13; color:#eef4ff; font-size:14px; }
+    .layout { display:grid; grid-template-columns:238px minmax(0,1fr); gap:48px; padding:48px 24px 96px; }
+    nav { position:sticky; top:20px; align-self:start; padding:18px; border:1px solid var(--line); border-radius:16px; background:#fff; box-shadow:0 8px 30px #1018280a; }
+    nav strong { display:block; margin:0 0 10px; font-size:13px; color:#344054; }
+    nav a { display:block; padding:7px 9px; border-radius:8px; color:#475467; font-size:14px; }
+    nav a:hover { background:var(--blue-soft); color:var(--blue); text-decoration:none; }
+    main { min-width:0; }
+    section { margin-bottom:64px; scroll-margin-top:28px; }
+    h2 { margin:0 0 20px; font-size:32px; line-height:1.25; letter-spacing:-.03em; }
+    h3 { margin:30px 0 10px; font-size:21px; line-height:1.4; }
+    p { margin:10px 0; }
+    .lead { font-size:18px; color:#344054; }
+    .card { margin:18px 0; padding:22px; border:1px solid var(--line); border-radius:16px; background:#fff; box-shadow:0 5px 20px #10182808; }
+    .status-grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:12px; }
+    .status { padding:17px; border-radius:14px; background:#fff; border:1px solid var(--line); }
+    .status b { display:block; margin-bottom:5px; }
+    .done { border-left:4px solid #12b76a; }
+    .todo { border-left:4px solid #f79009; }
+    .callout { margin:20px 0; padding:17px 19px; border-radius:13px; border-left:4px solid var(--blue); background:var(--blue-soft); }
+    .callout.warn { border-color:#f79009; background:var(--amber-soft); }
+    .callout.danger { border-color:#f04438; background:var(--red-soft); }
+    .callout.ok { border-color:#12b76a; background:var(--green-soft); }
+    .callout strong { display:block; margin-bottom:4px; }
+    .steps { padding:0; list-style:none; counter-reset:step; }
+    .steps > li { position:relative; margin:0 0 20px; padding:3px 0 4px 48px; counter-increment:step; }
+    .steps > li::before { content:counter(step); position:absolute; left:0; top:0; width:32px; height:32px; border-radius:50%; display:grid; place-items:center; color:#fff; background:var(--blue); font-weight:800; font-size:14px; }
+    .steps > li > b { display:block; margin-bottom:5px; font-size:17px; }
+    code { padding:2px 6px; border-radius:6px; background:#eef2f6; font:14px/1.5 ui-monospace,SFMono-Regular,Menlo,monospace; }
+    pre { overflow:auto; margin:16px 0; padding:17px; border-radius:13px; color:#e5e7eb; background:var(--code); font:13px/1.7 ui-monospace,SFMono-Regular,Menlo,monospace; }
+    table { width:100%; border-collapse:collapse; margin:18px 0; border-radius:12px; overflow:hidden; background:#fff; border:1px solid var(--line); }
+    th,td { padding:12px 14px; border-bottom:1px solid var(--line); text-align:left; vertical-align:top; }
+    th { background:#f8fafc; font-size:13px; color:#475467; }
+    tr:last-child td { border-bottom:0; }
+    .browser-shot { margin:24px 0 8px; overflow:hidden; border:1px solid #ccd2dc; border-radius:14px; background:#fff; box-shadow:0 20px 55px #10182820; }
+    .browser-bar { display:flex; align-items:center; gap:10px; height:43px; padding:0 14px; background:#eef1f5; border-bottom:1px solid #d8dde6; }
+    .dots { display:flex; gap:6px; }
+    .dots i { width:10px; height:10px; border-radius:50%; background:#ff5f57; }
+    .dots i:nth-child(2) { background:#febc2e; }.dots i:nth-child(3){background:#28c840}
+    .address { flex:1; padding:5px 12px; border-radius:7px; background:#fff; color:#667085; text-align:center; font-size:12px; }
+    .portal { display:grid; grid-template-columns:175px 1fr; min-height:330px; }
+    .portal aside { padding:22px 14px; color:#e5e7eb; background:#171717; }
+    .apple { margin:0 8px 24px; font-size:20px; color:#fff; }
+    .portal aside span { display:block; padding:8px 10px; border-radius:7px; font-size:12px; }
+    .portal aside .active { background:#343434; color:#fff; font-weight:700; }
+    .portal-content { padding:25px 28px; }
+    .mini-title { font-size:22px; font-weight:750; letter-spacing:-.02em; }
+    .toolbar { display:flex; justify-content:space-between; align-items:center; margin:15px 0; }
+    .search { width:55%; padding:8px 11px; border:1px solid #d0d5dd; border-radius:7px; color:#98a2b3; font-size:12px; }
+    .button { display:inline-block; padding:7px 13px; border-radius:7px; color:#fff; background:#0875d1; font-weight:700; font-size:12px; }
+    .row { display:grid; grid-template-columns:28px 1fr 1fr; gap:10px; padding:12px 5px; border-top:1px solid var(--line); font-size:12px; }
+    .row.highlight { margin:0 -8px; padding:12px 13px; border:2px solid #f79009; border-radius:8px; background:#fffaf0; }
+    .check { width:17px; height:17px; border:2px solid #98a2b3; border-radius:4px; }
+    .check.on { border-color:#0875d1; background:#0875d1; box-shadow:inset 0 0 0 3px white; }
+    .figcap { margin:10px 2px 24px; color:#667085; font-size:13px; }
+    .figcap b { color:#344054; }
+    .flow { display:grid; grid-template-columns:repeat(5,1fr); gap:8px; margin:22px 0; }
+    .flow div { position:relative; padding:14px 9px; border-radius:10px; background:#fff; border:1px solid var(--line); text-align:center; font-size:13px; font-weight:700; }
+    .flow div:not(:last-child)::after { content:"→"; position:absolute; right:-13px; color:#98a2b3; z-index:2; }
+    .checklist { list-style:none; padding:0; }
+    .checklist li { margin:8px 0; padding:11px 13px 11px 42px; border:1px solid var(--line); border-radius:10px; background:#fff; position:relative; }
+    .checklist li::before { content:"□"; position:absolute; left:14px; top:8px; font-size:20px; color:var(--blue); }
+    .source-list li { margin:8px 0; }
+    .footer { margin-top:50px; padding-top:24px; border-top:1px solid var(--line); color:#667085; font-size:13px; }
+    @media(max-width:820px){.layout{grid-template-columns:1fr}.layout nav{position:static}.status-grid{grid-template-columns:1fr}.portal{grid-template-columns:112px 1fr}.portal aside{padding:16px 8px}.portal-content{padding:20px 14px}.flow{grid-template-columns:1fr}.flow div:not(:last-child)::after{content:"↓";right:50%;bottom:-18px;top:auto}.hero{padding-top:48px}}
+    @media print { body{background:#fff}.hero{padding:42px 24px}.layout{display:block;padding-top:30px}nav{display:none}section{break-inside:avoid}.browser-shot{box-shadow:none}a{color:#172033} }
+  </style>
+</head>
+<body>
+  <header class="hero">
+    <div class="hero-inner">
+      <span class="eyebrow"> Sign in with Apple · Fiilsa 맞춤 가이드</span>
+      <h1>개발자 계정을 만든 다음,<br>Apple 로그인을 실제로 켜는 법</h1>
+      <p>Android 개발자의 눈높이에서 Apple Developer Portal → Xcode → 실기기 → 서버 검증까지, 현재 Fiilsa 코드 상태에 맞춰 순서대로 정리했습니다.</p>
+      <div class="hero-meta"><span class="pill">Bundle ID · kbhdev.Fiilsa</span><span class="pill">Team ID · Y9283U4Q46</span><span class="pill">2026-07-18 기준</span></div>
+    </div>
+  </header>
+
+  <div class="layout">
+    <nav aria-label="목차">
+      <strong>이 글의 순서</strong>
+      <a href="#now">0. 지금 어디까지 됐나</a><a href="#membership">1. 계정 상태 확인</a><a href="#xcode-account">2. Xcode 계정 연결</a><a href="#appid">3. App ID 등록/확인</a><a href="#capability">4. Apple 로그인 활성화</a><a href="#signing">5. Xcode 서명 갱신</a><a href="#device">6. 실기기 테스트</a><a href="#server">7. 서버 보안 완성</a><a href="#errors">8. 오류 해결</a><a href="#release">9. 출시 체크리스트</a>
+    </nav>
+
+    <main>
+      <section id="now">
+        <h2>0. 지금 어디까지 되어 있나</h2>
+        <p class="lead">결론부터 말하면, Swift 코드는 “Apple 로그인 창을 띄우는 단계”까지 구현되어 있습니다. 이제 Apple 계정과 앱 식별자를 연결하면 첫 실기기 테스트를 할 수 있습니다.</p>
+        <div class="status-grid">
+          <div class="status done"><b>완료 · iOS 인증창</b><code>ASAuthorizationAppleIDProvider</code>로 이름과 이메일을 요청합니다.</div>
+          <div class="status done"><b>완료 · 앱 entitlement</b><code>com.apple.developer.applesignin</code>이 연결되어 있습니다.</div>
+          <div class="status todo"><b>할 일 · Developer Portal</b>App ID의 Sign in with Apple을 실제 팀 계정에서 켜야 합니다.</div>
+          <div class="status todo"><b>할 일 · 서버 검증</b>현재는 <code>credential.user</code>만 서버에 전송합니다. 출시 전에는 ID 토큰 검증이 필요합니다.</div>
+        </div>
+        <div class="flow"><div>Apple 계정</div><div>App ID</div><div>Capability</div><div>Xcode Signing</div><div>실기기 QA</div></div>
+        <div class="callout warn"><strong>“개발자 계정 생성”과 “Developer Program 가입 완료”는 다릅니다.</strong>무료 Apple Account만 Xcode에 추가한 상태라면 일부 기기 테스트는 가능하지만, 배포·TestFlight와 안정적인 capability 관리를 위해 유료 Apple Developer Program 멤버십이 활성화되어야 합니다.</div>
+      </section>
+
+      <section id="membership">
+        <h2>1. 멤버십부터 확인하기</h2>
+        <ol class="steps">
+          <li><b><a href="https://developer.apple.com/account/" target="_blank" rel="noreferrer">developer.apple.com/account</a>에 로그인합니다.</b>방금 만든 Apple Account를 사용하고, 이중 인증을 완료합니다.</li>
+          <li><b>Membership details를 확인합니다.</b><code>Apple Developer Program</code>, 상태 <code>Active</code>, Team ID <code>Y9283U4Q46</code>가 보이는지 확인합니다.</li>
+          <li><b>계약 배너가 보이면 먼저 처리합니다.</b>상단에 새 약관 동의 또는 등록 완료 요청이 있으면 capability 저장 전에 끝냅니다.</li>
+        </ol>
+        <div class="browser-shot" role="img" aria-label="Apple Developer Account 멤버십 화면 예시">
+          <div class="browser-bar"><span class="dots"><i></i><i></i><i></i></span><span class="address">developer.apple.com/account</span></div>
+          <div class="portal"><aside><div class="apple"> Developer</div><span class="active">Membership details</span><span>Certificates, IDs &amp; Profiles</span><span>App Store Connect</span></aside><div class="portal-content"><div class="mini-title">Membership details</div><div class="card"><b>Apple Developer Program</b><p style="color:#087a55">● Active</p><div class="row"><span></span><b>Team ID</b><span>Y9283U4Q46</span></div><div class="row"><span></span><b>Entity type</b><span>Individual / Organization</span></div><div class="row"><span></span><b>Expiration</b><span>등록된 만료일</span></div></div></div></div>
+        </div>
+        <p class="figcap"><b>브라우저 화면 예시 1.</b> 실제 포털의 메뉴 명칭을 기준으로 재구성한 예시입니다. 개인 정보가 포함된 실제 계정 캡처는 아닙니다.</p>
+      </section>
+
+      <section id="xcode-account">
+        <h2>2. Xcode에 계정과 Team 연결하기</h2>
+        <ol class="steps">
+          <li><b>Xcode → Settings… → Accounts로 이동합니다.</b>Android Studio의 SDK/계정 설정 화면과 비슷한 전역 설정입니다.</li>
+          <li><b>왼쪽 아래 + → Apple Account를 선택하고 로그인합니다.</b>팀 목록에 방금 가입한 팀이 보여야 합니다.</li>
+          <li><b>Fiilsa 프로젝트 → TARGETS의 Fiilsa → Signing &amp; Capabilities를 엽니다.</b><code>Automatically manage signing</code>을 켜고 Team으로 실제 Developer Team을 선택합니다.</li>
+          <li><b>Bundle Identifier를 확인합니다.</b>반드시 <code>kbhdev.Fiilsa</code>여야 합니다. 대소문자와 점 하나까지 동일해야 합니다.</li>
+        </ol>
+        <div class="callout ok"><strong>Android로 비교하면</strong>Bundle ID는 <code>applicationId</code>, Signing Team/Provisioning Profile은 keystore와 Play Console 앱 등록을 합친 것에 가깝습니다. 단, Xcode의 자동 서명은 인증서와 프로파일까지 함께 관리합니다.</div>
+      </section>
+
+      <section id="appid">
+        <h2>3. App ID 등록 또는 기존 항목 확인</h2>
+        <p>Developer Portal에서 <a href="https://developer.apple.com/account/resources/identifiers/list" target="_blank" rel="noreferrer">Certificates, Identifiers &amp; Profiles → Identifiers</a>로 이동합니다.</p>
+        <ol class="steps">
+          <li><b>검색창에 <code>kbhdev.Fiilsa</code>를 입력합니다.</b>결과가 있으면 그 항목을 클릭하고 다음 장으로 이동합니다.</li>
+          <li><b>없다면 + → App IDs → App → Continue를 누릅니다.</b>Description은 <code>Fiilsa</code>, Bundle ID 유형은 <code>Explicit</code>을 선택합니다.</li>
+          <li><b>Bundle ID에 <code>kbhdev.Fiilsa</code>를 입력하고 Register합니다.</b>Wildcard(<code>*</code>) App ID는 Apple 로그인용으로 사용하지 않습니다.</li>
+        </ol>
+        <div class="browser-shot" role="img" aria-label="Identifiers 목록에서 Fiilsa Bundle ID를 검색한 화면 예시">
+          <div class="browser-bar"><span class="dots"><i></i><i></i><i></i></span><span class="address">developer.apple.com/account/resources/identifiers/list</span></div>
+          <div class="portal"><aside><div class="apple"> Developer</div><span>Certificates</span><span class="active">Identifiers</span><span>Devices</span><span>Profiles</span></aside><div class="portal-content"><div class="mini-title">Identifiers</div><div class="toolbar"><span class="search">⌕ &nbsp; kbhdev.Fiilsa</span><span class="button">＋</span></div><div class="row"><span></span><b>NAME</b><b>IDENTIFIER</b></div><div class="row highlight"><span>▣</span><b>Fiilsa</b><span>kbhdev.Fiilsa</span></div></div></div>
+        </div>
+        <p class="figcap"><b>브라우저 화면 예시 2.</b> 검색 결과에서 이름보다 Identifier가 정확히 일치하는지가 중요합니다.</p>
+      </section>
+
+      <section id="capability">
+        <h2>4. Sign in with Apple capability 켜기</h2>
+        <ol class="steps">
+          <li><b>Identifiers에서 <code>kbhdev.Fiilsa</code>를 클릭합니다.</b>Capabilities 탭 또는 capability 목록을 엽니다.</li>
+          <li><b><code>Sign in with Apple</code>을 찾아 Enable/체크합니다.</b>오른쪽의 Configure 버튼을 누릅니다.</li>
+          <li><b><code>Enable as a primary App ID</code>를 선택합니다.</b>Fiilsa가 처음 등록하는 독립 앱이므로 primary가 맞습니다. 이미 동일 계정 체계를 쓰는 다른 앱이 있을 때만 그룹을 선택합니다.</li>
+          <li><b>Server-to-Server Notification Endpoint는 지금 비워 둡니다.</b>계정 변경 알림을 받을 서버 URL이 실제로 준비된 뒤 추가합니다. 임의 URL을 넣지 않습니다.</li>
+          <li><b>Configure 창의 Save/Done 후, App ID 화면 우측 상단 Save까지 누릅니다.</b>경고창이 나오면 변경 내용을 확인하고 Confirm합니다.</li>
+        </ol>
+        <div class="browser-shot" role="img" aria-label="Sign in with Apple capability 활성화 화면 예시">
+          <div class="browser-bar"><span class="dots"><i></i><i></i><i></i></span><span class="address">developer.apple.com/account/resources/identifiers/bundleId/edit</span></div>
+          <div class="portal"><aside><div class="apple"> Developer</div><span>Certificates</span><span class="active">Identifiers</span><span>Devices</span><span>Profiles</span></aside><div class="portal-content"><div class="mini-title">Edit your App ID Configuration</div><p style="font-size:12px;color:#667085">Fiilsa · kbhdev.Fiilsa</p><div class="row"><span class="check"></span><b>Push Notifications</b><span>Configure</span></div><div class="row highlight"><span class="check on"></span><b>Sign in with Apple</b><span><span class="button">Configure</span></span></div><div class="row"><span class="check"></span><b>Associated Domains</b><span>—</span></div><div style="text-align:right;margin-top:18px"><span class="button">Save</span></div></div></div>
+        </div>
+        <p class="figcap"><b>브라우저 화면 예시 3.</b> capability를 체크한 뒤 Configure와 페이지의 Save를 모두 완료해야 합니다.</p>
+        <div class="callout warn"><strong>Services ID와 Sign in with Apple Key는 지금 만들지 않아도 됩니다.</strong>현재 Fiilsa는 iOS 네이티브 인증창만 사용합니다. 웹 로그인 또는 서버가 Apple의 token/revoke API를 직접 호출할 때 Services ID/Key 설계를 추가합니다.</div>
+      </section>
+
+      <section id="signing">
+        <h2>5. Xcode에서 서명 정보를 새로 받기</h2>
+        <ol class="steps">
+          <li><b>Xcode로 돌아와 Signing &amp; Capabilities를 다시 엽니다.</b>Team이 <code>Y9283U4Q46</code>인 팀인지 확인합니다.</li>
+          <li><b>Sign in with Apple 항목이 보이는지 확인합니다.</b>현재 프로젝트 파일과 entitlement에는 이미 들어 있으므로 정상이라면 별도 추가가 필요 없습니다.</li>
+          <li><b><code>Automatically manage signing</code>을 잠깐 껐다 켜지 말고 먼저 빌드합니다.</b>Xcode는 새 entitlement와 맞는 provisioning profile을 자동 요청합니다.</li>
+          <li><b>Signing 오류가 계속될 때만 재동기화합니다.</b>Xcode Settings → Accounts에서 팀을 선택하고 인증서 상태를 확인한 다음 다시 빌드합니다.</li>
+        </ol>
+        <table><thead><tr><th>항목</th><th>Fiilsa에서 보여야 할 값</th></tr></thead><tbody><tr><td>Team</td><td>Team ID <code>Y9283U4Q46</code>에 해당하는 팀</td></tr><tr><td>Bundle Identifier</td><td><code>kbhdev.Fiilsa</code></td></tr><tr><td>Signing</td><td>Automatically manage signing = On</td></tr><tr><td>Capability</td><td>Sign in with Apple</td></tr><tr><td>Entitlements 경로</td><td><code>Fiilsa/Fiilsa.entitlements</code></td></tr></tbody></table>
+      </section>
+
+      <section id="device">
+        <h2>6. 실기기에서 첫 로그인 테스트</h2>
+        <p>시뮬레이터도 동작할 수 있지만, signing과 Apple Account 상태를 검증하려면 iPhone 실기기가 기준입니다.</p>
+        <ol class="steps">
+          <li><b>iPhone을 Mac에 연결하고 “이 컴퓨터를 신뢰”합니다.</b>iOS 설정에서 Apple Account 로그인과 이중 인증이 켜져 있어야 합니다.</li>
+          <li><b>Xcode 상단 실행 기기를 내 iPhone으로 바꾸고 Run(⌘R)합니다.</b>처음이면 Developer Mode 활성화 또는 기기 등록 안내를 따릅니다.</li>
+          <li><b>Fiilsa에서 “Apple로 시작하기”를 누릅니다.</b>Apple 시스템 시트가 뜨고 Face ID/암호 인증이 진행되어야 합니다.</li>
+          <li><b>처음과 두 번째 로그인을 각각 확인합니다.</b>이름은 최초 동의 때만 내려올 수 있으므로 두 번째에도 빈 nickname 때문에 서버가 실패하면 안 됩니다.</li>
+        </ol>
+        <ul class="checklist"><li>Apple 시스템 로그인 시트가 표시된다.</li><li>취소하면 로그인 화면에 그대로 있고 오류 토스트가 뜨지 않는다.</li><li>성공하면 Home으로 이동한다.</li><li>서버 요청의 provider가 <code>APPLE</code>이다.</li><li>앱 재실행 후 로그인 상태가 유지된다.</li><li>같은 Apple Account로 다시 로그인하면 같은 회원으로 연결된다.</li></ul>
+        <div class="callout"><strong>처음부터 다시 테스트하는 방법</strong>iPhone 설정 → Apple Account → Apple로 로그인(Sign in with Apple)에서 Fiilsa 사용을 중단한 뒤 재시도합니다. 메뉴 이름은 iOS 버전에 따라 조금 다를 수 있습니다. 실제 회원 데이터 삭제와는 별개의 동작입니다.</div>
+      </section>
+
+      <section id="server">
+        <h2>7. 출시 전에 서버 인증을 안전하게 완성하기</h2>
+        <p class="lead">현재 앱은 Apple이 준 사용자 문자열(<code>credential.user</code>)을 그대로 <code>oAuthId</code>로 서버에 보냅니다. 클라이언트가 보낸 ID만 신뢰하면 위조 요청을 구분할 수 없으므로, “로그인창이 뜬다”와 “보안상 로그인 완성”은 다릅니다.</p>
+        <div class="callout danger"><strong>출시 전 필수 권장 변경</strong>앱이 <code>identityToken</code>과 가능하면 <code>authorizationCode</code>를 서버에 보내고, 서버가 Apple 공개키로 JWT 서명과 claim을 검증한 뒤 <code>sub</code>를 회원 ID로 사용해야 합니다.</div>
+        <table><thead><tr><th>검증 값</th><th>서버가 확인할 내용</th></tr></thead><tbody><tr><td><code>iss</code></td><td><code>https://appleid.apple.com</code></td></tr><tr><td><code>aud</code></td><td>네이티브 앱 로그인에서는 <code>kbhdev.Fiilsa</code></td></tr><tr><td><code>exp</code></td><td>현재 시각보다 뒤</td></tr><tr><td>JWT signature</td><td>Apple 공개키(JWKS)로 검증</td></tr><tr><td><code>sub</code></td><td>검증 성공 뒤 서버 회원의 Apple 고유 ID로 저장</td></tr><tr><td><code>nonce</code></td><td>앱에서 nonce를 사용하도록 구현하면 요청값과 일치 확인</td></tr></tbody></table>
+        <h3>현재 API와 권장 API의 차이</h3>
+        <pre>현재 UserData
+{
+  "oAuthProvider": "APPLE",
+  "oAuthId": "credential.user",
+  "nickname": "최초 로그인 이름 또는 빈 문자열",
+  "profileImageUrl": ""
+}
+
+권장 확장 예시 (서버 팀과 필드명 합의 필요)
+{
+  "oAuthProvider": "APPLE",
+  "identityToken": "eyJ...",
+  "authorizationCode": "c123...",
+  "nickname": "최초 로그인 이름 또는 빈 문자열"
+}</pre>
+        <p>이 변경은 iOS의 <code>SocialAuthUser</code> → <code>LoginRequest.UserData</code> → 백엔드 DTO/검증 로직을 함께 바꾸는 계약 변경입니다. Android로 보면 소셜 SDK에서 받은 ID token을 ViewModel에서 API DTO로 전달하고, 서버가 Firebase Admin 또는 provider 공개키로 검증하는 흐름과 같습니다.</p>
+      </section>
+
+      <section id="errors">
+        <h2>8. 자주 만나는 오류</h2>
+        <table><thead><tr><th>증상</th><th>먼저 볼 곳</th><th>해결</th></tr></thead><tbody>
+          <tr><td><code>Provisioning profile ... doesn't support Sign in with Apple</code></td><td>Developer Portal App ID</td><td>capability 저장 여부 확인 → Xcode 자동 서명으로 새 profile 요청</td></tr>
+          <tr><td><code>Personal Team</code>만 보임</td><td>멤버십/Xcode Accounts</td><td>유료 Program 상태와 로그인한 Apple Account가 같은지 확인</td></tr>
+          <tr><td>Bundle ID 등록 불가</td><td>Identifiers</td><td><code>kbhdev.Fiilsa</code>가 다른 팀에 이미 등록되었는지 확인. 임의 변경 전 서버/App Store 식별자 영향 검토</td></tr>
+          <tr><td>로그인창은 뜨지만 서버 4xx</td><td>백엔드 로그</td><td><code>APPLE</code> enum, 빈 nickname/profile URL 허용, 요청 JSON 필드 확인</td></tr>
+          <tr><td>첫 로그인만 되고 두 번째 실패</td><td>회원 생성 로직</td><td>이름이 두 번째부터 오지 않는 것을 정상 상태로 처리하고 <code>sub</code>로 기존 회원 조회</td></tr>
+          <tr><td>사용자가 취소했는데 오류 표시</td><td>iOS reducer error mapping</td><td><code>ASAuthorizationError.canceled</code>를 사용자 오류가 아닌 취소로 처리</td></tr>
+        </tbody></table>
+      </section>
+
+      <section id="release">
+        <h2>9. 여기까지 체크되면 “1차 완료”</h2>
+        <ul class="checklist"><li>Apple Developer Program 상태가 Active다.</li><li>App ID <code>kbhdev.Fiilsa</code>가 현재 팀에 있다.</li><li>App ID에서 Sign in with Apple이 Primary로 활성화되어 있다.</li><li>Xcode Team, Bundle ID, capability, 자동 서명이 정상이다.</li><li>실기기에서 최초 로그인·취소·재로그인이 통과한다.</li><li>서버가 <code>APPLE</code> provider와 빈 이름을 처리한다.</li><li>출시 전 identity token 서버 검증과 계정 탈퇴/revoke 정책을 마무리한다.</li><li>TestFlight에서 동일한 흐름을 다시 검증한다.</li></ul>
+        <div class="card"><h3 style="margin-top:0">공식 문서</h3><ul class="source-list"><li><a href="https://developer.apple.com/help/account/identifiers/enable-app-capabilities/" target="_blank" rel="noreferrer">Apple Developer Help — Enable app capabilities</a></li><li><a href="https://developer.apple.com/help/account/capabilities/about-sign-in-with-apple/" target="_blank" rel="noreferrer">Apple Developer Help — About Sign in with Apple</a></li><li><a href="https://developer.apple.com/documentation/authenticationservices/implementing-user-authentication-with-sign-in-with-apple" target="_blank" rel="noreferrer">AuthenticationServices — Implementing user authentication</a></li><li><a href="https://developer.apple.com/documentation/signinwithapple/authenticating-users-with-sign-in-with-apple" target="_blank" rel="noreferrer">Sign in with Apple — Authenticating users with your server</a></li><li><a href="https://developer.apple.com/help/account/provisioning-profiles/create-a-development-provisioning-profile" target="_blank" rel="noreferrer">Provisioning profile 도움말</a></li></ul></div>
+        <div class="footer">이 문서는 Fiilsa 저장소의 실제 설정과 코드(<code>Fiilsa.entitlements</code>, <code>SocialAuthClient.swift</code>, <code>LoginFeature.swift</code>)를 기준으로 작성했습니다. 브라우저 그림은 Apple 포털의 메뉴 구조를 설명하기 위해 개인 정보 없이 재구성한 화면 예시이며, Apple UI 업데이트에 따라 세부 배치는 달라질 수 있습니다.</div>
+      </section>
+    </main>
+  </div>
+</body>
+</html>

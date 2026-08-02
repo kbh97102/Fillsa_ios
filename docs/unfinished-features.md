@@ -22,6 +22,9 @@
 관련 문서:
 
 - `docs/screens/1_login.md`
+- `docs/social-login-implementation.md`
+- `docs/apple-login-release-checklist.md`
+- `docs/testflight-distribution-guide.md`
 
 현재 상태:
 
@@ -51,6 +54,8 @@
 - [x] iOS 앱 build setting과 Info.plist OAuth 설정 연결
 - [x] Sign in with Apple entitlement 연결
 - [ ] Apple Developer App ID에서 Sign in with Apple capability 활성화 확인
+- [ ] 서버 `APPLE` provider 허용 및 identity token 검증 방식 결정
+- [ ] TestFlight 실기기 빌드에서 Apple 로그인 검증
 - [ ] 실제 provider 콘솔 설정 후 실기기/시뮬레이터 로그인 검증
 - [ ] 카카오톡 앱 직접 로그인 SDK가 필요한지 결정
 
