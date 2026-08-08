@@ -41,24 +41,6 @@ struct QuoteListView: View {
                     )
                     .padding(.top, 20)
 
-                    QuoteListDurationCalendarSection(
-                        displayCalendar: displayCalendar,
-                        startDate: viewStore.binding(
-                            get: \.startDate,
-                            send: { .dateRangeChanged($0, viewStore.endDate) }
-                        ),
-                        endDate: viewStore.binding(
-                            get: \.endDate,
-                            send: { .dateRangeChanged(viewStore.startDate, $0) }
-                        ),
-                        onApply: { start, end in
-                            displayCalendar = false
-                            viewStore.send(.dateRangeChanged(start, end))
-                        }
-                    )
-                    .padding(.top, displayCalendar ? -6 : 0)
-                    .zIndex(1)
-
                     HStack {
                         Spacer()
 
@@ -73,12 +55,42 @@ struct QuoteListView: View {
 
                     QuoteListSection(
                         list: viewStore.list,
+                        emptyState: viewStore.emptyState,
                         onClick: openDetail,
                         loadMore: {
                             viewStore.send(.loadNextPage)
                         }
                     )
                     .padding(.top, 10)
+                }
+                .overlay(alignment: .top) {
+                    if displayCalendar {
+                        ZStack(alignment: .top) {
+                            Color.clear
+                                .contentShape(Rectangle())
+                                .onTapGesture {
+                                    displayCalendar = false
+                                }
+
+                            QuoteListDurationCalendarSection(
+                                displayCalendar: true,
+                                startDate: viewStore.binding(
+                                    get: \.startDate,
+                                    send: { .dateRangeChanged($0, viewStore.endDate) }
+                                ),
+                                endDate: viewStore.binding(
+                                    get: \.endDate,
+                                    send: { .dateRangeChanged(viewStore.startDate, $0) }
+                                ),
+                                onApply: { start, end in
+                                    displayCalendar = false
+                                    viewStore.send(.dateRangeChanged(start, end))
+                                }
+                            )
+                            .padding(.top, 54)
+                        }
+                        .zIndex(1)
+                    }
                 }
             }
             .padding(.horizontal, 20)

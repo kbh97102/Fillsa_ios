@@ -3,6 +3,11 @@ import Foundation
 
 @Reducer
 struct QuoteListFeature {
+    enum EmptyState: Equatable {
+        case general
+        case searchResult
+    }
+
     @ObservableState
     struct State: Equatable {
         var list: [MemberQuotesResponse] = []
@@ -13,6 +18,13 @@ struct QuoteListFeature {
         var isLoading = false
         var currentPage = 0
         var totalPages = 1
+        var hasAppliedSearchCondition = false
+        var loadFailed = false
+
+        var emptyState: EmptyState? {
+            guard hasLoaded, !isLoading, !loadFailed, list.isEmpty else { return nil }
+            return hasAppliedSearchCondition ? .searchResult : .general
+        }
     }
 
     enum Action: Equatable {
@@ -45,10 +57,12 @@ struct QuoteListFeature {
             case let .dateRangeChanged(startDate, endDate):
                 state.startDate = startDate
                 state.endDate = endDate
+                state.hasAppliedSearchCondition = true
                 return load(state: &state, page: 0, reset: true)
 
             case let .likeFilterChanged(isLike):
                 state.likeFilter = isLike
+                state.hasAppliedSearchCondition = true
                 return load(state: &state, page: 0, reset: true)
 
             case let .quotesLoaded(.success(response)):
@@ -61,12 +75,14 @@ struct QuoteListFeature {
                 state.totalPages = response.totalPages
                 state.hasLoaded = true
                 state.isLoading = false
+                state.loadFailed = false
                 return .none
 
             case .quotesLoaded(.failure):
                 state.list = []
                 state.hasLoaded = true
                 state.isLoading = false
+                state.loadFailed = true
                 return .none
             }
         }
@@ -78,6 +94,7 @@ struct QuoteListFeature {
             state.hasLoaded = false
             state.currentPage = 0
             state.totalPages = 1
+            state.loadFailed = false
         }
         let likeYn = state.likeFilter ? "Y" : "N"
         let startDate = FillsaCalendarDateSupport.quoteDateString(for: state.startDate)
