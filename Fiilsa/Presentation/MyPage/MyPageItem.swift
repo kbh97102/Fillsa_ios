@@ -39,14 +39,14 @@ struct MyPageItem: View {
                 Spacer()
 
                 if useArrow {
-                    Image(systemName: "chevron.right")
-                        .font(.system(size: 18, weight: .semibold))
-                        .foregroundStyle(FillsaColor.onBackground1)
+                    Image("my_page_arrow")
+                        .resizable()
+                        .scaledToFit()
                         .frame(width: 24, height: 24)
                 }
             }
-            .padding(.vertical, 18)
             .padding(.horizontal, 12)
+            .frame(width: MyPageLayout.menuSize.width, height: MyPageLayout.menuSize.height)
             .background(
                 RoundedRectangle(cornerRadius: 12)
                     .fill(FillsaColor.backgroundContainer)

@@ -40,8 +40,9 @@ struct MyPageView: View {
                 logoImage
             }
             .buttonStyle(.plain)
-            .frame(maxWidth: .infinity)
-            .padding(.vertical, 10)
+            .frame(width: MyPageLayout.logoSize.width, height: MyPageLayout.logoSize.height)
+            .frame(maxWidth: .infinity, minHeight: 50)
+            .accessibilityIdentifier(MyPageAccessibilityIdentifier.logo)
 
             MyPageLoginSection(
                 isLogged: viewStore.isLoggedIn,
@@ -51,34 +52,38 @@ struct MyPageView: View {
                     viewStore.send(.loginTapped)
                 }
             )
-            .padding(.top, 10)
+            .padding(.top, viewStore.isLoggedIn ? 20 : 10)
 
-            MyPageItem(
-                icon: .info,
-                text: "공지사항",
-                onClick: {
-                    viewStore.send(.noticeTapped)
-                }
-            )
-            .padding(.top, 12)
+            VStack(spacing: MyPageLayout.menuSpacing) {
+                MyPageItem(
+                    icon: .info,
+                    text: "공지사항",
+                    onClick: {
+                        viewStore.send(.noticeTapped)
+                    }
+                )
+                .accessibilityIdentifier(MyPageAccessibilityIdentifier.noticeMenu)
 
-            MyPageItem(
-                icon: .bell,
-                text: "알림",
-                onClick: {
-                    viewStore.send(.alertTapped)
-                }
-            )
-            .padding(.top, 12)
+                MyPageItem(
+                    icon: .bell,
+                    text: "알림",
+                    onClick: {
+                        viewStore.send(.alertTapped)
+                    }
+                )
+                .accessibilityIdentifier(MyPageAccessibilityIdentifier.alertMenu)
 
-            MyPageItem(
-                icon: .theme,
-                text: "테마",
-                onClick: {
-                    viewStore.send(.themeTapped)
-                }
-            )
-            .padding(.top, 12)
+                MyPageItem(
+                    icon: .theme,
+                    text: "테마",
+                    useArrow: false,
+                    onClick: {
+                        viewStore.send(.themeTapped)
+                    }
+                )
+                .accessibilityIdentifier(MyPageAccessibilityIdentifier.themeMenu)
+            }
+            .padding(.top, 20)
 
             MyPageBottomButtonSection(
                 isLogged: viewStore.isLoggedIn,
@@ -90,14 +95,14 @@ struct MyPageView: View {
 
             Spacer()
         }
-        .padding(.horizontal, 20)
+        .padding(.horizontal, MyPageLayout.screenHorizontalInset)
     }
 
     private var logoImage: some View {
         Image(colorScheme == .dark ? "icn_top_logo_dark" : "icn_top_logo")
             .resizable()
             .scaledToFit()
-        .frame(width: 154, height: 70)
+        .frame(width: MyPageLayout.logoSize.width, height: MyPageLayout.logoSize.height)
     }
 }
 

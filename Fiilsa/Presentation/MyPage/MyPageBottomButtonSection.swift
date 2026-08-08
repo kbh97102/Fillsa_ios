@@ -35,16 +35,17 @@ struct MyPageBottomButtonSection: View {
                     .font(FillsaTypography.body2)
                     .foregroundStyle(FillsaColor.onBackground1)
             }
-            .padding(.vertical, 13)
+            .frame(height: 50)
 
             if isLogged {
                 Button(action: logout) {
                     Text("로그아웃")
                         .font(FillsaTypography.subtitle1)
                         .foregroundStyle(FillsaColor.onBackground1)
-                        .padding(.top, 13)
+                        .frame(maxWidth: .infinity, alignment: .leading)
                 }
                 .buttonStyle(.plain)
+                .frame(height: 50)
             }
         }
         .padding(.horizontal, 12)
