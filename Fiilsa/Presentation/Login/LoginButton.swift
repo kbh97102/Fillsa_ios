@@ -12,26 +12,30 @@ struct LoginButton: View {
     let text: String
     let backgroundColor: Color
     var textColor: Color = Color(hex: 0x1F1F1F)
+    var isDarkMode = false
+    var accessibilityIdentifier = ""
     let onClick: () -> Void
 
     var body: some View {
         Button(action: onClick) {
             HStack(spacing: 8) {
                 LoginIcon(icon: icon)
-                    .frame(width: 24, height: 24)
+                    .environment(\.colorScheme, isDarkMode ? .dark : .light)
+                    .frame(width: 30, height: 30)
 
                 Text(text)
                     .font(FillsaTypography.subtitle2)
                     .foregroundStyle(textColor)
             }
             .frame(maxWidth: .infinity)
-            .padding(.vertical, 10)
+            .frame(height: 50)
             .background(
                 RoundedRectangle(cornerRadius: 8)
                     .fill(backgroundColor)
             )
         }
         .buttonStyle(.plain)
+        .accessibilityIdentifier(accessibilityIdentifier)
     }
 }
 
@@ -44,26 +48,27 @@ enum LoginButtonIcon {
 private struct LoginIcon: View {
     let icon: LoginButtonIcon
 
+    @Environment(\.colorScheme) private var colorScheme
+
     var body: some View {
         switch icon {
         case .kakao:
-            Circle()
-                .fill(Color(hex: 0x191919))
-                .overlay {
-                    Text("k")
-                        .font(.system(size: 13, weight: .bold))
-                        .foregroundStyle(Color(hex: 0xFEE500))
-                }
+            Image("login_kakao")
+                .resizable()
+                .scaledToFit()
+                .frame(width: 18, height: 17)
 
         case .apple:
-            Image(systemName: "apple.logo")
-                .font(.system(size: 18, weight: .semibold))
-                .foregroundStyle(FillsaColor.white)
+            Image(colorScheme == .dark ? "login_apple_dark" : "login_apple_light")
+                .resizable()
+                .scaledToFit()
+                .frame(width: 15, height: 19)
 
         case .pencil:
-            Image(systemName: "pencil")
-                .font(.system(size: 18, weight: .semibold))
-                .foregroundStyle(FillsaColor.gray700)
+            Image(colorScheme == .dark ? "login_guest_dark" : "login_guest_light")
+                .resizable()
+                .scaledToFit()
+                .frame(width: 18, height: 18)
         }
     }
 }

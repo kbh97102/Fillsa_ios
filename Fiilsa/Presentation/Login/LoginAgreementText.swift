@@ -24,7 +24,7 @@ struct LoginAgreementText: View {
                 + Text("에 동의하는 것으로 간주됩니다.")
         }
         .font(FillsaTypography.body3)
-        .foregroundStyle(FillsaColor.gray700)
+        .foregroundStyle(FillsaColor.dynamic(light: FillsaColor.gray500, dark: FillsaColor.white))
         .multilineTextAlignment(.center)
         .overlay {
             HStack(spacing: 0) {

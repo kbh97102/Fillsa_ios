@@ -116,7 +116,8 @@ struct AppFeature {
         Reduce { state, action in
             switch action {
             case .task:
-                guard !ProcessInfo.processInfo.arguments.contains("-uiTestingQuoteList") else {
+                guard !ProcessInfo.processInfo.arguments.contains("-uiTestingQuoteList"),
+                      !ProcessInfo.processInfo.arguments.contains("-ui-testing-login") else {
                     return .none
                 }
                 return .merge(

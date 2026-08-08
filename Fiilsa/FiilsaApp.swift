@@ -51,13 +51,38 @@ struct FiilsaApp: App {
     }
 
     private var appStore: StoreOf<AppFeature> {
-        if MyPageUITestLaunchConfiguration.isEnabled {
+        if LoginUITestLaunchConfiguration.isEnabled {
+            LoginUITestLaunchConfiguration.makeStore()
+        } else if MyPageUITestLaunchConfiguration.isEnabled {
             MyPageUITestLaunchConfiguration.makeStore()
         } else {
             Store(initialState: launchState) {
                 AppFeature()
             }
         }
+    }
+}
+
+private enum LoginUITestLaunchConfiguration {
+    private static let enabledArgument = "-ui-testing-login"
+    private static let darkArgument = "-ui-testing-login-dark"
+
+    static var isEnabled: Bool {
+        ProcessInfo.processInfo.arguments.contains(enabledArgument)
+    }
+
+    static func makeStore() -> StoreOf<AppFeature> {
+        Store(initialState: initialState) {
+            AppFeature()
+        }
+    }
+
+    private static var initialState: AppFeature.State {
+        var state = AppFeature.State()
+        state.screen = .login(isOnboarding: false)
+        state.selectedTheme = ProcessInfo.processInfo.arguments.contains(darkArgument) ? .dark : .light
+        state.login = LoginFeature.State(isOnboarding: false)
+        return state
     }
 }
 

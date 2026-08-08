@@ -5,6 +5,7 @@ struct LoginView: View {
     let store: StoreOf<LoginFeature>
 
     @Environment(\.openURL) private var openURL
+    @Environment(\.colorScheme) private var colorScheme
     @State private var testClickCount = 0
 
     var body: some View {
@@ -34,24 +35,28 @@ struct LoginView: View {
                 topSection(viewStore: viewStore)
             }
 
-            Image("icn_top_logo")
+            Image(colorScheme == .dark ? "icn_top_logo_dark" : "icn_top_logo")
                 .resizable()
                 .scaledToFit()
                 .frame(width: 154, height: 70)
                 .padding(.top, 154)
+                .accessibilityIdentifier(colorScheme == .dark ? "login.logo.dark" : "login.logo.light")
                 .onTapGesture {
                     testClickCount += 1
                 }
 
             Text("로그인 후, 나만의 필사를 안전하게 저장할 수 있습니다.")
                 .font(FillsaTypography.body2)
-                .foregroundStyle(FillsaColor.gray700)
+                .foregroundStyle(FillsaColor.onBackground1)
                 .padding(.top, 80)
 
             LoginButton(
                 icon: .kakao,
                 text: "카카오 계정으로 시작하기",
-                backgroundColor: Color(hex: 0xFEE500),
+                backgroundColor: Color(hex: 0xFFE600),
+                textColor: Color(hex: 0x371D1E),
+                isDarkMode: colorScheme == .dark,
+                accessibilityIdentifier: "login.kakao",
                 onClick: {
                     viewStore.send(.kakaoTapped)
                 }
@@ -62,8 +67,10 @@ struct LoginView: View {
             LoginButton(
                 icon: .apple,
                 text: "Apple로 시작하기",
-                backgroundColor: FillsaColor.black0C,
-                textColor: FillsaColor.white,
+                backgroundColor: colorScheme == .dark ? FillsaColor.white : FillsaColor.gray700,
+                textColor: colorScheme == .dark ? FillsaColor.gray700 : FillsaColor.white,
+                isDarkMode: colorScheme == .dark,
+                accessibilityIdentifier: "login.apple",
                 onClick: {
                     viewStore.send(.appleTapped)
                 }
@@ -75,7 +82,10 @@ struct LoginView: View {
                 LoginButton(
                     icon: .pencil,
                     text: "비회원으로 시작하기",
-                    backgroundColor: FillsaColor.white,
+                    backgroundColor: colorScheme == .dark ? FillsaColor.purple01 : FillsaColor.white,
+                    textColor: colorScheme == .dark ? FillsaColor.white : FillsaColor.gray700,
+                    isDarkMode: colorScheme == .dark,
+                    accessibilityIdentifier: "login.guest",
                     onClick: {
                         viewStore.send(.nonMemberTapped)
                     }
@@ -112,7 +122,7 @@ struct LoginView: View {
             } label: {
                 Image(systemName: "xmark")
                     .font(.system(size: 20, weight: .semibold))
-                    .foregroundStyle(FillsaColor.gray700)
+                    .foregroundStyle(FillsaColor.onBackground1)
                     .frame(width: 44, height: 44)
             }
             .buttonStyle(.plain)
