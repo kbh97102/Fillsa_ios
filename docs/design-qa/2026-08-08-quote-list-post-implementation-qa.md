@@ -1,7 +1,7 @@
 # Quote List Post-implementation Design QA
 
-**Date:** 2026-08-08  
-**Scope:** Quote List only; ads and common streak/bottom-navigation implementation are excluded from change scope.  
+**Date:** 2026-08-08
+**Scope:** Quote List only; ads and common streak/bottom-navigation implementation are excluded from change scope.
 **Reference:** Figma `2438:7653` (light calendar-open), `2438:8913` (dark list), `2438:8482` / `2438:8457` (condition empty state).
 
 ## Evidence
