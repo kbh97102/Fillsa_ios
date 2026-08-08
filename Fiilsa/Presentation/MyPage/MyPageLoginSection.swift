@@ -36,7 +36,7 @@ struct MyPageLoginSection: View {
             Spacer()
         }
         .padding(.horizontal, 20)
-        .padding(.vertical, 15)
+        .frame(width: MyPageLayout.memberCardSize.width, height: MyPageLayout.memberCardSize.height)
         .background(
             RoundedRectangle(cornerRadius: 12)
                 .fill(FillsaColor.backgroundContainer)
@@ -46,6 +46,8 @@ struct MyPageLoginSection: View {
                 .stroke(FillsaColor.myPageCardOutline, lineWidth: 1)
         }
         .shadow(color: FillsaColor.myPageShadow, radius: 16, x: 0, y: 0)
+        .accessibilityElement(children: .contain)
+        .accessibilityIdentifier(MyPageAccessibilityIdentifier.memberCard)
     }
 
     private var loggedOutContent: some View {
@@ -60,7 +62,7 @@ struct MyPageLoginSection: View {
                         .foregroundStyle(FillsaColor.gray700)
                 }
                 .frame(maxWidth: .infinity)
-                .padding(.vertical, 18)
+                .frame(height: 65)
                 .background(
                     UnevenRoundedRectangle(topLeadingRadius: 12, bottomLeadingRadius: 0, bottomTrailingRadius: 0, topTrailingRadius: 12)
                         .fill(FillsaColor.white)
@@ -70,15 +72,17 @@ struct MyPageLoginSection: View {
                     .font(FillsaTypography.subtitle1)
                     .foregroundStyle(FillsaColor.white)
                     .frame(maxWidth: .infinity)
-                    .padding(.vertical, 15)
+                    .frame(height: 49)
                     .background(
                         UnevenRoundedRectangle(topLeadingRadius: 0, bottomLeadingRadius: 12, bottomTrailingRadius: 12, topTrailingRadius: 0)
                             .fill(Color(hex: 0x5E67FD))
                     )
             }
+            .frame(width: MyPageLayout.guestCardSize.width, height: MyPageLayout.guestCardSize.height)
             .shadow(color: FillsaColor.myPageShadow, radius: 16, x: 0, y: 0)
         }
         .buttonStyle(.plain)
+        .accessibilityIdentifier(MyPageAccessibilityIdentifier.guestCard)
     }
 
     @ViewBuilder
@@ -96,6 +100,7 @@ struct MyPageLoginSection: View {
             }
         } else {
             MyPageIcon(kind: .profile)
+                .scaledToFill()
         }
     }
 }

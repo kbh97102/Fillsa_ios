@@ -13,38 +13,49 @@ struct MyPageThemeDialog: View {
 
     var body: some View {
         ZStack {
-            Color.black.opacity(0.32)
+            FillsaColor.backgroundDim
                 .ignoresSafeArea()
 
-            VStack(spacing: 0) {
-                themeRow(title: "라이트", theme: .light)
-                themeRow(title: "다크", theme: .dark)
-                    .padding(.top, 15)
-                themeRow(title: "시스템", theme: .system)
-                    .padding(.top, 15)
+            VStack(spacing: 12) {
+                VStack(spacing: MyPageLayout.themeOptionSpacing) {
+                    themeRow(title: "라이트", theme: .light)
+                    themeRow(title: "다크", theme: .dark)
+                    themeRow(title: "시스템", theme: .system)
+                }
 
                 Button(action: confirm) {
                     Text("확인")
                         .font(FillsaTypography.subtitle1)
                         .foregroundStyle(FillsaColor.white)
-                        .frame(maxWidth: .infinity)
-                        .padding(.vertical, 14)
+                        .frame(
+                            width: MyPageLayout.confirmButtonSize.width,
+                            height: MyPageLayout.confirmButtonSize.height
+                        )
                         .background(
-                            RoundedRectangle(cornerRadius: 12)
-                                .fill(FillsaColor.purple01)
+                            RoundedRectangle(cornerRadius: MyPageLayout.themeDialogCornerRadius)
+                                .fill(Color(hex: 0x5E67FD))
                         )
                 }
                 .buttonStyle(.plain)
-                .padding(.top, 24)
+                .frame(height: 73)
+                .accessibilityIdentifier(MyPageAccessibilityIdentifier.themeConfirm)
             }
-            .padding(.horizontal, 12)
             .padding(.top, 20)
-            .padding(.bottom, 12)
             .background(
-                RoundedRectangle(cornerRadius: 12)
+                RoundedRectangle(cornerRadius: MyPageLayout.themeDialogCornerRadius)
                     .fill(FillsaColor.backgroundContainer)
             )
-            .padding(.horizontal, 20)
+            .overlay {
+                RoundedRectangle(cornerRadius: MyPageLayout.themeDialogCornerRadius)
+                    .stroke(FillsaColor.myPageCardOutline, lineWidth: 1)
+            }
+            .shadow(color: FillsaColor.myPageShadow, radius: 16, x: 0, y: 0)
+            .frame(
+                width: MyPageLayout.themeDialogSize.width,
+                height: MyPageLayout.themeDialogSize.height
+            )
+            .accessibilityElement(children: .contain)
+            .accessibilityIdentifier(MyPageAccessibilityIdentifier.themeDialog)
         }
     }
 
@@ -54,31 +65,37 @@ struct MyPageThemeDialog: View {
         } label: {
             HStack(spacing: 0) {
                 Text(title)
-                    .font(FillsaTypography.subtitle1)
+                    .font(.system(size: 20, weight: .regular))
                     .foregroundStyle(FillsaColor.onBackground1)
 
                 Spacer()
 
                 radioIcon(isSelected: selectedTheme == theme)
             }
-            .padding(.vertical, 10)
+            .frame(width: MyPageLayout.confirmButtonSize.width, height: MyPageLayout.themeOptionSize)
         }
         .buttonStyle(.plain)
+        .accessibilityIdentifier(accessibilityIdentifier(for: theme))
+        .accessibilityValue(selectedTheme == theme ? "selected" : "unselected")
+    }
+
+    private func accessibilityIdentifier(for theme: DarkModeType) -> String {
+        switch theme {
+        case .light:
+            MyPageAccessibilityIdentifier.themeLight
+        case .dark:
+            MyPageAccessibilityIdentifier.themeDark
+        case .system:
+            MyPageAccessibilityIdentifier.themeSystem
+        }
     }
 
     @ViewBuilder
     private func radioIcon(isSelected: Bool) -> some View {
-        ZStack {
-            Circle()
-                .stroke(isSelected ? FillsaColor.purple01 : FillsaColor.gray300, lineWidth: 2)
-                .frame(width: 22, height: 22)
-
-            if isSelected {
-                Circle()
-                    .fill(FillsaColor.purple01)
-                    .frame(width: 12, height: 12)
-            }
-        }
+        Image(isSelected ? "my_page_radio_checked" : "my_page_radio_unchecked")
+            .resizable()
+            .scaledToFit()
+            .frame(width: MyPageLayout.themeOptionSize, height: MyPageLayout.themeOptionSize)
     }
 }
 

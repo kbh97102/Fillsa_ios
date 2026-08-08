@@ -19,32 +19,18 @@ struct MyPageIcon: View {
     let kind: MyPageIconKind
 
     var body: some View {
-        ZStack {
-            switch kind {
-            case .book:
-                Image(systemName: "book.closed.fill")
-                    .font(.system(size: 24, weight: .regular))
-                    .foregroundStyle(FillsaColor.purple01)
-            case .info:
-                Image(systemName: "info.circle.fill")
-                    .font(.system(size: 20, weight: .regular))
-                    .foregroundStyle(FillsaColor.purple01)
-            case .bell:
-                Image(systemName: "bell.fill")
-                    .font(.system(size: 20, weight: .regular))
-                    .foregroundStyle(FillsaColor.purple01)
-            case .theme:
-                Image(systemName: "circle.lefthalf.filled")
-                    .font(.system(size: 20, weight: .regular))
-                    .foregroundStyle(FillsaColor.purple01)
-            case .profile:
-                Circle()
-                    .fill(FillsaColor.purple02)
+        Image(assetName)
+            .resizable()
+            .scaledToFit()
+    }
 
-                Image(systemName: "person.fill")
-                    .font(.system(size: 22, weight: .semibold))
-                    .foregroundStyle(FillsaColor.purple01)
-            }
+    private var assetName: String {
+        switch kind {
+        case .book: "my_page_book"
+        case .info: "my_page_info"
+        case .bell: "my_page_bell"
+        case .theme: "my_page_theme"
+        case .profile: "my_page_profile"
         }
     }
 }
