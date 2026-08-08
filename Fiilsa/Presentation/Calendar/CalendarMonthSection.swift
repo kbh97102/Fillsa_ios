@@ -138,9 +138,9 @@ private struct CalendarNavigationButton: View {
 
     var body: some View {
         Button(action: action) {
-            Image(systemName: "chevron.right")
-                .font(.system(size: 18, weight: .semibold))
-                .foregroundStyle(FillsaColor.purple01)
+            Image("icn_calendar_navigation_arrow")
+                .resizable()
+                .aspectRatio(contentMode: .fit)
                 .frame(width: 24, height: 24)
                 .rotationEffect(isPrevious ? .degrees(180) : .degrees(0))
         }
