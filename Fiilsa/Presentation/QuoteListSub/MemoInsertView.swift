@@ -9,6 +9,7 @@ import ComposableArchitecture
 import SwiftUI
 
 struct MemoInsertView: View {
+    @Environment(\.colorScheme) private var colorScheme
     @State private var memo: String
 
     let store: StoreOf<MemoInsertFeature>
@@ -26,57 +27,71 @@ struct MemoInsertView: View {
                 Button {
                     ViewStore(store, observe: { $0 }).send(.saveAndBack(memo))
                 } label: {
-                    Image(systemName: "chevron.left")
-                        .font(.system(size: 22, weight: .semibold))
-                        .foregroundStyle(FillsaColor.gray700)
-                        .frame(width: 44, height: 44)
+                    Image(colorScheme == .dark ? "memo_back_dark" : "memo_back")
+                        .resizable()
+                        .scaledToFit()
+                        .frame(width: 32, height: 32)
+                        .rotationEffect(.degrees(180))
                 }
                 .buttonStyle(.plain)
+                .accessibilityIdentifier("memo.back")
+                .frame(width: 62, height: 41)
 
                 Spacer()
             }
-            .padding(.vertical, 9)
+            .frame(height: 41)
 
-            VStack(spacing: 0) {
-                TextEditor(text: $memo)
-                    .font(FillsaTypography.body1)
-                    .foregroundStyle(FillsaColor.gray700)
-                    .scrollContentBackground(.hidden)
-                    .background(Color.clear)
-                    .overlay(alignment: .topLeading) {
-                        if memo.isEmpty {
-                            Text("메모를 남겨주세요.")
-                                .font(FillsaTypography.body1)
-                                .foregroundStyle(FillsaColor.gray300)
-                                .padding(.top, 8)
-                                .padding(.leading, 5)
-                        }
+            TextEditor(text: $memo)
+                .font(FillsaTypography.body1)
+                .foregroundStyle(FillsaColor.onBackground1)
+                .scrollContentBackground(.hidden)
+                .background(Color.clear)
+                .accessibilityIdentifier("memo.editor")
+                .overlay(alignment: .topLeading) {
+                    if memo.isEmpty {
+                        Text("메모를 남겨주세요.")
+                            .font(FillsaTypography.body1)
+                            .foregroundStyle(placeholderColor)
+                            .padding(.top, 8)
+                            .padding(.leading, 5)
+                            .allowsHitTesting(false)
                     }
-
-                HStack {
-                    Button {
-                        ViewStore(store, observe: { $0 }).send(.saveAndBack(memo))
-                    } label: {
-                        Text("나가기")
-                            .font(FillsaTypography.body3)
-                            .foregroundStyle(FillsaColor.gray700)
-                            .padding(.horizontal, 12)
-                            .padding(.vertical, 8)
-                            .background(
-                                RoundedRectangle(cornerRadius: 8)
-                                    .stroke(FillsaColor.gray700, lineWidth: 1)
-                            )
-                    }
-                    .buttonStyle(.plain)
-
-                    Spacer()
                 }
-                .padding(.vertical, 6)
+                .frame(height: 259)
+                .padding(.horizontal, 15)
+
+            HStack {
+                Button {
+                    ViewStore(store, observe: { $0 }).send(.saveAndBack(memo))
+                } label: {
+                    Text("나가기")
+                        .font(FillsaTypography.body3)
+                        .foregroundStyle(FillsaColor.gray700)
+                        .padding(.horizontal, 12)
+                        .padding(.vertical, 8)
+                        .background(FillsaColor.white, in: RoundedRectangle(cornerRadius: 8))
+                        .overlay {
+                            RoundedRectangle(cornerRadius: 8)
+                                .stroke(FillsaColor.gray700, lineWidth: 1)
+                        }
+                }
+                .buttonStyle(.plain)
+                .accessibilityIdentifier("memo.exit")
+
+                Spacer()
             }
-            .padding(.horizontal, 5)
+            .frame(height: 50)
+            .padding(.horizontal, 20)
         }
-        .padding(.horizontal, 15)
-        .background(FillsaColor.white.ignoresSafeArea())
+        .background(memoBackground.ignoresSafeArea())
+    }
+
+    private var memoBackground: Color {
+        FillsaColor.dynamic(light: FillsaColor.white, dark: FillsaColor.gray700)
+    }
+
+    private var placeholderColor: Color {
+        FillsaColor.dynamic(light: FillsaColor.gray300, dark: FillsaColor.gray400)
     }
 }
 

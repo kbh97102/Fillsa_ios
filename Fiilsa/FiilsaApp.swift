@@ -55,11 +55,40 @@ struct FiilsaApp: App {
             LoginUITestLaunchConfiguration.makeStore()
         } else if MyPageUITestLaunchConfiguration.isEnabled {
             MyPageUITestLaunchConfiguration.makeStore()
+        } else if MemoUITestLaunchConfiguration.isEnabled {
+            MemoUITestLaunchConfiguration.makeStore()
         } else {
             Store(initialState: launchState) {
                 AppFeature()
             }
         }
+    }
+}
+
+private enum MemoUITestLaunchConfiguration {
+    private static let enabledArgument = "-ui-testing-memo"
+    private static let darkArgument = "-ui-testing-memo-dark"
+    private static let filledArgument = "-ui-testing-memo-filled"
+
+    static var isEnabled: Bool {
+        ProcessInfo.processInfo.arguments.contains(enabledArgument)
+    }
+
+    static func makeStore() -> StoreOf<AppFeature> {
+        Store(initialState: initialState) {
+            AppFeature()
+        }
+    }
+
+    private static var initialState: AppFeature.State {
+        var state = AppFeature.State()
+        let savedMemo = ProcessInfo.processInfo.arguments.contains(filledArgument)
+            ? "명언을 보면 삶에 동기부여가 되어서 좋아요."
+            : ""
+        state.screen = .memoInsert(savedMemo: savedMemo, memberQuoteSeq: 1)
+        state.selectedTheme = ProcessInfo.processInfo.arguments.contains(darkArgument) ? .dark : .light
+        state.memoInsert = MemoInsertFeature.State(savedMemo: savedMemo, memberQuoteSeq: 1)
+        return state
     }
 }
 
