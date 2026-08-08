@@ -14,7 +14,7 @@ struct CalendarMonthSection: View {
     let changeMonth: (Date) -> Void
     let selectDay: (Date) -> Void
 
-    private let weekColumns = Array(repeating: GridItem(.flexible(), spacing: 0), count: 7)
+    private let weekColumns = Array(repeating: GridItem(.fixed(36), spacing: 11), count: 7)
     private let weekdays = ["일", "월", "화", "수", "목", "금", "토"]
 
     var body: some View {
@@ -24,6 +24,7 @@ struct CalendarMonthSection: View {
                 goToPrevious: moveToPreviousMonth,
                 goToNext: moveToNextMonth
             )
+            .frame(height: 30)
             .padding(.top, 8)
             .padding(.horizontal, 16)
 
@@ -35,8 +36,8 @@ struct CalendarMonthSection: View {
                         .frame(maxWidth: .infinity)
                 }
             }
-            .padding(.top, 18)
-            .padding(.bottom, 8)
+            .frame(height: 40)
+            .padding(.top, 10)
 
             LazyVGrid(columns: weekColumns, spacing: 0) {
                 ForEach(days, id: \.self) { day in
@@ -52,18 +53,18 @@ struct CalendarMonthSection: View {
                     )
                 }
             }
-            .frame(maxHeight: .infinity)
+            .frame(height: 300)
             .padding(.bottom, 8)
         }
-        .padding(.top, 20)
         .background(
             RoundedRectangle(cornerRadius: 12)
-                .fill(FillsaColor.backgroundContainer)
+                .fill(FillsaColor.dynamic(light: FillsaColor.yellow01, dark: FillsaColor.gray700))
         )
         .overlay {
             RoundedRectangle(cornerRadius: 12)
-                .stroke(FillsaColor.outline, lineWidth: 1)
+                .stroke(FillsaColor.dynamic(light: FillsaColor.yellow02, dark: FillsaColor.gray600), lineWidth: 1)
         }
+        .accessibilityIdentifier(FillsaAccessibilityIdentifier.calendarMonthCard)
     }
 
     private var days: [Date] {
@@ -137,9 +138,9 @@ private struct CalendarNavigationButton: View {
 
     var body: some View {
         Button(action: action) {
-            Image(systemName: "chevron.right")
-                .font(.system(size: 18, weight: .semibold))
-                .foregroundStyle(FillsaColor.purple01)
+            Image("icn_calendar_navigation_arrow")
+                .resizable()
+                .aspectRatio(contentMode: .fit)
                 .frame(width: 24, height: 24)
                 .rotationEffect(isPrevious ? .degrees(180) : .degrees(0))
         }

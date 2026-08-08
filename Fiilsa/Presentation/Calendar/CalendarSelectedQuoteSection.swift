@@ -12,6 +12,8 @@ struct CalendarSelectedQuoteSection: View {
     let selectedDay: Date
     let onClick: () -> Void
 
+    @Environment(\.colorScheme) private var colorScheme
+
     init(
         selectedDayQuote: String,
         selectedDay: Date,
@@ -28,11 +30,11 @@ struct CalendarSelectedQuoteSection: View {
                 VStack(spacing: 0) {
                     Text(FillsaCalendarDateSupport.dayString(for: selectedDay))
                         .font(FillsaTypography.heading4)
-                        .foregroundStyle(FillsaColor.purple01)
+                        .foregroundStyle(selectedDateColor)
 
                     Text(FillsaCalendarDateSupport.shortWeekdayString(for: selectedDay))
                         .font(FillsaTypography.body4)
-                        .foregroundStyle(FillsaColor.purple01)
+                        .foregroundStyle(selectedDateColor)
                 }
                 .padding(.vertical, 16)
                 .padding(.leading, 20)
@@ -51,8 +53,14 @@ struct CalendarSelectedQuoteSection: View {
                 RoundedRectangle(cornerRadius: 10)
                     .fill(FillsaColor.backgroundContainer)
             )
+            .frame(height: 80)
         }
         .buttonStyle(.plain)
+        .accessibilityIdentifier(FillsaAccessibilityIdentifier.calendarSelectedQuote)
+    }
+
+    private var selectedDateColor: Color {
+        colorScheme == .dark ? FillsaColor.white : FillsaColor.purple01
     }
 }
 

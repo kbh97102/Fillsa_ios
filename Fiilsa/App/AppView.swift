@@ -1,8 +1,11 @@
 import ComposableArchitecture
+import Foundation
 import SwiftUI
 
 struct AppView: View {
     let store: StoreOf<AppFeature>
+
+    @Environment(\.colorScheme) private var colorScheme
 
     var body: some View {
         WithViewStore(store, observe: { $0 }) { viewStore in
@@ -15,6 +18,7 @@ struct AppView: View {
             }
             .preferredColorScheme(viewStore.selectedTheme.colorScheme)
             .task {
+                guard !ProcessInfo.processInfo.arguments.contains("ui-testing-calendar") else { return }
                 await viewStore.send(.task).finish()
             }
         }
@@ -101,14 +105,31 @@ struct AppView: View {
         VStack(spacing: 0) {
             selectedContent(for: viewStore.selectedTab, viewStore: viewStore)
 
-            FillsaBottomNavigationBar(
-                selectedTab: viewStore.selectedTab,
-                select: { tab in
-                    viewStore.send(.selectedTabChanged(tab))
-                }
-            )
+            if !hidesBottomNavigation(for: viewStore) {
+                FillsaBottomNavigationBar(
+                    selectedTab: viewStore.selectedTab,
+                    select: { tab in
+                        viewStore.send(.selectedTabChanged(tab))
+                    }
+                )
+            }
         }
         .background(FillsaColor.background.ignoresSafeArea())
+    }
+
+    private func hidesBottomNavigation(
+        for viewStore: ViewStore<AppFeature.State, AppFeature.Action>
+    ) -> Bool {
+        guard viewStore.selectedTab == .calendar else { return false }
+
+        switch viewStore.selectedTheme {
+        case .light:
+            return true
+        case .dark:
+            return false
+        case .system:
+            return colorScheme == .light
+        }
     }
 
     @ViewBuilder

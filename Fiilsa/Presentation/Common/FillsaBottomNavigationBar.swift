@@ -16,9 +16,9 @@ struct FillsaBottomNavigationBar: View {
                 )
             }
         }
-        .padding(.top, 8)
-        .padding(.bottom, 6)
+        .frame(height: 60)
         .background(FillsaColor.background)
+        .accessibilityIdentifier(FillsaAccessibilityIdentifier.bottomNavigation)
     }
 }
 
@@ -27,21 +27,43 @@ private struct BottomNavigationItem: View {
     let isSelected: Bool
     let select: () -> Void
 
+    @Environment(\.colorScheme) private var colorScheme
+
     var body: some View {
         Button(action: select) {
-            VStack(spacing: 4) {
-                Image(systemName: tab.systemImageName)
-                    .font(.system(size: 22, weight: .regular))
+            VStack(spacing: 2) {
+                navigationIcon
 
                 Text(tab.title)
                     .font(FillsaTypography.body4)
             }
-            .foregroundStyle(isSelected ? FillsaColor.onBackground2 : FillsaColor.onBackground1)
+            .foregroundStyle(navigationForeground)
             .frame(maxWidth: .infinity)
-            .frame(height: 52)
+            .frame(height: 60)
             .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
+    }
+
+    @ViewBuilder
+    private var navigationIcon: some View {
+        if colorScheme == .dark {
+            Image(tab.darkFigmaAssetName)
+                .resizable()
+                .aspectRatio(contentMode: .fit)
+                .frame(width: 32, height: 32)
+        } else {
+            Image(systemName: tab.systemImageName)
+                .font(.system(size: 24, weight: .regular))
+                .frame(width: 32, height: 32)
+        }
+    }
+
+    private var navigationForeground: Color {
+        if colorScheme == .dark {
+            return isSelected ? FillsaColor.white : FillsaColor.gray400
+        }
+        return isSelected ? FillsaColor.onBackground2 : FillsaColor.onBackground1
     }
 }
 
@@ -56,6 +78,19 @@ private extension AppTab {
             "calendar"
         case .myPage:
             "person.fill"
+        }
+    }
+
+    var darkFigmaAssetName: String {
+        switch self {
+        case .home:
+            "icn_nav_dark_home"
+        case .quoteList:
+            "icn_nav_dark_list"
+        case .calendar:
+            "icn_nav_dark_calendar"
+        case .myPage:
+            "icn_nav_dark_mypage"
         }
     }
 }

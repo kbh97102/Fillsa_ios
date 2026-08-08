@@ -9,11 +9,19 @@ import SwiftUI
 
 struct HomeTopBar: View {
     let myPage: () -> Void
+    let displayStreak: Bool
+    let streakCount: Int?
 
     @Environment(\.colorScheme) private var colorScheme
 
-    init(myPage: @escaping () -> Void = {}) {
+    init(
+        myPage: @escaping () -> Void = {},
+        displayStreak: Bool = false,
+        streakCount: Int? = nil
+    ) {
         self.myPage = myPage
+        self.displayStreak = displayStreak
+        self.streakCount = streakCount
     }
 
     var body: some View {
@@ -24,6 +32,19 @@ struct HomeTopBar: View {
                 .frame(width: 64, height: 30)
             
             Spacer()
+
+            if displayStreak, let streakCount {
+                HStack(spacing: 2) {
+                    CalendarIcon(kind: .flame)
+                        .frame(width: 20, height: 20)
+
+                    Text("\(streakCount)일")
+                        .font(FillsaTypography.body1)
+                        .foregroundStyle(FillsaColor.onBackground1)
+                }
+                .accessibilityIdentifier(FillsaAccessibilityIdentifier.calendarStreak)
+                .padding(.trailing, 10)
+            }
             
             Button(action: myPage) {
                 Image("icn_my_page")
