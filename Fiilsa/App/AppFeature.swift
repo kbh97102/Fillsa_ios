@@ -116,6 +116,9 @@ struct AppFeature {
         Reduce { state, action in
             switch action {
             case .task:
+                guard !ProcessInfo.processInfo.arguments.contains("-uiTestingQuoteList") else {
+                    return .none
+                }
                 return .merge(
                     .run { send in
                         let selectedTheme = (try? await settingsClient.getDarkModeType()) ?? .system

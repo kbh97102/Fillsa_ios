@@ -8,6 +8,8 @@
 import SwiftUI
 
 struct QuoteListDateSelectSection: View {
+    @Environment(\.colorScheme) private var colorScheme
+
     let startDate: Date
     let endDate: Date
     let isCalendarDisplayed: Bool
@@ -18,7 +20,7 @@ struct QuoteListDateSelectSection: View {
             HStack(spacing: 0) {
                 CalendarSelectIcon()
                     .frame(width: 20, height: 20)
-                    .foregroundStyle(isCalendarDisplayed ? FillsaColor.onBackground2 : FillsaColor.onBackground1)
+                    .foregroundStyle(iconColor)
 
                 Text("\(QuoteListDateSupport.displayDate(startDate)) - \(QuoteListDateSupport.displayDate(endDate))")
                     .font(FillsaTypography.body2)
@@ -33,13 +35,26 @@ struct QuoteListDateSelectSection: View {
                     .rotationEffect(isCalendarDisplayed ? .degrees(180) : .degrees(0))
             }
             .padding(.horizontal, 16)
-            .padding(.vertical, 8)
+            .frame(height: 40)
             .background(
                 RoundedRectangle(cornerRadius: 8)
-                    .fill(FillsaColor.backgroundContainer)
+                    .fill(selectorBackground)
             )
+            .overlay {
+                RoundedRectangle(cornerRadius: 8)
+                    .stroke(isCalendarDisplayed ? FillsaColor.purple01 : Color.clear, lineWidth: 1)
+            }
         }
         .buttonStyle(.plain)
+        .accessibilityIdentifier("quoteList.dateSelector")
+    }
+
+    private var selectorBackground: Color {
+        colorScheme == .dark ? FillsaColor.gray600 : FillsaColor.yellow01
+    }
+
+    private var iconColor: Color {
+        colorScheme == .dark ? FillsaColor.white : FillsaColor.purple01
     }
 }
 

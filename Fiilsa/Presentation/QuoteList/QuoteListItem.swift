@@ -14,33 +14,16 @@ struct QuoteListItem: View {
     var body: some View {
         VStack(spacing: 0) {
             header
-
-            ZStack {
-                backgroundImage
-
-                VStack(spacing: 0) {
-                    TabView(selection: $selectedPage) {
-                        pagerText(quote)
-                            .tag(0)
-
-                        pagerText(data.memo ?? "")
-                            .tag(1)
-                    }
-                    .tabViewStyle(.page(indexDisplayMode: .never))
-                    .padding(.horizontal, 10)
-                    .padding(.top, 10)
-
-                    if hasMemo {
-                        indicator
-                    }
-
-                    QuoteListItemBottomSection(hasMemo: hasMemo, isLike: isLike)
-                        .padding(.top, 20)
-                        .padding(.bottom, 10)
-                }
-            }
+            bodyContent
+                .frame(height: 162)
         }
+        .frame(width: 150, height: 200)
         .clipShape(RoundedRectangle(cornerRadius: 12))
+        .overlay {
+            Color.clear
+                .accessibilityElement(children: .ignore)
+                .accessibilityIdentifier("quoteList.cardFrame.\(data.id)")
+        }
     }
 
     private var header: some View {
@@ -56,10 +39,43 @@ struct QuoteListItem: View {
                 .foregroundStyle(FillsaColor.onSecondaryContainer1)
                 .lineLimit(1)
         }
-        .frame(maxWidth: .infinity)
-        .padding(.vertical, 12)
-        .padding(.horizontal, 27)
+        .frame(maxWidth: .infinity, minHeight: 38, maxHeight: 38)
         .background(FillsaColor.secondaryContainer)
+    }
+
+    private var bodyContent: some View {
+        ZStack {
+            backgroundImage
+
+            VStack(spacing: 0) {
+                TabView(selection: $selectedPage) {
+                    pagerText(quote)
+                        .tag(0)
+
+                    if hasMemo {
+                        pagerText(data.memo ?? "")
+                            .tag(1)
+                    }
+                }
+                .tabViewStyle(.page(indexDisplayMode: .never))
+                .padding(.horizontal, 10)
+                .padding(.top, 10)
+                .frame(width: 150, height: 106)
+
+                if hasMemo {
+                    indicator
+                        .padding(.top, 2)
+                }
+
+                Spacer(minLength: 0)
+
+                QuoteListItemBottomSection(hasMemo: hasMemo, isLike: isLike)
+                    .padding(.horizontal, 8)
+                    .padding(.bottom, 10)
+            }
+        }
+        .frame(width: 150, height: 162)
+        .clipped()
     }
 
     @ViewBuilder
@@ -73,28 +89,23 @@ struct QuoteListItem: View {
                     image
                         .resizable()
                         .scaledToFill()
+                        .overlay(FillsaColor.gray700.opacity(0.3))
                 default:
                     defaultBackground
                 }
             }
-            .overlay(FillsaColor.gray700.opacity(0.3))
             .clipped()
         } else {
             defaultBackground
-                .overlay(FillsaColor.gray700.opacity(0.3))
         }
     }
 
     private var defaultBackground: some View {
-        LinearGradient(
-            stops: [
-                .init(color: Color(hex: 0xFEFED6), location: 0),
-                .init(color: Color(hex: 0xE6B5C1), location: 0.49),
-                .init(color: Color(hex: 0xC990CE), location: 1),
-            ],
-            startPoint: .top,
-            endPoint: .bottom
-        )
+        Image("quote_list_card_photo")
+            .resizable()
+            .scaledToFill()
+            .overlay(FillsaColor.gray700.opacity(0.3))
+            .clipped()
     }
 
     private func pagerText(_ text: String) -> some View {
@@ -114,7 +125,6 @@ struct QuoteListItem: View {
                     .frame(width: 6, height: 6)
             }
         }
-        .padding(.top, 12)
     }
 
     private var quote: String {
@@ -159,7 +169,6 @@ private struct QuoteListItemBottomSection: View {
                 Color.clear
             }
         }
-        .padding(.horizontal, 8)
     }
 
     private func badge<Content: View>(@ViewBuilder content: () -> Content) -> some View {
