@@ -34,7 +34,10 @@ struct QuoteListEmptySection: View {
     private var icon: some View {
         switch emptyState {
         case .general:
-            QuoteListEmptyIcon()
+            Image("quote_list_empty_general")
+                .resizable()
+                .scaledToFit()
+                .accessibilityIdentifier("quoteList.empty.general.icon")
         case .searchResult:
             Image("quote_list_empty_calendar")
                 .resizable()
@@ -61,24 +64,7 @@ struct QuoteListEmptySection: View {
         case .general:
             colorScheme == .dark ? FillsaColor.white : FillsaColor.purple01
         case .searchResult:
-            FillsaColor.onBackground1
-        }
-    }
-}
-
-private struct QuoteListEmptyIcon: View {
-    var body: some View {
-        ZStack {
-            RoundedRectangle(cornerRadius: 12)
-                .strokeBorder(FillsaColor.purple01, style: StrokeStyle(lineWidth: 4, dash: [6, 8]))
-
-            Circle()
-                .fill(FillsaColor.yellow02)
-                .frame(width: 30, height: 30)
-
-            Text("?")
-                .font(.system(size: 24, weight: .bold))
-                .foregroundStyle(FillsaColor.yellow01)
+            FillsaColor.purple01
         }
     }
 }

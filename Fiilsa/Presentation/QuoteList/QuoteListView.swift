@@ -72,22 +72,31 @@ struct QuoteListView: View {
                                     displayCalendar = false
                                 }
 
-                            QuoteListDurationCalendarSection(
-                                displayCalendar: true,
-                                startDate: viewStore.binding(
-                                    get: \.startDate,
-                                    send: { .dateRangeChanged($0, viewStore.endDate) }
-                                ),
-                                endDate: viewStore.binding(
-                                    get: \.endDate,
-                                    send: { .dateRangeChanged(viewStore.startDate, $0) }
-                                ),
-                                onApply: { start, end in
-                                    displayCalendar = false
-                                    viewStore.send(.dateRangeChanged(start, end))
-                                }
-                            )
-                            .padding(.top, 54)
+                            ZStack {
+                                QuoteListDurationCalendarSection(
+                                    displayCalendar: true,
+                                    startDate: viewStore.binding(
+                                        get: \.startDate,
+                                        send: { .dateRangeChanged($0, viewStore.endDate) }
+                                    ),
+                                    endDate: viewStore.binding(
+                                        get: \.endDate,
+                                        send: { .dateRangeChanged(viewStore.startDate, $0) }
+                                    ),
+                                    onApply: { start, end in
+                                        displayCalendar = false
+                                        viewStore.send(.dateRangeChanged(start, end))
+                                    }
+                                )
+
+                                Color.clear
+                                    .accessibilityElement(children: .ignore)
+                                    .accessibilityIdentifier("quoteList.durationCalendar")
+                            }
+                            .frame(width: 340, height: 393)
+                            .padding(.top, 70.5)
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                            .offset(x: -10)
                         }
                         .zIndex(1)
                     }

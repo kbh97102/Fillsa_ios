@@ -19,6 +19,11 @@ struct QuoteListItem: View {
         }
         .frame(width: 150, height: 200)
         .clipShape(RoundedRectangle(cornerRadius: 12))
+        .overlay {
+            Color.clear
+                .accessibilityElement(children: .ignore)
+                .accessibilityIdentifier("quoteList.cardFrame.\(data.id)")
+        }
     }
 
     private var header: some View {
@@ -55,7 +60,7 @@ struct QuoteListItem: View {
                 .tabViewStyle(.page(indexDisplayMode: .never))
                 .padding(.horizontal, 10)
                 .padding(.top, 10)
-                .frame(height: 106)
+                .frame(width: 150, height: 106)
 
                 if hasMemo {
                     indicator
@@ -69,6 +74,8 @@ struct QuoteListItem: View {
                     .padding(.bottom, 10)
             }
         }
+        .frame(width: 150, height: 162)
+        .clipped()
     }
 
     @ViewBuilder
@@ -94,15 +101,11 @@ struct QuoteListItem: View {
     }
 
     private var defaultBackground: some View {
-        LinearGradient(
-            stops: [
-                .init(color: Color(hex: 0xFEFED6), location: 0),
-                .init(color: Color(hex: 0xE6B5C1), location: 0.49),
-                .init(color: Color(hex: 0xC990CE), location: 1),
-            ],
-            startPoint: .top,
-            endPoint: .bottom
-        )
+        Image("quote_list_card_photo")
+            .resizable()
+            .scaledToFill()
+            .overlay(FillsaColor.gray700.opacity(0.3))
+            .clipped()
     }
 
     private func pagerText(_ text: String) -> some View {

@@ -79,8 +79,8 @@ struct QuoteListDurationCalendarSection: View {
                 RoundedRectangle(cornerRadius: 12)
                     .stroke(FillsaColor.outline, lineWidth: 1)
             }
+            .frame(width: 340, height: 393)
             .transition(.move(edge: .top).combined(with: .opacity))
-            .accessibilityIdentifier("quoteList.durationCalendar")
         }
     }
 
