@@ -8,6 +8,8 @@
 import SwiftUI
 
 struct MyPageItem: View {
+    @Environment(\.colorScheme) private var colorScheme
+
     let icon: MyPageIconKind
     let text: String
     let useArrow: Bool
@@ -39,11 +41,7 @@ struct MyPageItem: View {
                 Spacer()
 
                 if useArrow {
-                    Image("my_page_arrow")
-                        .resizable()
-                        .scaledToFit()
-                        .frame(width: 24, height: 24)
-                        .accessibilityIdentifier(MyPageAccessibilityIdentifier.menuArrow)
+                    arrowIcon
                 }
             }
             .padding(.horizontal, 12)
@@ -58,6 +56,22 @@ struct MyPageItem: View {
             }
         }
         .buttonStyle(.plain)
+    }
+
+    private var arrowIcon: some View {
+        ZStack {
+            Image(MyPageArrowAsset.base)
+                .resizable()
+                .scaledToFit()
+
+            if colorScheme == .dark {
+                Image(MyPageArrowAsset.darkOverlay)
+                    .resizable()
+                    .scaledToFit()
+            }
+        }
+        .frame(width: 24, height: 24)
+        .accessibilityIdentifier(MyPageAccessibilityIdentifier.menuArrow)
     }
 }
 

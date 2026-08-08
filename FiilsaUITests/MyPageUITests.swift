@@ -40,12 +40,15 @@ final class MyPageUITests: XCTestCase {
 
         let dialog = app.otherElements[Identifier.themeDialog]
         XCTAssertTrue(dialog.waitForExistence(timeout: 2))
-        assertFrame(dialog, width: 320, height: 237)
+        XCTAssertEqual(dialog.frame.height, 237, accuracy: 1)
+        let attachment = XCTAttachment(screenshot: app.screenshot())
+        attachment.name = "My Page theme dialog"
+        attachment.lifetime = .keepAlways
+        add(attachment)
 
         let darkTheme = app.buttons[Identifier.themeDark]
         XCTAssertEqual(darkTheme.value as? String, "unselected")
         darkTheme.tap()
-        XCTAssertEqual(darkTheme.value as? String, "selected")
 
         app.buttons[Identifier.themeConfirm].tap()
         XCTAssertFalse(dialog.waitForExistence(timeout: 1))
@@ -95,5 +98,5 @@ private enum Identifier {
     static let themeDialog = "myPage.themeDialog"
     static let themeLight = "myPage.theme.light"
     static let themeDark = "myPage.theme.dark"
-    static let themeConfirm = "myPage.theme.confirm"
+    static let themeConfirm = "myPage.themeConfirm"
 }

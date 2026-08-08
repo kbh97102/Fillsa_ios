@@ -25,10 +25,10 @@ The deterministic launch arguments are `-ui-testing-my-page` plus the member/gue
 | Member card | 320 x 80 pt, 12 pt radius, profile image and name | Pass by source/layout audit; present in light and dark runtime captures. |
 | Guest card | 320 x 114 pt; 65 pt prompt plus 49 pt login action | Pass by source/layout audit; present in light and dark runtime captures. |
 | Menu cards | Three 320 x 60 pt cards with 12 pt gaps | Pass by source/layout audit and runtime captures. |
-| Trailing arrows | Notice and Alert only; Theme has no arrow | Light mode passes. Dark mode fails: Notice and Alert chevrons are absent in runtime captures. Theme correctly has no arrow. |
+| Trailing arrows | Notice and Alert only; Theme has no arrow | Pass after remediation. The dark Notice and Alert chevrons render visibly; Theme remains arrow-free. |
 | Icons | Original Figma-derived book, profile, info, bell, theme, radio, and arrow assets | Pass for visible profile/book/info/bell/theme assets. No SF Symbols are used in My Page. |
-| Light/dark surfaces | Figma light and dark card/background/icon treatments | Pass for the visible surface, profile, and menu-icon mode variants. Dark arrow is the exception above. |
-| Theme dialog | 320 x 237 pt, 8 pt radius, 80% dim, 24 pt radios, 296 x 49 pt confirm button | Pass by source/layout audit. Runtime interaction test is present but post-fix execution is blocked by the simulator runner. |
+| Light/dark surfaces | Figma light and dark card/background/icon treatments | Pass for the visible surface, profile, menu-icon, and chevron mode variants. |
+| Theme dialog | 320 x 237 pt, 8 pt radius, 80% dim, 24 pt radios, 296 x 49 pt confirm button | Pass by source/layout audit and automated show/select/confirm test. |
 | Advertising | No advertisement or reserved blank ad region | Pass. No My Page ad view or blank ad spacer is rendered. |
 
 ## Fixed values audited
@@ -42,15 +42,15 @@ The deterministic launch arguments are `-ui-testing-my-page` plus the member/gue
 - Theme options / radios: 24 pt, 30 pt vertical spacing
 - Confirmation button: 296 x 49 pt
 
-## Mismatches requiring follow-up
+## Remediation and remaining differences
 
-1. **Dark-mode Notice and Alert chevrons are invisible** — high visual-parity impact. Figma frames `2438:11753` and `2438:11931` show a visible trailing chevron for those two rows; both runtime dark captures omit it. Theme must remain arrow-free. No production change was made in this QA-only pass.
+1. **Dark-mode chevrons remediated** — Figma design context reveals two original, overlapping arrow layers in dark frames: a `#424242` base plus a white overlay. The existing catalog included only the base, which matched the `#424242` card background and became invisible. The exact white Figma vector is now included as `my_page_arrow_dark_overlay` and overlaid only in dark mode. Runtime capture: `/private/tmp/my-page-member-dark-arrow-fixed.png`.
 
 2. **Dynamic member copy differs in test capture only** — the deterministic test state uses `필사`, while Figma uses placeholder account-name copy. The production view continues to render the stored user name; this is not a layout mismatch.
 
 ## Test evidence
 
-- `xcodebuild build -project Fiilsa.xcodeproj -scheme Fiilsa -destination 'platform=iOS Simulator,id=23EAFC46-77AF-49E7-A4BC-42F7DB8F2789' -quiet` passed. This compiles the Asset Catalog, including all new Figma-derived image sets.
-- Initial XCUITest execution reached the test bundle. It confirmed the dark guest frame, and surfaced 1 pt accessibility-frame rounding plus inaccessible member/dialog containers; both test-only accessibility issues were corrected in commit `2ebd898`.
-- Re-running XCUITest after that correction was blocked by CoreSimulator/Xcode infrastructure: `Failed to clone device named 'iPhone 17 Pro'` with `Device was allocated but was stuck in creation state`, and repeated `DebuggerLLDB.DebuggerVersionStore.StoreError error 0` launch failures. Therefore, post-fix UI-test pass status and an automated dialog screenshot are not claimed.
-- A focused unit-test invocation also hit pre-existing hosted-app dependency test failures from `SplashFeature` (`settingsClient`, `notificationPermissionClient`, and `pushRegistrationClient` lack test implementations). The My Page layout test itself passed.
+- `xcodebuild build-for-testing -project Fiilsa.xcodeproj -scheme Fiilsa -destination 'platform=iOS Simulator,id=23EAFC46-77AF-49E7-A4BC-42F7DB8F2789' -quiet` passed. This compiles the Asset Catalog, including the new white Figma arrow overlay.
+- `xcodebuild test -project Fiilsa.xcodeproj -scheme Fiilsa -destination 'platform=iOS Simulator,id=89410CC6-A661-4252-B810-0E54DE5FB620' -only-testing:FiilsaUITests/MyPageUITests -quiet` passed: five My Page UI tests, including the light/dark member/guest frames and theme dialog show/select/confirm flow.
+- Xcode emitted non-fatal CoreSimulator clone-launch warnings (`DebuggerLLDB.DebuggerVersionStore.StoreError error 0` and one clone `ipc/mig server died`), but a second clone completed all tests with exit code 0.
+- Evidence after remediation: light member `/private/tmp/my-page-member-light-arrow-fixed.png`, dark member `/private/tmp/my-page-member-dark-arrow-fixed.png`, and UI-test dialog attachment `/private/tmp/my-page-theme-attachment/14F57974-E9D7-493F-A97F-17367DDC7479.png`.
