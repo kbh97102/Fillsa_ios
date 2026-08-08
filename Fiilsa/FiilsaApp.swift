@@ -15,10 +15,23 @@ struct FiilsaApp: App {
     var body: some Scene {
         WindowGroup {
             AppView(
-                store: Store(initialState: AppFeature.State()) {
+                store: Store(initialState: initialState) {
                     AppFeature()
                 }
             )
         }
+    }
+
+    private var initialState: AppFeature.State {
+        var state = AppFeature.State()
+        let arguments = ProcessInfo.processInfo.arguments
+
+        guard arguments.contains("ui-testing-calendar") else { return state }
+
+        state.screen = .main
+        state.selectedTab = .calendar
+        state.selectedTheme = arguments.contains("ui-testing-theme-dark") ? .dark : .light
+        state.calendar.displayStreakCount = 100
+        return state
     }
 }

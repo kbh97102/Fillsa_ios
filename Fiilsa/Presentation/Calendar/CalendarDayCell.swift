@@ -55,7 +55,7 @@ struct CalendarDayCell: View {
         }
         .buttonStyle(.plain)
         .disabled(!isEnabled)
-        .frame(minHeight: 44)
+        .frame(height: 50)
     }
 
     private var dayTextColor: Color {

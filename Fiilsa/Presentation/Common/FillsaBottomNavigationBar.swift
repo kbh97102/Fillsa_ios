@@ -19,6 +19,7 @@ struct FillsaBottomNavigationBar: View {
         .padding(.top, 8)
         .padding(.bottom, 6)
         .background(FillsaColor.background)
+        .accessibilityIdentifier(FillsaAccessibilityIdentifier.bottomNavigation)
     }
 }
 

@@ -7,6 +7,7 @@ struct CalendarFeature {
     struct State: Equatable {
         var memberQuotes: [MemberQuotesData] = []
         var monthlySummary = MonthlySummaryData(typingCount: 0, likeCount: 0, streakCount: 0)
+        var displayStreakCount: Int?
         var currentMonth = FillsaCalendarDateSupport.startOfMonth(for: Date())
         var selectedDay = Date()
         var hasLoaded = false
@@ -56,6 +57,7 @@ struct CalendarFeature {
             case let .monthlyQuotesLoaded(.success(response)):
                 state.memberQuotes = response.memberQuotes
                 state.monthlySummary = response.monthlySummary
+                state.displayStreakCount = response.monthlySummary.streakCount
                 state.hasLoaded = true
                 state.isLoading = false
                 return .none
@@ -63,6 +65,7 @@ struct CalendarFeature {
             case .monthlyQuotesLoaded(.failure):
                 state.memberQuotes = []
                 state.monthlySummary = MonthlySummaryData(typingCount: 0, likeCount: 0, streakCount: 0)
+                state.displayStreakCount = nil
                 state.hasLoaded = true
                 state.isLoading = false
                 return .none
