@@ -36,6 +36,19 @@ final class MemoInsertUITests: XCTestCase {
     }
 
     @MainActor
+    func testMemoLayoutStartsAtScreenTopInsteadOfCenteringFixedContent() throws {
+        let app = launchMemo(dark: false)
+        let backButton = app.buttons["memo.back"]
+
+        XCTAssertTrue(backButton.waitForExistence(timeout: 3))
+        XCTAssertLessThan(
+            backButton.frame.minY,
+            120,
+            "The memo navigation must start at the top safe area, not beneath a centered fixed-height container."
+        )
+    }
+
+    @MainActor
     private func launchMemo(dark: Bool, filled: Bool = false) -> XCUIApplication {
         let app = XCUIApplication()
         app.launchArguments = ["-ui-testing-memo"]

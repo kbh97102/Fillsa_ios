@@ -57,7 +57,7 @@ struct MemoInsertView: View {
                             .allowsHitTesting(false)
                     }
                 }
-                .frame(height: 259)
+                .frame(maxHeight: .infinity)
                 .padding(.horizontal, 15)
 
             HStack {
@@ -83,6 +83,7 @@ struct MemoInsertView: View {
             .frame(height: 50)
             .padding(.horizontal, 20)
         }
+        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
         .background(memoBackground.ignoresSafeArea())
     }
 
