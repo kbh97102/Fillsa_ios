@@ -27,6 +27,7 @@ struct QuoteListSection: View {
                     ForEach(list) { item in
                         QuoteListItem(data: item)
                             .frame(width: 150, height: 200)
+                            .accessibilityIdentifier("quoteList.card.\(item.id)")
                             .onTapGesture {
                                 onClick(item)
                             }

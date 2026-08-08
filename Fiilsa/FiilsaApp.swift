@@ -15,10 +15,34 @@ struct FiilsaApp: App {
     var body: some Scene {
         WindowGroup {
             AppView(
-                store: Store(initialState: AppFeature.State()) {
+                store: Store(initialState: launchState) {
                     AppFeature()
                 }
             )
         }
+    }
+
+    private var launchState: AppFeature.State {
+        let arguments = ProcessInfo.processInfo.arguments
+        guard arguments.contains("-uiTestingQuoteList") else {
+            return AppFeature.State()
+        }
+
+        var state = AppFeature.State()
+        state.screen = .main
+        state.selectedTab = .quoteList
+        state.selectedTheme = arguments.contains("-uiTestingDark") ? .dark : .light
+        state.quoteList.hasLoaded = true
+
+        if arguments.contains("-uiTestingQuoteListFilteredEmpty") {
+            state.quoteList.list = []
+            state.quoteList.hasAppliedSearchCondition = true
+        } else if arguments.contains("-uiTestingQuoteListGeneralEmpty") {
+            state.quoteList.list = []
+        } else {
+            state.quoteList.list = QuoteListSampleData.items
+        }
+
+        return state
     }
 }

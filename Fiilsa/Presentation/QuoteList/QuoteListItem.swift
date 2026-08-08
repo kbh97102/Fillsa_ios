@@ -41,7 +41,6 @@ struct QuoteListItem: View {
     private var bodyContent: some View {
         ZStack {
             backgroundImage
-            FillsaColor.gray700.opacity(0.5)
 
             VStack(spacing: 0) {
                 TabView(selection: $selectedPage) {
@@ -83,6 +82,7 @@ struct QuoteListItem: View {
                     image
                         .resizable()
                         .scaledToFill()
+                        .overlay(FillsaColor.gray700.opacity(0.3))
                 default:
                     defaultBackground
                 }

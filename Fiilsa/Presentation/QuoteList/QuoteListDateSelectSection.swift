@@ -46,6 +46,7 @@ struct QuoteListDateSelectSection: View {
             }
         }
         .buttonStyle(.plain)
+        .accessibilityIdentifier("quoteList.dateSelector")
     }
 
     private var selectorBackground: Color {

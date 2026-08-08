@@ -27,6 +27,7 @@ struct QuoteListEmptySection: View {
                 .padding(.top, 8)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .accessibilityIdentifier(emptyState == .general ? "quoteList.empty.general" : "quoteList.empty.searchResult")
     }
 
     @ViewBuilder
@@ -35,11 +36,9 @@ struct QuoteListEmptySection: View {
         case .general:
             QuoteListEmptyIcon()
         case .searchResult:
-            Image(systemName: "calendar")
+            Image("quote_list_empty_calendar")
                 .resizable()
                 .scaledToFit()
-                .padding(24)
-                .foregroundStyle(colorScheme == .dark ? FillsaColor.white : FillsaColor.purple01)
         }
     }
 

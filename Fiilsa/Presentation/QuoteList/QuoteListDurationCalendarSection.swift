@@ -80,6 +80,7 @@ struct QuoteListDurationCalendarSection: View {
                     .stroke(FillsaColor.outline, lineWidth: 1)
             }
             .transition(.move(edge: .top).combined(with: .opacity))
+            .accessibilityIdentifier("quoteList.durationCalendar")
         }
     }
 
