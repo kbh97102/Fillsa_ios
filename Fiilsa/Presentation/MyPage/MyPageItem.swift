@@ -43,6 +43,7 @@ struct MyPageItem: View {
                         .resizable()
                         .scaledToFit()
                         .frame(width: 24, height: 24)
+                        .accessibilityIdentifier(MyPageAccessibilityIdentifier.menuArrow)
                 }
             }
             .padding(.horizontal, 12)

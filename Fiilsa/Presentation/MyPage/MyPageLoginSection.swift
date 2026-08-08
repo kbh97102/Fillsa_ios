@@ -46,6 +46,7 @@ struct MyPageLoginSection: View {
                 .stroke(FillsaColor.myPageCardOutline, lineWidth: 1)
         }
         .shadow(color: FillsaColor.myPageShadow, radius: 16, x: 0, y: 0)
+        .accessibilityElement(children: .contain)
         .accessibilityIdentifier(MyPageAccessibilityIdentifier.memberCard)
     }
 

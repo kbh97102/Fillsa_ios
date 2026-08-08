@@ -24,6 +24,8 @@ struct MyPageView: View {
                 }
             }
             .background(FillsaColor.background.ignoresSafeArea())
+            .accessibilityElement(children: .contain)
+            .accessibilityIdentifier(MyPageAccessibilityIdentifier.screen)
             .onAppear {
                 viewStore.send(.onAppear)
             }

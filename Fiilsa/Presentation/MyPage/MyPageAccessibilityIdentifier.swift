@@ -1,10 +1,15 @@
 enum MyPageAccessibilityIdentifier {
+    static let screen = "myPage.screen"
     static let logo = "myPage.logo"
     static let memberCard = "myPage.memberCard"
     static let guestCard = "myPage.guestCard"
     static let noticeMenu = "myPage.noticeMenu"
     static let alertMenu = "myPage.alertMenu"
     static let themeMenu = "myPage.themeMenu"
+    static let menuArrow = "myPage.menuArrow"
     static let themeDialog = "myPage.themeDialog"
     static let themeConfirm = "myPage.themeConfirm"
+    static let themeLight = "myPage.theme.light"
+    static let themeDark = "myPage.theme.dark"
+    static let themeSystem = "myPage.theme.system"
 }

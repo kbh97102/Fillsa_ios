@@ -54,6 +54,7 @@ struct MyPageThemeDialog: View {
                 width: MyPageLayout.themeDialogSize.width,
                 height: MyPageLayout.themeDialogSize.height
             )
+            .accessibilityElement(children: .contain)
             .accessibilityIdentifier(MyPageAccessibilityIdentifier.themeDialog)
         }
     }
@@ -74,6 +75,19 @@ struct MyPageThemeDialog: View {
             .frame(width: MyPageLayout.confirmButtonSize.width, height: MyPageLayout.themeOptionSize)
         }
         .buttonStyle(.plain)
+        .accessibilityIdentifier(accessibilityIdentifier(for: theme))
+        .accessibilityValue(selectedTheme == theme ? "selected" : "unselected")
+    }
+
+    private func accessibilityIdentifier(for theme: DarkModeType) -> String {
+        switch theme {
+        case .light:
+            MyPageAccessibilityIdentifier.themeLight
+        case .dark:
+            MyPageAccessibilityIdentifier.themeDark
+        case .system:
+            MyPageAccessibilityIdentifier.themeSystem
+        }
     }
 
     @ViewBuilder
