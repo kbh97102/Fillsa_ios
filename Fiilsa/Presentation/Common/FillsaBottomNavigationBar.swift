@@ -49,6 +49,7 @@ private struct BottomNavigationItem: View {
     private var navigationIcon: some View {
         if colorScheme == .dark {
             Image(tab.darkFigmaAssetName)
+                .renderingMode(.template)
                 .resizable()
                 .aspectRatio(contentMode: .fit)
                 .frame(width: 32, height: 32)
