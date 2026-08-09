@@ -14,7 +14,7 @@ struct CalendarMonthSection: View {
     let changeMonth: (Date) -> Void
     let selectDay: (Date) -> Void
 
-    private let weekColumns = Array(repeating: GridItem(.fixed(36), spacing: 11), count: 7)
+    private let weekColumns = Array(repeating: GridItem(.flexible(), spacing: 11), count: 7)
     private let weekdays = ["일", "월", "화", "수", "목", "금", "토"]
 
     var body: some View {
@@ -64,6 +64,7 @@ struct CalendarMonthSection: View {
             RoundedRectangle(cornerRadius: 12)
                 .stroke(FillsaColor.dynamic(light: FillsaColor.yellow02, dark: FillsaColor.gray600), lineWidth: 1)
         }
+        .frame(maxWidth: .infinity)
         .accessibilityIdentifier(FillsaAccessibilityIdentifier.calendarMonthCard)
     }
 

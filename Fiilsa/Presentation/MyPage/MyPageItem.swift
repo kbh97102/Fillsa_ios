@@ -45,7 +45,8 @@ struct MyPageItem: View {
                 }
             }
             .padding(.horizontal, 12)
-            .frame(width: MyPageLayout.menuSize.width, height: MyPageLayout.menuSize.height)
+            .frame(maxWidth: .infinity)
+            .frame(height: MyPageLayout.menuHeight)
             .background(
                 RoundedRectangle(cornerRadius: 12)
                     .fill(FillsaColor.backgroundContainer)

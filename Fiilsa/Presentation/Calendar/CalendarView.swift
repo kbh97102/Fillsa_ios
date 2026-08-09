@@ -53,7 +53,8 @@ struct CalendarView: View {
                             viewStore.send(.daySelected($0))
                         }
                     )
-                    .frame(width: 320, height: 396)
+                    .frame(maxWidth: .infinity)
+                    .frame(height: 396)
 
                     CalendarCountSection(
                         likeCount: viewStore.monthlySummary.likeCount,
@@ -63,7 +64,6 @@ struct CalendarView: View {
                             viewStore.send(.countTapped)
                         }
                     )
-                    .frame(width: 320)
                     .padding(.top, 15)
 
                     CalendarSelectedQuoteSection(
@@ -76,11 +76,10 @@ struct CalendarView: View {
                             viewStore.send(.bottomQuoteTapped)
                         }
                     )
-                    .frame(width: 320)
                     .padding(.top, 15)
                 }
-                .frame(width: 320)
                 .padding(.top, 20)
+                .padding(.horizontal, 20)
 
                 Spacer(minLength: 0)
             }

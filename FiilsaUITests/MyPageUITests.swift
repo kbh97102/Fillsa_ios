@@ -6,7 +6,7 @@ final class MyPageUITests: XCTestCase {
     func test_guestLightFramePresenceAndThemeArrowAbsence() {
         launchMyPage(isMember: false, isDark: false)
 
-        assertFrame(app.buttons[Identifier.guestCard], width: 320, height: 114)
+        assertSingleScreenInset(app.buttons[Identifier.guestCard], height: 114)
         XCTAssertFalse(app.otherElements[Identifier.memberCard].exists)
         assertMenuFrames()
         XCTAssertEqual(app.images.matching(identifier: Identifier.menuArrow).count, 2)
@@ -15,21 +15,21 @@ final class MyPageUITests: XCTestCase {
     func test_memberLightFramePresence() {
         launchMyPage(isMember: true, isDark: false)
 
-        assertFrame(app.otherElements[Identifier.memberCard], width: 320, height: 80)
+        assertSingleScreenInset(app.otherElements[Identifier.memberCard], height: 80)
         XCTAssertFalse(app.buttons[Identifier.guestCard].exists)
     }
 
     func test_guestDarkFramePresence() {
         launchMyPage(isMember: false, isDark: true)
 
-        assertFrame(app.buttons[Identifier.guestCard], width: 320, height: 114)
+        assertSingleScreenInset(app.buttons[Identifier.guestCard], height: 114)
         XCTAssertFalse(app.otherElements[Identifier.memberCard].exists)
     }
 
     func test_memberDarkFramePresence() {
         launchMyPage(isMember: true, isDark: true)
 
-        assertFrame(app.otherElements[Identifier.memberCard], width: 320, height: 80)
+        assertSingleScreenInset(app.otherElements[Identifier.memberCard], height: 80)
         XCTAssertFalse(app.buttons[Identifier.guestCard].exists)
     }
 
@@ -69,9 +69,26 @@ final class MyPageUITests: XCTestCase {
         file: StaticString = #filePath,
         line: UInt = #line
     ) {
-        assertFrame(app.buttons[Identifier.noticeMenu], width: 320, height: 60, file: file, line: line)
-        assertFrame(app.buttons[Identifier.alertMenu], width: 320, height: 60, file: file, line: line)
-        assertFrame(app.buttons[Identifier.themeMenu], width: 320, height: 60, file: file, line: line)
+        assertSingleScreenInset(app.buttons[Identifier.noticeMenu], height: 60, file: file, line: line)
+        assertSingleScreenInset(app.buttons[Identifier.alertMenu], height: 60, file: file, line: line)
+        assertSingleScreenInset(app.buttons[Identifier.themeMenu], height: 60, file: file, line: line)
+    }
+
+    private func assertSingleScreenInset(
+        _ element: XCUIElement,
+        height: CGFloat,
+        file: StaticString = #filePath,
+        line: UInt = #line
+    ) {
+        let inset: CGFloat = 20
+        assertFrame(
+            element,
+            width: app.frame.width - (inset * 2),
+            height: height,
+            file: file,
+            line: line
+        )
+        XCTAssertEqual(element.frame.minX, inset, accuracy: 1, file: file, line: line)
     }
 
     private func assertFrame(

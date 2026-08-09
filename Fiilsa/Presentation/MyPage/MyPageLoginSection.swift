@@ -36,7 +36,8 @@ struct MyPageLoginSection: View {
             Spacer()
         }
         .padding(.horizontal, 20)
-        .frame(width: MyPageLayout.memberCardSize.width, height: MyPageLayout.memberCardSize.height)
+        .frame(maxWidth: .infinity)
+        .frame(height: MyPageLayout.memberCardHeight)
         .background(
             RoundedRectangle(cornerRadius: 12)
                 .fill(FillsaColor.backgroundContainer)
@@ -78,7 +79,8 @@ struct MyPageLoginSection: View {
                             .fill(Color(hex: 0x5E67FD))
                     )
             }
-            .frame(width: MyPageLayout.guestCardSize.width, height: MyPageLayout.guestCardSize.height)
+            .frame(maxWidth: .infinity)
+            .frame(height: MyPageLayout.guestCardHeight)
             .shadow(color: FillsaColor.myPageShadow, radius: 16, x: 0, y: 0)
         }
         .buttonStyle(.plain)

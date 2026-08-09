@@ -21,13 +21,14 @@ final class CalendarUITests: XCTestCase {
     }
 
     @MainActor
-    func testCalendarCardsRemainFigmaWidthAndCenteredOnWideDevice() throws {
+    func testCalendarCardsUseExactlyOneScreenHorizontalInsetOnWideDevice() throws {
         let app = launchCalendar(theme: "light")
         XCTAssertTrue(app.descendants(matching: .any)["calendarMonthCard"].waitForExistence(timeout: 3))
 
         let raster = rasterize(app.screenshot().image)
         let scale = CGFloat(raster.width) / app.frame.width
-        let expectedX = (app.frame.width - 320) / 2
+        let expectedX: CGFloat = 20
+        let expectedWidth = app.frame.width - (expectedX * 2)
 
         let monthBounds = coloredBounds(
             in: raster,
@@ -40,9 +41,9 @@ final class CalendarUITests: XCTestCase {
             matches: { red, green, blue in red > 230 && green > 230 && blue > 230 }
         )
 
-        XCTAssertEqual(CGFloat(monthBounds.width) / scale, 320, accuracy: 1.5)
+        XCTAssertEqual(CGFloat(monthBounds.width) / scale, expectedWidth, accuracy: 1.5)
         XCTAssertEqual(CGFloat(monthBounds.minX) / scale, expectedX, accuracy: 1.5)
-        XCTAssertEqual(CGFloat(quoteBounds.width) / scale, 320, accuracy: 1.5)
+        XCTAssertEqual(CGFloat(quoteBounds.width) / scale, expectedWidth, accuracy: 1.5)
         XCTAssertEqual(CGFloat(quoteBounds.minX) / scale, expectedX, accuracy: 1.5)
     }
 
