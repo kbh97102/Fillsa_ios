@@ -7,6 +7,8 @@
 
 import Testing
 import Foundation
+import SwiftUI
+import UIKit
 @testable import Fiilsa
 
 struct FiilsaTests {
@@ -62,6 +64,33 @@ struct FiilsaTests {
 
         #expect(body?["pushToken"] == nil)
         #expect(body?["pushAgreed"] == nil)
+    }
+
+    @Test @MainActor func noticeList_usesFigmaTextColorsInDarkMode() {
+        let lightTrait = UITraitCollection(userInterfaceStyle: .light)
+        let darkTrait = UITraitCollection(userInterfaceStyle: .dark)
+
+        #expect(resolvedHex(NoticeListPalette.date, trait: lightTrait) == 0x9E9E9E)
+        #expect(resolvedHex(NoticeListPalette.title, trait: lightTrait) == 0x212121)
+        #expect(resolvedHex(NoticeListPalette.date, trait: darkTrait) == 0xE0E0E0)
+        #expect(resolvedHex(NoticeListPalette.title, trait: darkTrait) == 0xFFFFFF)
+    }
+
+    @MainActor
+    private func resolvedHex(_ color: Color, trait: UITraitCollection) -> UInt? {
+        let resolvedColor = UIColor(color).resolvedColor(with: trait)
+        var red: CGFloat = 0
+        var green: CGFloat = 0
+        var blue: CGFloat = 0
+        var alpha: CGFloat = 0
+
+        guard resolvedColor.getRed(&red, green: &green, blue: &blue, alpha: &alpha) else {
+            return nil
+        }
+
+        return (UInt((red * 255).rounded()) << 16)
+            | (UInt((green * 255).rounded()) << 8)
+            | UInt((blue * 255).rounded())
     }
 
 }

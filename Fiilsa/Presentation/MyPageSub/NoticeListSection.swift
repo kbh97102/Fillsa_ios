@@ -1,5 +1,10 @@
 import SwiftUI
 
+enum NoticeListPalette {
+    static let date = FillsaColor.dynamic(light: FillsaColor.gray400, dark: FillsaColor.gray200)
+    static let title = FillsaColor.onBackground1
+}
+
 struct NoticeListSection: View {
     let items: [NoticeResponse]
     let select: (NoticeResponse) -> Void
@@ -31,11 +36,11 @@ private struct NoticeItem: View {
             VStack(alignment: .leading, spacing: 10) {
                 Text(notice.createdAt)
                     .font(FillsaTypography.body3)
-                    .foregroundStyle(FillsaColor.gray400)
+                    .foregroundStyle(NoticeListPalette.date)
 
                 Text(notice.title)
                     .font(FillsaTypography.body3)
-                    .foregroundStyle(FillsaColor.gray700)
+                    .foregroundStyle(NoticeListPalette.title)
                     .frame(maxWidth: .infinity, alignment: .leading)
 
                 Divider()
