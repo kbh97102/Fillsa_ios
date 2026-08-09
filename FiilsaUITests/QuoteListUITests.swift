@@ -38,32 +38,51 @@ final class QuoteListUITests: XCTestCase {
     }
 
     @MainActor
-    func testCardsUseFigmaFixedSize() throws {
+    func testLightCardsFillTheTwoColumnGridBetweenHorizontalInsets() throws {
         let app = launchQuoteList()
         let firstCard = app.otherElements["quoteList.cardFrame.1"]
         let secondCard = app.otherElements["quoteList.cardFrame.2"]
 
-        XCTAssertTrue(firstCard.waitForExistence(timeout: 2))
-        XCTAssertTrue(secondCard.waitForExistence(timeout: 2))
-        XCTAssertEqual(firstCard.frame.width, 150, accuracy: 0.5)
-        XCTAssertEqual(firstCard.frame.height, 200, accuracy: 0.5)
-        XCTAssertEqual(secondCard.frame.minX - firstCard.frame.maxX, 20, accuracy: 0.5)
+        assertResponsiveTwoColumnGrid(
+            app: app,
+            firstCard: firstCard,
+            secondCard: secondCard
+        )
     }
 
     @MainActor
-    func testDarkCardsKeepTheFigmaTwoColumnFrame() throws {
+    func testDarkCardsFillTheTwoColumnGridBetweenHorizontalInsets() throws {
         let app = launchQuoteList(dark: true)
         let firstCard = app.otherElements["quoteList.cardFrame.1"]
         let secondCard = app.otherElements["quoteList.cardFrame.2"]
 
+        assertResponsiveTwoColumnGrid(
+            app: app,
+            firstCard: firstCard,
+            secondCard: secondCard
+        )
+    }
+
+    @MainActor
+    private func assertResponsiveTwoColumnGrid(
+        app: XCUIApplication,
+        firstCard: XCUIElement,
+        secondCard: XCUIElement,
+        file: StaticString = #filePath,
+        line: UInt = #line
+    ) {
         XCTAssertTrue(firstCard.waitForExistence(timeout: 2))
         XCTAssertTrue(secondCard.waitForExistence(timeout: 2))
-        XCTAssertEqual(firstCard.frame.minX, 20, accuracy: 0.5)
-        XCTAssertEqual(secondCard.frame.minX, 190, accuracy: 0.5)
-        XCTAssertEqual(firstCard.frame.width, 150, accuracy: 0.5)
-        XCTAssertEqual(secondCard.frame.width, 150, accuracy: 0.5)
-        XCTAssertEqual(firstCard.frame.height, 200, accuracy: 0.5)
-        XCTAssertEqual(secondCard.frame.height, 200, accuracy: 0.5)
+        let horizontalInset: CGFloat = 20
+        let columnSpacing: CGFloat = 20
+        let expectedCardWidth = (app.frame.width - (horizontalInset * 2) - columnSpacing) / 2
+
+        XCTAssertEqual(firstCard.frame.minX, app.frame.minX + horizontalInset, accuracy: 0.5, file: file, line: line)
+        XCTAssertEqual(secondCard.frame.minX - firstCard.frame.maxX, columnSpacing, accuracy: 0.5, file: file, line: line)
+        XCTAssertEqual(firstCard.frame.width, expectedCardWidth, accuracy: 0.5, file: file, line: line)
+        XCTAssertEqual(secondCard.frame.width, expectedCardWidth, accuracy: 0.5, file: file, line: line)
+        XCTAssertEqual(secondCard.frame.maxX, app.frame.maxX - horizontalInset, accuracy: 0.5, file: file, line: line)
+        XCTAssertEqual(firstCard.frame.height / firstCard.frame.width, 200 / 150, accuracy: 0.01, file: file, line: line)
     }
 
     @MainActor
@@ -84,7 +103,8 @@ final class QuoteListUITests: XCTestCase {
         XCTAssertTrue(generalApp.staticTexts["텅 비었어요!"].exists)
         let generalIcon = generalApp.images["quoteList.empty.general"]
         XCTAssertTrue(generalIcon.waitForExistence(timeout: 2))
-        XCTAssertEqual(generalIcon.frame.size, CGSize(width: 100, height: 100))
+        XCTAssertEqual(generalIcon.frame.width, 100, accuracy: 0.5)
+        XCTAssertEqual(generalIcon.frame.height, 100, accuracy: 0.5)
         attachScreenshot(generalApp)
 
         let filteredApp = launchQuoteList(arguments: ["-uiTestingQuoteListFilteredEmpty"])

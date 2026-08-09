@@ -12,12 +12,16 @@ struct QuoteListItem: View {
     @State private var selectedPage = 0
 
     var body: some View {
-        VStack(spacing: 0) {
-            header
-            bodyContent
-                .frame(height: 162)
+        GeometryReader { proxy in
+            VStack(spacing: 0) {
+                header
+                    .frame(height: proxy.size.height * 38 / 200)
+
+                bodyContent
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+            }
         }
-        .frame(width: 150, height: 200)
+        .aspectRatio(150 / 200, contentMode: .fit)
         .clipShape(RoundedRectangle(cornerRadius: 12))
         .overlay {
             Color.clear
@@ -39,42 +43,44 @@ struct QuoteListItem: View {
                 .foregroundStyle(FillsaColor.onSecondaryContainer1)
                 .lineLimit(1)
         }
-        .frame(maxWidth: .infinity, minHeight: 38, maxHeight: 38)
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
         .background(FillsaColor.secondaryContainer)
     }
 
     private var bodyContent: some View {
-        ZStack {
-            backgroundImage
+        GeometryReader { proxy in
+            ZStack {
+                backgroundImage
 
-            VStack(spacing: 0) {
-                TabView(selection: $selectedPage) {
-                    pagerText(quote)
-                        .tag(0)
+                VStack(spacing: 0) {
+                    TabView(selection: $selectedPage) {
+                        pagerText(quote)
+                            .tag(0)
+
+                        if hasMemo {
+                            pagerText(data.memo ?? "")
+                                .tag(1)
+                        }
+                    }
+                    .tabViewStyle(.page(indexDisplayMode: .never))
+                    .padding(.horizontal, 10)
+                    .padding(.top, 10)
+                    .frame(maxWidth: .infinity)
+                    .frame(height: proxy.size.height * 106 / 162)
 
                     if hasMemo {
-                        pagerText(data.memo ?? "")
-                            .tag(1)
+                        indicator
+                            .padding(.top, 2)
                     }
+
+                    Spacer(minLength: 0)
+
+                    QuoteListItemBottomSection(hasMemo: hasMemo, isLike: isLike)
+                        .padding(.horizontal, 8)
+                        .padding(.bottom, 10)
                 }
-                .tabViewStyle(.page(indexDisplayMode: .never))
-                .padding(.horizontal, 10)
-                .padding(.top, 10)
-                .frame(width: 150, height: 106)
-
-                if hasMemo {
-                    indicator
-                        .padding(.top, 2)
-                }
-
-                Spacer(minLength: 0)
-
-                QuoteListItemBottomSection(hasMemo: hasMemo, isLike: isLike)
-                    .padding(.horizontal, 8)
-                    .padding(.bottom, 10)
             }
         }
-        .frame(width: 150, height: 162)
         .clipped()
     }
 
