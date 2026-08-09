@@ -9,11 +9,11 @@ struct AlertSwitchSection: View {
             VStack(alignment: .leading, spacing: 8) {
                 Text("오늘의 필사 알림")
                     .font(FillsaTypography.subtitle1)
-                    .foregroundStyle(FillsaColor.gray700)
+                    .foregroundStyle(FillsaColor.onBackground1)
 
                 Text("매일 오전 9시에 새로운 문장 알림을 받을 수 있습니다.")
                     .font(FillsaTypography.body3)
-                    .foregroundStyle(FillsaColor.gray700)
+                    .foregroundStyle(FillsaColor.onBackground1)
             }
             .frame(maxWidth: .infinity, alignment: .leading)
             .padding(.vertical, 16)
@@ -24,7 +24,7 @@ struct AlertSwitchSection: View {
                 .disabled(!isEnabled)
         }
         .padding(.horizontal, 20)
-        .background(FillsaColor.yellow01)
+        .background(FillsaColor.dynamic(light: FillsaColor.yellow01, dark: FillsaColor.gray600))
     }
 }
 
