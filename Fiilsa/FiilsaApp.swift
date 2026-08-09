@@ -55,6 +55,8 @@ struct FiilsaApp: App {
             LoginUITestLaunchConfiguration.makeStore()
         } else if MyPageUITestLaunchConfiguration.isEnabled {
             MyPageUITestLaunchConfiguration.makeStore()
+        } else if NoticeDetailUITestLaunchConfiguration.isEnabled {
+            NoticeDetailUITestLaunchConfiguration.makeStore()
         } else if MemoUITestLaunchConfiguration.isEnabled {
             MemoUITestLaunchConfiguration.makeStore()
         } else {
@@ -186,6 +188,28 @@ private enum MyPageUITestLaunchConfiguration {
             imagePath: "",
             selectedTheme: selectedTheme
         )
+        return state
+    }
+}
+
+private enum NoticeDetailUITestLaunchConfiguration {
+    private static let enabledArgument = "-ui-testing-notice-detail"
+    private static let darkArgument = "-ui-testing-notice-detail-dark"
+
+    static var isEnabled: Bool {
+        ProcessInfo.processInfo.arguments.contains(enabledArgument)
+    }
+
+    static func makeStore() -> StoreOf<AppFeature> {
+        Store(initialState: initialState) {
+            AppFeature()
+        }
+    }
+
+    private static var initialState: AppFeature.State {
+        var state = AppFeature.State()
+        state.screen = .noticeDetail(NoticeSampleData.items[0])
+        state.selectedTheme = ProcessInfo.processInfo.arguments.contains(darkArgument) ? .dark : .light
         return state
     }
 }
