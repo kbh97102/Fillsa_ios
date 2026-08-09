@@ -64,6 +64,23 @@ final class QuoteListUITests: XCTestCase {
     }
 
     @MainActor
+    func testCardBadgesStayInsideTheCardContentArea() throws {
+        let app = launchQuoteList()
+        let firstCard = app.otherElements["quoteList.cardFrame.1"]
+        let memoBadge = app.otherElements["quoteList.card.1.memoBadge"]
+        let likeBadge = app.otherElements["quoteList.card.1.likeBadge"]
+
+        XCTAssertTrue(firstCard.waitForExistence(timeout: 2))
+        XCTAssertTrue(memoBadge.waitForExistence(timeout: 2))
+        XCTAssertTrue(likeBadge.waitForExistence(timeout: 2))
+
+        XCTAssertEqual(memoBadge.frame.minX, firstCard.frame.minX + 8, accuracy: 0.5)
+        XCTAssertEqual(likeBadge.frame.minX - memoBadge.frame.maxX, 6, accuracy: 0.5)
+        XCTAssertEqual(likeBadge.frame.maxX, firstCard.frame.maxX - 8, accuracy: 0.5)
+        attachScreenshot(app)
+    }
+
+    @MainActor
     private func assertResponsiveTwoColumnGrid(
         app: XCUIApplication,
         firstCard: XCUIElement,
