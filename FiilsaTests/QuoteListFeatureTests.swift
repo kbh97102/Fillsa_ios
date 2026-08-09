@@ -12,6 +12,7 @@ struct QuoteListFeatureTests {
 
         await store.send(.quotesLoaded(.success(emptyResponse))) {
             $0.hasLoaded = true
+            $0.totalPages = 0
         }
 
         #expect(store.state.emptyState == .general)
@@ -27,6 +28,7 @@ struct QuoteListFeatureTests {
 
         await store.send(.quotesLoaded(.success(emptyResponse))) {
             $0.hasLoaded = true
+            $0.totalPages = 0
         }
 
         #expect(store.state.emptyState == .searchResult)
