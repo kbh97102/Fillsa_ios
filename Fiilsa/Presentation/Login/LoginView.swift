@@ -24,6 +24,19 @@ struct LoginView: View {
                         }
                 }
             }
+            .alert(
+                "아직 준비중인 기능이에요!",
+                isPresented: Binding(
+                    get: { viewStore.isKakaoComingSoonDialogPresented },
+                    set: { isPresented in
+                        if !isPresented {
+                            viewStore.send(.kakaoComingSoonDialogDismissed)
+                        }
+                    }
+                )
+            ) {
+                Button("확인", role: .cancel) {}
+            }
         }
     }
 

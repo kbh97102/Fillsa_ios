@@ -3,6 +3,25 @@ import UIKit
 
 final class LoginDarkModeUITests: XCTestCase {
     @MainActor
+    func testKakaoLoginShowsComingSoonDialog() throws {
+        let app = XCUIApplication()
+        app.launchArguments = ["-ui-testing-login"]
+        app.launch()
+
+        let kakao = app.buttons["login.kakao"]
+        XCTAssertTrue(kakao.waitForExistence(timeout: 3))
+        kakao.tap()
+
+        let message = app.staticTexts["아직 준비중인 기능이에요!"]
+        XCTAssertTrue(message.waitForExistence(timeout: 2))
+
+        let confirm = app.buttons["확인"]
+        XCTAssertTrue(confirm.exists)
+        confirm.tap()
+        XCTAssertFalse(message.exists)
+    }
+
+    @MainActor
     func testDarkLoginUsesFigmaLogoAndButtonColors() throws {
         let app = XCUIApplication()
         app.launchArguments = ["-ui-testing-login", "-ui-testing-login-dark"]

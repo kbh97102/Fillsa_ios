@@ -7,6 +7,7 @@ struct LoginFeature {
     struct State: Equatable {
         var isOnboarding = false
         var isProcessing = false
+        var isKakaoComingSoonDialogPresented = false
         var toastMessage: String?
 
         init(isOnboarding: Bool = false) {
@@ -18,6 +19,7 @@ struct LoginFeature {
         case kakaoTapped
         case appleTapped
         case appleAuthenticationCompleted(Result<SocialAuthUser, LoginError>)
+        case kakaoComingSoonDialogDismissed
         case nonMemberTapped
         case closeTapped
         case socialLoginCompleted(Result<LoginResponse, LoginError>)
@@ -46,17 +48,12 @@ struct LoginFeature {
         Reduce { state, action in
             switch action {
             case .kakaoTapped:
-                guard !state.isProcessing else { return .none }
-                state.isProcessing = true
-                return .run { send in
-                    do {
-                        let user = try await socialAuthClient.signInWithKakao()
-                        let response = try await authUseCases.login(user)
-                        await send(.socialLoginCompleted(.success(response)))
-                    } catch {
-                        await send(.socialLoginCompleted(.failure(map(error))))
-                    }
-                }
+                state.isKakaoComingSoonDialogPresented = true
+                return .none
+
+            case .kakaoComingSoonDialogDismissed:
+                state.isKakaoComingSoonDialogPresented = false
+                return .none
 
             case .appleTapped:
                 guard !state.isProcessing else { return .none }
