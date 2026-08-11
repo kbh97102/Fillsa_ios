@@ -33,31 +33,31 @@ Android로 비교하면 `LoginFeature`는 MVI ViewModel, `SocialAuthClient`는 K
 6. 로그인 성공 시 access token, refresh token, userName, profileImage를 저장하도록 연결했다.
 7. 비회원 시작은 토큰을 비우고 온보딩 가이드로 이동하도록 연결했다.
 8. OAuth 설정이 없거나 실패/취소될 때 화면이 멈추지 않도록 toast/취소 처리를 넣었다.
-9. `Fiilsa/Info.plist`를 추가하고 `fillsa` URL scheme을 등록해 OAuth 인증 후 앱으로 돌아올 수 있게 했다.
-10. Xcode build setting 값을 Info.plist의 `KAKAO_REST_API_KEY`, `KAKAO_REDIRECT_URI`로 주입하도록 연결했다.
+9. `Fiilsa/Info.plist`에 `kakao$(KAKAO_NATIVE_APP_KEY)` URL scheme과 `kakaokompassauth` allowlist를 등록해 카카오톡 인증 뒤 앱으로 돌아올 수 있게 했다.
+10. Xcode build setting의 `KAKAO_NATIVE_APP_KEY`를 Info.plist로 주입하고, 앱 시작 시 Kakao SDK를 초기화하도록 연결했다.
 11. Google 로그인 구현을 제거하고 Apple 로그인 entitlement와 `ASAuthorizationAppleIDProvider` 기반 인증 흐름으로 교체했다.
 
 ## 4. iOS OAuth 방식
 
-현재 구현은 별도 SDK를 바로 추가하지 않고 `ASWebAuthenticationSession`을 사용한다. Android의 AppAuth 브라우저 인증 플로우와 비슷하다.
+카카오는 Android와 같은 Kakao iOS SDK를 사용한다. `SocialAuthClient`가 카카오톡 앱 인증과 사용자 프로필 조회를 감싸고, `LoginFeature`는 인증 결과로 기존 서버 로그인 effect만 실행한다.
 
 - Apple은 iOS 기본 `ASAuthorizationAppleIDProvider`로 인증한다.
 - Apple의 `credential.user`를 `oAuthId`, `"APPLE"`을 `oAuthProvider`, `"IOS"`를 `deviceData.osType`으로 기존 로그인 API에 보낸다.
 - Apple의 `fullName`은 최초 로그인에서만 제공되므로, 값이 있을 때 표시 이름으로 조합해 nickname에 넣고 이후 nil이면 빈 문자열을 보낸다.
-- 카카오는 REST API OAuth 인증 코드 방식으로 인증한다.
-- 카카오는 인증 성공 후 callback URL에서 `code`를 받고, token endpoint로 교환한다.
+- 카카오는 `UserApi.shared.loginWithKakaoTalk`으로 카카오톡 앱 인증을 진행한다.
+- 카카오톡이 설치되지 않은 기기에서는 Android와 같은 `"카카오톡 설치 후 이용해주세요."` 안내 다이얼로그만 표시한다.
 - Apple은 `ASAuthorizationAppleIDCredential.user`를 서버 로그인용 `oAuthId`로 사용한다.
-- 카카오는 `/v2/user/me` API로 사용자 정보를 조회한다.
+- 카카오는 `UserApi.shared.me`로 사용자 정보를 조회한다.
 
 ## 5. 아직 필요한 외부 설정
 
-코드는 연결되어 있고, iOS 앱 내부 callback 설정도 준비되어 있다. 실제 로그인 성공까지는 provider 콘솔에 실제 앱 키와 redirect URI를 등록해야 한다.
+코드는 연결되어 있고, iOS 앱 내부 callback 설정도 준비되어 있다. 실제 로그인 성공까지는 provider 콘솔에 iOS Bundle ID를 등록하고 Xcode build setting에 Native App Key를 설정해야 한다.
 
-- Kakao REST API key
-- Kakao redirect URI: `fillsa://oauth/kakao`
+- Kakao Native App Key
+- iOS Bundle ID: `kbhdev.Fiilsa`
 - Apple Developer App ID의 Sign in with Apple capability
 
-`Fiilsa/Info.plist`에는 Kakao용 URL scheme `fillsa`가 등록되어 있다. Kakao 콘솔에도 위 redirect URI를 정확히 같은 문자열로 등록해야 Safari 인증 후 앱으로 돌아올 수 있다.
+`Fiilsa/Info.plist`에는 Kakao용 URL scheme `kakao$(KAKAO_NATIVE_APP_KEY)`와 `kakaokompassauth` allowlist가 등록되어 있다. `FiilsaApp`의 `onOpenURL`이 카카오톡에서 돌아온 URL을 SDK에 전달한다. REST API key와 client secret은 iOS 로그인에 사용하지 않는다.
 
 Apple 로그인 출시 전 설정은 `docs/apple-login-release-checklist.md`를 기준으로 확인한다.
 TestFlight 배포와 실기기 검증은 `docs/testflight-distribution-guide.md`를 기준으로 진행한다.

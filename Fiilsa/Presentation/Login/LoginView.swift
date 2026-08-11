@@ -25,12 +25,12 @@ struct LoginView: View {
                 }
             }
             .alert(
-                "아직 준비중인 기능이에요!",
+                "카카오톡 설치 후 이용해주세요.",
                 isPresented: Binding(
-                    get: { viewStore.isKakaoComingSoonDialogPresented },
+                    get: { viewStore.isKakaoTalkInstallDialogPresented },
                     set: { isPresented in
                         if !isPresented {
-                            viewStore.send(.kakaoComingSoonDialogDismissed)
+                            viewStore.send(.kakaoTalkInstallDialogDismissed)
                         }
                     }
                 )

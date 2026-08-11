@@ -3,7 +3,7 @@ import UIKit
 
 final class LoginDarkModeUITests: XCTestCase {
     @MainActor
-    func testKakaoLoginShowsComingSoonDialog() throws {
+    func testKakaoLoginShowsInstallKakaoTalkDialogWhenUnavailable() throws {
         let app = XCUIApplication()
         app.launchArguments = ["-ui-testing-login"]
         app.launch()
@@ -12,7 +12,7 @@ final class LoginDarkModeUITests: XCTestCase {
         XCTAssertTrue(kakao.waitForExistence(timeout: 3))
         kakao.tap()
 
-        let message = app.staticTexts["아직 준비중인 기능이에요!"]
+        let message = app.staticTexts["카카오톡 설치 후 이용해주세요."]
         XCTAssertTrue(message.waitForExistence(timeout: 2))
 
         let confirm = app.buttons["확인"]

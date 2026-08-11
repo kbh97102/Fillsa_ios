@@ -1,14 +1,12 @@
 import Foundation
 
 struct AuthConfig: Equatable {
-    let kakaoRestAPIKey: String
-    let kakaoRedirectURI: String
+    let kakaoNativeAppKey: String
 
     static var current: AuthConfig {
         let info = Bundle.main.infoDictionary ?? [:]
         return AuthConfig(
-            kakaoRestAPIKey: value(for: "KAKAO_REST_API_KEY", in: info),
-            kakaoRedirectURI: value(for: "KAKAO_REDIRECT_URI", in: info)
+            kakaoNativeAppKey: value(for: "KAKAO_NATIVE_APP_KEY", in: info)
         )
     }
 
