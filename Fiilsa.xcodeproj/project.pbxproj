@@ -11,6 +11,7 @@
 		51D6A0112FDD793200E49226 /* Alamofire in Frameworks */ = {isa = PBXBuildFile; productRef = 51D6A0122FDD793200E49226 /* Alamofire */; };
 		51D6A0212FDD793200E49226 /* Lottie in Frameworks */ = {isa = PBXBuildFile; productRef = 51D6A0222FDD793200E49226 /* Lottie */; };
 		51D6A0312FDD793200E49226 /* FirebaseMessaging in Frameworks */ = {isa = PBXBuildFile; productRef = 51D6A0322FDD793200E49226 /* FirebaseMessaging */; };
+		51D6A0412FDD793200E49226 /* KakaoSDKUser in Frameworks */ = {isa = PBXBuildFile; productRef = 51D6A0422FDD793200E49226 /* KakaoSDKUser */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -75,6 +76,7 @@
 				51D6A0112FDD793200E49226 /* Alamofire in Frameworks */,
 				51D6A0012FDD793200E49226 /* ComposableArchitecture in Frameworks */,
 				51D6A0312FDD793200E49226 /* FirebaseMessaging in Frameworks */,
+				51D6A0412FDD793200E49226 /* KakaoSDKUser in Frameworks */,
 				51D6A0212FDD793200E49226 /* Lottie in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -140,6 +142,7 @@
 				51D6A0122FDD793200E49226 /* Alamofire */,
 				51D6A0322FDD793200E49226 /* FirebaseMessaging */,
 				51D6A0222FDD793200E49226 /* Lottie */,
+				51D6A0422FDD793200E49226 /* KakaoSDKUser */,
 			);
 			productName = Fiilsa;
 			productReference = 51D6017D2FDD793100E49226 /* Fiilsa.app */;
@@ -233,6 +236,7 @@
 				51D6A0132FDD793200E49226 /* XCRemoteSwiftPackageReference "Alamofire" */,
 				51D6A0332FDD793200E49226 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */,
 				51D6A0232FDD793200E49226 /* XCRemoteSwiftPackageReference "lottie-spm" */,
+				51D6A0432FDD793200E49226 /* XCRemoteSwiftPackageReference "kakao-ios-sdk" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 51D6017E2FDD793100E49226 /* Products */;
@@ -442,8 +446,7 @@
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = NO;
 				INFOPLIST_FILE = Fiilsa/Info.plist;
-				KAKAO_REDIRECT_URI = "fillsa://oauth/kakao";
-				KAKAO_REST_API_KEY = "";
+				KAKAO_NATIVE_APP_KEY = "";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -474,8 +477,7 @@
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = NO;
 				INFOPLIST_FILE = Fiilsa/Info.plist;
-				KAKAO_REDIRECT_URI = "fillsa://oauth/kakao";
-				KAKAO_REST_API_KEY = "";
+				KAKAO_NATIVE_APP_KEY = "";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -651,6 +653,14 @@
 				minimumVersion = 12.16.0;
 			};
 		};
+		51D6A0432FDD793200E49226 /* XCRemoteSwiftPackageReference "kakao-ios-sdk" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/kakao/kakao-ios-sdk";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 2.28.0;
+			};
+		};
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
@@ -673,6 +683,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 51D6A0332FDD793200E49226 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
 			productName = FirebaseMessaging;
+		};
+		51D6A0422FDD793200E49226 /* KakaoSDKUser */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 51D6A0432FDD793200E49226 /* XCRemoteSwiftPackageReference "kakao-ios-sdk" */;
+			productName = KakaoSDKUser;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};

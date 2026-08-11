@@ -7,6 +7,7 @@
 
 import SwiftUI
 import ComposableArchitecture
+import KakaoSDKAuth
 
 @main
 struct FiilsaApp: App {
@@ -17,6 +18,10 @@ struct FiilsaApp: App {
             AppView(
                 store: appStore
             )
+            .onOpenURL { url in
+                guard AuthApi.isKakaoTalkLoginUrl(url) else { return }
+                _ = AuthController.handleOpenUrl(url: url)
+            }
         }
     }
 

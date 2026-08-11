@@ -1,5 +1,6 @@
 import FirebaseCore
 import FirebaseMessaging
+import KakaoSDKCommon
 import UIKit
 import UserNotifications
 
@@ -9,6 +10,10 @@ final class AppDelegate: NSObject, UIApplicationDelegate {
         didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]? = nil
     ) -> Bool {
         FirebaseApp.configure()
+        let kakaoNativeAppKey = AuthConfig.current.kakaoNativeAppKey
+        if !kakaoNativeAppKey.isEmpty {
+            KakaoSDK.initSDK(appKey: kakaoNativeAppKey)
+        }
 
         UNUserNotificationCenter.current().delegate = self
         Messaging.messaging().delegate = self

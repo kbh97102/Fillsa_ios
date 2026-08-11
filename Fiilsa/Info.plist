@@ -24,19 +24,21 @@
 			<key>CFBundleTypeRole</key>
 			<string>Editor</string>
 			<key>CFBundleURLName</key>
-			<string>fillsa.oauth</string>
+			<string>kakao.oauth</string>
 			<key>CFBundleURLSchemes</key>
 			<array>
-				<string>fillsa</string>
+				<string>kakao$(KAKAO_NATIVE_APP_KEY)</string>
 			</array>
 		</dict>
 	</array>
 	<key>CFBundleVersion</key>
 	<string>$(CURRENT_PROJECT_VERSION)</string>
-	<key>KAKAO_REDIRECT_URI</key>
-	<string>$(KAKAO_REDIRECT_URI)</string>
-	<key>KAKAO_REST_API_KEY</key>
-	<string>$(KAKAO_REST_API_KEY)</string>
+	<key>KAKAO_NATIVE_APP_KEY</key>
+	<string>$(KAKAO_NATIVE_APP_KEY)</string>
+	<key>LSApplicationQueriesSchemes</key>
+	<array>
+		<string>kakaokompassauth</string>
+	</array>
 	<key>NSPhotoLibraryAddUsageDescription</key>
 	<string>공유 이미지를 사진 보관함에 저장하기 위해 권한이 필요합니다.</string>
 	<key>UIApplicationSceneManifest</key>

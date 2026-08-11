@@ -7,7 +7,7 @@ struct LoginFeature {
     struct State: Equatable {
         var isOnboarding = false
         var isProcessing = false
-        var isKakaoComingSoonDialogPresented = false
+        var isKakaoTalkInstallDialogPresented = false
         var toastMessage: String?
 
         init(isOnboarding: Bool = false) {
@@ -17,9 +17,10 @@ struct LoginFeature {
 
     enum Action: Equatable {
         case kakaoTapped
+        case kakaoAuthenticationCompleted(Result<SocialAuthUser, LoginError>)
         case appleTapped
         case appleAuthenticationCompleted(Result<SocialAuthUser, LoginError>)
-        case kakaoComingSoonDialogDismissed
+        case kakaoTalkInstallDialogDismissed
         case nonMemberTapped
         case closeTapped
         case socialLoginCompleted(Result<LoginResponse, LoginError>)
@@ -35,6 +36,7 @@ struct LoginFeature {
 
     enum LoginError: Error, Equatable {
         case missingConfiguration
+        case kakaoTalkNotInstalled
         case cancelled
         case failed
     }
@@ -48,12 +50,26 @@ struct LoginFeature {
         Reduce { state, action in
             switch action {
             case .kakaoTapped:
-                state.isKakaoComingSoonDialogPresented = true
+                guard !state.isProcessing else { return .none }
+                state.isProcessing = true
+                return .run { send in
+                    do {
+                        let user = try await socialAuthClient.signInWithKakao()
+                        await send(.kakaoAuthenticationCompleted(.success(user)))
+                    } catch {
+                        await send(.kakaoAuthenticationCompleted(.failure(map(error))))
+                    }
+                }
+
+            case .kakaoTalkInstallDialogDismissed:
+                state.isKakaoTalkInstallDialogPresented = false
                 return .none
 
-            case .kakaoComingSoonDialogDismissed:
-                state.isKakaoComingSoonDialogPresented = false
-                return .none
+            case let .kakaoAuthenticationCompleted(.success(user)):
+                return login(user: user)
+
+            case let .kakaoAuthenticationCompleted(.failure(error)):
+                return .send(.socialLoginCompleted(.failure(error)))
 
             case .appleTapped:
                 guard !state.isProcessing else { return .none }
@@ -68,14 +84,7 @@ struct LoginFeature {
                 }
 
             case let .appleAuthenticationCompleted(.success(user)):
-                return .run { send in
-                    do {
-                        let response = try await authUseCases.login(user)
-                        await send(.socialLoginCompleted(.success(response)))
-                    } catch {
-                        await send(.socialLoginCompleted(.failure(map(error))))
-                    }
-                }
+                return login(user: user)
 
             case let .appleAuthenticationCompleted(.failure(error)):
                 return .send(.socialLoginCompleted(.failure(error)))
@@ -104,6 +113,8 @@ struct LoginFeature {
                 switch error {
                 case .missingConfiguration:
                     state.toastMessage = "소셜 로그인 설정이 필요합니다."
+                case .kakaoTalkNotInstalled:
+                    state.isKakaoTalkInstallDialogPresented = true
                 case .cancelled:
                     state.toastMessage = nil
                 case .failed:
@@ -126,6 +137,8 @@ struct LoginFeature {
             switch socialError {
             case .missingConfiguration:
                 return .missingConfiguration
+            case .kakaoTalkNotInstalled:
+                return .kakaoTalkNotInstalled
             case .cancelled:
                 return .cancelled
             default:
@@ -133,5 +146,16 @@ struct LoginFeature {
             }
         }
         return .failed
+    }
+
+    private func login(user: SocialAuthUser) -> Effect<Action> {
+        .run { send in
+            do {
+                let response = try await authUseCases.login(user)
+                await send(.socialLoginCompleted(.success(response)))
+            } catch {
+                await send(.socialLoginCompleted(.failure(map(error))))
+            }
+        }
     }
 }

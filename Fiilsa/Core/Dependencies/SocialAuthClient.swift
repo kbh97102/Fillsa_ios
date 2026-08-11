@@ -2,6 +2,8 @@ import AuthenticationServices
 import ComposableArchitecture
 import Foundation
 import UIKit
+import KakaoSDKCommon
+import KakaoSDKUser
 
 struct SocialAuthUser: Equatable {
     let provider: String
@@ -21,7 +23,7 @@ extension SocialAuthClient: DependencyKey {
             try await AppleSocialAuthClient().signIn()
         },
         signInWithKakao: {
-            try await WebSocialAuthClient(config: .current).signInWithKakao()
+            try await KakaoSocialAuthClient(config: .current).signIn()
         }
     )
 }
@@ -35,127 +37,74 @@ extension DependencyValues {
 
 enum SocialAuthError: Error, Equatable {
     case missingConfiguration
+    case kakaoTalkNotInstalled
     case cancelled
-    case invalidCallback
-    case invalidTokenResponse
     case invalidUserResponse
 }
 
-private struct WebSocialAuthClient {
+private struct KakaoSocialAuthClient {
     let config: AuthConfig
 
-    func signInWithKakao() async throws -> SocialAuthUser {
-        guard !config.kakaoRestAPIKey.isEmpty,
-              let redirectURI = URL(string: config.kakaoRedirectURI),
-              let callbackScheme = redirectURI.scheme else {
+    func signIn() async throws -> SocialAuthUser {
+        guard UserApi.isKakaoTalkLoginAvailable() else {
+            throw SocialAuthError.kakaoTalkNotInstalled
+        }
+        guard !config.kakaoNativeAppKey.isEmpty else {
             throw SocialAuthError.missingConfiguration
         }
 
-        var components = URLComponents(string: "https://kauth.kakao.com/oauth/authorize")
-        components?.queryItems = [
-            URLQueryItem(name: "client_id", value: config.kakaoRestAPIKey),
-            URLQueryItem(name: "redirect_uri", value: config.kakaoRedirectURI),
-            URLQueryItem(name: "response_type", value: "code")
-        ]
-
-        guard let authURL = components?.url else {
-            throw SocialAuthError.missingConfiguration
-        }
-
-        let callbackURL = try await authenticate(url: authURL, callbackScheme: callbackScheme)
-        let code = try authorizationCode(from: callbackURL)
-        let tokenData = try await requestForm(
-            url: URL(string: "https://kauth.kakao.com/oauth/token")!,
-            items: [
-                "grant_type": "authorization_code",
-                "client_id": config.kakaoRestAPIKey,
-                "redirect_uri": config.kakaoRedirectURI,
-                "code": code
-            ]
-        )
-
-        guard let token = try JSONSerialization.jsonObject(with: tokenData) as? [String: Any],
-              let accessToken = token["access_token"] as? String else {
-            throw SocialAuthError.invalidTokenResponse
-        }
-
-        var request = URLRequest(url: URL(string: "https://kapi.kakao.com/v2/user/me")!)
-        request.httpMethod = "GET"
-        request.setValue("Bearer \(accessToken)", forHTTPHeaderField: "Authorization")
-
-        let (data, response) = try await URLSession.shared.data(for: request)
-        guard let statusCode = (response as? HTTPURLResponse)?.statusCode,
-              200..<300 ~= statusCode,
-              let object = try JSONSerialization.jsonObject(with: data) as? [String: Any] else {
+        try await loginWithKakaoTalk()
+        let user = try await kakaoUser()
+        guard let userID = user.id else {
             throw SocialAuthError.invalidUserResponse
         }
 
-        let account = object["kakao_account"] as? [String: Any]
-        let profile = account?["profile"] as? [String: Any]
-
         return SocialAuthUser(
             provider: "KAKAO",
-            oauthID: object["id"].map { String(describing: $0) } ?? "",
-            nickname: profile?["nickname"] as? String ?? "",
-            profileImageURL: profile?["profile_image_url"] as? String ?? ""
+            oauthID: String(userID),
+            nickname: user.kakaoAccount?.profile?.nickname ?? "",
+            profileImageURL: user.kakaoAccount?.profile?.profileImageUrl ?? ""
         )
     }
 
-    private func authenticate(url: URL, callbackScheme: String) async throws -> URL {
+    private func loginWithKakaoTalk() async throws {
         try await withCheckedThrowingContinuation { continuation in
-            let session = ASWebAuthenticationSession(url: url, callbackURLScheme: callbackScheme) { callbackURL, error in
-                WebAuthSessionStore.shared.currentSession = nil
-                if let error = error as? ASWebAuthenticationSessionError,
-                   error.code == .canceledLogin {
-                    continuation.resume(throwing: SocialAuthError.cancelled)
-                    return
-                }
+            UserApi.shared.loginWithKakaoTalk { token, error in
                 if let error {
-                    continuation.resume(throwing: error)
+                    continuation.resume(throwing: map(error))
                     return
                 }
-                guard let callbackURL else {
-                    continuation.resume(throwing: SocialAuthError.invalidCallback)
+                guard token != nil else {
+                    continuation.resume(throwing: SocialAuthError.invalidUserResponse)
                     return
                 }
-                continuation.resume(returning: callbackURL)
+                continuation.resume(returning: ())
             }
-            session.presentationContextProvider = PresentationContextProvider.shared
-            session.prefersEphemeralWebBrowserSession = true
-            WebAuthSessionStore.shared.currentSession = session
-            session.start()
         }
     }
 
-    private func authorizationCode(from callbackURL: URL) throws -> String {
-        let components = URLComponents(url: callbackURL, resolvingAgainstBaseURL: false)
-        guard let code = components?.queryItems?.first(where: { $0.name == "code" })?.value else {
-            throw SocialAuthError.invalidCallback
-        }
-        return code
-    }
-
-    private func requestForm(url: URL, items: [String: String]) async throws -> Data {
-        var request = URLRequest(url: url)
-        request.httpMethod = "POST"
-        request.setValue("application/x-www-form-urlencoded", forHTTPHeaderField: "Content-Type")
-        request.httpBody = items
-            .map { key, value in
-                "\(Self.percentEncode(key))=\(Self.percentEncode(value))"
+    private func kakaoUser() async throws -> User {
+        try await withCheckedThrowingContinuation { continuation in
+            UserApi.shared.me { user, error in
+                if let error {
+                    continuation.resume(throwing: map(error))
+                    return
+                }
+                guard let user else {
+                    continuation.resume(throwing: SocialAuthError.invalidUserResponse)
+                    return
+                }
+                continuation.resume(returning: user)
             }
-            .joined(separator: "&")
-            .data(using: .utf8)
-
-        let (data, response) = try await URLSession.shared.data(for: request)
-        guard let statusCode = (response as? HTTPURLResponse)?.statusCode,
-              200..<300 ~= statusCode else {
-            throw SocialAuthError.invalidTokenResponse
         }
-        return data
     }
 
-    private static func percentEncode(_ value: String) -> String {
-        value.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? value
+    private func map(_ error: Error) -> Error {
+        guard let sdkError = error as? SdkError else { return error }
+        if case .ClientFailed(reason: .Cancelled, errorMessage: _) = sdkError {
+            return SocialAuthError.cancelled
+        }
+        return error
     }
 }
 
@@ -172,22 +121,6 @@ private struct AppleSocialAuthClient {
             AppleSignInSessionStore.shared.currentCoordinator = coordinator
             controller.performRequests()
         }
-    }
-}
-
-private final class WebAuthSessionStore {
-    static let shared = WebAuthSessionStore()
-    var currentSession: ASWebAuthenticationSession?
-}
-
-private final class PresentationContextProvider: NSObject, ASWebAuthenticationPresentationContextProviding {
-    static let shared = PresentationContextProvider()
-
-    func presentationAnchor(for session: ASWebAuthenticationSession) -> ASPresentationAnchor {
-        UIApplication.shared.connectedScenes
-            .compactMap { $0 as? UIWindowScene }
-            .flatMap(\.windows)
-            .first { $0.isKeyWindow } ?? ASPresentationAnchor()
     }
 }
 
