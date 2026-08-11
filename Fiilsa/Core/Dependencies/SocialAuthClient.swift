@@ -63,12 +63,12 @@ private struct KakaoSocialAuthClient {
             provider: "KAKAO",
             oauthID: String(userID),
             nickname: user.kakaoAccount?.profile?.nickname ?? "",
-            profileImageURL: user.kakaoAccount?.profile?.profileImageUrl ?? ""
+            profileImageURL: user.kakaoAccount?.profile?.profileImageUrl?.absoluteString ?? ""
         )
     }
 
     private func loginWithKakaoTalk() async throws {
-        try await withCheckedThrowingContinuation { continuation in
+        try await withCheckedThrowingContinuation { (continuation: CheckedContinuation<Void, Error>) in
             UserApi.shared.loginWithKakaoTalk { token, error in
                 if let error {
                     continuation.resume(throwing: map(error))
