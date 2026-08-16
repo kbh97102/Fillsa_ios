@@ -33,6 +33,18 @@ final class MyPageUITests: XCTestCase {
         XCTAssertFalse(app.buttons[Identifier.guestCard].exists)
     }
 
+    func test_memberSeesDirectAccountDeletionAndGuestDoesNot() {
+        launchMyPage(isMember: true, isDark: false)
+
+        let resign = app.buttons[Identifier.resign]
+        XCTAssertTrue(resign.waitForExistence(timeout: 2))
+        XCTAssertEqual(resign.label, "회원탈퇴")
+
+        launchMyPage(isMember: false, isDark: false)
+
+        XCTAssertFalse(app.buttons[Identifier.resign].exists)
+    }
+
     func test_themeDialogShowsSelectsAndConfirms() {
         launchMyPage(isMember: false, isDark: false)
 
@@ -116,4 +128,5 @@ private enum Identifier {
     static let themeLight = "myPage.theme.light"
     static let themeDark = "myPage.theme.dark"
     static let themeConfirm = "myPage.themeConfirm"
+    static let resign = "myPage.resign"
 }

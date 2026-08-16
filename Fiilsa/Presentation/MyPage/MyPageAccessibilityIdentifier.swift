@@ -12,4 +12,11 @@ enum MyPageAccessibilityIdentifier {
     static let themeLight = "myPage.theme.light"
     static let themeDark = "myPage.theme.dark"
     static let themeSystem = "myPage.theme.system"
+    static let logout = "myPage.logout"
+    static let version = "myPage.version"
+    static let resign = "myPage.resign"
+    static let resignDialog = "myPage.resignDialog"
+    static let resignConfirm = "myPage.resign.confirm"
+    static let resignCancel = "myPage.resign.cancel"
+    static let resignToast = "myPage.resignToast"
 }

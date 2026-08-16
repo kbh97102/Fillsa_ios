@@ -22,6 +22,22 @@ struct MyPageView: View {
                         }
                     )
                 }
+
+                if viewStore.isResignDialogPresented {
+                    MyPageResignDialog(
+                        confirm: {
+                            viewStore.send(.resignConfirmed)
+                        },
+                        dismiss: {
+                            viewStore.send(.resignDialogDismissed)
+                        },
+                        isProcessing: viewStore.isProcessing
+                    )
+                }
+
+                if let message = viewStore.toastMessage {
+                    toast(message, viewStore: viewStore)
+                }
             }
             .background(FillsaColor.background.ignoresSafeArea())
             .accessibilityElement(children: .contain)
@@ -89,8 +105,12 @@ struct MyPageView: View {
 
             MyPageBottomButtonSection(
                 isLogged: viewStore.isLoggedIn,
+                isProcessing: viewStore.isProcessing,
                 logout: {
                     viewStore.send(.logoutTapped)
+                },
+                resign: {
+                    viewStore.send(.resignTapped)
                 }
             )
             .padding(.top, 20)
@@ -105,6 +125,32 @@ struct MyPageView: View {
             .resizable()
             .scaledToFit()
         .frame(width: MyPageLayout.logoSize.width, height: MyPageLayout.logoSize.height)
+    }
+
+    private func toast(
+        _ message: String,
+        viewStore: ViewStore<MyPageFeature.State, MyPageFeature.Action>
+    ) -> some View {
+        VStack {
+            Spacer()
+            Text(message)
+                .font(FillsaTypography.body2)
+                .foregroundStyle(FillsaColor.white)
+                .padding(.horizontal, 18)
+                .padding(.vertical, 12)
+                .background(
+                    Capsule()
+                        .fill(FillsaColor.black0C.opacity(0.84))
+                )
+                .padding(.bottom, 28)
+                .accessibilityIdentifier(MyPageAccessibilityIdentifier.resignToast)
+        }
+        .onAppear {
+            Task {
+                try? await Task.sleep(nanoseconds: 1_600_000_000)
+                await viewStore.send(.toastDismissed).finish()
+            }
+        }
     }
 }
 
