@@ -6,28 +6,21 @@ struct AlertFeature {
     @ObservableState
     struct State: Equatable {
         var isAlarmOn = false
-        var isLoggedIn = false
         var isProcessing = false
-        var isResignDialogPresented = false
         var toastMessage: String?
     }
 
     enum Action: Equatable {
         case onAppear
-        case loaded(alarm: Bool, isLoggedIn: Bool)
+        case loaded(alarm: Bool)
         case alarmToggled(Bool)
         case alarmUpdateCompleted(Result<Bool, AlertError>)
-        case resignTapped
-        case resignDialogDismissed
-        case resignConfirmed
-        case resignCompleted(Result<Bool, AlertError>)
         case toastDismissed
         case backTapped
         case delegate(Delegate)
 
         enum Delegate: Equatable {
             case back
-            case resignCompleted
         }
     }
 
@@ -39,8 +32,6 @@ struct AlertFeature {
     @Dependency(\.settingsClient) private var settingsClient
     @Dependency(\.notificationPermissionClient) private var notificationPermissionClient
     @Dependency(\.pushRegistrationClient) private var pushRegistrationClient
-    @Dependency(\.commonClient) private var commonClient
-    @Dependency(\.sessionClient) private var sessionClient
 
     var body: some Reducer<State, Action> {
         Reduce { state, action in
@@ -48,13 +39,11 @@ struct AlertFeature {
             case .onAppear:
                 return .run { send in
                     let alarm = (try? await settingsClient.getAlarm()) ?? false
-                    let isLoggedIn = (try? await sessionClient.isLoggedIn()) ?? false
-                    await send(.loaded(alarm: alarm, isLoggedIn: isLoggedIn))
+                    await send(.loaded(alarm: alarm))
                 }
 
-            case let .loaded(alarm, isLoggedIn):
+            case let .loaded(alarm):
                 state.isAlarmOn = alarm
-                state.isLoggedIn = isLoggedIn
                 return .none
 
             case let .alarmToggled(isOn):
@@ -128,38 +117,6 @@ struct AlertFeature {
                 case .failed:
                     state.toastMessage = "알림 설정에 실패했습니다."
                 }
-                return .none
-
-            case .resignTapped:
-                state.isResignDialogPresented = true
-                return .none
-
-            case .resignDialogDismissed:
-                state.isResignDialogPresented = false
-                return .none
-
-            case .resignConfirmed:
-                guard !state.isProcessing else { return .none }
-                state.isProcessing = true
-                state.isResignDialogPresented = false
-                return .run { send in
-                    do {
-                        _ = try await commonClient.deleteResign()
-                        try await sessionClient.logout()
-                        await send(.resignCompleted(.success(true)))
-                    } catch {
-                        await send(.resignCompleted(.failure(.failed)))
-                    }
-                }
-
-            case .resignCompleted(.success):
-                state.isProcessing = false
-                state.isLoggedIn = false
-                return .send(.delegate(.resignCompleted))
-
-            case .resignCompleted(.failure):
-                state.isProcessing = false
-                state.toastMessage = "탈퇴 처리에 실패했습니다."
                 return .none
 
             case .toastDismissed:
