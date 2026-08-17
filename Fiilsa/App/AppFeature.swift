@@ -203,16 +203,6 @@ struct AppFeature {
                 state.screen = .main
                 return .none
 
-            case .alert(.delegate(.resignCompleted)):
-                state.screen = .main
-                state.selectedTab = .home
-                state.home = HomeFeature.State()
-                state.quoteList = QuoteListFeature.State()
-                state.calendar = CalendarFeature.State()
-                state.myPage = MyPageFeature.State(selectedTheme: state.selectedTheme)
-                state.alert = AlertFeature.State()
-                return .none
-
             case .alert:
                 return .none
 
@@ -291,6 +281,16 @@ struct AppFeature {
 
             case let .myPage(.themeSelected(theme)):
                 state.selectedTheme = theme
+                return .none
+
+            case .myPage(.delegate(.resignCompleted)):
+                state.screen = .main
+                state.selectedTab = .home
+                state.home = HomeFeature.State()
+                state.quoteList = QuoteListFeature.State()
+                state.calendar = CalendarFeature.State()
+                state.myPage = MyPageFeature.State(selectedTheme: state.selectedTheme)
+                state.alert = AlertFeature.State()
                 return .none
 
             case .myPage:

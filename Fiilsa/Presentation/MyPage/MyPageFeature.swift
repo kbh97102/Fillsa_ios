@@ -10,6 +10,9 @@ struct MyPageFeature {
         var imagePath = ""
         var selectedTheme: DarkModeType = .system
         var isThemeDialogPresented = false
+        var isProcessing = false
+        var isResignDialogPresented = false
+        var toastMessage: String?
     }
 
     enum Action: Equatable {
@@ -24,6 +27,11 @@ struct MyPageFeature {
         case themeDialogConfirmed
         case logoutTapped
         case loggedOut
+        case resignTapped
+        case resignDialogDismissed
+        case resignConfirmed
+        case resignCompleted(Result<Bool, ResignError>)
+        case toastDismissed
         case delegate(Delegate)
 
         enum Delegate: Equatable {
@@ -31,11 +39,17 @@ struct MyPageFeature {
             case loginSelected
             case noticeSelected
             case alertSelected
+            case resignCompleted
         }
+    }
+
+    enum ResignError: Error, Equatable {
+        case failed
     }
 
     @Dependency(\.sessionClient) private var sessionClient
     @Dependency(\.settingsClient) private var settingsClient
+    @Dependency(\.commonClient) private var commonClient
 
     var body: some Reducer<State, Action> {
         Reduce { state, action in
@@ -100,6 +114,45 @@ struct MyPageFeature {
                 state.isLoggedIn = false
                 state.userName = ""
                 state.imagePath = ""
+                return .none
+
+            case .resignTapped:
+                guard state.isLoggedIn, !state.isProcessing else { return .none }
+                state.isResignDialogPresented = true
+                return .none
+
+            case .resignDialogDismissed:
+                state.isResignDialogPresented = false
+                return .none
+
+            case .resignConfirmed:
+                guard state.isLoggedIn, !state.isProcessing else { return .none }
+                state.isProcessing = true
+                state.isResignDialogPresented = false
+                return .run { send in
+                    do {
+                        _ = try await commonClient.deleteResign()
+                        try await sessionClient.logout()
+                        await send(.resignCompleted(.success(true)))
+                    } catch {
+                        await send(.resignCompleted(.failure(.failed)))
+                    }
+                }
+
+            case .resignCompleted(.success):
+                state.isProcessing = false
+                state.isLoggedIn = false
+                state.userName = ""
+                state.imagePath = ""
+                return .send(.delegate(.resignCompleted))
+
+            case .resignCompleted(.failure):
+                state.isProcessing = false
+                state.toastMessage = "탈퇴 처리에 실패했습니다."
+                return .none
+
+            case .toastDismissed:
+                state.toastMessage = nil
                 return .none
 
             case .delegate:
