@@ -46,6 +46,7 @@ enum FillsaColor {
     static let onTertiary2 = purple01
     static let myPageCardOutline = dynamic(light: purple02, dark: gray500)
     static let myPageShadow = dynamic(light: Color(hex: 0xCBC0A8).opacity(0.7), dark: Color.clear)
+    static let myPageResign = dynamic(light: gray500, dark: gray400)
 
     static let onBackgroundPrimary = onBackground1
     static let onBackgroundAccent = onBackground2

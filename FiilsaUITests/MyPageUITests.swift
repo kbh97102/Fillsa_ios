@@ -1,3 +1,4 @@
+import UIKit
 import XCTest
 
 final class MyPageUITests: XCTestCase {
@@ -43,6 +44,30 @@ final class MyPageUITests: XCTestCase {
         launchMyPage(isMember: false, isDark: false)
 
         XCTAssertFalse(app.buttons[Identifier.resign].exists)
+    }
+
+    func test_memberAccountDeletionUsesFigmaTextColorInEachAppearance() {
+        launchMyPage(isMember: true, isDark: false)
+        let resign = app.buttons[Identifier.resign]
+        XCTAssertTrue(resign.waitForExistence(timeout: 2))
+        XCTAssertGreaterThan(
+            matchingPixelCount(
+                in: resign.frame,
+                image: app.screenshot().image,
+                expected: UIColor(red: 97 / 255, green: 97 / 255, blue: 97 / 255, alpha: 1)
+            ),
+            5
+        )
+
+        launchMyPage(isMember: true, isDark: true)
+        XCTAssertGreaterThan(
+            matchingPixelCount(
+                in: app.buttons[Identifier.resign].frame,
+                image: app.screenshot().image,
+                expected: UIColor(red: 158 / 255, green: 158 / 255, blue: 158 / 255, alpha: 1)
+            ),
+            5
+        )
     }
 
     func test_themeDialogShowsSelectsAndConfirms() {
@@ -113,6 +138,42 @@ final class MyPageUITests: XCTestCase {
         XCTAssertTrue(element.waitForExistence(timeout: 2), file: file, line: line)
         XCTAssertEqual(element.frame.width, width, accuracy: 1, file: file, line: line)
         XCTAssertEqual(element.frame.height, height, accuracy: 1, file: file, line: line)
+    }
+
+    private func matchingPixelCount(in area: CGRect, image: UIImage, expected: UIColor) -> Int {
+        guard let cgImage = image.cgImage,
+              let data = cgImage.dataProvider?.data,
+              let pixels = CFDataGetBytePtr(data) else {
+            XCTFail("Unable to read My Page screenshot pixels")
+            return 0
+        }
+
+        var expectedRed: CGFloat = 0
+        var expectedGreen: CGFloat = 0
+        var expectedBlue: CGFloat = 0
+        var expectedAlpha: CGFloat = 0
+        guard expected.getRed(&expectedRed, green: &expectedGreen, blue: &expectedBlue, alpha: &expectedAlpha) else {
+            XCTFail("Unable to resolve expected text color")
+            return 0
+        }
+
+        let scale = CGFloat(cgImage.width) / app.frame.width
+        let bounds = area.applying(CGAffineTransform(scaleX: scale, y: scale)).integral
+        let expectedValues = [expectedRed, expectedGreen, expectedBlue].map { Int(($0 * 255).rounded()) }
+        var matches = 0
+
+        for y in max(0, Int(bounds.minY))..<min(cgImage.height, Int(bounds.maxY)) {
+            for x in max(0, Int(bounds.minX))..<min(cgImage.width, Int(bounds.maxX)) {
+                let offset = y * cgImage.bytesPerRow + x * 4
+                let isMatch = zip(expectedValues, [Int(pixels[offset]), Int(pixels[offset + 1]), Int(pixels[offset + 2])])
+                    .allSatisfy { abs($0 - $1) <= 2 }
+                if isMatch {
+                    matches += 1
+                }
+            }
+        }
+
+        return matches
     }
 }
 

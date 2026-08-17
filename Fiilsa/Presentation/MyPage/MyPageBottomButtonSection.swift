@@ -72,7 +72,7 @@ struct MyPageBottomButtonSection: View {
                     HStack {
                         Text("회원탈퇴")
                             .font(FillsaTypography.body2)
-                            .foregroundStyle(FillsaColor.gray500)
+                            .foregroundStyle(FillsaColor.myPageResign)
 
                         Spacer()
                     }
