@@ -70,6 +70,26 @@ final class MyPageUITests: XCTestCase {
         )
     }
 
+    func test_memberAccountDeletionDialogMatchesFigmaLayoutAndCopy() {
+        launchMyPage(isMember: true, isDark: false)
+        app.buttons[Identifier.resign].tap()
+
+        let dialog = app.otherElements[Identifier.resignDialog]
+        assertFrame(dialog, width: 320, height: 189)
+        XCTAssertTrue(app.staticTexts["탈퇴하시겠습니까?"].exists)
+        XCTAssertTrue(app.staticTexts["탈퇴 후에는 작성하신 필사 정보를 되돌릴 수 없습니다. 😢"].exists)
+
+        let confirm = app.buttons[Identifier.resignConfirm]
+        let cancel = app.buttons[Identifier.resignCancel]
+        assertFrame(confirm, width: 142, height: 49)
+        assertFrame(cancel, width: 142, height: 49)
+        XCTAssertEqual(cancel.frame.minX - confirm.frame.maxX, 12, accuracy: 1)
+
+        launchMyPage(isMember: true, isDark: true)
+        app.buttons[Identifier.resign].tap()
+        assertFrame(app.otherElements[Identifier.resignDialog], width: 320, height: 189)
+    }
+
     func test_themeDialogShowsSelectsAndConfirms() {
         launchMyPage(isMember: false, isDark: false)
 
@@ -190,4 +210,7 @@ private enum Identifier {
     static let themeDark = "myPage.theme.dark"
     static let themeConfirm = "myPage.themeConfirm"
     static let resign = "myPage.resign"
+    static let resignDialog = "myPage.resignDialog"
+    static let resignConfirm = "myPage.resign.confirm"
+    static let resignCancel = "myPage.resign.cancel"
 }
