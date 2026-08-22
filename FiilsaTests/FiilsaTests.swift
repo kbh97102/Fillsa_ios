@@ -9,6 +9,7 @@ import Testing
 import Foundation
 import SwiftUI
 import UIKit
+import Alamofire
 @testable import Fiilsa
 
 struct FiilsaTests {
@@ -66,6 +67,15 @@ struct FiilsaTests {
         #expect(body?["pushAgreed"] == nil)
     }
 
+    @Test func apiClient_acceptsEmpty200ResponseForEmptyResponse() async throws {
+        let configuration = URLSessionConfiguration.ephemeral
+        configuration.protocolClasses = [EmptySuccessURLProtocol.self]
+        let client = APIClient(session: Session(configuration: configuration))
+        let request = APIRequest<EmptyRequestBody>(method: .delete, path: "/empty")
+
+        _ = try await client.send(request, responseType: EmptyResponse.self)
+    }
+
     @Test @MainActor func noticeList_usesFigmaTextColorsInDarkMode() {
         let lightTrait = UITraitCollection(userInterfaceStyle: .light)
         let darkTrait = UITraitCollection(userInterfaceStyle: .dark)
@@ -93,4 +103,27 @@ struct FiilsaTests {
             | UInt((blue * 255).rounded())
     }
 
+}
+
+private final class EmptySuccessURLProtocol: URLProtocol {
+    override class func canInit(with request: URLRequest) -> Bool {
+        true
+    }
+
+    override class func canonicalRequest(for request: URLRequest) -> URLRequest {
+        request
+    }
+
+    override func startLoading() {
+        let response = HTTPURLResponse(
+            url: request.url!,
+            statusCode: 200,
+            httpVersion: nil,
+            headerFields: ["Content-Length": "0"]
+        )!
+        client?.urlProtocol(self, didReceive: response, cacheStoragePolicy: .notAllowed)
+        client?.urlProtocolDidFinishLoading(self)
+    }
+
+    override func stopLoading() {}
 }

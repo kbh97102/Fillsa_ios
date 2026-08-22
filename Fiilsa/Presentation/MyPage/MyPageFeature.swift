@@ -131,12 +131,19 @@ struct MyPageFeature {
                 state.isResignDialogPresented = false
                 return .run { send in
                     do {
-                        _ = try await commonClient.deleteResign()
-                        try await sessionClient.logout()
-                        await send(.resignCompleted(.success(true)))
+                        try await commonClient.deleteResign()
                     } catch {
-                        await send(.resignCompleted(.failure(.failed)))
+                        guard Self.isAlreadyWithdrawn(error) else {
+                            await send(.resignCompleted(.failure(.failed)))
+                            return
+                        }
                     }
+
+                    do {
+                        try await sessionClient.logout()
+                    } catch {
+                    }
+                    await send(.resignCompleted(.success(true)))
                 }
 
             case .resignCompleted(.success):
@@ -159,5 +166,12 @@ struct MyPageFeature {
                 return .none
             }
         }
+    }
+
+    private nonisolated static func isAlreadyWithdrawn(_ error: Error) -> Bool {
+        guard let response = error as? ErrorResponse else { return false }
+        return response.httpStatus == 404
+            && response.errorCode == 1002
+            && response.message == "Withdrawal user"
     }
 }

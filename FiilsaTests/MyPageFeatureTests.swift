@@ -17,7 +17,6 @@ final class MyPageFeatureTests: XCTestCase {
         } withDependencies: {
             $0.commonClient.deleteResign = {
                 await counts.recordDelete()
-                return 1
             }
             $0.sessionClient.logout = {
                 await counts.recordLogout()
@@ -79,6 +78,65 @@ final class MyPageFeatureTests: XCTestCase {
         await store.send(.toastDismissed) {
             $0.toastMessage = nil
         }
+    }
+
+    func test_resignCompletionDoesNotShowFailureWhenLocalLogoutFailsAfterServerDeletion() async {
+        let store = TestStore(
+            initialState: MyPageFeature.State(
+                isLoggedIn: true,
+                userName: "필사",
+                imagePath: "profile"
+            )
+        ) {
+            MyPageFeature()
+        } withDependencies: {
+            $0.commonClient.deleteResign = {}
+            $0.sessionClient.logout = { throw TestResignError.failed }
+        }
+
+        await store.send(.resignConfirmed) {
+            $0.isProcessing = true
+        }
+        await store.receive(.resignCompleted(.success(true))) {
+            $0.isProcessing = false
+            $0.isLoggedIn = false
+            $0.userName = ""
+            $0.imagePath = ""
+        }
+        await store.receive(.delegate(.resignCompleted))
+    }
+
+    func test_resignCompletionRecoversWhenServerReportsAccountAlreadyWithdrawn() async {
+        let store = TestStore(
+            initialState: MyPageFeature.State(
+                isLoggedIn: true,
+                userName: "필사",
+                imagePath: "profile"
+            )
+        ) {
+            MyPageFeature()
+        } withDependencies: {
+            $0.commonClient.deleteResign = {
+                throw ErrorResponse(
+                    timestamp: "",
+                    httpStatus: 404,
+                    errorCode: 1002,
+                    message: "Withdrawal user"
+                )
+            }
+            $0.sessionClient.logout = {}
+        }
+
+        await store.send(.resignConfirmed) {
+            $0.isProcessing = true
+        }
+        await store.receive(.resignCompleted(.success(true))) {
+            $0.isProcessing = false
+            $0.isLoggedIn = false
+            $0.userName = ""
+            $0.imagePath = ""
+        }
+        await store.receive(.delegate(.resignCompleted))
     }
 
     func test_resignConfirmationDoesNothingWhileAlreadyProcessing() async {

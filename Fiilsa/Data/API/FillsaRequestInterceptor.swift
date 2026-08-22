@@ -10,6 +10,7 @@ protocol TokenStore {
     func accessToken() async -> String
     func refreshToken() async -> String
     func update(accessToken: String, refreshToken: String) async throws
+    func clear() async throws
 }
 
 final class FillsaRequestInterceptor: RequestInterceptor {

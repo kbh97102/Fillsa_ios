@@ -5,7 +5,7 @@ struct CommonClient {
     var getMemberStreaks: @Sendable () async throws -> MemberStreakResponse
     var getPopupGeneral: @Sendable () async throws -> PopupResponse
     var getPopupVersionUpdate: @Sendable (_ currentVersion: String) async throws -> PopupResponse
-    var deleteResign: @Sendable () async throws -> Int
+    var deleteResign: @Sendable () async throws -> Void
 }
 
 extension CommonClient: DependencyKey {

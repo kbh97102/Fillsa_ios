@@ -3,6 +3,5 @@ protocol CommonRepository {
     func getMemberStreaks() async throws -> MemberStreakResponse
     func getPopupGeneral() async throws -> PopupResponse
     func getPopupVersionUpdate(currentVersion: String) async throws -> PopupResponse
-    func deleteResign() async throws -> Int
+    func deleteResign() async throws
 }
-

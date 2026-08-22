@@ -75,7 +75,7 @@ struct APIClient: APIClientProtocol {
                 ]
             )
             .validate(statusCode: 200..<300)
-            .serializingData()
+            .serializingData(emptyResponseCodes: [200, 204, 205])
             .response
 
         HTTPLogger.logResponse(response)
@@ -103,7 +103,7 @@ struct APIClient: APIClientProtocol {
         let response = await session
             .request(urlRequest)
             .validate(statusCode: 200..<300)
-            .serializingData()
+            .serializingData(emptyResponseCodes: [200, 204, 205])
             .response
 
         HTTPLogger.logResponse(response)

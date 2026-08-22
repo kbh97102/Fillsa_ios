@@ -3,6 +3,7 @@ protocol LocalRepository {
     func getAccessToken() async throws -> String
     func setRefreshToken(_ token: String) async throws
     func getRefreshToken() async throws -> String
+    func clearAuthentication() async throws
     func isLoggedIn() async throws -> Bool
 
     func setImageURI(_ uri: String) async throws

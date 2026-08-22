@@ -47,11 +47,11 @@ struct DefaultCommonRepository: CommonRepository {
         return try await apiClient.send(request, responseType: PopupResponse.self)
     }
 
-    func deleteResign() async throws -> Int {
+    func deleteResign() async throws {
         let request = APIRequest<EmptyRequestBody>(
             method: .delete,
             path: APIEndpoint.resign
         )
-        return try await apiClient.send(request, responseType: Int.self)
+        let _: EmptyResponse = try await apiClient.send(request, responseType: EmptyResponse.self)
     }
 }

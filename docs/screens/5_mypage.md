@@ -60,10 +60,12 @@ GET /api/v1/member-streaks
 DELETE /api/v1/auth/withdraw
 ```
 
-**Response: `Int`**
+**Response: `204 No Content` 또는 빈 본문의 2xx 응답**
 
 - 인증 토큰 필요
-- 성공 시 로컬 토큰, 사용자명, 프로필 이미지 정보를 삭제하고 Home으로 이동
+- 성공 시 로컬 토큰, 사용자명, 프로필 이미지 정보를 삭제하고 Home으로 이동한다. 탈퇴 API가 성공한 뒤 로컬 정리가 실패해도 이미 삭제된 계정을 실패로 안내하지 않고 Home으로 이동한다.
+- 서버가 이미 탈퇴된 사용자에게 `404 / errorCode 1002 / Withdrawal user`를 반환하면, 로컬에 남은 이전 토큰을 정리하고 탈퇴 완료와 동일하게 Home으로 이동한다. 그 밖의 탈퇴 API 오류는 실패 안내를 표시한다.
+- 모든 인증 API 인터셉터와 로그인/로그아웃은 앱 전역의 동일한 Keychain 토큰 저장소를 사용한다. 이는 Android의 단일 DataStore를 주입하는 것과 같으며, 로그인·탈퇴 뒤 이전 refresh token이 메모리 캐시에 남지 않게 한다.
 
 ### 버전 업데이트 팝업 확인
 

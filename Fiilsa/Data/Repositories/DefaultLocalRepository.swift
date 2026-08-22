@@ -39,6 +39,10 @@ final class DefaultLocalRepository: LocalRepository {
         await tokenStore.refreshToken()
     }
 
+    func clearAuthentication() async throws {
+        try await tokenStore.clear()
+    }
+
     func isLoggedIn() async throws -> Bool {
         let accessToken = await tokenStore.accessToken()
         let refreshToken = await tokenStore.refreshToken()
