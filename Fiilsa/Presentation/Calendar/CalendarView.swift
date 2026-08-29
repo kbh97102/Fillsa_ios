@@ -74,7 +74,7 @@ struct CalendarView: View {
                         isWritingCompleted: selectedDayRecord(
                             from: viewStore.memberQuotes,
                             selectedDay: viewStore.selectedDay
-                        )?.completed == true,
+                        ).map(CalendarWritingCompletion.isCompleted) ?? false,
                         onClick: {
                             viewStore.send(.bottomQuoteTapped)
                         }

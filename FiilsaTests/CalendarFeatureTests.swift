@@ -22,6 +22,21 @@ struct CalendarFeatureTests {
     }
 
     @Test
+    func todayCompletedRecordIsTreatedAsCompletedForTheSelectedDayDetail() {
+        let quote = MemberQuotesData(
+            dailyQuoteSeq: 2,
+            quoteDate: "2025-03-22",
+            quote: "quote",
+            author: "author",
+            completed: false,
+            likeYn: "N",
+            todayCompleted: true
+        )
+
+        #expect(CalendarWritingCompletion.isCompleted(quote))
+    }
+
+    @Test
     func loadingAMonthStoresTheStreakForTheCalendarHeader() async {
         let response = fixtureResponse(streakCount: 100)
         var initialState = CalendarFeature.State()

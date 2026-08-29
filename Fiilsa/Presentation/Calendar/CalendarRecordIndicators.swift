@@ -21,9 +21,15 @@ enum CalendarRecordIndicators {
         if quote.likeYn == "Y" {
             indicators.append(.heart)
         }
-        if quote.completed || quote.todayCompleted {
+        if CalendarWritingCompletion.isCompleted(quote) {
             indicators.append(.flame)
         }
         return indicators
+    }
+}
+
+enum CalendarWritingCompletion {
+    static func isCompleted(_ quote: MemberQuotesData?) -> Bool {
+        quote?.completed == true || quote?.todayCompleted == true
     }
 }
