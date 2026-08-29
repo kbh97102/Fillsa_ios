@@ -44,7 +44,6 @@ struct AppFeature {
         case homeTabSelected
         case quoteListTabSelected
         case homeTypingSelected
-        case homeAnswerTypingSelected(String)
         case shareSelected(quote: String, author: String)
         case quoteDetailSelected(MemberQuotesResponse)
         case memoSelected(savedMemo: String, memberQuoteSeq: Int)
@@ -328,14 +327,6 @@ struct AppFeature {
                 state.typing = typingState(from: state.home)
                 return .none
 
-            case let .homeAnswerTypingSelected(answer):
-                state.screen = .typing
-                state.typing = typingState(
-                    from: state.home,
-                    initialKoreanDraft: HomeAnswerInput.limit(answer)
-                )
-                return .none
-
             case let .shareSelected(quote, author):
                 state.screen = .share(quote: quote, author: author)
                 state.share = ShareFeature.State(quote: quote, author: author)
@@ -410,17 +401,13 @@ struct AppFeature {
         }
     }
 
-    private func typingState(
-        from home: HomeFeature.State,
-        initialKoreanDraft: String = ""
-    ) -> TypingFeature.State {
+    private func typingState(from home: HomeFeature.State) -> TypingFeature.State {
         TypingFeature.State(
             dailyQuoteSeq: home.quote.dailyQuoteSeq,
             korQuote: home.quote.korQuote ?? "",
             engQuote: home.quote.engQuote ?? "",
             korAuthor: home.quote.korAuthor ?? "",
             engAuthor: home.quote.engAuthor ?? "",
-            korTyping: initialKoreanDraft,
             likeYn: home.quote.likeYn,
             quoteDate: FillsaCalendarDateSupport.quoteDateString(for: home.date),
             dayOfWeek: dayOfWeekString(for: home.date)

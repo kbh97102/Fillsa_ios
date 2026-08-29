@@ -49,8 +49,14 @@
 | Completion badge/date key | Completed dates lacked the Figma `2929:17161` badge and used a hard-coded KST date formatter. | `HomeWeekStrip` overlays the downloaded `home_completed_streak` 18×18 Figma asset only for genuine, non-selected completed dates. `HomeCompletionDateKey` uses injected `Calendar.current`, matching SQLiteLocalStore date semantics. | Pending runtime verification |
 | Selected/completed priority | A selected date that was also complete used the completed purple background, creating a hybrid state. | `HomeWeekStripDayState` resolves selected before completed: white selected background, gray selected text, purple border, and no completion badge. | Pending runtime verification |
 | Quote card/action row | Figma nodes `2929:13642` and `2929:15503` were not represented by explicitly named Home Figma components. | `HomeQuoteCard` uses the persisted texture/search assets, preserves author navigation and previous/next semantics (today blocks forward). `HomeQuoteActionRow` uses 16pt local action assets, 42pt row/dividers, and the existing live like/copy/share/image actions. | Pending runtime verification |
-| Question/answer CTA | Figma node `2929:13630` needs a bounded answer input and explicit component ownership. | `HomeQuestionAnswerCard` uses the existing durable `home_answer_record` asset, Figma 174pt box/17pt radius/border/count, and a 200 extended-grapheme limit. CTA transfers its capped answer through `AppFeature` to the real editable `TypingFeature.State.korTyping` draft, which uses existing save behavior. | Pending runtime verification |
+| Question/answer CTA | Figma node `2929:13630` needs a bounded answer input and explicit component ownership. | `HomeQuestionAnswerCard` keeps the durable `home_answer_record` asset, Figma 174pt box/17pt radius/border/count, 200 extended-grapheme limit, and accessibility. The CTA uses only the existing parameterless quote-typing route; entered text is not transferred or saved. | Pending runtime verification |
 | Question data | No Home question endpoint/state exists. | Kept the already-established Figma prompt; no backend question source was fabricated. | Blocked — product/API contract required |
+
+### Round 4
+
+| Scope | Difference | Fix | Result |
+|---|---|---|---|
+| Answer handoff/storage scope | `TypingFeature.korTyping` and the available memo storage are quote-specific, while Home has no generic prompt-answer model, repository, local schema, or API contract. | Removed the answer-to-typing handoff. The Figma input remains UI-only and CTA follows existing parameterless typing navigation. A future answer feature requires a stable question/date identifier, record lifecycle and persistence/API ownership, editor/save UX, and feedback rules as a separately approved scope. | Blocked — product/data contract required |
 
 ## Final assembled-screen result
 

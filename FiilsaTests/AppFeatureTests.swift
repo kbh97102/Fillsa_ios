@@ -4,9 +4,7 @@ import XCTest
 
 @MainActor
 final class AppFeatureTests: XCTestCase {
-    func test_homeAnswerCTASeedsCappedTypingDraftWhileEmptyAnswerUsesExistingTypingRoute() async {
-        let answer = String(repeating: "👨🏽‍💻", count: 201)
-        let cappedAnswer = String(repeating: "👨🏽‍💻", count: 200)
+    func test_homeTypingUsesTheExistingQuoteRouteWithAnEmptyTranscript() async {
         var state = AppFeature.State()
         state.home.quote = DailyQuote(
             likeYn: "N",
@@ -22,28 +20,40 @@ final class AppFeatureTests: XCTestCase {
         }
         store.exhaustivity = .off
 
-        await store.send(.homeAnswerTypingSelected(answer))
-        XCTAssertEqual(store.state.screen, .typing)
-        XCTAssertEqual(store.state.typing.dailyQuoteSeq, 42)
-        XCTAssertEqual(store.state.typing.korTyping, cappedAnswer)
-        XCTAssertEqual(store.state.typing.engTyping, "")
-
         await store.send(.homeTypingSelected)
         XCTAssertEqual(store.state.screen, .typing)
+        XCTAssertEqual(store.state.typing.dailyQuoteSeq, 42)
         XCTAssertEqual(store.state.typing.korTyping, "")
         XCTAssertEqual(store.state.typing.engTyping, "")
     }
 
-    func test_prefilledTypingDraftDoesNotReloadAndOverwriteTheHomeAnswer() async {
+    func test_quoteTypingLoadsItsExistingTranscript() async {
+        let response = MemberTypingQuoteResponse(
+            korQuote: "명언",
+            engQuote: "Quote",
+            typingKorQuote: "서버에 저장된 필사",
+            typingEngQuote: "Saved transcript",
+            likeYn: "Y"
+        )
         let store = TestStore(
-            initialState: TypingFeature.State(dailyQuoteSeq: 42, korTyping: "홈 답변")
+            initialState: TypingFeature.State(dailyQuoteSeq: 42, korTyping: "이전 필사")
         ) {
             TypingFeature()
+        } withDependencies: {
+            $0.sessionClient.isLoggedIn = { true }
+            $0.typingClient.getTyping = { _ in response }
         }
 
-        await store.send(.onAppear) {
+        await store.send(.onAppear)
+        await store.receive(.typingLoaded(.success(response))) {
+            $0.korQuote = "명언"
+            $0.engQuote = "Quote"
+            $0.korTyping = "서버에 저장된 필사"
+            $0.engTyping = "Saved transcript"
+            $0.likeYn = "Y"
             $0.hasLoaded = true
         }
+        await store.finish()
     }
 
     func test_accountDeletionFromMyPageReturnsToFreshHomeState() async {

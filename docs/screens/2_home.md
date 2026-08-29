@@ -18,7 +18,7 @@
 | Locale prompt | `2929:15520` | Typing prompt and Korean/English switch | `HomeView` | 미검증 |
 | Quote card | `2929:13642` | `HomeQuoteCard`: local Figma texture, quote/author search action, and date swipe; on today's latest quote the forward swipe emits no next action | `HomeView` | 미검증 |
 | Quote actions | `2929:15503` | `HomeQuoteActionRow`: 16pt local assets, 42pt row/dividers; existing copy, share, live like toggle, and image registration actions | `HomeView` | 미검증 |
-| Question/answer | `2929:13630` | `HomeQuestionAnswerCard`: 200-grapheme-capped answer input and Figma CTA; AppFeature transfers the real capped Korean draft into `TypingFeature.State.korTyping`, which remains editable and uses the existing save flow | `HomeView` → `AppFeature` → `TypingFeature` | QA Blocked — Home question data source is absent |
+| Question/answer | `2929:13630` | `HomeQuestionAnswerCard`: 200-grapheme-capped Figma input/CTA UI. CTA follows the existing parameterless quote-typing navigation; the answer is neither handed to `TypingFeature` nor persisted. | `HomeView` → existing `openTyping` → `TypingFeature` | QA Blocked — prompt-answer data contract/storage scope is absent |
 | Bottom navigation/ad | `3087:29254`, `3087:29249` | Existing app tab navigation and static ad surface | `AppView` / `FillsaBottomNavigationBar` | 미검증 |
 
 ## 기본 동작
@@ -51,6 +51,13 @@
 | 복사하기 | "{명언} - {저자}" 형식으로 클립보드 복사 → '복사되었습니다.' 토스트 (`2-5.toast_copy`) |
 | 좋아요 | 좋아요 토글 저장 |
 | 공유 | 공유 화면(`2-4.img_share`)으로 이동 |
+
+## 오늘의 질문 답변
+
+- Figma 입력 박스, 200 grapheme 제한, 남은 글자 수, CTA 및 접근성 라벨은 UI 범위로 유지한다.
+- CTA는 기존 parameterless 명언 필사 이동만 수행한다. 답변은 `TypingFeature.korTyping`/`engTyping`에 전달하거나 회원 명언 API에 저장하지 않는다.
+- 현재 프로젝트에서 발견된 `memo`, `korTyping`, `engTyping` 저장 계약은 모두 `memberQuoteSeq`/명언 필사 전용이며 일반 질문 답변 계약이 아니다.
+- 후속 기능은 (1) 질문 식별자와 날짜를 제공하는 Home 질문 data contract, (2) 답변 레코드의 저장·조회·수정/삭제 정책, (3) 사용자 피드백과 답변 편집 화면의 제품 정의를 별도 범위에서 정한 뒤 구현해야 한다.
 
 ---
 

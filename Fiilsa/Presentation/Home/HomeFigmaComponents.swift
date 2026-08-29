@@ -274,7 +274,7 @@ struct HomeQuestionAnswerCard: View {
             .buttonStyle(.plain)
             .accessibilityIdentifier("home.recordAnswer")
             .accessibilityLabel("내 답변 기록하기")
-            .accessibilityHint("입력한 답변을 필사 화면에서 이어서 편집합니다.")
+            .accessibilityHint("기존 명언 필사 화면으로 이동합니다. 입력한 답변은 아직 저장되지 않습니다.")
         }
     }
 
