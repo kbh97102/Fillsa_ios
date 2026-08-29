@@ -58,6 +58,11 @@ struct AppView: View {
                 }
             )
 
+        case .homeAnswerEditor:
+            HomeAnswerEditorView(
+                store: store.scope(state: \.homeAnswerEditor, action: \.homeAnswerEditor)
+            )
+
         case .share:
             ShareView(
                 store: store.scope(state: \.share, action: \.share)
@@ -144,8 +149,8 @@ struct AppView: View {
                 openTyping: {
                     viewStore.send(.homeTypingSelected)
                 },
-                openTypingWithAnswer: { answer in
-                    viewStore.send(.homeAnswerTypingSelected(answer))
+                openAnswerEditor: { answer in
+                    viewStore.send(.homeAnswerSelected(answer))
                 },
                 openShare: { quote, author in
                     viewStore.send(.shareSelected(quote: quote, author: author))

@@ -25,6 +25,13 @@ enum LiveRepositories {
     static let typing: TypingRepository = DefaultTypingRepository(
         apiClient: APIClientFactory.authenticated(tokenStore: tokenStore, deviceIDProvider: { "" })
     )
+    static let homeAnswer: HomeAnswerRepository = {
+        do {
+            return try DefaultHomeAnswerRepository()
+        } catch {
+            fatalError("Failed to create DefaultHomeAnswerRepository: \(error)")
+        }
+    }()
     static let pushRegistration: PushRegistrationRepository = DefaultPushRegistrationRepository(
         apiClient: APIClientFactory.authenticated(
             tokenStore: tokenStore,

@@ -144,6 +144,28 @@ actor SQLiteLocalStore {
         try getStreakInfo(date: Self.dateString(daysFromToday: 0, relativeTo: today))
     }
 
+    func getHomeAnswer(dateKey: String, question: String) throws -> HomeAnswerRecord? {
+        try queryHomeAnswers(
+            """
+            SELECT date_key, question, answer
+            FROM home_answer_records
+            WHERE date_key = ? AND question = ?
+            LIMIT 1
+            """,
+            bindings: [.text(dateKey), .text(question)]
+        ).first
+    }
+
+    func saveHomeAnswer(_ record: HomeAnswerRecord) throws {
+        try execute(
+            """
+            INSERT OR REPLACE INTO home_answer_records (date_key, question, answer)
+            VALUES (?, ?, ?)
+            """,
+            bindings: [.text(record.dateKey), .text(record.question), .text(record.answer)]
+        )
+    }
+
     private func getStreakInfo(date: String) throws -> StreakInfo? {
         try queryStreaks("SELECT * FROM streak_info WHERE date = ? LIMIT 1", bindings: [.text(date)]).first
     }
@@ -197,6 +219,17 @@ actor SQLiteLocalStore {
             )
             """
         )
+
+        try execute(
+            """
+            CREATE TABLE IF NOT EXISTS home_answer_records (
+                date_key TEXT NOT NULL,
+                question TEXT NOT NULL,
+                answer TEXT NOT NULL,
+                PRIMARY KEY(date_key, question)
+            )
+            """
+        )
     }
 
     private func queryQuotes(_ sql: String, bindings: [SQLiteBinding] = []) throws -> [LocalQuoteInfo] {
@@ -223,6 +256,19 @@ actor SQLiteLocalStore {
                 date: sqlite3_column_text_value(statement, 0),
                 streakDateCount: sqlite3_column_int_value(statement, 1),
                 isDailyWritingCompleted: sqlite3_column_int_value(statement, 2) == 1
+            )
+        }
+    }
+
+    private func queryHomeAnswers(
+        _ sql: String,
+        bindings: [SQLiteBinding] = []
+    ) throws -> [HomeAnswerRecord] {
+        try query(sql, bindings: bindings) { statement in
+            HomeAnswerRecord(
+                dateKey: sqlite3_column_text_value(statement, 0),
+                question: sqlite3_column_text_value(statement, 1),
+                answer: sqlite3_column_text_value(statement, 2)
             )
         }
     }

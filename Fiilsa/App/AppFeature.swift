@@ -16,6 +16,7 @@ struct AppFeature {
         var alert = AlertFeature.State()
         var memoInsert = MemoInsertFeature.State()
         var typing = TypingFeature.State()
+        var homeAnswerEditor = HomeAnswerEditorFeature.State()
         var share = ShareFeature.State()
         var generalPopup = GeneralPopupFeature.State()
         var selectedTab: AppTab = .home
@@ -36,6 +37,7 @@ struct AppFeature {
         case alert(AlertFeature.Action)
         case memoInsert(MemoInsertFeature.Action)
         case typing(TypingFeature.Action)
+        case homeAnswerEditor(HomeAnswerEditorFeature.Action)
         case share(ShareFeature.Action)
         case generalPopup(GeneralPopupFeature.Action)
         case loginClosed
@@ -44,7 +46,7 @@ struct AppFeature {
         case homeTabSelected
         case quoteListTabSelected
         case homeTypingSelected
-        case homeAnswerTypingSelected(String)
+        case homeAnswerSelected(String)
         case shareSelected(quote: String, author: String)
         case quoteDetailSelected(MemberQuotesResponse)
         case memoSelected(savedMemo: String, memberQuoteSeq: Int)
@@ -104,6 +106,10 @@ struct AppFeature {
 
         Scope(state: \.typing, action: \.typing) {
             TypingFeature()
+        }
+
+        Scope(state: \.homeAnswerEditor, action: \.homeAnswerEditor) {
+            HomeAnswerEditorFeature()
         }
 
         Scope(state: \.share, action: \.share) {
@@ -227,6 +233,20 @@ struct AppFeature {
             case .typing:
                 return .none
 
+            case .homeAnswerEditor(.delegate(.back)):
+                state.screen = .main
+                state.selectedTab = .home
+                return .none
+
+            case .homeAnswerEditor(.delegate(.saved)):
+                state.screen = .main
+                state.selectedTab = .home
+                state.home.toastMessage = "답변을 저장했습니다."
+                return .none
+
+            case .homeAnswerEditor:
+                return .none
+
             case .share(.delegate(.back)):
                 state.screen = .main
                 return .none
@@ -328,11 +348,12 @@ struct AppFeature {
                 state.typing = typingState(from: state.home)
                 return .none
 
-            case let .homeAnswerTypingSelected(answer):
-                state.screen = .typing
-                state.typing = typingState(
-                    from: state.home,
-                    initialKoreanDraft: HomeAnswerInput.limit(answer)
+            case let .homeAnswerSelected(answer):
+                state.screen = .homeAnswerEditor
+                state.homeAnswerEditor = HomeAnswerEditorFeature.State(
+                    dateKey: HomeCompletionDateKey.make(for: state.home.date),
+                    question: HomeQuestionAnswerContent.question,
+                    initialAnswer: answer
                 )
                 return .none
 
@@ -410,17 +431,13 @@ struct AppFeature {
         }
     }
 
-    private func typingState(
-        from home: HomeFeature.State,
-        initialKoreanDraft: String = ""
-    ) -> TypingFeature.State {
+    private func typingState(from home: HomeFeature.State) -> TypingFeature.State {
         TypingFeature.State(
             dailyQuoteSeq: home.quote.dailyQuoteSeq,
             korQuote: home.quote.korQuote ?? "",
             engQuote: home.quote.engQuote ?? "",
             korAuthor: home.quote.korAuthor ?? "",
             engAuthor: home.quote.engAuthor ?? "",
-            korTyping: initialKoreanDraft,
             likeYn: home.quote.likeYn,
             quoteDate: FillsaCalendarDateSupport.quoteDateString(for: home.date),
             dayOfWeek: dayOfWeekString(for: home.date)
