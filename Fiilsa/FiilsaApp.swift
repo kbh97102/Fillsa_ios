@@ -40,7 +40,7 @@ struct FiilsaApp: App {
         if arguments.contains("-ui-testing-home") {
             state.screen = .main
             state.selectedTab = .home
-            state.selectedTheme = .light
+            state.selectedTheme = arguments.contains("ui-testing-theme-dark") ? .dark : .light
             state.home = HomeFeature.State(
                 quote: DailyQuote(
                     likeYn: "N",

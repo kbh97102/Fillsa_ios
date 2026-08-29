@@ -4,6 +4,7 @@
 
 - Figma URL: https://www.figma.com/design/VdFocqyqTgevMVCQxwAQ2X/2.home?node-id=2929-13556
 - Target frames/nodes: `2929:13556` (`2.home`); metadata reports 360×821, although the implementation request listed 360×720.
+- Dark target frame/node: `3039:26518` (`2.home`, 360×821); `2929:9603` is a parent section, not a render target.
 - Full-frame reference image: `docs/design-qa/assets/home-figma/2026-08-29-home-figma-reference.png` (360×821; root background, status bar, safe area, bottom navigation, and ad area included).
 - Runtime target: iOS Simulator, light state, deterministic Home quote state (pending).
 - Runtime full-frame capture: unavailable — CoreSimulatorService could not be reached on 2026-08-29.
@@ -60,9 +61,17 @@
 | Bottom navigation metrics/assets | The Figma 3-tab bar uses 120×60pt items, 32pt Home/Calendar/My page glyphs, #5C65FF selection, and #212121 unselected treatment. | Retained the four shared routes. The three common light-tab glyphs now reuse the already-durable Figma `home_nav_*` assets at 32pt as template images, so selection tint works without asset recreation. QuoteList remains the established fourth item. | Blocked — a product decision is required to change tab count/routes; runtime comparison pending |
 | Ad surface | Figma `3087:29249` is a 35pt static “AD / 광고가 들어가는 영역입니다.” surface, not an ad-provider specification. | Kept existing `HomeAdSurface`; no provider, behavior, or asset was invented. | Blocked — ad product contract required for behavior beyond the static surface |
 
+### Round 5 — Dark Home `3039:26518`
+
+| Scope | Difference / contract | Fix | Result |
+|---|---|---|---|
+| Dark palette | Root `#212121`; quote card and answer field `#424242`; outlines/dividers `#616161`; primary text `#FFFFFF`; action text `#E0E0E0`; inactive weekday/placeholder/count `#9E9E9E`; main divider has 55% opacity. Selected weekday, completed weekday, white calendar, and purple CTA retain their Figma states. | Added the testable `HomeFigmaPalette`, then applied it to Home root/header/prompt/quote card/actions/question input/ad. A pure palette test locks the dark token mapping. | GREEN — focused Home test suite 7/7 |
+| Dark Figma vectors | The dark frame uses visually different logo/profile/search/action/texture vectors; light SVG bytes would not match. | Downloaded Figma `3039:26518` SVG bytes and committed universal 1× `luminosity=dark` asset-catalog appearances for `home_logo`, `home_profile`, `home_quote_texture`, `home_author_search`, `home_action_copy`, `home_action_share`, `home_action_like`, and `home_action_camera`. | Asset catalog builds successfully |
+| Runtime full frame | A deterministic dark fixture is required to inspect the full device frame without altering normal navigation. | `-ui-testing-home ui-testing-theme-dark` now selects only the existing isolated Home fixture's dark app theme; normal launch behavior is unchanged. Build succeeded, but `simctl install/launch/screenshot` failed before installation with `CoreSimulatorService connection refused` / `simdiskimaged ... not responding`. No service was killed or reconfigured. | Blocked — no dark runtime capture can be produced in this environment |
+
 ## Final assembled-screen result
 
 - Full-frame reference/capture comparison: reference available at the recorded persistent path; runtime capture unavailable.
-- Final runtime capture: unavailable.
+- Final runtime capture: unavailable; attempted dark capture target was `/private/tmp/fiilsa-home-dark-3039-26518-runtime.png`, but the simulator connection failed before that file could be created.
 - Result: Blocked
-- Remaining differences: all runtime component and assembled-frame differences remain unverified until a 360×821-equivalent simulator/device capture can be taken; the 3-item Figma bottom navigation differs intentionally from the existing 4-item shared app navigation (QuoteList retained).
+- Remaining differences: the assembled dark runtime frame still needs a full 360×821-equivalent simulator/device capture after CoreSimulatorService recovery; the 3-item Figma bottom navigation differs intentionally from the existing 4-item shared app navigation (QuoteList retained). The UI-only question answer and unavailable Home-question data contract remain the existing product/data blockers.

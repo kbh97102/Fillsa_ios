@@ -31,6 +31,20 @@ struct HomeFeatureTests {
     }
 
     @Test
+    func darkHomePaletteUsesTheFigmaSurfaceAndTextTokens() {
+        let palette = HomeFigmaPalette.resolve(isDark: true)
+
+        #expect(palette.rootBackground == .gray700)
+        #expect(palette.cardBackground == .gray600)
+        #expect(palette.cardBorder == .gray500)
+        #expect(palette.primaryText == .white)
+        #expect(palette.actionText == .gray200)
+        #expect(palette.weekdayDefault == .gray400)
+        #expect(palette.mainDivider == .gray500)
+        #expect(palette.mainDividerOpacity == 0.55)
+    }
+
+    @Test
     func completionDateKeyUsesTheStorageCalendarDayInsteadOfAKSTAssumption() {
         var storageCalendar = Calendar(identifier: .gregorian)
         storageCalendar.timeZone = TimeZone(secondsFromGMT: -8 * 60 * 60)!
@@ -55,7 +69,9 @@ struct HomeFeatureTests {
 
     @Test
     func zeroStreakDoesNotRenderAStreakValue() async {
-        let store = TestStore(initialState: HomeFeature.State()) {
+        var initialState = HomeFeature.State()
+        initialState.streakCount = 4
+        let store = TestStore(initialState: initialState) {
             HomeFeature()
         }
 

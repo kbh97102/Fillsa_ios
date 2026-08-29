@@ -13,6 +13,7 @@ struct HomeView: View {
     let openLogin: () -> Void
     let openMyPage: () -> Void
     @Environment(\.openURL) private var openURL
+    @Environment(\.colorScheme) private var colorScheme
 
     init(store: StoreOf<HomeFeature> = Store(initialState: HomeFeature.State()) { HomeFeature() }, date: Date = Date(), openTyping: @escaping () -> Void = {}, openShare: @escaping (String, String) -> Void = { _, _ in }, openLogin: @escaping () -> Void = {}, openMyPage: @escaping () -> Void = {}) {
         self.store = store; self.date = date; self.openTyping = openTyping; self.openShare = openShare; self.openLogin = openLogin; self.openMyPage = openMyPage
@@ -24,7 +25,7 @@ struct HomeView: View {
                 HomeHeader(myPage: openMyPage, streakCount: viewStore.streakCount).padding(.horizontal, 20).frame(height: 50)
                 HomeDateControls(date: viewStore.date, completedWritingDates: viewStore.completedWritingDates).padding(.top, 10).padding(.horizontal, 20)
                 HStack {
-                    Text("아래 글을 필사해주세요.").font(FillsaTypography.body3).foregroundStyle(FillsaColor.gray700)
+                    Text("아래 글을 필사해주세요.").font(FillsaTypography.body3).foregroundStyle(palette.primaryText.color)
                     Spacer()
                     HomeLocaleSwitch(selected: $selectedLocale)
                 }.padding(.top, 16).padding(.horizontal, 20)
@@ -33,13 +34,13 @@ struct HomeView: View {
                 })
                 .padding(.top, 4).padding(.horizontal, 20).accessibilityIdentifier("home.quoteCard")
                 HomeQuoteActionRow(copy: { UIPasteboard.general.string = copyText(from: viewStore.quote); viewStore.send(.copyCompleted) }, share: { openShare(quote(from: viewStore.quote), author(from: viewStore.quote)) }, isLike: viewStore.quote.likeYn == "Y", setIsLike: { viewStore.send(.likeTapped($0)) }, registerImage: { viewStore.send(.imageTapped) }).padding(.top, 10)
-                Divider().overlay(FillsaColor.gray700.opacity(0.16)).padding(.top, 1)
+                Divider().overlay(palette.mainDivider.color.opacity(palette.mainDividerOpacity)).padding(.top, 1)
                 HomeQuestionAnswerCard(answer: $answer, recordAnswer: openTyping).padding(.top, 17).padding(.horizontal, 20)
                 Spacer(minLength: 0)
                 HomeAdSurface()
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
-            .background(FillsaColor.background.ignoresSafeArea())
+            .background(palette.rootBackground.color.ignoresSafeArea())
             .onAppear { viewStore.send(.onAppear) }
             .overlay {
                 ZStack {
@@ -69,11 +70,21 @@ struct HomeView: View {
     private func toast(_ message: String) -> some View {
         VStack { Spacer(); Text(message).font(FillsaTypography.body2).foregroundStyle(FillsaColor.white).padding(.horizontal, 18).padding(.vertical, 12).background(Capsule().fill(FillsaColor.black0C.opacity(0.84))).padding(.bottom, 28) }
     }
+
+    private var palette: HomeFigmaPalette {
+        .resolve(isDark: colorScheme == .dark)
+    }
 }
 
 private struct HomeAdSurface: View {
+    @Environment(\.colorScheme) private var colorScheme
+
     var body: some View {
-        HStack(spacing: 6) { Text("AD").font(FillsaTypography.body4).foregroundStyle(FillsaColor.white).padding(.horizontal, 6).background(Capsule().fill(FillsaColor.gray700)); Text("광고가 들어가는 영역입니다.").font(.system(size: 10)).foregroundStyle(FillsaColor.gray700) }
+        HStack(spacing: 6) { Text("AD").font(FillsaTypography.body4).foregroundStyle(FillsaColor.white).padding(.horizontal, 6).background(Capsule().fill(FillsaColor.purple01)); Text("광고가 들어가는 영역입니다.").font(.system(size: 10)).foregroundStyle(palette.primaryText.color) }
             .frame(maxWidth: .infinity).frame(height: 35)
+    }
+
+    private var palette: HomeFigmaPalette {
+        .resolve(isDark: colorScheme == .dark)
     }
 }

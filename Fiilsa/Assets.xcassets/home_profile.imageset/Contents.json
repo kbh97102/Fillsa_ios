@@ -1,1 +1,1 @@
-{"images":[{"filename":"home_profile.svg","idiom":"universal","scale":"1x"}],"info":{"author":"xcode","version":1},"properties":{"preserves-vector-representation":true}}
+{"images":[{"filename":"home_profile.svg","idiom":"universal","scale":"1x"},{"appearances":[{"appearance":"luminosity","value":"dark"}],"filename":"home_profile-dark.svg","idiom":"universal","scale":"1x"}],"info":{"author":"xcode","version":1},"properties":{"preserves-vector-representation":true}}

@@ -25,6 +25,7 @@ struct HomeQuoteCard: View {
     let before: () -> Void
     let navigate: () -> Void
     let authorTapped: () -> Void
+    @Environment(\.colorScheme) private var colorScheme
 
     init(
         text: String,
@@ -47,7 +48,7 @@ struct HomeQuoteCard: View {
     var body: some View {
         Button(action: navigate) {
             ZStack {
-                FillsaColor.yellow01
+                palette.cardBackground.color
 
                 Image("home_quote_texture")
                     .resizable()
@@ -58,7 +59,7 @@ struct HomeQuoteCard: View {
                 VStack(spacing: 0) {
                     Text(text)
                         .font(.custom("GangwonEduAll-Light", size: 16).weight(.bold))
-                        .foregroundStyle(FillsaColor.gray700)
+                        .foregroundStyle(palette.primaryText.color)
                         .multilineTextAlignment(.center)
                         .lineSpacing(4)
                         .frame(maxWidth: .infinity)
@@ -77,7 +78,7 @@ struct HomeQuoteCard: View {
                                 .scaledToFit()
                                 .frame(width: 16, height: 16)
                         }
-                        .foregroundStyle(FillsaColor.gray700)
+                        .foregroundStyle(palette.primaryText.color)
                     }
                     .buttonStyle(.plain)
                     .padding(.bottom, 15)
@@ -85,7 +86,8 @@ struct HomeQuoteCard: View {
             }
             .frame(height: 150)
             .clipShape(RoundedRectangle(cornerRadius: 14))
-            .shadow(color: Color(hex: 0xCBC0A8, alpha: 0.7), radius: 8, y: 0)
+            .overlay(RoundedRectangle(cornerRadius: 14).stroke(palette.cardBorder.color, lineWidth: 1))
+            .shadow(color: colorScheme == .dark ? .clear : Color(hex: 0xCBC0A8, alpha: 0.7), radius: 8, y: 0)
         }
         .buttonStyle(.plain)
         .simultaneousGesture(
@@ -108,5 +110,9 @@ struct HomeQuoteCard: View {
     private var canNavigateForward: Bool {
         let calendar = FillsaCalendarDateSupport.calendar
         return calendar.startOfDay(for: date) < calendar.startOfDay(for: Date())
+    }
+
+    private var palette: HomeFigmaPalette {
+        .resolve(isDark: colorScheme == .dark)
     }
 }

@@ -4,6 +4,7 @@
 
 - Figma URL: https://www.figma.com/design/VdFocqyqTgevMVCQxwAQ2X/2.home?node-id=2929-13556
 - 대상 프레임/노드: `2929:13556` (`2.home`)
+- Dark render frame/node: `3039:26518` (`2.home`, 360×821). The section parent `2929:9603` is not a render target.
 - 대상 기기/프레임 크기: light state. Request supplied 360×720, but Figma MCP metadata/export inspected on 2026-08-29 resolves the authoritative node to 360×821; implementation/QA use the actual exported 360×821 frame.
 - 검증 상태: 구현 전 Figma 기준 이미지 확보. Runtime full-frame capture is pending because CoreSimulatorService is unavailable in the current environment.
 - 기준 이미지: `docs/design-qa/assets/home-figma/2026-08-29-home-figma-reference.png`
@@ -20,6 +21,7 @@
 | Quote actions | `2929:15503` | `HomeQuoteActionRow`: 16pt local assets, 42pt row/dividers; existing copy, share, live like toggle, and image registration actions | `HomeView` | 미검증 |
 | Question/answer | `2929:13630` | `HomeQuestionAnswerCard`: 200-grapheme-capped Figma input/CTA UI. CTA follows the existing parameterless quote-typing navigation; the answer is neither handed to `TypingFeature` nor persisted. | `HomeView` → existing `openTyping` → `TypingFeature` | QA Blocked — prompt-answer data contract/storage scope is absent |
 | Bottom navigation/ad | `3087:29254`, `3087:29249` | Figma-common Home/Calendar/My page 32pt light assets, existing 4-tab shared navigation, and static 35pt ad surface | `AppView` / `FillsaBottomNavigationBar` / `HomeAdSurface` | QA Blocked — Figma 3-tab composition differs from shared 4-tab routes |
+| Dark Home appearance | `3039:26518` | `HomeFigmaPalette` resolves dark root `#212121`, card/input `#424242`, outlines/dividers `#616161`, white primary text, `#E0E0E0` action text, and `#9E9E9E` inactive weekday/input metadata. Local Figma SVG dark appearances cover logo, profile, quote texture, author search, and quote action icons. | `HomeView` / Home Figma components | Runtime frame pending — Simulator service unavailable |
 
 ## 기본 동작
 

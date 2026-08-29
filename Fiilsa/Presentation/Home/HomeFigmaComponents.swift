@@ -27,9 +27,101 @@ enum HomeWeekStripDayState: Equatable {
     }
 }
 
+enum HomeFigmaColorToken: Equatable {
+    case primary
+    case yellow01
+    case white
+    case gray700
+    case gray600
+    case gray500
+    case gray400
+    case gray200
+    case lightAnswerBorder
+    case lightAnswerCount
+    case lightActionText
+    case lightActionDivider
+    case clear
+
+    var color: Color {
+        switch self {
+        case .primary: FillsaColor.primary
+        case .yellow01: FillsaColor.yellow01
+        case .white: FillsaColor.white
+        case .gray700: FillsaColor.gray700
+        case .gray600: FillsaColor.gray600
+        case .gray500: FillsaColor.gray500
+        case .gray400: FillsaColor.gray400
+        case .gray200: FillsaColor.gray200
+        case .lightAnswerBorder: Color(hex: 0xDED4BD)
+        case .lightAnswerCount: Color(hex: 0x8D877D)
+        case .lightActionText: Color(hex: 0x565149)
+        case .lightActionDivider: Color(hex: 0x9D8961)
+        case .clear: .clear
+        }
+    }
+}
+
+/// Figma `3039:26518` color contract. Keeping the choices pure makes dark-mode
+/// reviewable without relying on a screenshot-only assertion.
+struct HomeFigmaPalette: Equatable {
+    let rootBackground: HomeFigmaColorToken
+    let cardBackground: HomeFigmaColorToken
+    let cardBorder: HomeFigmaColorToken
+    let primaryText: HomeFigmaColorToken
+    let actionText: HomeFigmaColorToken
+    let weekdayDefault: HomeFigmaColorToken
+    let answerFieldBackground: HomeFigmaColorToken
+    let answerFieldBorder: HomeFigmaColorToken
+    let answerPlaceholder: HomeFigmaColorToken
+    let answerCount: HomeFigmaColorToken
+    let actionDivider: HomeFigmaColorToken
+    let mainDivider: HomeFigmaColorToken
+    let mainDividerOpacity: Double
+    let answerFieldOpacity: Double
+
+    static func resolve(isDark: Bool) -> Self {
+        if isDark {
+            return Self(
+                rootBackground: .gray700,
+                cardBackground: .gray600,
+                cardBorder: .gray500,
+                primaryText: .white,
+                actionText: .gray200,
+                weekdayDefault: .gray400,
+                answerFieldBackground: .gray600,
+                answerFieldBorder: .gray500,
+                answerPlaceholder: .gray400,
+                answerCount: .gray400,
+                actionDivider: .gray500,
+                mainDivider: .gray500,
+                mainDividerOpacity: 0.55,
+                answerFieldOpacity: 1
+            )
+        }
+
+        return Self(
+            rootBackground: .primary,
+            cardBackground: .yellow01,
+            cardBorder: .clear,
+            primaryText: .gray700,
+            actionText: .lightActionText,
+            weekdayDefault: .gray400,
+            answerFieldBackground: .white,
+            answerFieldBorder: .lightAnswerBorder,
+            answerPlaceholder: .gray400,
+            answerCount: .lightAnswerCount,
+            actionDivider: .lightActionDivider,
+            mainDivider: .gray700,
+            mainDividerOpacity: 0.16,
+            answerFieldOpacity: 0.5
+        )
+    }
+}
+
 struct HomeHeader: View {
     let myPage: () -> Void
     let streakCount: Int?
+    @Environment(\.colorScheme) private var colorScheme
 
     init(myPage: @escaping () -> Void, streakCount: Int? = nil) {
         self.myPage = myPage
@@ -53,7 +145,7 @@ struct HomeHeader: View {
                         .frame(width: 20, height: 20)
                     Text("\(streakCount)일")
                         .font(FillsaTypography.subtitle1)
-                        .foregroundStyle(FillsaColor.gray700)
+                        .foregroundStyle(palette.primaryText.color)
                 }
                 .padding(.trailing, 10)
             }
@@ -66,6 +158,10 @@ struct HomeHeader: View {
             }
             .buttonStyle(.plain)
         }
+    }
+
+    private var palette: HomeFigmaPalette {
+        .resolve(isDark: colorScheme == .dark)
     }
 }
 
@@ -212,6 +308,7 @@ enum HomeAnswerInput {
 struct HomeQuestionAnswerCard: View {
     @Binding var answer: String
     let recordAnswer: () -> Void
+    @Environment(\.colorScheme) private var colorScheme
 
     private let question = "누군가의 호의를 한참 뒤에야 받아들인 적 있나요?"
     private let placeholder = "오늘의 질문을 보고 떠오른 생각을 자유롭게 기록해보세요."
@@ -224,12 +321,12 @@ struct HomeQuestionAnswerCard: View {
 
             Text(question)
                 .font(FillsaTypography.body3)
-                .foregroundStyle(Color(hex: 0x211F1B))
+                .foregroundStyle(palette.primaryText.color)
 
             ZStack(alignment: .topLeading) {
                 TextEditor(text: limitedAnswer)
                     .font(FillsaTypography.body4)
-                    .foregroundStyle(FillsaColor.gray700)
+                    .foregroundStyle(palette.primaryText.color)
                     .padding(8)
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
                     .accessibilityIdentifier("home.answer")
@@ -239,20 +336,20 @@ struct HomeQuestionAnswerCard: View {
                 if answer.isEmpty {
                     Text(placeholder)
                         .font(FillsaTypography.body4)
-                        .foregroundStyle(FillsaColor.gray400)
+                        .foregroundStyle(palette.answerPlaceholder.color)
                         .padding(.horizontal, 12)
                         .padding(.top, 12)
                         .allowsHitTesting(false)
                 }
             }
             .frame(maxWidth: .infinity, minHeight: 174, maxHeight: 174)
-            .background(Color.white.opacity(0.5))
+            .background(palette.answerFieldBackground.color.opacity(palette.answerFieldOpacity))
             .clipShape(RoundedRectangle(cornerRadius: 17))
-            .overlay(RoundedRectangle(cornerRadius: 17).stroke(Color(hex: 0xDED4BD), lineWidth: 1))
+            .overlay(RoundedRectangle(cornerRadius: 17).stroke(palette.answerFieldBorder.color, lineWidth: 1))
 
             Text("\(answer.count) / \(HomeAnswerInput.maximumCharacterCount)")
                 .font(FillsaTypography.body4)
-                .foregroundStyle(Color(hex: 0x8D877D))
+                .foregroundStyle(palette.answerCount.color)
                 .frame(maxWidth: .infinity, alignment: .trailing)
                 .padding(.top, -1)
 
@@ -284,6 +381,10 @@ struct HomeQuestionAnswerCard: View {
             set: { answer = HomeAnswerInput.limit($0) }
         )
     }
+
+    private var palette: HomeFigmaPalette {
+        .resolve(isDark: colorScheme == .dark)
+    }
 }
 
 /// Figma `2929:15503` action row. Each callback preserves the Home feature's existing action flow.
@@ -293,6 +394,7 @@ struct HomeQuoteActionRow: View {
     let isLike: Bool
     let setIsLike: (Bool) -> Void
     let registerImage: () -> Void
+    @Environment(\.colorScheme) private var colorScheme
 
     var body: some View {
         HStack(spacing: 0) {
@@ -314,7 +416,7 @@ struct HomeQuoteActionRow: View {
 
     private var divider: some View {
         Rectangle()
-            .fill(Color(hex: 0x9D8961).opacity(0.25))
+            .fill(palette.actionDivider.color.opacity(colorScheme == .dark ? 1 : 0.25))
             .frame(width: 1, height: 28)
     }
 
@@ -335,7 +437,7 @@ struct HomeQuoteActionRow: View {
                 Text("좋아요")
                     .font(FillsaTypography.body4)
             }
-            .foregroundStyle(Color(hex: 0x565149))
+            .foregroundStyle(palette.actionText.color)
             .frame(maxWidth: .infinity, maxHeight: .infinity)
         }
         .buttonStyle(.plain)
@@ -351,9 +453,13 @@ struct HomeQuoteActionRow: View {
                 Text(title)
                     .font(FillsaTypography.body4)
             }
-            .foregroundStyle(Color(hex: 0x565149))
+            .foregroundStyle(palette.actionText.color)
             .frame(maxWidth: .infinity, maxHeight: .infinity)
         }
         .buttonStyle(.plain)
+    }
+
+    private var palette: HomeFigmaPalette {
+        .resolve(isDark: colorScheme == .dark)
     }
 }
