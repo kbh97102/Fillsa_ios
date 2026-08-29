@@ -20,7 +20,7 @@
 | Quote card | `2929:13642` | Light/default quote | Pending |
 | Quote actions | `2929:15521` | Not liked | Pending |
 | Question/answer | `2929:13630` | Empty answer | Pending |
-| Bottom navigation/ad | `3087:29254`, `3087:29249` | Home selected | Blocked — Figma has 3 items; existing app preserves 4 items including QuoteList by approved scope |
+| Bottom navigation/ad | `3087:29254`, `3087:29249` | Home selected; static ad | Blocked — Figma has 3 × 120pt items; existing app preserves 4 × 90pt items including QuoteList by approved scope |
 
 ## Validation rounds
 
@@ -57,6 +57,8 @@
 | Scope | Difference | Fix | Result |
 |---|---|---|---|
 | Answer handoff/storage scope | `TypingFeature.korTyping` and the available memo storage are quote-specific, while Home has no generic prompt-answer model, repository, local schema, or API contract. | Removed the answer-to-typing handoff. The Figma input remains UI-only and CTA follows existing parameterless typing navigation. A future answer feature requires a stable question/date identifier, record lifecycle and persistence/API ownership, editor/save UX, and feedback rules as a separately approved scope. | Blocked — product/data contract required |
+| Bottom navigation metrics/assets | The Figma 3-tab bar uses 120×60pt items, 32pt Home/Calendar/My page glyphs, #5C65FF selection, and #212121 unselected treatment. | Retained the four shared routes. The three common light-tab glyphs now reuse the already-durable Figma `home_nav_*` assets at 32pt as template images, so selection tint works without asset recreation. QuoteList remains the established fourth item. | Blocked — a product decision is required to change tab count/routes; runtime comparison pending |
+| Ad surface | Figma `3087:29249` is a 35pt static “AD / 광고가 들어가는 영역입니다.” surface, not an ad-provider specification. | Kept existing `HomeAdSurface`; no provider, behavior, or asset was invented. | Blocked — ad product contract required for behavior beyond the static surface |
 
 ## Final assembled-screen result
 

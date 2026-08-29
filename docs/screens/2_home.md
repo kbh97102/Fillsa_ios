@@ -19,7 +19,7 @@
 | Quote card | `2929:13642` | `HomeQuoteCard`: local Figma texture, quote/author search action, and date swipe; on today's latest quote the forward swipe emits no next action | `HomeView` | 미검증 |
 | Quote actions | `2929:15503` | `HomeQuoteActionRow`: 16pt local assets, 42pt row/dividers; existing copy, share, live like toggle, and image registration actions | `HomeView` | 미검증 |
 | Question/answer | `2929:13630` | `HomeQuestionAnswerCard`: 200-grapheme-capped Figma input/CTA UI. CTA follows the existing parameterless quote-typing navigation; the answer is neither handed to `TypingFeature` nor persisted. | `HomeView` → existing `openTyping` → `TypingFeature` | QA Blocked — prompt-answer data contract/storage scope is absent |
-| Bottom navigation/ad | `3087:29254`, `3087:29249` | Existing app tab navigation and static ad surface | `AppView` / `FillsaBottomNavigationBar` | 미검증 |
+| Bottom navigation/ad | `3087:29254`, `3087:29249` | Figma-common Home/Calendar/My page 32pt light assets, existing 4-tab shared navigation, and static 35pt ad surface | `AppView` / `FillsaBottomNavigationBar` / `HomeAdSurface` | QA Blocked — Figma 3-tab composition differs from shared 4-tab routes |
 
 ## 기본 동작
 
@@ -58,6 +58,12 @@
 - CTA는 기존 parameterless 명언 필사 이동만 수행한다. 답변은 `TypingFeature.korTyping`/`engTyping`에 전달하거나 회원 명언 API에 저장하지 않는다.
 - 현재 프로젝트에서 발견된 `memo`, `korTyping`, `engTyping` 저장 계약은 모두 `memberQuoteSeq`/명언 필사 전용이며 일반 질문 답변 계약이 아니다.
 - 후속 기능은 (1) 질문 식별자와 날짜를 제공하는 Home 질문 data contract, (2) 답변 레코드의 저장·조회·수정/삭제 정책, (3) 사용자 피드백과 답변 편집 화면의 제품 정의를 별도 범위에서 정한 뒤 구현해야 한다.
+
+## 하단 내비게이션 및 광고
+
+- Figma `3087:29254`는 3개(Home/Calendar/My page) 120×60pt 항목이며, 공통 세 탭은 durable `home_nav_*` Figma SVG를 32pt template icon으로 사용한다. 선택 색은 `#5C65FF`, 비선택 텍스트/아이콘은 `#212121`이다.
+- iOS 앱은 QuoteList를 포함한 4개 shared route를 보존한다. 따라서 360pt 화면에서 각 항목은 90×60pt이고 3탭 Figma의 120×60pt metric을 full-frame으로 맞출 수 없다.
+- Figma `3087:29249`의 35pt 정적 AD 표면(AD badge, “광고가 들어가는 영역입니다.”)은 기존 `HomeAdSurface`가 담당한다. 광고 제공/탭 구성 변경은 제품 결정이 필요한 별도 범위다.
 
 ---
 

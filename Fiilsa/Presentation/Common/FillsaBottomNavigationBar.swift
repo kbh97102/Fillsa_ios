@@ -53,6 +53,12 @@ private struct BottomNavigationItem: View {
                 .resizable()
                 .aspectRatio(contentMode: .fit)
                 .frame(width: 32, height: 32)
+        } else if let assetName = tab.lightFigmaAssetName {
+            Image(assetName)
+                .renderingMode(.template)
+                .resizable()
+                .aspectRatio(contentMode: .fit)
+                .frame(width: 32, height: 32)
         } else {
             Image(systemName: tab.systemImageName)
                 .font(.system(size: 24, weight: .regular))
@@ -92,6 +98,19 @@ private extension AppTab {
             "icn_nav_dark_calendar"
         case .myPage:
             "icn_nav_dark_mypage"
+        }
+    }
+
+    var lightFigmaAssetName: String? {
+        switch self {
+        case .home:
+            "home_nav_home"
+        case .quoteList:
+            nil
+        case .calendar:
+            "home_nav_calendar"
+        case .myPage:
+            "home_nav_mypage"
         }
     }
 }
