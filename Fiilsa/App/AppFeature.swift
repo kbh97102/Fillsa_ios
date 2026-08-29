@@ -44,6 +44,7 @@ struct AppFeature {
         case homeTabSelected
         case quoteListTabSelected
         case homeTypingSelected
+        case homeAnswerTypingSelected(String)
         case shareSelected(quote: String, author: String)
         case quoteDetailSelected(MemberQuotesResponse)
         case memoSelected(savedMemo: String, memberQuoteSeq: Int)
@@ -324,15 +325,14 @@ struct AppFeature {
 
             case .homeTypingSelected:
                 state.screen = .typing
-                state.typing = TypingFeature.State(
-                    dailyQuoteSeq: state.home.quote.dailyQuoteSeq,
-                    korQuote: state.home.quote.korQuote ?? "",
-                    engQuote: state.home.quote.engQuote ?? "",
-                    korAuthor: state.home.quote.korAuthor ?? "",
-                    engAuthor: state.home.quote.engAuthor ?? "",
-                    likeYn: state.home.quote.likeYn,
-                    quoteDate: FillsaCalendarDateSupport.quoteDateString(for: state.home.date),
-                    dayOfWeek: dayOfWeekString(for: state.home.date)
+                state.typing = typingState(from: state.home)
+                return .none
+
+            case let .homeAnswerTypingSelected(answer):
+                state.screen = .typing
+                state.typing = typingState(
+                    from: state.home,
+                    initialKoreanDraft: HomeAnswerInput.limit(answer)
                 )
                 return .none
 
@@ -408,6 +408,23 @@ struct AppFeature {
                 return .none
             }
         }
+    }
+
+    private func typingState(
+        from home: HomeFeature.State,
+        initialKoreanDraft: String = ""
+    ) -> TypingFeature.State {
+        TypingFeature.State(
+            dailyQuoteSeq: home.quote.dailyQuoteSeq,
+            korQuote: home.quote.korQuote ?? "",
+            engQuote: home.quote.engQuote ?? "",
+            korAuthor: home.quote.korAuthor ?? "",
+            engAuthor: home.quote.engAuthor ?? "",
+            korTyping: initialKoreanDraft,
+            likeYn: home.quote.likeYn,
+            quoteDate: FillsaCalendarDateSupport.quoteDateString(for: home.date),
+            dayOfWeek: dayOfWeekString(for: home.date)
+        )
     }
 
     private func endOfMonth(for date: Date) -> Date {

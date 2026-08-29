@@ -233,6 +233,8 @@ struct HomeQuestionAnswerCard: View {
                     .padding(8)
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
                     .accessibilityIdentifier("home.answer")
+                    .accessibilityLabel("오늘의 답변")
+                    .accessibilityHint("최대 200자까지 입력할 수 있습니다.")
 
                 if answer.isEmpty {
                     Text(placeholder)
@@ -271,6 +273,8 @@ struct HomeQuestionAnswerCard: View {
             }
             .buttonStyle(.plain)
             .accessibilityIdentifier("home.recordAnswer")
+            .accessibilityLabel("내 답변 기록하기")
+            .accessibilityHint("입력한 답변을 필사 화면에서 이어서 편집합니다.")
         }
     }
 

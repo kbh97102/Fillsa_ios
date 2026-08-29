@@ -144,6 +144,9 @@ struct AppView: View {
                 openTyping: {
                     viewStore.send(.homeTypingSelected)
                 },
+                openTypingWithAnswer: { answer in
+                    viewStore.send(.homeAnswerTypingSelected(answer))
+                },
                 openShare: { quote, author in
                     viewStore.send(.shareSelected(quote: quote, author: author))
                 },

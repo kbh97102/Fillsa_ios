@@ -45,6 +45,10 @@ struct TypingFeature {
             switch action {
             case .onAppear:
                 guard state.dailyQuoteSeq > 0, !state.hasLoaded else { return .none }
+                guard state.korTyping.isEmpty, state.engTyping.isEmpty else {
+                    state.hasLoaded = true
+                    return .none
+                }
                 let dailyQuoteSeq = state.dailyQuoteSeq
 
                 return .run { send in
