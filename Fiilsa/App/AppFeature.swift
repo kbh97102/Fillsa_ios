@@ -117,6 +117,7 @@ struct AppFeature {
             switch action {
             case .task:
                 guard !ProcessInfo.processInfo.arguments.contains("-uiTestingQuoteList"),
+                      !ProcessInfo.processInfo.arguments.contains("-ui-testing-home"),
                       !ProcessInfo.processInfo.arguments.contains("-ui-testing-login"),
                       !ProcessInfo.processInfo.arguments.contains("-ui-testing-notice-detail"),
                       !ProcessInfo.processInfo.arguments.contains("-ui-testing-memo"),

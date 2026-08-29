@@ -1,14 +1,23 @@
-//
-//  DailyQuoteSection.swift
-//  Fiilsa
-//
-//  Created by Codex on 6/15/26.
-//
-
-import Foundation
 import SwiftUI
 
-struct DailyQuoteSection: View {
+enum HomeQuoteCardSwipeAction: Equatable {
+    case previous
+    case next
+    case none
+
+    static func resolve(translationWidth: CGFloat, canNavigateForward: Bool) -> Self {
+        if translationWidth > 150 {
+            return .previous
+        }
+        if translationWidth < -150, canNavigateForward {
+            return .next
+        }
+        return .none
+    }
+}
+
+/// Figma `2929:13642` quote card. At the latest (today) quote, the left-swipe next action is unavailable.
+struct HomeQuoteCard: View {
     let text: String
     let author: String
     let date: Date
@@ -16,9 +25,6 @@ struct DailyQuoteSection: View {
     let before: () -> Void
     let navigate: () -> Void
     let authorTapped: () -> Void
-
-    private let cardAspectRatio: CGFloat = 320 / 250
-    private let cornerRadius: CGFloat = 12
 
     init(
         text: String,
@@ -39,127 +45,68 @@ struct DailyQuoteSection: View {
     }
 
     var body: some View {
-        ZStack {
-            Button(action: navigate) {
-                ZStack {
-                    FillsaColor.backgroundContainer
-
-                    NotebookLineBackground()
-                        .foregroundStyle(FillsaColor.tertiaryOutline1.opacity(0.6))
-
-                    VStack(spacing: 12) {
-                        Text(text)
-                            .font(FillsaTypography.quote)
-                            .foregroundStyle(FillsaColor.onBackground1)
-                            .multilineTextAlignment(.center)
-                            .frame(maxWidth: .infinity)
-
-                        Button(action: authorTapped) {
-                            Text(author)
-                                .font(FillsaTypography.quote)
-                                .foregroundStyle(FillsaColor.onBackground1)
-                                .underline()
-                                .multilineTextAlignment(.center)
-                                .frame(maxWidth: .infinity)
-                        }
-                        .buttonStyle(.plain)
-                    }
-                    .padding(.horizontal, 20)
-                }
-                .clipShape(RoundedRectangle(cornerRadius: cornerRadius))
-                .shadow(color: Color(hex: 0xCBC0A8).opacity(0.7), radius: 3)
-            }
-            .buttonStyle(.plain)
-            .simultaneousGesture(
-                DragGesture()
-                    .onEnded { value in
-                        if value.translation.width > 150 {
-                            before()
-                        } else if value.translation.width < -150 {
-                            next()
-                        }
-                    }
-            )
-
-            if displayBeforeButton {
-                HStack {
-                    ArrowCircleButton(direction: .left, action: before)
-                        .offset(x: -16)
-                    Spacer()
-                }
-            }
-
-            if displayNextButton {
-                HStack {
-                    Spacer()
-                    ArrowCircleButton(direction: .right, action: next)
-                        .offset(x: 16)
-                }
-            }
-        }
-        .aspectRatio(cardAspectRatio, contentMode: .fit)
-        .frame(maxWidth: .infinity)
-    }
-
-    private var displayBeforeButton: Bool {
-        let startDay = Calendar.current.date(from: DateComponents(year: 2025, month: 6, day: 10)) ?? Date()
-        return Calendar.current.startOfDay(for: date) > Calendar.current.startOfDay(for: startDay)
-    }
-
-    private var displayNextButton: Bool {
-        Calendar.current.startOfDay(for: date) < Calendar.current.startOfDay(for: Date())
-    }
-}
-
-private struct NotebookLineBackground: View {
-    var body: some View {
-        Canvas { context, size in
-            var path = Path()
-            let scaleY = size.height / 247
-
-            for y in stride(from: 0.0, through: 246.0, by: 20.5) {
-                let scaledY = y * scaleY
-                path.move(to: CGPoint(x: 0, y: scaledY))
-                path.addLine(to: CGPoint(x: size.width, y: scaledY))
-            }
-
-            context.stroke(path, with: .foreground, lineWidth: 0.5)
-        }
-    }
-}
-
-private enum ArrowDirection {
-    case left
-    case right
-}
-
-private struct ArrowCircleButton: View {
-    let direction: ArrowDirection
-    let action: () -> Void
-
-    var body: some View {
-        Button(action: action) {
+        Button(action: navigate) {
             ZStack {
-                Circle()
-                    .fill(FillsaColor.secondaryContainer)
+                FillsaColor.yellow01
 
-                Image(systemName: "chevron.left")
-                    .font(.system(size: 15, weight: .bold))
-                    .foregroundStyle(FillsaColor.purple01)
-                    .rotationEffect(direction == .right ? .degrees(180) : .degrees(0))
+                Image("home_quote_texture")
+                    .resizable()
+                    .scaledToFill()
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+                    .clipped()
+
+                VStack(spacing: 0) {
+                    Text(text)
+                        .font(.custom("GangwonEduAll-Light", size: 16).weight(.bold))
+                        .foregroundStyle(FillsaColor.gray700)
+                        .multilineTextAlignment(.center)
+                        .lineSpacing(4)
+                        .frame(maxWidth: .infinity)
+                        .padding(.top, 28)
+                        .padding(.horizontal, 10)
+
+                    Spacer()
+
+                    Button(action: authorTapped) {
+                        HStack(spacing: 2) {
+                            Text(author)
+                                .font(FillsaTypography.body4)
+                                .underline()
+                            Image("home_author_search")
+                                .resizable()
+                                .scaledToFit()
+                                .frame(width: 16, height: 16)
+                        }
+                        .foregroundStyle(FillsaColor.gray700)
+                    }
+                    .buttonStyle(.plain)
+                    .padding(.bottom, 15)
+                }
             }
-            .frame(width: 32, height: 32)
+            .frame(height: 150)
+            .clipShape(RoundedRectangle(cornerRadius: 14))
+            .shadow(color: Color(hex: 0xCBC0A8, alpha: 0.7), radius: 8, y: 0)
         }
         .buttonStyle(.plain)
+        .simultaneousGesture(
+            DragGesture().onEnded { value in
+                switch HomeQuoteCardSwipeAction.resolve(
+                    translationWidth: value.translation.width,
+                    canNavigateForward: canNavigateForward
+                ) {
+                case .previous:
+                    before()
+                case .next:
+                    next()
+                case .none:
+                    break
+                }
+            }
+        )
     }
-}
 
-#Preview {
-    DailyQuoteSection(
-        text: "상황을 가장 잘 활용하는 사람이 가장 좋은 상황을 맞는다.",
-        author: "jone wooden"
-    )
-    .padding(20)
-    .background(FillsaColor.background)
-    .previewLayout(.sizeThatFits)
+    private var canNavigateForward: Bool {
+        let calendar = FillsaCalendarDateSupport.calendar
+        return calendar.startOfDay(for: date) < calendar.startOfDay(for: Date())
+    }
 }

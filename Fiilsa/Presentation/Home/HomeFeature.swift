@@ -14,6 +14,8 @@ struct HomeFeature {
         var isLoginRequiredDialogPresented = false
         var isDeleteImageConfirmationPresented = false
         var toastMessage: String?
+        var streakCount: Int?
+        var completedWritingDates: Set<String> = []
     }
 
     enum Action: Equatable {
@@ -34,16 +36,25 @@ struct HomeFeature {
         case imageUploaded(Result<MemberQuoteImageResponse, ErrorResponse>)
         case copyCompleted
         case toastDismissed
+        case completionStateLoaded(Int, [StreakInfo])
     }
 
     @Dependency(\.homeUseCases) private var homeUseCases
+    @Dependency(\.streakClient) private var streakClient
 
     var body: some Reducer<State, Action> {
         Reduce { state, action in
             switch action {
             case .onAppear:
                 guard !state.hasLoaded, !state.isLoading else { return .none }
-                return load(state: &state)
+                return .merge(
+                    load(state: &state),
+                    .run { send in
+                        let streakCount = await streakClient.getCurrentCount()
+                        let streakInfos = (try? await streakClient.getAllLocal()) ?? []
+                        await send(.completionStateLoaded(streakCount, streakInfos))
+                    }
+                )
 
             case .beforeTapped:
                 let targetDate = FillsaCalendarDateSupport.calendar.date(byAdding: .day, value: -1, to: state.date) ?? state.date
@@ -189,6 +200,15 @@ struct HomeFeature {
 
             case .toastDismissed:
                 state.toastMessage = nil
+                return .none
+
+            case let .completionStateLoaded(streakCount, streakInfos):
+                state.streakCount = streakCount > 0 ? streakCount : nil
+                state.completedWritingDates = Set(
+                    streakInfos
+                        .filter(\.isDailyWritingCompleted)
+                        .map(\.date)
+                )
                 return .none
             }
         }

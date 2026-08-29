@@ -93,7 +93,7 @@ private struct ShareActionIcon: View {
     }
 }
 
-private struct HeartActionIcon: View {
+struct HeartActionIcon: View {
     let isFilled: Bool
 
     var body: some View {

@@ -37,6 +37,29 @@ struct FiilsaApp: App {
             return state
         }
 
+        if arguments.contains("-ui-testing-home") {
+            state.screen = .main
+            state.selectedTab = .home
+            state.selectedTheme = .light
+            state.home = HomeFeature.State(
+                quote: DailyQuote(
+                    likeYn: "N",
+                    imagePath: "",
+                    dailyQuoteSeq: 1,
+                    korQuote: "사랑이라는 선물은 억지로 줄 수 없고 받아들여지기를 기다릴 뿐이다.",
+                    engQuote: "Love is a gift that waits to be received.",
+                    korAuthor: "존우든",
+                    engAuthor: "John Wooden",
+                    authorUrl: "",
+                    quoteDate: "2026-08-12"
+                ),
+                date: Self.homeUITestDate,
+                isLoggedIn: true,
+                hasLoaded: true
+            )
+            return state
+        }
+
         guard arguments.contains("-uiTestingQuoteList") else { return state }
         state.screen = .main
         state.selectedTab = .quoteList
@@ -54,6 +77,16 @@ struct FiilsaApp: App {
 
         return state
     }
+
+    private static let homeUITestDate: Date = {
+        var components = DateComponents()
+        components.calendar = Calendar(identifier: .gregorian)
+        components.timeZone = TimeZone(identifier: "Asia/Seoul")
+        components.year = 2026
+        components.month = 8
+        components.day = 12
+        return components.date ?? Date(timeIntervalSince1970: 0)
+    }()
 
     private var appStore: StoreOf<AppFeature> {
         if OnboardingGuideUITestLaunchConfiguration.isEnabled {

@@ -1,5 +1,26 @@
 # [Home] `2.home`
 
+## Figma UI 기준
+
+- Figma URL: https://www.figma.com/design/VdFocqyqTgevMVCQxwAQ2X/2.home?node-id=2929-13556
+- 대상 프레임/노드: `2929:13556` (`2.home`)
+- 대상 기기/프레임 크기: light state. Request supplied 360×720, but Figma MCP metadata/export inspected on 2026-08-29 resolves the authoritative node to 360×821; implementation/QA use the actual exported 360×821 frame.
+- 검증 상태: 구현 전 Figma 기준 이미지 확보. Runtime full-frame capture is pending because CoreSimulatorService is unavailable in the current environment.
+- 기준 이미지: `docs/design-qa/assets/home-figma/2026-08-29-home-figma-reference.png`
+- QA 기록: `docs/design-qa/2026-08-29-home-figma-ui-qa.md`
+
+### 컴포넌트 분해
+
+| 컴포넌트 | Figma 노드 | 책임 | 조립 위치 | 검증 상태 |
+|---|---|---|---|---|
+| Status/top surface | `2929:13557`, `2929:15476` | `HomeHeader`: safe-area background, 60×26.666 logo, optional real streak, My Page action | `HomeView` top | 미검증 |
+| Date controls | `2929:17013`, `2929:15661`, `2929:17161`, `2929:17154`, `2929:13653` | `HomeMonthSelector` (73×30) + `HomeWeekStrip`; completed dates come only from `StreakClient.getAllLocal()` records with `isDailyWritingCompleted == true`; selected day has priority (white/gray text, no completion badge) | `HomeDateControls` below top surface | 미검증 |
+| Locale prompt | `2929:15520` | Typing prompt and Korean/English switch | `HomeView` | 미검증 |
+| Quote card | `2929:13642` | `HomeQuoteCard`: local Figma texture, quote/author search action, and date swipe; on today's latest quote the forward swipe emits no next action | `HomeView` | 미검증 |
+| Quote actions | `2929:15503` | `HomeQuoteActionRow`: 16pt local assets, 42pt row/dividers; existing copy, share, live like toggle, and image registration actions | `HomeView` | 미검증 |
+| Question/answer | `2929:13630` | Figma question, local answer entry, record CTA | `HomeView` | 미검증 |
+| Bottom navigation/ad | `3087:29254`, `3087:29249` | Existing app tab navigation and static ad surface | `AppView` / `FillsaBottomNavigationBar` | 미검증 |
+
 ## 기본 동작
 
 - 디폴트: 현재 날짜 기준 명언 조회, 언어 기본값 한글
