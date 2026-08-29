@@ -2,10 +2,10 @@
 
 ## Principles
 
-- Match Android design and behavior exactly.
+- For UI work, match the referenced Figma design exactly.
 - Do not add UI, features, flows, states, animations, or copy without explicit approval.
 - Always read the relevant screen planning file in `docs/screens/` before implementing a screen.
-- When planning and Android code differ, use Android as the source of truth and record the difference.
+- For UI work, Figma is the source of truth. It supersedes older Android-derived visual references in this document; follow `docs/ui-redesign-workflow.md` for the required component-level validation process.
 - Build with MVI and Clean Architecture. Use TCA for the MVI layer.
 
 ## Target Architecture

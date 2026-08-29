@@ -50,6 +50,7 @@
 
 | 파일 | 내용 |
 |------|------|
+| [ui-redesign-workflow.md](ui-redesign-workflow.md) | Figma 단일 기준 UI 개발·컴포넌트별 검증·최대 5회 수정 절차 |
 | [ios-development-plan.md](ios-development-plan.md) | iOS 전환 개발 계획과 Clean Architecture/TCA 레이어 기준 |
 | [unfinished-features.md](unfinished-features.md) | 미완성 기능과 구현 우선순위 추적 |
 | [async/README.md](async/README.md) | Swift 비동기 처리 학습 로드맵 |
@@ -67,5 +68,5 @@
 
 ## 참고
 
-- 기능 스펙/화면 정의가 불명확한 경우 원본 Android 프로젝트
-  (`/Users/gangbohun/AndroidStudioProjects/Fillsa`)의 동작을 기준으로 삼는다.
+- UI의 화면 구조, 문구, 자산, 상태, 상호작용이 불명확한 경우 대상 Figma 프레임/노드를 기준으로 삼는다.
+- 모든 UI 작업은 [Figma 기반 UI 개편 워크플로우](ui-redesign-workflow.md)를 따른다.
