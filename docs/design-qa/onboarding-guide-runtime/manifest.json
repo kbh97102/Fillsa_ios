@@ -1,0 +1,35 @@
+[
+  {
+    "attachments" : [
+      {
+        "configurationName" : "Test Scheme Action",
+        "deviceId" : "89410CC6-A661-4252-B810-0E54DE5FB620",
+        "deviceName" : "iPhone 17 Pro",
+        "exportedFileName" : "CA756CF9-043D-4199-AA23-F89118322CEB.png",
+        "isAssociatedWithFailure" : false,
+        "suggestedHumanReadableName" : "onboarding-guide-page-3-runtime_0_F9D86B03-8E1B-4094-8E49-740B67653F98.png",
+        "timestamp" : 1788007032.725
+      },
+      {
+        "configurationName" : "Test Scheme Action",
+        "deviceId" : "89410CC6-A661-4252-B810-0E54DE5FB620",
+        "deviceName" : "iPhone 17 Pro",
+        "exportedFileName" : "4BA35BD4-5378-4331-A116-15D554CA5C4A.png",
+        "isAssociatedWithFailure" : false,
+        "suggestedHumanReadableName" : "onboarding-guide-page-2-runtime_0_F92CA303-5BE2-476E-916C-5919B6F183C9.png",
+        "timestamp" : 1788007031.175
+      },
+      {
+        "configurationName" : "Test Scheme Action",
+        "deviceId" : "89410CC6-A661-4252-B810-0E54DE5FB620",
+        "deviceName" : "iPhone 17 Pro",
+        "exportedFileName" : "88FAC304-E272-40D2-A9D8-A5E2CE278D7A.png",
+        "isAssociatedWithFailure" : false,
+        "suggestedHumanReadableName" : "onboarding-guide-page-1-runtime_0_2ED32D4C-D20D-430E-B9FA-C5DDFB2995FD.png",
+        "timestamp" : 1788007029.537
+      }
+    ],
+    "testIdentifier" : "OnboardingGuideUITests/testTestLaunchConfigurationShowsTheFirstOnboardingGuidePage()",
+    "testIdentifierURL" : "test://com.apple.xcode/Fiilsa/FiilsaUITests/OnboardingGuideUITests/testTestLaunchConfigurationShowsTheFirstOnboardingGuidePage"
+  }
+]

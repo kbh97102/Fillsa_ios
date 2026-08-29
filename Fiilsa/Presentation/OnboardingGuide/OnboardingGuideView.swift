@@ -25,7 +25,7 @@ struct OnboardingGuideView: View {
             }
             .padding(.horizontal, 20)
         }
-        .background(FillsaColor.background.ignoresSafeArea())
+        .background(FillsaColor.white.ignoresSafeArea())
     }
 
     private var topSection: some View {

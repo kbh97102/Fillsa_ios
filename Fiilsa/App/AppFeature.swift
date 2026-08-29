@@ -119,7 +119,8 @@ struct AppFeature {
                 guard !ProcessInfo.processInfo.arguments.contains("-uiTestingQuoteList"),
                       !ProcessInfo.processInfo.arguments.contains("-ui-testing-login"),
                       !ProcessInfo.processInfo.arguments.contains("-ui-testing-notice-detail"),
-                      !ProcessInfo.processInfo.arguments.contains("-ui-testing-memo") else {
+                      !ProcessInfo.processInfo.arguments.contains("-ui-testing-memo"),
+                      !ProcessInfo.processInfo.arguments.contains("-ui-testing-onboarding-guide") else {
                     return .none
                 }
                 return .merge(

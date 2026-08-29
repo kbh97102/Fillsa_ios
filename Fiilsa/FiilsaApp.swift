@@ -56,7 +56,9 @@ struct FiilsaApp: App {
     }
 
     private var appStore: StoreOf<AppFeature> {
-        if LoginUITestLaunchConfiguration.isEnabled {
+        if OnboardingGuideUITestLaunchConfiguration.isEnabled {
+            OnboardingGuideUITestLaunchConfiguration.makeStore()
+        } else if LoginUITestLaunchConfiguration.isEnabled {
             LoginUITestLaunchConfiguration.makeStore()
         } else if MyPageUITestLaunchConfiguration.isEnabled {
             MyPageUITestLaunchConfiguration.makeStore()
@@ -69,6 +71,27 @@ struct FiilsaApp: App {
                 AppFeature()
             }
         }
+    }
+}
+
+private enum OnboardingGuideUITestLaunchConfiguration {
+    private static let enabledArgument = "-ui-testing-onboarding-guide"
+
+    static var isEnabled: Bool {
+        ProcessInfo.processInfo.arguments.contains(enabledArgument)
+    }
+
+    static func makeStore() -> StoreOf<AppFeature> {
+        Store(initialState: initialState) {
+            AppFeature()
+        }
+    }
+
+    private static var initialState: AppFeature.State {
+        var state = AppFeature.State()
+        state.screen = .onboardingGuide
+        state.selectedTheme = .light
+        return state
     }
 }
 
