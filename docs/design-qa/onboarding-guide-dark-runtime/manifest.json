@@ -1,0 +1,35 @@
+[
+  {
+    "attachments" : [
+      {
+        "configurationName" : "Test Scheme Action",
+        "deviceId" : "23EAFC46-77AF-49E7-A4BC-42F7DB8F2789",
+        "deviceName" : "iPhone 17 Pro",
+        "exportedFileName" : "2C4992C0-5221-406B-882C-BC88ABDF3FCF.png",
+        "isAssociatedWithFailure" : false,
+        "suggestedHumanReadableName" : "onboarding-guide-dark-page-3-runtime_0_44A4E6FC-07B9-4AA4-8393-50C1402D56A4.png",
+        "timestamp" : 1788008789.604
+      },
+      {
+        "configurationName" : "Test Scheme Action",
+        "deviceId" : "23EAFC46-77AF-49E7-A4BC-42F7DB8F2789",
+        "deviceName" : "iPhone 17 Pro",
+        "exportedFileName" : "758ECF3E-92FC-4FC8-87BC-B3BAEBC496CA.png",
+        "isAssociatedWithFailure" : false,
+        "suggestedHumanReadableName" : "onboarding-guide-dark-page-2-runtime_0_0293F563-A1C1-4D8C-9FDB-A1710A31CD7A.png",
+        "timestamp" : 1788008788.145
+      },
+      {
+        "configurationName" : "Test Scheme Action",
+        "deviceId" : "23EAFC46-77AF-49E7-A4BC-42F7DB8F2789",
+        "deviceName" : "iPhone 17 Pro",
+        "exportedFileName" : "A3080B4C-B6C3-4962-B701-939605219CFA.png",
+        "isAssociatedWithFailure" : false,
+        "suggestedHumanReadableName" : "onboarding-guide-dark-page-1-runtime_0_E9B72EBE-69C2-4B54-9964-0DA5150C6938.png",
+        "timestamp" : 1788008786.575
+      }
+    ],
+    "testIdentifier" : "OnboardingGuideUITests/testDarkModeLaunchShowsDarkGuideSurfaceAndEveryDarkGuideAsset()",
+    "testIdentifierURL" : "test://com.apple.xcode/Fiilsa/FiilsaUITests/OnboardingGuideUITests/testDarkModeLaunchShowsDarkGuideSurfaceAndEveryDarkGuideAsset"
+  }
+]

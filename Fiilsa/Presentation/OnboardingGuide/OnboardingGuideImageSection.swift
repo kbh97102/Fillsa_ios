@@ -12,13 +12,25 @@ struct OnboardingGuideImageSection: View {
 
     var body: some View {
         TabView(selection: $currentPage) {
-            GuidePhoneMock(imageName: "onboarding_guide_home", size: CGSize(width: 288, height: 430))
+            GuidePhoneMock(
+                imageName: "onboarding_guide_home",
+                page: 0,
+                size: CGSize(width: 288, height: 430)
+            )
                 .tag(0)
 
-            GuidePhoneMock(imageName: "onboarding_guide_list", size: CGSize(width: 288, height: 430))
+            GuidePhoneMock(
+                imageName: "onboarding_guide_list",
+                page: 1,
+                size: CGSize(width: 288, height: 430)
+            )
                 .tag(1)
 
-            GuidePhoneMock(imageName: "onboarding_guide_calendar", size: CGSize(width: 280, height: 430))
+            GuidePhoneMock(
+                imageName: "onboarding_guide_calendar",
+                page: 2,
+                size: CGSize(width: 280, height: 430)
+            )
                 .tag(2)
         }
         .tabViewStyle(.page(indexDisplayMode: .never))
@@ -27,7 +39,10 @@ struct OnboardingGuideImageSection: View {
 
 private struct GuidePhoneMock: View {
     let imageName: String
+    let page: Int
     let size: CGSize
+
+    @Environment(\.colorScheme) private var colorScheme
 
     var body: some View {
         Image(imageName)
@@ -35,6 +50,9 @@ private struct GuidePhoneMock: View {
             .scaledToFit()
             .frame(width: size.width, height: size.height)
             .frame(maxWidth: .infinity, maxHeight: .infinity)
+            .accessibilityIdentifier(
+                "onboardingGuide.image.\(page).\(colorScheme == .dark ? "dark" : "light")"
+            )
     }
 }
 

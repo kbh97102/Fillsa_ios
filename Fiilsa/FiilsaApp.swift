@@ -76,6 +76,7 @@ struct FiilsaApp: App {
 
 private enum OnboardingGuideUITestLaunchConfiguration {
     private static let enabledArgument = "-ui-testing-onboarding-guide"
+    private static let darkArgument = "-ui-testing-onboarding-guide-dark"
 
     static var isEnabled: Bool {
         ProcessInfo.processInfo.arguments.contains(enabledArgument)
@@ -90,7 +91,7 @@ private enum OnboardingGuideUITestLaunchConfiguration {
     private static var initialState: AppFeature.State {
         var state = AppFeature.State()
         state.screen = .onboardingGuide
-        state.selectedTheme = .light
+        state.selectedTheme = ProcessInfo.processInfo.arguments.contains(darkArgument) ? .dark : .light
         return state
     }
 }

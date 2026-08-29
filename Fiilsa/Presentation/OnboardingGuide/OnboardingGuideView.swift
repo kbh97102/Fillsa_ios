@@ -9,6 +9,7 @@ import SwiftUI
 
 struct OnboardingGuideView: View {
     @State private var currentPage = 0
+    @Environment(\.colorScheme) private var colorScheme
     let finish: () -> Void
 
     var body: some View {
@@ -25,7 +26,12 @@ struct OnboardingGuideView: View {
             }
             .padding(.horizontal, 20)
         }
-        .background(FillsaColor.white.ignoresSafeArea())
+        .background(
+            FillsaColor.dynamic(light: FillsaColor.white, dark: FillsaColor.gray700)
+                .ignoresSafeArea()
+        )
+        .accessibilityElement(children: .contain)
+        .accessibilityIdentifier("onboardingGuide.root.\(colorScheme == .dark ? "dark" : "light")")
     }
 
     private var topSection: some View {
@@ -33,7 +39,7 @@ struct OnboardingGuideView: View {
             Button(action: finish) {
                 Image(systemName: "chevron.left")
                     .font(.system(size: 22, weight: .semibold))
-                    .foregroundStyle(FillsaColor.gray700)
+                    .foregroundStyle(FillsaColor.onBackground1)
                     .frame(width: 44, height: 44)
             }
             .buttonStyle(.plain)
@@ -45,7 +51,7 @@ struct OnboardingGuideView: View {
                 Text("건너뛰기")
                     .font(FillsaTypography.body3)
                     .underline()
-                    .foregroundStyle(FillsaColor.gray700)
+                    .foregroundStyle(FillsaColor.onBackground1)
                     .padding(.trailing, 20)
                     .frame(height: 44)
             }
@@ -71,7 +77,12 @@ struct OnboardingGuideView: View {
                 .padding(.vertical, 15)
                 .background(
                     RoundedRectangle(cornerRadius: 12)
-                        .fill(currentPage == 2 ? FillsaColor.purple01 : FillsaColor.gray700)
+                        .fill(
+                            FillsaColor.dynamic(
+                                light: currentPage == 2 ? FillsaColor.purple01 : FillsaColor.gray700,
+                                dark: FillsaColor.gray600
+                            )
+                        )
                 )
         }
         .buttonStyle(.plain)

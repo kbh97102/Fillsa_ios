@@ -22,7 +22,7 @@ struct OnboardingGuideIndicatorSection: View {
 
             Text("필사, 이렇게 사용하면 편리해요🖋️")
                 .font(FillsaTypography.heading4)
-                .foregroundStyle(FillsaColor.black)
+                .foregroundStyle(FillsaColor.dynamic(light: FillsaColor.black, dark: FillsaColor.white))
                 .multilineTextAlignment(.center)
                 .padding(.top, 30)
         }
