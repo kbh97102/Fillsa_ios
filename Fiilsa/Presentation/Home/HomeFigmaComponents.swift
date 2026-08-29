@@ -196,20 +196,89 @@ struct HomeWeekStrip: View {
     private static let dayFormatter: DateFormatter = { let f = DateFormatter(); f.locale = Locale(identifier: "ko_KR"); f.dateFormat = "d"; return f }()
 }
 
-struct HomeQuestionAnswerSection: View {
+enum HomeAnswerInput {
+    static let maximumCharacterCount = 200
+
+    static func limit(_ answer: String) -> String {
+        String(answer.prefix(maximumCharacterCount))
+    }
+
+    static func remaining(for answer: String) -> Int {
+        max(0, maximumCharacterCount - limit(answer).count)
+    }
+}
+
+/// Figma `2929:13630`. The prompt remains the established static copy until Home has a question data source.
+struct HomeQuestionAnswerCard: View {
     @Binding var answer: String
-    let record: () -> Void
+    let recordAnswer: () -> Void
+
+    private let question = "누군가의 호의를 한참 뒤에야 받아들인 적 있나요?"
+    private let placeholder = "오늘의 질문을 보고 떠오른 생각을 자유롭게 기록해보세요."
+
     var body: some View {
         VStack(alignment: .leading, spacing: 4) {
-            Text("오늘의 질문").font(FillsaTypography.subtitle2).foregroundStyle(FillsaColor.purple01)
-            Text("누군가의 호의를 한참 뒤에야 받아들인 적 있나요?").font(FillsaTypography.body3).foregroundStyle(Color(hex: 0x211F1B))
+            Text("오늘의 질문")
+                .font(FillsaTypography.subtitle2)
+                .foregroundStyle(FillsaColor.purple01)
+
+            Text(question)
+                .font(FillsaTypography.body3)
+                .foregroundStyle(Color(hex: 0x211F1B))
+
             ZStack(alignment: .topLeading) {
-                TextEditor(text: $answer).font(FillsaTypography.body4).foregroundStyle(FillsaColor.gray700).padding(8).frame(height: 174).accessibilityIdentifier("home.answer")
-                if answer.isEmpty { Text("오늘의 질문을 보고 떠오른 생각을 자유롭게 기록해보세요.").font(FillsaTypography.body4).foregroundStyle(FillsaColor.gray400).padding(.horizontal, 12).padding(.top, 12).allowsHitTesting(false) }
-            }.background(Color.white.opacity(0.5)).clipShape(RoundedRectangle(cornerRadius: 17)).overlay(RoundedRectangle(cornerRadius: 17).stroke(Color(hex: 0xDED4BD), lineWidth: 1))
-            Text("\(answer.count) / 200").font(FillsaTypography.body4).foregroundStyle(Color(hex: 0x8D877D)).frame(maxWidth: .infinity, alignment: .trailing).padding(.top, -1)
-            Button(action: record) { HStack(spacing: 4) { Image("home_answer_record").resizable().scaledToFit().frame(width: 18, height: 18); Text("내 답변 기록하기").font(FillsaTypography.subtitle1) }.foregroundStyle(FillsaColor.white).frame(maxWidth: .infinity).frame(height: 49).background(FillsaColor.purple01).clipShape(RoundedRectangle(cornerRadius: 8)) }.buttonStyle(.plain).accessibilityIdentifier("home.recordAnswer")
+                TextEditor(text: limitedAnswer)
+                    .font(FillsaTypography.body4)
+                    .foregroundStyle(FillsaColor.gray700)
+                    .padding(8)
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+                    .accessibilityIdentifier("home.answer")
+
+                if answer.isEmpty {
+                    Text(placeholder)
+                        .font(FillsaTypography.body4)
+                        .foregroundStyle(FillsaColor.gray400)
+                        .padding(.horizontal, 12)
+                        .padding(.top, 12)
+                        .allowsHitTesting(false)
+                }
+            }
+            .frame(maxWidth: .infinity, minHeight: 174, maxHeight: 174)
+            .background(Color.white.opacity(0.5))
+            .clipShape(RoundedRectangle(cornerRadius: 17))
+            .overlay(RoundedRectangle(cornerRadius: 17).stroke(Color(hex: 0xDED4BD), lineWidth: 1))
+
+            Text("\(answer.count) / \(HomeAnswerInput.maximumCharacterCount)")
+                .font(FillsaTypography.body4)
+                .foregroundStyle(Color(hex: 0x8D877D))
+                .frame(maxWidth: .infinity, alignment: .trailing)
+                .padding(.top, -1)
+
+            Button(action: recordAnswer) {
+                HStack(spacing: 4) {
+                    Image("home_answer_record")
+                        .resizable()
+                        .scaledToFit()
+                        .frame(width: 18, height: 18)
+                    Text("내 답변 기록하기")
+                        .font(FillsaTypography.subtitle1)
+                }
+                .foregroundStyle(FillsaColor.white)
+                .frame(maxWidth: .infinity)
+                .frame(height: 49)
+                .background(FillsaColor.purple01)
+                .clipShape(RoundedRectangle(cornerRadius: 8))
+            }
+            .buttonStyle(.plain)
+            .accessibilityIdentifier("home.recordAnswer")
         }
+    }
+
+    private var limitedAnswer: Binding<String> {
+        Binding(
+            get: { answer },
+            set: { answer = HomeAnswerInput.limit($0) }
+        )
     }
 }
 

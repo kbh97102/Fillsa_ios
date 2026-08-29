@@ -6,6 +6,16 @@ import Testing
 @Suite("HomeFeature")
 struct HomeFeatureTests {
     @Test
+    func answerInputLimitsExtendedGraphemeClustersAndReportsRemainingCount() {
+        let emoji = "👨🏽‍💻"
+        let overLimit = String(repeating: emoji, count: 201)
+
+        #expect(HomeAnswerInput.limit(overLimit).count == 200)
+        #expect(HomeAnswerInput.remaining(for: overLimit) == 0)
+        #expect(HomeAnswerInput.remaining(for: String(repeating: emoji, count: 199)) == 1)
+    }
+
+    @Test
     func quoteCardDoesNotRequestNextWhenTheCurrentQuoteIsLatest() {
         #expect(
             HomeQuoteCardSwipeAction.resolve(translationWidth: -151, canNavigateForward: false) == .none

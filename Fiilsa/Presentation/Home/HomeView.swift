@@ -34,7 +34,7 @@ struct HomeView: View {
                 .padding(.top, 4).padding(.horizontal, 20).accessibilityIdentifier("home.quoteCard")
                 HomeQuoteActionRow(copy: { UIPasteboard.general.string = copyText(from: viewStore.quote); viewStore.send(.copyCompleted) }, share: { openShare(quote(from: viewStore.quote), author(from: viewStore.quote)) }, isLike: viewStore.quote.likeYn == "Y", setIsLike: { viewStore.send(.likeTapped($0)) }, registerImage: { viewStore.send(.imageTapped) }).padding(.top, 10)
                 Divider().overlay(FillsaColor.gray700.opacity(0.16)).padding(.top, 1)
-                HomeQuestionAnswerSection(answer: $answer, record: openTyping).padding(.top, 17).padding(.horizontal, 20)
+                HomeQuestionAnswerCard(answer: $answer, recordAnswer: openTyping).padding(.top, 17).padding(.horizontal, 20)
                 Spacer(minLength: 0)
                 HomeAdSurface()
             }

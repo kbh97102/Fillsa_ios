@@ -18,7 +18,7 @@
 | Locale prompt | `2929:15520` | Typing prompt and Korean/English switch | `HomeView` | 미검증 |
 | Quote card | `2929:13642` | `HomeQuoteCard`: local Figma texture, quote/author search action, and date swipe; on today's latest quote the forward swipe emits no next action | `HomeView` | 미검증 |
 | Quote actions | `2929:15503` | `HomeQuoteActionRow`: 16pt local assets, 42pt row/dividers; existing copy, share, live like toggle, and image registration actions | `HomeView` | 미검증 |
-| Question/answer | `2929:13630` | Figma question, local answer entry, record CTA | `HomeView` | 미검증 |
+| Question/answer | `2929:13630` | `HomeQuestionAnswerCard`: 200-grapheme-capped local answer input, Figma placeholder/count/CTA asset; existing `openTyping` destination action retained | `HomeView` | QA Blocked — Home question data source and typed-answer handoff contract are absent |
 | Bottom navigation/ad | `3087:29254`, `3087:29249` | Existing app tab navigation and static ad surface | `AppView` / `FillsaBottomNavigationBar` | 미검증 |
 
 ## 기본 동작
