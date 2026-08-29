@@ -1,5 +1,13 @@
 # [Calendar] `3.calendar`
 
+## Figma light/dark composition (2026-08-30)
+
+- Render targets: light `2985:21952`, dark `3039:28370` in Figma file `VdFocqyqTgevMVCQxwAQ2X`. Parent sections `2929:13366` and `2929:6874` are orientation only, not render targets.
+- Root surfaces: light `#FFEFCC`, dark `#212121`. The responsive 320pt-at-360pt month card is inset 20pt, has a 12pt radius, and uses 50%-white / `#FFCB5C` light treatment or `#424242` / `#616161` dark treatment.
+- Component map: `CalendarMonthSection` owns month movement, weekday/grid geometry and cell selection; `CalendarDayCell` owns the 12pt record indicators; `CalendarCountSection` owns the 16pt heart/flame legend and existing quote-list action; `CalendarSelectedDaySection` owns the selected quote and uncompleted-writing companion while preserving the existing Home action.
+- Data map: `MemberQuotesData.likeYn == "Y"` renders the Figma heart. A local writing completion (`completed`, with `todayCompleted` retained as the historical mirror) renders the Figma flame. No Calendar data/store/API contract was added.
+- Existing shared 4-tab navigation and static ad surface remain intact. The Figma reference has 3 tabs, so whole-frame parity remains product-scope blocked until navigation ownership approves a 3/4-tab decision.
+
 ## 기본 동작
 
 - 디폴트: 현재 날짜가 달력에서 선택된 상태로 진입

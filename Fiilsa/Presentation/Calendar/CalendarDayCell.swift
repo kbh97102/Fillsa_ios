@@ -22,30 +22,21 @@ struct CalendarDayCell: View {
                     .font(FillsaTypography.body3)
                     .foregroundStyle(dayTextColor)
 
-                VStack(spacing: 0) {
-                    HStack(spacing: 2) {
-                        CalendarIcon(kind: .note)
-                            .frame(width: 12, height: 12)
-                            .opacity(quoteData?.completed == true ? 1 : 0)
-
-                        CalendarIcon(kind: .heart)
-                            .frame(width: 12, height: 12)
-                            .opacity(quoteData?.likeYn == "Y" ? 1 : 0)
+                HStack(spacing: 2) {
+                    ForEach(CalendarRecordIndicators.resolve(for: quoteData), id: \.self) { indicator in
+                        CalendarIcon(
+                            kind: indicator == .heart ? .heart : .flame,
+                            size: .compact
+                        )
+                        .frame(width: 12, height: 12)
                     }
-                    .frame(minHeight: 12)
-
-                    HStack {
-                        CalendarIcon(kind: .flame)
-                            .frame(width: 12, height: 12)
-                            .opacity(quoteData?.todayCompleted == true ? 1 : 0)
-                    }
-                    .frame(minHeight: 12)
                 }
+                .frame(minHeight: 12)
                 .padding(.top, 3)
                 .padding(.horizontal, 5)
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
-            .padding(.vertical, 4)
+            .padding(.vertical, 8)
             .background {
                 if isSelected {
                     RoundedRectangle(cornerRadius: 10)

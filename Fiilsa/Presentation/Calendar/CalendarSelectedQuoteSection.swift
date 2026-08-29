@@ -2,10 +2,51 @@
 //  CalendarSelectedQuoteSection.swift
 //  Fiilsa
 //
-//  Created by Codex on 6/15/26.
-//
 
 import SwiftUI
+
+struct CalendarSelectedDaySection: View {
+    let selectedDayQuote: String
+    let selectedDay: Date
+    let isWritingCompleted: Bool
+    let onClick: () -> Void
+
+    var body: some View {
+        ZStack(alignment: .bottom) {
+            if !isWritingCompleted {
+                CalendarNoWritingMessage()
+                    .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
+            }
+
+            CalendarSelectedQuoteSection(
+                selectedDayQuote: selectedDayQuote,
+                selectedDay: selectedDay,
+                onClick: onClick
+            )
+        }
+        .frame(height: isWritingCompleted ? 80 : 165)
+    }
+}
+
+private struct CalendarNoWritingMessage: View {
+    var body: some View {
+        HStack(spacing: 0) {
+            Image("calendar_empty_handwriting")
+                .resizable()
+                .aspectRatio(contentMode: .fit)
+                .frame(width: 100, height: 100)
+
+            Text("필사하지 않은 날이에요.\n아래 필사를 선택하여 기록해주세요!")
+                .font(FillsaTypography.body3)
+                .foregroundStyle(FillsaColor.purple01)
+                .multilineTextAlignment(.leading)
+                .fixedSize(horizontal: false, vertical: true)
+                .padding(.leading, 0)
+                .padding(.trailing, 16)
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+    }
+}
 
 struct CalendarSelectedQuoteSection: View {
     let selectedDayQuote: String
@@ -51,8 +92,12 @@ struct CalendarSelectedQuoteSection: View {
             }
             .background(
                 RoundedRectangle(cornerRadius: 10)
-                    .fill(FillsaColor.backgroundContainer)
+                    .fill(cardFill)
             )
+            .overlay {
+                RoundedRectangle(cornerRadius: 10)
+                    .stroke(cardBorder, lineWidth: 1)
+            }
             .frame(height: 80)
         }
         .buttonStyle(.plain)
@@ -62,12 +107,22 @@ struct CalendarSelectedQuoteSection: View {
     private var selectedDateColor: Color {
         colorScheme == .dark ? FillsaColor.white : FillsaColor.purple01
     }
+
+    private var cardFill: Color {
+        colorScheme == .dark ? FillsaColor.gray600 : FillsaColor.yellow01
+    }
+
+    private var cardBorder: Color {
+        colorScheme == .dark ? FillsaColor.yellow02 : FillsaColor.purple01
+    }
 }
 
 #Preview {
-    CalendarSelectedQuoteSection(
+    CalendarSelectedDaySection(
         selectedDayQuote: "상황을 가장 잘 활용하는 사람이 가장 좋은 상황을 맞는다.",
-        selectedDay: Date()
+        selectedDay: Date(),
+        isWritingCompleted: false,
+        onClick: {}
     )
     .padding()
     .background(FillsaColor.background)

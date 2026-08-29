@@ -58,11 +58,11 @@ struct CalendarMonthSection: View {
         }
         .background(
             RoundedRectangle(cornerRadius: 12)
-                .fill(FillsaColor.dynamic(light: FillsaColor.yellow01, dark: FillsaColor.gray700))
+                .fill(FillsaColor.dynamic(light: FillsaColor.white.opacity(0.5), dark: FillsaColor.gray600))
         )
         .overlay {
             RoundedRectangle(cornerRadius: 12)
-                .stroke(FillsaColor.dynamic(light: FillsaColor.yellow02, dark: FillsaColor.gray600), lineWidth: 1)
+                .stroke(FillsaColor.dynamic(light: FillsaColor.yellow02, dark: FillsaColor.gray500), lineWidth: 1)
         }
         .frame(maxWidth: .infinity)
         .accessibilityIdentifier(FillsaAccessibilityIdentifier.calendarMonthCard)

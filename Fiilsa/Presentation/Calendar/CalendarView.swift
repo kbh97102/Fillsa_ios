@@ -58,27 +58,30 @@ struct CalendarView: View {
 
                     CalendarCountSection(
                         likeCount: viewStore.monthlySummary.likeCount,
-                        typingCount: viewStore.monthlySummary.typingCount,
-                        todayCompleteCount: viewStore.monthlySummary.streakCount,
+                        writingCount: viewStore.monthlySummary.typingCount,
                         countOnClick: {
                             viewStore.send(.countTapped)
                         }
                     )
-                    .padding(.top, 15)
+                    .padding(.top, 8)
 
-                    CalendarSelectedQuoteSection(
-                        selectedDayQuote: selectedDayQuote(
+                    CalendarSelectedDaySection(
+                        selectedDayQuote: selectedDayRecord(
                             from: viewStore.memberQuotes,
                             selectedDay: viewStore.selectedDay
-                        ),
+                        )?.quote ?? "",
                         selectedDay: viewStore.selectedDay,
+                        isWritingCompleted: selectedDayRecord(
+                            from: viewStore.memberQuotes,
+                            selectedDay: viewStore.selectedDay
+                        )?.completed == true,
                         onClick: {
                             viewStore.send(.bottomQuoteTapped)
                         }
                     )
-                    .padding(.top, 15)
+                    .padding(.top, 10)
                 }
-                .padding(.top, 20)
+                .padding(.top, 10)
                 .padding(.horizontal, 20)
 
                 Spacer(minLength: 0)
@@ -92,9 +95,9 @@ struct CalendarView: View {
         }
     }
 
-    private func selectedDayQuote(from memberQuotes: [MemberQuotesData], selectedDay: Date) -> String {
+    private func selectedDayRecord(from memberQuotes: [MemberQuotesData], selectedDay: Date) -> MemberQuotesData? {
         let targetDate = FillsaCalendarDateSupport.quoteDateString(for: selectedDay)
-        return memberQuotes.first { $0.quoteDate == targetDate }?.quote ?? ""
+        return memberQuotes.first { $0.quoteDate == targetDate }
     }
 }
 

@@ -2,26 +2,21 @@
 //  CalendarCountSection.swift
 //  Fiilsa
 //
-//  Created by Codex on 6/15/26.
-//
 
 import SwiftUI
 
 struct CalendarCountSection: View {
     let likeCount: Int
-    let typingCount: Int
-    let todayCompleteCount: Int
+    let writingCount: Int
     let countOnClick: () -> Void
 
     init(
         likeCount: Int,
-        typingCount: Int,
-        todayCompleteCount: Int,
+        writingCount: Int,
         countOnClick: @escaping () -> Void = {}
     ) {
         self.likeCount = likeCount
-        self.typingCount = typingCount
-        self.todayCompleteCount = todayCompleteCount
+        self.writingCount = writingCount
         self.countOnClick = countOnClick
     }
 
@@ -31,24 +26,17 @@ struct CalendarCountSection: View {
 
             Button(action: countOnClick) {
                 HStack(spacing: 0) {
-                    CalendarIcon(kind: .note)
-                        .frame(width: 16, height: 17)
-
-                    countText(typingCount)
-                        .padding(.leading, 4)
-
-                    CalendarIcon(kind: .heart)
+                    CalendarIcon(kind: .heart, size: .regular)
                         .frame(width: 16, height: 16)
-                        .padding(.leading, 20)
 
                     countText(likeCount)
                         .padding(.leading, 4)
 
-                    CalendarIcon(kind: .flame)
+                    CalendarIcon(kind: .flame, size: .regular)
                         .frame(width: 16, height: 16)
                         .padding(.leading, 20)
 
-                    countText(todayCompleteCount)
+                    countText(writingCount)
                         .padding(.leading, 4)
                 }
             }
@@ -65,11 +53,7 @@ struct CalendarCountSection: View {
 }
 
 #Preview {
-    CalendarCountSection(
-        likeCount: 5,
-        typingCount: 3,
-        todayCompleteCount: 2
-    )
-    .padding()
-    .background(FillsaColor.background)
+    CalendarCountSection(likeCount: 5, writingCount: 2)
+        .padding()
+        .background(FillsaColor.background)
 }

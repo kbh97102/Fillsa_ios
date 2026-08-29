@@ -6,6 +6,22 @@ import Testing
 @Suite("CalendarFeature")
 struct CalendarFeatureTests {
     @Test
+    func recordIndicatorsMapWritingAndLikesToTheFigmaIcons() {
+        let quote = MemberQuotesData(
+            dailyQuoteSeq: 1,
+            quoteDate: "2025-03-21",
+            quote: "quote",
+            author: "author",
+            completed: true,
+            likeYn: "Y",
+            todayCompleted: true
+        )
+
+        #expect(CalendarRecordIndicators.resolve(for: quote) == [.heart, .flame])
+        #expect(CalendarRecordIndicators.resolve(for: nil).isEmpty)
+    }
+
+    @Test
     func loadingAMonthStoresTheStreakForTheCalendarHeader() async {
         let response = fixtureResponse(streakCount: 100)
         var initialState = CalendarFeature.State()
