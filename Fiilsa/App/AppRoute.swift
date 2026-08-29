@@ -28,7 +28,6 @@ enum AppScreen: Equatable {
     case onboardingGuide
     case main
     case typing
-    case homeAnswerEditor
     case share(quote: String, author: String)
     case quoteDetail(MemberQuotesResponse)
     case memoInsert(savedMemo: String, memberQuoteSeq: Int)

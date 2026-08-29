@@ -49,15 +49,8 @@
 | Completion badge/date key | Completed dates lacked the Figma `2929:17161` badge and used a hard-coded KST date formatter. | `HomeWeekStrip` overlays the downloaded `home_completed_streak` 18×18 Figma asset only for genuine, non-selected completed dates. `HomeCompletionDateKey` uses injected `Calendar.current`, matching SQLiteLocalStore date semantics. | Pending runtime verification |
 | Selected/completed priority | A selected date that was also complete used the completed purple background, creating a hybrid state. | `HomeWeekStripDayState` resolves selected before completed: white selected background, gray selected text, purple border, and no completion badge. | Pending runtime verification |
 | Quote card/action row | Figma nodes `2929:13642` and `2929:15503` were not represented by explicitly named Home Figma components. | `HomeQuoteCard` uses the persisted texture/search assets, preserves author navigation and previous/next semantics (today blocks forward). `HomeQuoteActionRow` uses 16pt local action assets, 42pt row/dividers, and the existing live like/copy/share/image actions. | Pending runtime verification |
-| Question/answer CTA | Figma node `2929:13630` needs a bounded answer input and explicit component ownership. | `HomeQuestionAnswerCard` uses the existing durable `home_answer_record` asset, Figma 174pt box/17pt radius/border/count, and a 200 extended-grapheme limit. CTA opens a separate local answer editor; save/load uses SQLite `home_answer_records(date_key, question)` and never writes a quote typing transcript or calls a member-quote API. | Pending runtime verification |
+| Question/answer CTA | Figma node `2929:13630` needs a bounded answer input and explicit component ownership. | `HomeQuestionAnswerCard` uses the existing durable `home_answer_record` asset, Figma 174pt box/17pt radius/border/count, and a 200 extended-grapheme limit. CTA transfers its capped answer through `AppFeature` to the real editable `TypingFeature.State.korTyping` draft, which uses existing save behavior. | Pending runtime verification |
 | Question data | No Home question endpoint/state exists. | Kept the already-established Figma prompt; no backend question source was fabricated. | Blocked — product/API contract required |
-
-### Round 4
-
-| Scope | Difference | Fix | Result |
-|---|---|---|---|
-| Answer persistence semantics | The prior CTA incorrectly seeded the quote-only `TypingFeature.korTyping`, which can be posted as a member-quote transcript. | Replaced that handoff with `HomeAnswerEditorFeature` and isolated `home_answer_records(date_key, question, answer)` SQLite persistence. The editor loads, caps at 200 grapheme clusters, saves, returns to Home, and uses the existing toast style for save feedback. | Focused simulator tests passed; runtime visual comparison still pending |
-| Quote typing regression | The previous handoff caused `TypingFeature.onAppear` to skip the normal saved-transcript fetch when a prefilled value existed. | Restored normal member/local typing load behavior; Home answers never seed the quote transcript fields. | Focused simulator test passed |
 
 ## Final assembled-screen result
 

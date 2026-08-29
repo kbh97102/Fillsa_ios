@@ -208,15 +208,12 @@ enum HomeAnswerInput {
     }
 }
 
-enum HomeQuestionAnswerContent {
-    static let question = "누군가의 호의를 한참 뒤에야 받아들인 적 있나요?"
-}
-
 /// Figma `2929:13630`. The prompt remains the established static copy until Home has a question data source.
 struct HomeQuestionAnswerCard: View {
     @Binding var answer: String
     let recordAnswer: () -> Void
 
+    private let question = "누군가의 호의를 한참 뒤에야 받아들인 적 있나요?"
     private let placeholder = "오늘의 질문을 보고 떠오른 생각을 자유롭게 기록해보세요."
 
     var body: some View {
@@ -225,7 +222,7 @@ struct HomeQuestionAnswerCard: View {
                 .font(FillsaTypography.subtitle2)
                 .foregroundStyle(FillsaColor.purple01)
 
-            Text(HomeQuestionAnswerContent.question)
+            Text(question)
                 .font(FillsaTypography.body3)
                 .foregroundStyle(Color(hex: 0x211F1B))
 
@@ -277,7 +274,7 @@ struct HomeQuestionAnswerCard: View {
             .buttonStyle(.plain)
             .accessibilityIdentifier("home.recordAnswer")
             .accessibilityLabel("내 답변 기록하기")
-            .accessibilityHint("입력한 답변을 편집기에서 저장합니다.")
+            .accessibilityHint("입력한 답변을 필사 화면에서 이어서 편집합니다.")
         }
     }
 

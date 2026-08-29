@@ -9,14 +9,14 @@ struct HomeView: View {
     let store: StoreOf<HomeFeature>
     let date: Date
     let openTyping: () -> Void
-    let openAnswerEditor: (String) -> Void
+    let openTypingWithAnswer: (String) -> Void
     let openShare: (String, String) -> Void
     let openLogin: () -> Void
     let openMyPage: () -> Void
     @Environment(\.openURL) private var openURL
 
-    init(store: StoreOf<HomeFeature> = Store(initialState: HomeFeature.State()) { HomeFeature() }, date: Date = Date(), openTyping: @escaping () -> Void = {}, openAnswerEditor: @escaping (String) -> Void = { _ in }, openShare: @escaping (String, String) -> Void = { _, _ in }, openLogin: @escaping () -> Void = {}, openMyPage: @escaping () -> Void = {}) {
-        self.store = store; self.date = date; self.openTyping = openTyping; self.openAnswerEditor = openAnswerEditor; self.openShare = openShare; self.openLogin = openLogin; self.openMyPage = openMyPage
+    init(store: StoreOf<HomeFeature> = Store(initialState: HomeFeature.State()) { HomeFeature() }, date: Date = Date(), openTyping: @escaping () -> Void = {}, openTypingWithAnswer: @escaping (String) -> Void, openShare: @escaping (String, String) -> Void = { _, _ in }, openLogin: @escaping () -> Void = {}, openMyPage: @escaping () -> Void = {}) {
+        self.store = store; self.date = date; self.openTyping = openTyping; self.openTypingWithAnswer = openTypingWithAnswer; self.openShare = openShare; self.openLogin = openLogin; self.openMyPage = openMyPage
     }
 
     var body: some View {
@@ -35,7 +35,7 @@ struct HomeView: View {
                 .padding(.top, 4).padding(.horizontal, 20).accessibilityIdentifier("home.quoteCard")
                 HomeQuoteActionRow(copy: { UIPasteboard.general.string = copyText(from: viewStore.quote); viewStore.send(.copyCompleted) }, share: { openShare(quote(from: viewStore.quote), author(from: viewStore.quote)) }, isLike: viewStore.quote.likeYn == "Y", setIsLike: { viewStore.send(.likeTapped($0)) }, registerImage: { viewStore.send(.imageTapped) }).padding(.top, 10)
                 Divider().overlay(FillsaColor.gray700.opacity(0.16)).padding(.top, 1)
-                HomeQuestionAnswerCard(answer: $answer, recordAnswer: { openAnswerEditor(answer) }).padding(.top, 17).padding(.horizontal, 20)
+                HomeQuestionAnswerCard(answer: $answer, recordAnswer: { openTypingWithAnswer(answer) }).padding(.top, 17).padding(.horizontal, 20)
                 Spacer(minLength: 0)
                 HomeAdSurface()
             }
