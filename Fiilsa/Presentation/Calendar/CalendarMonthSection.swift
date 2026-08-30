@@ -14,7 +14,9 @@ struct CalendarMonthSection: View {
     let changeMonth: (Date) -> Void
     let selectDay: (Date) -> Void
 
-    private let weekColumns = Array(repeating: GridItem(.flexible(), spacing: 11), count: 7)
+    /// Figma 2985:21952: seven 36pt columns with six 11pt gutters fit the
+    /// 320pt calendar shell without letting a flexible grid redistribute cells.
+    private let weekColumns = Array(repeating: GridItem(.fixed(36), spacing: 11), count: 7)
     private let weekdays = ["일", "월", "화", "수", "목", "금", "토"]
 
     var body: some View {
@@ -33,7 +35,7 @@ struct CalendarMonthSection: View {
                     Text(weekday)
                         .font(FillsaTypography.subtitle2)
                         .foregroundStyle(FillsaColor.onBackground1)
-                        .frame(maxWidth: .infinity)
+                        .frame(width: 36, height: 40)
                 }
             }
             .frame(height: 40)
@@ -64,7 +66,7 @@ struct CalendarMonthSection: View {
             RoundedRectangle(cornerRadius: 12)
                 .stroke(FillsaColor.dynamic(light: FillsaColor.yellow02, dark: FillsaColor.gray500), lineWidth: 1)
         }
-        .frame(maxWidth: .infinity)
+        .frame(width: 320)
         .accessibilityIdentifier(FillsaAccessibilityIdentifier.calendarMonthCard)
     }
 

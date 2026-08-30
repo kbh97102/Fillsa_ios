@@ -13,8 +13,6 @@ struct CalendarView: View {
     let store: StoreOf<CalendarFeature>
     let openMyPage: () -> Void
 
-    @Environment(\.colorScheme) private var colorScheme
-
     init(
         store: StoreOf<CalendarFeature> = Store(initialState: CalendarFeature.State()) {
             CalendarFeature()
@@ -28,14 +26,15 @@ struct CalendarView: View {
     var body: some View {
         WithViewStore(store, observe: { $0 }) { viewStore in
             VStack(spacing: 0) {
-                HomeTopBar(
+                HomeHeader(
                     myPage: openMyPage,
-                    displayStreak: colorScheme == .light,
                     streakCount: viewStore.displayStreakCount
                 )
                 .padding(.horizontal, 20)
+                .frame(height: 50)
 
-                VStack(spacing: 0) {
+                ScrollView(showsIndicators: false) {
+                    VStack(spacing: 0) {
                     CalendarMonthSection(
                         memberQuotes: viewStore.memberQuotes,
                         currentMonth: Binding(
@@ -66,25 +65,20 @@ struct CalendarView: View {
                     .padding(.top, 8)
 
                     CalendarSelectedDaySection(
-                        selectedDayQuote: selectedDayRecord(
+                        selectedDayRecord: selectedDayRecord(
                             from: viewStore.memberQuotes,
                             selectedDay: viewStore.selectedDay
-                        )?.quote ?? "",
+                        ),
                         selectedDay: viewStore.selectedDay,
-                        isWritingCompleted: selectedDayRecord(
-                            from: viewStore.memberQuotes,
-                            selectedDay: viewStore.selectedDay
-                        ).map(CalendarWritingCompletion.isCompleted) ?? false,
                         onClick: {
                             viewStore.send(.bottomQuoteTapped)
                         }
                     )
                     .padding(.top, 10)
+                    }
+                    .padding(.horizontal, 20)
                 }
                 .padding(.top, 10)
-                .padding(.horizontal, 20)
-
-                Spacer(minLength: 0)
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
             .background(FillsaColor.background.ignoresSafeArea())

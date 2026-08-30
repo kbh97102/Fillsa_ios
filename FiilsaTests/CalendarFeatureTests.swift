@@ -37,6 +37,22 @@ struct CalendarFeatureTests {
     }
 
     @Test
+    func selectedDayPresentationUsesCompletedDetailWhenOnlyTodayCompletedIsTrue() {
+        let quote = MemberQuotesData(
+            dailyQuoteSeq: 3,
+            quoteDate: "2025-03-23",
+            quote: "quote",
+            author: "author",
+            completed: false,
+            likeYn: "N",
+            todayCompleted: true
+        )
+
+        #expect(CalendarSelectedDayPresentation.resolve(for: quote) == .completed)
+        #expect(CalendarSelectedDayPresentation.resolve(for: nil) == .incomplete)
+    }
+
+    @Test
     func loadingAMonthStoresTheStreakForTheCalendarHeader() async {
         let response = fixtureResponse(streakCount: 100)
         var initialState = CalendarFeature.State()

@@ -33,3 +33,15 @@ enum CalendarWritingCompletion {
         quote?.completed == true || quote?.todayCompleted == true
     }
 }
+
+/// Drives the selected-day content from the same local completion flags used by
+/// the calendar indicator. Keeping this decision independent of quote text
+/// prevents an empty-but-completed record from being rendered as incomplete.
+enum CalendarSelectedDayPresentation: Equatable {
+    case incomplete
+    case completed
+
+    static func resolve(for quote: MemberQuotesData?) -> Self {
+        CalendarWritingCompletion.isCompleted(quote) ? .completed : .incomplete
+    }
+}

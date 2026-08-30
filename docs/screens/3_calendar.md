@@ -1,11 +1,13 @@
 # [Calendar] `3.calendar`
 
-## Figma light/dark composition (2026-08-30)
+## Figma composition (2026-08-30 rework)
 
-- Render targets: light `2985:21952`, dark `3039:28370` in Figma file `VdFocqyqTgevMVCQxwAQ2X`. Parent sections `2929:13366` and `2929:6874` are orientation only, not render targets.
-- Root surfaces: light `#FFEFCC`, dark `#212121`. The responsive 320pt-at-360pt month card is inset 20pt, has a 12pt radius, and uses 50%-white / `#FFCB5C` light treatment or `#424242` / `#616161` dark treatment.
-- Component map: `CalendarMonthSection` owns month movement, weekday/grid geometry and cell selection; `CalendarDayCell` owns the 12pt record indicators; `CalendarCountSection` owns the 16pt heart/flame legend and existing quote-list action; `CalendarSelectedDaySection` owns the selected quote and uncompleted-writing companion while preserving the existing Home action.
-- Data map: `MemberQuotesData.likeYn == "Y"` renders the Figma heart. A local writing completion (`completed`, with `todayCompleted` retained as the historical mirror) renders the Figma flame. No Calendar data/store/API contract was added.
+- Render targets: light section `2929:13366`; actual states `2985:21952` (basic, 360×816), `2985:22510` (expanded selection, 360×1101), and `2987:22796` (completed selection, 360×1101) in Figma file `VdFocqyqTgevMVCQxwAQ2X`. Sections are orientation only; implementation is based on the three actual frames.
+- Header: `HomeHeader` supplies the Figma logo at x20, the genuine `MonthlySummaryData.streakCount` surfaced as `CalendarFeature.State.displayStreakCount`, and the existing profile action only. It deliberately replaces Calendar's previous screen-specific top-bar variant.
+- Calendar shell: `CalendarMonthSection` is 320×396 at 360pt (20pt inset), radius 12, fixed seven 36pt columns with six 11pt gutters, 40pt weekday row, and six 50pt date rows. Existing reducer-backed month limits and date selection remain unchanged.
+- Component map: `CalendarDayCell` owns the 36×50/radius-10 selected day and 12pt record icons; `CalendarCountSection` keeps the genuine 16pt monthly heart/fire totals and quote-list action; `CalendarSelectedDaySection` selects incomplete/completed composition and retains the existing selected-quote → Home navigation.
+- Data map: `MemberQuotesData.likeYn == "Y"` renders the Figma heart. `completed || todayCompleted` renders the fire and selects completed detail; no quote-text heuristic, Calendar store, API, or persistence was added.
+- Detail states: incomplete shows the durable 100pt Figma handwriting character/message followed by the 80pt tappable quote card. Completed shows the 133pt quote/action card and then the scrollable 200-grapheme question UI. Calendar has no copy/share/like/image or prompt-answer persistence/navigation contract: those Figma affordances are intentionally non-mutating, and the answer CTA has no side effect until a separately owned data/routing contract is approved.
 - Existing shared 4-tab navigation and static ad surface remain intact. The Figma reference has 3 tabs, so whole-frame parity remains product-scope blocked until navigation ownership approves a 3/4-tab decision.
 
 ## 기본 동작
@@ -21,8 +23,8 @@
 - 월별 달력 표시
 - 날짜별로 필사(또는 사진) 여부 및 좋아요 여부 아이콘 표시
 - 특정 날짜 클릭 시 하단에 해당일 명언 노출
-- 캘린더 화면의 좌우 여백은 화면 루트에서 20pt 한 번만 적용하고, 공용 탑바는 Android `HomeTopSection`과 동일하게 세로 10pt 패딩을 가진다.
-- Figma 360pt 캔버스의 320pt 월/통계/명언 카드는 고정 폭이 아니라 좌우 20pt 여백의 결과다. 기기 폭이 달라져도 세 카드는 남은 화면폭을 채우며, 달력 열은 11pt 간격을 유지한 채 같은 비율로 확장한다.
+- 캘린더 화면의 좌우 여백은 360pt Figma 기준 20pt이며, 월 카드 자체는 정확히 320pt다.
+- 날짜 열은 같은 비율로 확장하지 않는다. Figma의 고정 36pt 폭과 11pt 간격을 보존한다.
 
 ## 하단 명언 영역
 
