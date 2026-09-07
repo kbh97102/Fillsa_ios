@@ -7,7 +7,7 @@ final class HomeUITests: XCTestCase {
         app.launchArguments = ["-ui-testing-home"]
         app.launch()
 
-        XCTAssertTrue(app.otherElements["home.quoteCard"].waitForExistence(timeout: 2))
+        XCTAssertTrue(app.buttons["home.quoteCard"].waitForExistence(timeout: 2))
         XCTAssertTrue(app.staticTexts["오늘의 질문"].exists)
         XCTAssertTrue(app.textViews["home.answer"].exists)
         XCTAssertTrue(app.buttons["home.answerRecord"].exists)
@@ -20,7 +20,7 @@ final class HomeUITests: XCTestCase {
         app.launchArguments = ["-ui-testing-home"]
         app.launch()
 
-        XCTAssertTrue(app.otherElements["home.quoteCard"].waitForExistence(timeout: 2))
+        XCTAssertTrue(app.buttons["home.quoteCard"].waitForExistence(timeout: 2))
         let startupSettled = expectation(description: "startup task settled")
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) { startupSettled.fulfill() }
         wait(for: [startupSettled], timeout: 1)

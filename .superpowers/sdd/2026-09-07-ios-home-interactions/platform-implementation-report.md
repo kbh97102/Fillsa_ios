@@ -111,3 +111,16 @@ The final correction was subsequently rebuilt and captured successfully.
 The refreshed default light/dark captures show the Figma-default 100-day streak and outlined selected day; refreshed calendar-open and streak-tooltip captures confirm the corrected selected/completed distinction and zero-streak state. Question-done and image-modal remain current unaffected-state evidence.
 
 Acceptance is still **Blocked**, not Pass: all available runtime captures are iPhone 17 Pro 402×874pt frames, while the Figma acceptance target is 360×821. This platform-target mismatch makes a strict full-frame Figma comparison invalid.
+
+## Follow-up: quote-card accessibility assertion
+
+Fresh serialized reproduction showed that `HomeUITests.testHomeRendersTheFigmaQuestionAndAnswerState` failed only at the initial `app.otherElements["home.quoteCard"]` assertion. In that same fixture run, `오늘의 질문`, `home.answer`, `home.answerRecord`, and `home.registerImage` were already present. Source inspection confirmed the root cause: `HomeQuoteCard` is a SwiftUI `Button`, while the UI test was querying the unrelated `otherElements` accessibility collection.
+
+The smallest correction changes the two `home.quoteCard` UI-test queries to `app.buttons["home.quoteCard"]`. It does not change the product UI, layout, or fixture state.
+
+| Command | Result |
+|---|---|
+| Targeted serialized `xcodebuild test ... -only-testing:FiilsaUITests/HomeUITests/testHomeRendersTheFigmaQuestionAndAnswerState ... -parallel-testing-enabled NO -maximum-parallel-testing-workers 1` on `89410CC6-A661-4252-B810-0E54DE5FB620` | Passed (exit 0). |
+| Serialized `xcodebuild test ... -only-testing:FiilsaUITests/HomeUITests ... -parallel-testing-enabled NO -maximum-parallel-testing-workers 1` on the same simulator with `/tmp/fiilsa-home-baseline-derived` and `/tmp/fiilsa-firebase-packages` | Passed (exit 0). |
+
+The strict visual acceptance remains **Blocked**: the retained current-build runtime captures are 402×874pt iPhone 17 Pro frames, whereas the Figma acceptance target is 360×821. The passing UI suite resolves the assertion-type defect only; it does not remove that platform-target limitation.

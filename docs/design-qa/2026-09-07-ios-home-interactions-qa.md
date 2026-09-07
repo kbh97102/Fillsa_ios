@@ -74,6 +74,14 @@ The six current-build paths above are retained for reinspection. The final corre
 
 Build command: `xcodebuild -quiet -project Fiilsa.xcodeproj -scheme Fiilsa -destination 'platform=iOS Simulator,id=89410CC6-A661-4252-B810-0E54DE5FB620' -derivedDataPath /tmp/fiilsa-home-baseline-derived -clonedSourcePackagesDirPath /tmp/fiilsa-firebase-packages CODE_SIGNING_ALLOWED=NO build` — exit 0. The current app was installed before the four affected captures were overwritten.
 
+### Round 6
+
+| Scope | Difference | Fix | Result |
+|---|---|---|---|
+| Quote-card UI assertion | The Home fixture rendered the question, answer, and its actions, but the test looked for `home.quoteCard` in `otherElements`. `HomeQuoteCard` is implemented as a SwiftUI `Button`, so that query could never find it. | Changed only the UI-test query to `app.buttons["home.quoteCard"]`; no rendered Home UI changed. | Targeted `testHomeRendersTheFigmaQuestionAndAnswerState` passed (exit 0), and the serialized `HomeUITests` suite passed (exit 0). |
+
+Serialized suite command: `xcodebuild -quiet test -project Fiilsa.xcodeproj -scheme Fiilsa -only-testing:FiilsaUITests/HomeUITests -parallel-testing-enabled NO -maximum-parallel-testing-workers 1 -destination 'platform=iOS Simulator,id=89410CC6-A661-4252-B810-0E54DE5FB620' -derivedDataPath /tmp/fiilsa-home-baseline-derived -clonedSourcePackagesDirPath /tmp/fiilsa-firebase-packages CODE_SIGNING_ALLOWED=NO` — exit 0. The first sandboxed attempt could not write Xcode's shared module and SwiftPM caches; the rerun with access to those standard caches passed.
+
 ## Final assembled-screen result
 
 - Full-frame reference/capture comparison: Figma references are 360×821; retained runtime light capture is 402×874, so no valid full-frame overlay or side-by-side acceptance comparison can be produced.
