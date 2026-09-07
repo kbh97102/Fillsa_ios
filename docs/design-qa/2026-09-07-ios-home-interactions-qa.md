@@ -6,9 +6,9 @@
 - Target frames/nodes: `2929:13556` default Home, `3039:26518` dark Home, `3139:1501` calendar-open, `3110:33782` question flow, `2929:18871` streak tooltip, and `3223:5107` image flow.
 - Full-frame reference images: `docs/design-qa/assets/home-figma-2929-17193/2026-09-07/fillsa-home-default.png`, `fillsa-home-calendar-open.png`, `fillsa-home-question-flow.png`, `fillsa-home-streak-tooltip.png`, and `fillsa-home-image-flow.png`. Each retained Figma export includes the 360×821 root, status bar, safe area, bottom navigation, and home indicator/ad area.
 - Runtime target: iPhone 17 Pro (`89410CC6-A661-4252-B810-0E54DE5FB620`), iOS 26.5, **402×874pt**. This differs from the required 360×821 Figma target; its evidence is therefore partial only.
-- Runtime full-frame captures: `docs/design-qa/assets/home-figma-2929-17193/2026-09-07/runtime-ios-default-light.png`, `runtime-ios-calendar-open-light.png`, `runtime-ios-question-done-light.png`, `runtime-ios-streak-tooltip-light.png`, `runtime-ios-image-modal-light.png`, and `runtime-ios-default-dark.png`. These six current-build iPhone 17 Pro captures are partial evidence only because their 402×874 frame differs from Figma's 360×821 target.
+- Runtime full-frame captures: `docs/design-qa/assets/home-figma-2929-17193/2026-09-07/runtime-ios-default-light.png`, `runtime-ios-calendar-open-light.png`, `runtime-ios-question-done-light.png`, `runtime-ios-question-toast-light.png`, `runtime-ios-streak-tooltip-light.png`, `runtime-ios-image-modal-light.png`, and `runtime-ios-default-dark.png`. These seven current-build iPhone 17 Pro captures are partial evidence only because their 402×874 frame differs from Figma's 360×821 target.
 - Crop boundaries: full 360×821 frames for every reference; no runtime crop exists.
-- Comparison method: side-by-side visual inspection of retained Figma exports and the six current-build full simulator captures. This remains partial evidence only: the viewport sizes differ, so an acceptance overlay is invalid.
+- Comparison method: side-by-side visual inspection of retained Figma exports and the seven current-build full simulator captures. This remains partial evidence only: the viewport sizes differ, so an acceptance overlay is invalid.
 
 ## Component inventory
 
@@ -74,7 +74,7 @@ The six current-build paths above are retained for reinspection. The final corre
 
 Build command: `xcodebuild -quiet -project Fiilsa.xcodeproj -scheme Fiilsa -destination 'platform=iOS Simulator,id=89410CC6-A661-4252-B810-0E54DE5FB620' -derivedDataPath /tmp/fiilsa-home-baseline-derived -clonedSourcePackagesDirPath /tmp/fiilsa-firebase-packages CODE_SIGNING_ALLOWED=NO build` — exit 0. The current app was installed before the four affected captures were overwritten.
 
-### Round 6
+### Post-QA test correction (not a visual validation round)
 
 | Scope | Difference | Fix | Result |
 |---|---|---|---|
@@ -82,9 +82,21 @@ Build command: `xcodebuild -quiet -project Fiilsa.xcodeproj -scheme Fiilsa -dest
 
 Serialized suite command: `xcodebuild -quiet test -project Fiilsa.xcodeproj -scheme Fiilsa -only-testing:FiilsaUITests/HomeUITests -parallel-testing-enabled NO -maximum-parallel-testing-workers 1 -destination 'platform=iOS Simulator,id=89410CC6-A661-4252-B810-0E54DE5FB620' -derivedDataPath /tmp/fiilsa-home-baseline-derived -clonedSourcePackagesDirPath /tmp/fiilsa-firebase-packages CODE_SIGNING_ALLOWED=NO` — exit 0. The first sandboxed attempt could not write Xcode's shared module and SwiftPM caches; the rerun with access to those standard caches passed.
 
+## Post-round-5 reviewer evidence update
+
+This is a targeted evidence update, not a sixth visual validation round.
+
+| Scope | Root cause/difference | Fix and current-build evidence | Result |
+|---|---|---|---|
+| Dark question editor | `TextEditor` retained its native scroll surface above the specified dark `#424242` field. | Hid the native scroll content background and kept the editor itself clear, so `HomeFigmaPalette.answerFieldBackground` owns the surface. Refreshed `runtime-ios-default-dark.png`. | Partial runtime evidence verified. |
+| Recorded-answer toast `3110:34293` | The Home toast was text-only and Capsule-shaped. | Replaced it with the project’s rounded dark toast surface and green `checkmark.circle.fill`; retained `runtime-ios-question-toast-light.png` with a fixture-only dismissal guard. | Partial runtime evidence verified. |
+| Selected-day current states | Question-done and image-modal evidence predated the final selected/completed distinction. | Refreshed `runtime-ios-question-done-light.png` and `runtime-ios-image-modal-light.png`; both show the outlined selected 12th. | Partial runtime evidence verified. |
+
+The current simulator build passed (exit 0). Root's fresh final `HomeFeatureTests` plus `AppFeatureTests` and the serialized `HomeUITests` suite each passed (exit 0); local post-review rechecks also passed for `HomeFeatureTests` and serialized `HomeUITests` (exit 0). The normal production toast still dismisses after 1.6 seconds; only the guarded question-done capture fixture retains it for evidence.
+
 ## Final assembled-screen result
 
 - Full-frame reference/capture comparison: Figma references are 360×821; retained runtime light capture is 402×874, so no valid full-frame overlay or side-by-side acceptance comparison can be produced.
-- Final runtime capture: the six paths listed above, including refreshed default light/dark, calendar-open, and streak-tooltip evidence for the final correction.
+- Final runtime capture: the seven paths listed above, including refreshed dark, question-done, image-modal, and visible question-toast evidence.
 - Result: Blocked after round 5.
-- Remaining differences: a 360×821 runtime target is required for final full-frame comparison. The iPhone 17 Pro's 402×874 viewport and the deliberately preserved shared four-tab navigation both prevent strict Figma-frame acceptance; no product change is made for either limitation.
+- Remaining differences: a 360×821 runtime target is required for final full-frame comparison. The iPhone 17 Pro's 402×874 viewport prevents strict Figma-frame acceptance; no product change is made for that platform-target limitation.

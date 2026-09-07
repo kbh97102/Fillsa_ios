@@ -408,6 +408,8 @@ struct HomeQuestionAnswerCard: View {
                 TextEditor(text: limitedAnswer)
                     .font(FillsaTypography.body4)
                     .foregroundStyle(palette.primaryText.color)
+                    .scrollContentBackground(.hidden)
+                    .background(Color.clear)
                     .padding(8)
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
                     .accessibilityIdentifier("home.answer")

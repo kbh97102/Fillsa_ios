@@ -2,7 +2,7 @@
 
 ## Status
 
-Implementation is implemented, but acceptance is pending runtime evidence; current runtime visual acceptance is **Blocked**.
+Implementation is implemented and current build/test/runtime evidence is retained. Strict visual acceptance remains **Blocked solely because** the available iPhone 17 Pro viewport is 402×874pt while the Figma target is 360×821.
 
 ## Changes
 
@@ -17,18 +17,17 @@ Implementation is implemented, but acceptance is pending runtime evidence; curre
 
 | Command | Result |
 |---|---|
-| `xcodebuild -quiet -project Fiilsa.xcodeproj -scheme Fiilsa -sdk iphonesimulator -destination 'generic/platform=iOS Simulator' -clonedSourcePackagesDirPath /tmp/fiilsa-firebase-packages CODE_SIGNING_ALLOWED=NO build` | Blocked before app compilation: supplied package cache cannot resolve SwiftSyntax macro modules under Xcode 26.6. |
-| `xcrun simctl list devices available` | Blocked: CoreSimulatorService connection invalid/refused; no simulator runtime/device set available. |
-| Targeted `xcodebuild test` for `HomeFeatureTests`, `AppFeatureTests`, and `HomeUITests` | Blocked: the unavailable simulator service prevented a test result bundle from being produced. |
-| `xcrun swiftc -parse` over the modified Swift sources | Passed syntax parsing. |
-| `git diff --check` | Passed. |
+| Simulator build with `/tmp/fiilsa-home-baseline-derived` and `/tmp/fiilsa-firebase-packages` | Passed (exit 0). |
+| Root-reported fresh `HomeFeatureTests` + `AppFeatureTests` final run | Passed (exit 0). |
+| Serialized `HomeUITests` final run on `89410CC6-A661-4252-B810-0E54DE5FB620` | Passed (exit 0). |
+| Current build installed and launched with Home fixtures | Passed; retained full simulator evidence. |
 
-Targeted Home/App and UI tests could not be completed because the simulator service is unavailable; runtime screenshot capture could not be attempted for the same reason.
+Earlier package-cache and simulator-service failures in the historical follow-up notes below are superseded by the final successful build, test, install, and capture evidence above.
 
 ## Capture paths
 
 - Figma retained references: `docs/design-qa/assets/home-figma-2929-17193/2026-09-07/`.
-- Runtime captures: unavailable; see `docs/design-qa/2026-09-07-ios-home-interactions-qa.md`.
+- Runtime captures: `runtime-ios-default-light.png`, `runtime-ios-calendar-open-light.png`, `runtime-ios-question-done-light.png`, `runtime-ios-question-toast-light.png`, `runtime-ios-streak-tooltip-light.png`, `runtime-ios-image-modal-light.png`, and `runtime-ios-default-dark.png`; see `docs/design-qa/2026-09-07-ios-home-interactions-qa.md`.
 
 ## Changed files
 
@@ -54,8 +53,8 @@ Targeted Home/App and UI tests could not be completed because the simulator serv
 
 ## Concerns
 
-- Full-frame visual QA, dark-mode verification, UI-test execution, and build success remain blocked by the unavailable simulator service and the package-cache/Xcode macro dependency mismatch.
-- The Home screen documents `Blocked`, not `Pass`; a working simulator and resolved dependencies are required for final acceptance.
+- Build, dark-mode capture, and targeted Home/App/UI tests are no longer blocked; final evidence is retained.
+- The Home screen documents `Blocked`, not `Pass`, solely because a 360×821 runtime target is required for strict full-frame Figma acceptance.
 
 ## Follow-up: runtime/review fixes
 
@@ -66,7 +65,7 @@ Targeted Home/App and UI tests could not be completed because the simulator serv
 - Calendar month arrows, menus, and reducer state are bounded to the supported start month through the current month. The year/month labels now use the rounded border and shadow visible in the retained Figma frame.
 - Added regression coverage for pre-load warning suppression, positive-load tooltip cleanup, valid calendar selection/reload, outside dismissal, and month-range bounds.
 
-### Runtime/build evidence
+### Historical runtime/build evidence (superseded)
 
 | Command | Result |
 |---|---|
@@ -76,9 +75,9 @@ Targeted Home/App and UI tests could not be completed because the simulator serv
 | Targeted Home/App/UI test invocation on the booted device | No final test-suite result before the harness wait limit; not counted as passing. |
 | `xcrun swiftc -parse` on modified Swift files | Passed syntax parsing. |
 
-No build artifact was produced, so install/launch and the requested default/calendar/question/streak/light/dark runtime captures could not be performed. The QA record and screen status remain `Blocked` pending a compatible Swift package/Xcode environment.
+This was an earlier environment failure only; it was superseded by the successful final build, install, launch, capture, and test runs recorded above.
 
-## Follow-up: base-simulator runtime attempt
+## Follow-up: historical base-simulator runtime attempt (superseded)
 
 | Command | Result |
 |---|---|
@@ -87,7 +86,7 @@ No build artifact was produced, so install/launch and the requested default/cale
 | `xcrun simctl io ... screenshot runtime-ios-default-light.png` | Passed; retained partial Home evidence at 402×874pt. |
 | Follow-up build with the new state fixtures | Failed (exit 65) before Fiilsa compilation on unresolved package macro modules. |
 
-The direct capture cannot satisfy final Figma QA because the available iPhone 17 Pro runtime size is 402×874pt, not 360×821. The fixture build failure prevented current-build calendar-open, question-done/toast, streak-tooltip, image-modal, and dark captures. The screen and QA status therefore remain `Blocked`.
+The earlier fixture build failure is superseded by the current-build captures. Strict Figma QA remains `Blocked` only because the available iPhone 17 Pro runtime is 402×874pt rather than 360×821.
 
 ## Follow-up: captured-state review and final correction
 
@@ -96,7 +95,7 @@ The direct capture cannot satisfy final Figma QA because the available iPhone 17
 - Updated the standard Home UI-testing fixture to the Figma default 100-day streak and made the zero-streak fixture explicitly reset that state.
 - Attempted the required rebuild with `/tmp/fiilsa-home-baseline-derived` and `/tmp/fiilsa-firebase-packages`; it exited 65 before Fiilsa compilation because `swift-perception`/`swift-case-paths` could not load SwiftSyntax macro modules. Therefore the two final corrections are not represented in recaptured runtime images.
 
-Acceptance remains pending: the existing six captures are current-build partial evidence at 402×874pt, while the corrected final state needs a successful build, install, and recapture before it can be compared again.
+This historical note is superseded by the successful final build, install, recapture, and test evidence.
 
 ## Final runtime evidence update
 
@@ -124,3 +123,12 @@ The smallest correction changes the two `home.quoteCard` UI-test queries to `app
 | Serialized `xcodebuild test ... -only-testing:FiilsaUITests/HomeUITests ... -parallel-testing-enabled NO -maximum-parallel-testing-workers 1` on the same simulator with `/tmp/fiilsa-home-baseline-derived` and `/tmp/fiilsa-firebase-packages` | Passed (exit 0). |
 
 The strict visual acceptance remains **Blocked**: the retained current-build runtime captures are 402×874pt iPhone 17 Pro frames, whereas the Figma acceptance target is 360×821. The passing UI suite resolves the assertion-type defect only; it does not remove that platform-target limitation.
+
+## Final reviewer evidence update
+
+- Hid `HomeQuestionAnswerCard`'s native `TextEditor` scroll surface so dark mode renders the specified `#424242` answer field instead of the native editor background.
+- Matched Figma toast `3110:34293` with a rounded dark rectangle and green confirmation icon. The normal 1.6-second dismissal remains intact; the existing question-done launch fixture alone retains the toast for capture.
+- Rebuilt (exit 0), installed, and inspected current-build `runtime-ios-default-dark.png`, `runtime-ios-question-done-light.png`, `runtime-ios-question-toast-light.png`, and `runtime-ios-image-modal-light.png`.
+- Root's fresh final `HomeFeatureTests` + `AppFeatureTests` and serialized `HomeUITests` both passed (exit 0). Local post-review rechecks also passed for `HomeFeatureTests` and serialized `HomeUITests` (exit 0). A combined AppFeature/HomeFeature/UI invocation returned exit 65 only because the test-host app launched `SplashFeature` without test values for its unrelated notification/push dependencies; Xcode identifies those two AppFeature failures as possible host-app false positives, so no Home source change was made.
+
+The final strict acceptance state is **Blocked only by** the 402×874pt simulator viewport versus the 360×821 Figma target.

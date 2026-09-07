@@ -109,7 +109,15 @@ struct HomeView: View {
                     }
                     if viewStore.isImageDialogPresented { HomeImageDialog(quote: quote(from: viewStore.quote), author: author(from: viewStore.quote), imagePath: viewStore.quote.imagePath ?? "", dismiss: { viewStore.send(.imageDialogDismissed) }, delete: { viewStore.send(.deleteImageTapped) }, selectedPhotoItem: $selectedPhotoItem) }
                     if let message = viewStore.toastMessage {
-                        toast(message).transition(.opacity).onAppear { Task { try? await Task.sleep(nanoseconds: 1_600_000_000); await viewStore.send(.toastDismissed).finish() } }
+                        toast(message)
+                            .transition(.opacity)
+                            .onAppear {
+                                guard !isQuestionDoneFixture else { return }
+                                Task {
+                                    try? await Task.sleep(nanoseconds: 1_600_000_000)
+                                    await viewStore.send(.toastDismissed).finish()
+                                }
+                            }
                     }
                 }
             }
@@ -131,7 +139,25 @@ struct HomeView: View {
         do { try data.write(to: url, options: .atomic); return url } catch { return nil }
     }
     private func toast(_ message: String) -> some View {
-        VStack { Spacer(); Text(message).font(FillsaTypography.body2).foregroundStyle(FillsaColor.white).padding(.horizontal, 18).padding(.vertical, 12).background(Capsule().fill(FillsaColor.black0C.opacity(0.84))).padding(.bottom, 28) }
+        VStack {
+            Spacer()
+            HStack(spacing: 8) {
+                Image(systemName: "checkmark.circle.fill")
+                    .font(.system(size: 16, weight: .semibold))
+                    .foregroundStyle(FillsaColor.onToastMessage2)
+                Text(message)
+                    .font(FillsaTypography.body2)
+                    .foregroundStyle(FillsaColor.onToastMessage1)
+            }
+            .padding(.horizontal, 16)
+            .frame(height: 36)
+            .background(FillsaColor.toastMessageBackground, in: RoundedRectangle(cornerRadius: 8))
+            .padding(.bottom, 28)
+        }
+    }
+
+    private var isQuestionDoneFixture: Bool {
+        ProcessInfo.processInfo.arguments.contains("-ui-testing-home-question-done")
     }
 
     private var palette: HomeFigmaPalette {
