@@ -2,6 +2,15 @@ import ComposableArchitecture
 import PhotosUI
 import SwiftUI
 
+enum HomeToastPresentation: Equatable {
+    case standard
+    case success
+
+    static func resolve(message: String) -> Self {
+        message == "답변을 기록했어요." ? .success : .standard
+    }
+}
+
 struct HomeView: View {
     @State private var selectedLocale: HomeLocaleType = .kor
     @State private var selectedPhotoItem: PhotosPickerItem?
@@ -109,7 +118,7 @@ struct HomeView: View {
                     }
                     if viewStore.isImageDialogPresented { HomeImageDialog(quote: quote(from: viewStore.quote), author: author(from: viewStore.quote), imagePath: viewStore.quote.imagePath ?? "", dismiss: { viewStore.send(.imageDialogDismissed) }, delete: { viewStore.send(.deleteImageTapped) }, selectedPhotoItem: $selectedPhotoItem) }
                     if let message = viewStore.toastMessage {
-                        toast(message)
+                        toast(message, presentation: .resolve(message: message))
                             .transition(.opacity)
                             .onAppear {
                                 guard !isQuestionDoneFixture else { return }
@@ -138,13 +147,15 @@ struct HomeView: View {
         let url = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString).appendingPathExtension("jpg")
         do { try data.write(to: url, options: .atomic); return url } catch { return nil }
     }
-    private func toast(_ message: String) -> some View {
+    private func toast(_ message: String, presentation: HomeToastPresentation) -> some View {
         VStack {
             Spacer()
             HStack(spacing: 8) {
-                Image(systemName: "checkmark.circle.fill")
-                    .font(.system(size: 16, weight: .semibold))
-                    .foregroundStyle(FillsaColor.onToastMessage2)
+                if presentation == .success {
+                    Image(systemName: "checkmark.circle.fill")
+                        .font(.system(size: 16, weight: .semibold))
+                        .foregroundStyle(FillsaColor.onToastMessage2)
+                }
                 Text(message)
                     .font(FillsaTypography.body2)
                     .foregroundStyle(FillsaColor.onToastMessage1)

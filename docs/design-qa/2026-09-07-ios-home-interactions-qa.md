@@ -92,7 +92,9 @@ This is a targeted evidence update, not a sixth visual validation round.
 | Recorded-answer toast `3110:34293` | The Home toast was text-only and Capsule-shaped. | Replaced it with the project’s rounded dark toast surface and green `checkmark.circle.fill`; retained `runtime-ios-question-toast-light.png` with a fixture-only dismissal guard. | Partial runtime evidence verified. |
 | Selected-day current states | Question-done and image-modal evidence predated the final selected/completed distinction. | Refreshed `runtime-ios-question-done-light.png` and `runtime-ios-image-modal-light.png`; both show the outlined selected 12th. | Partial runtime evidence verified. |
 
-The current simulator build passed (exit 0). Root's fresh final `HomeFeatureTests` plus `AppFeatureTests` and the serialized `HomeUITests` suite each passed (exit 0); local post-review rechecks also passed for `HomeFeatureTests` and serialized `HomeUITests` (exit 0). The normal production toast still dismisses after 1.6 seconds; only the guarded question-done capture fixture retains it for evidence.
+The current simulator build passed (exit 0). Root's fresh final `HomeFeatureTests` plus `AppFeatureTests` and the serialized `HomeUITests` suite each passed (exit 0); local post-review rechecks also passed for `HomeFeatureTests` and serialized `HomeUITests` (exit 0). The normal production toast still dismisses after 1.6 seconds; only the guarded question-done capture fixture retains it for evidence. Original-resolution inspection confirms `runtime-ios-question-done-light.png` displays `2026.08`, so no stale-capture claim is needed.
+
+The green confirmation icon is now reserved for the successful recorded-answer toast (`답변을 기록했어요.`); image deletion/upload failure and other neutral Home messages keep their existing copy without that success indicator. The Home regression suite verifies this presentation mapping.
 
 ## Final assembled-screen result
 

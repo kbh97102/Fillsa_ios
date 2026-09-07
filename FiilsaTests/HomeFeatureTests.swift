@@ -196,6 +196,14 @@ struct HomeFeatureTests {
     }
 
     @Test
+    func onlyRecordedAnswerToastUsesSuccessPresentation() {
+        #expect(HomeToastPresentation.resolve(message: "답변을 기록했어요.") == .success)
+        #expect(HomeToastPresentation.resolve(message: "이미지가 삭제되었습니다.") == .standard)
+        #expect(HomeToastPresentation.resolve(message: "이미지 삭제에 실패했습니다.") == .standard)
+        #expect(HomeToastPresentation.resolve(message: "이미지 변경에 실패했습니다.") == .standard)
+    }
+
+    @Test
     func weekStripEndsAtTheSelectedDate() {
         var calendar = Calendar(identifier: .gregorian)
         calendar.timeZone = TimeZone(secondsFromGMT: 0)!

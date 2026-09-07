@@ -130,5 +130,7 @@ The strict visual acceptance remains **Blocked**: the retained current-build run
 - Matched Figma toast `3110:34293` with a rounded dark rectangle and green confirmation icon. The normal 1.6-second dismissal remains intact; the existing question-done launch fixture alone retains the toast for capture.
 - Rebuilt (exit 0), installed, and inspected current-build `runtime-ios-default-dark.png`, `runtime-ios-question-done-light.png`, `runtime-ios-question-toast-light.png`, and `runtime-ios-image-modal-light.png`.
 - Root's fresh final `HomeFeatureTests` + `AppFeatureTests` and serialized `HomeUITests` both passed (exit 0). Local post-review rechecks also passed for `HomeFeatureTests` and serialized `HomeUITests` (exit 0). A combined AppFeature/HomeFeature/UI invocation returned exit 65 only because the test-host app launched `SplashFeature` without test values for its unrelated notification/push dependencies; Xcode identifies those two AppFeature failures as possible host-app false positives, so no Home source change was made.
+- Original-resolution inspection confirms the retained question-done evidence displays `2026.08`; no stale-capture correction is required.
+- The green check is now semantic: only `답변을 기록했어요.` uses the success presentation. Image deletion/upload failure and other neutral Home toasts preserve their copy without a success indicator; `HomeFeatureTests` covers the mapping.
 
 The final strict acceptance state is **Blocked only by** the 402×874pt simulator viewport versus the 360×821 Figma target.
