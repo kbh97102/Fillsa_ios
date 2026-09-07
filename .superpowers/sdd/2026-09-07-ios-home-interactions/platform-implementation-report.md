@@ -97,3 +97,17 @@ The direct capture cannot satisfy final Figma QA because the available iPhone 17
 - Attempted the required rebuild with `/tmp/fiilsa-home-baseline-derived` and `/tmp/fiilsa-firebase-packages`; it exited 65 before Fiilsa compilation because `swift-perception`/`swift-case-paths` could not load SwiftSyntax macro modules. Therefore the two final corrections are not represented in recaptured runtime images.
 
 Acceptance remains pending: the existing six captures are current-build partial evidence at 402×874pt, while the corrected final state needs a successful build, install, and recapture before it can be compared again.
+
+## Final runtime evidence update
+
+The final correction was subsequently rebuilt and captured successfully.
+
+| Command/evidence | Result |
+|---|---|
+| `xcodebuild -quiet -project Fiilsa.xcodeproj -scheme Fiilsa -destination 'platform=iOS Simulator,id=89410CC6-A661-4252-B810-0E54DE5FB620' -derivedDataPath /tmp/fiilsa-home-baseline-derived -clonedSourcePackagesDirPath /tmp/fiilsa-firebase-packages CODE_SIGNING_ALLOWED=NO build` | Passed (exit 0). |
+| Install current app, then overwrite default/calendar-open/streak-tooltip/dark captures | Passed. The retained paths now represent the final current build. |
+| Captures reviewed | `runtime-ios-default-light.png`, `runtime-ios-calendar-open-light.png`, `runtime-ios-question-done-light.png`, `runtime-ios-streak-tooltip-light.png`, `runtime-ios-image-modal-light.png`, `runtime-ios-default-dark.png`. |
+
+The refreshed default light/dark captures show the Figma-default 100-day streak and outlined selected day; refreshed calendar-open and streak-tooltip captures confirm the corrected selected/completed distinction and zero-streak state. Question-done and image-modal remain current unaffected-state evidence.
+
+Acceptance is still **Blocked**, not Pass: all available runtime captures are iPhone 17 Pro 402×874pt frames, while the Figma acceptance target is 360×821. This platform-target mismatch makes a strict full-frame Figma comparison invalid.

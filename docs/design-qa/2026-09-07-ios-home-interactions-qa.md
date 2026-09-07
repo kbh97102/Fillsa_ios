@@ -8,7 +8,7 @@
 - Runtime target: iPhone 17 Pro (`89410CC6-A661-4252-B810-0E54DE5FB620`), iOS 26.5, **402×874pt**. This differs from the required 360×821 Figma target; its evidence is therefore partial only.
 - Runtime full-frame captures: `docs/design-qa/assets/home-figma-2929-17193/2026-09-07/runtime-ios-default-light.png`, `runtime-ios-calendar-open-light.png`, `runtime-ios-question-done-light.png`, `runtime-ios-streak-tooltip-light.png`, `runtime-ios-image-modal-light.png`, and `runtime-ios-default-dark.png`. These six current-build iPhone 17 Pro captures are partial evidence only because their 402×874 frame differs from Figma's 360×821 target.
 - Crop boundaries: full 360×821 frames for every reference; no runtime crop exists.
-- Comparison method: source-level component geometry/state review against the retained full-frame exports. This is partial evidence only, not final visual acceptance.
+- Comparison method: side-by-side visual inspection of retained Figma exports and the six current-build full simulator captures. This remains partial evidence only: the viewport sizes differ, so an acceptance overlay is invalid.
 
 ## Component inventory
 
@@ -63,9 +63,20 @@ The earlier follow-up fixture binary attempt exited 65 while resolving package m
 
 The six current-build paths above are retained for reinspection. The final correction could not be rebuilt into a seventh artifact: the explicit rebuild command using `/tmp/fiilsa-home-baseline-derived` and `/tmp/fiilsa-firebase-packages` exited 65 in `swift-perception`/`swift-case-paths` macro compilation. It is therefore not valid to claim the Round 4 visual result as captured or accepted.
 
+### Round 5
+
+| Scope | Difference | Fix | Result |
+|---|---|---|---|
+| Current corrected simulator build | Earlier Round 4 recapture was unavailable. | The current `cd7ed7b` source built successfully with the known-good derived-data path and was installed on the base iPhone 17 Pro. | Build passed (exit 0). |
+| Default Home, light/dark | The selected day had previously been indistinguishable from a completed day, and the normal fixture did not show the Figma default streak. | Refreshed `runtime-ios-default-light.png` and `runtime-ios-default-dark.png` show the outlined selected 12th and 100-day header streak. | Partial runtime evidence verified. |
+| Calendar-open and streak-tooltip | The final selected-day correction and zero-state warning needed runtime evidence. | Refreshed `runtime-ios-calendar-open-light.png` and `runtime-ios-streak-tooltip-light.png`; the popup remains visible, and the outlined purple warning/tooltip state is reachable. | Partial runtime evidence verified. |
+| Question-done and image-modal | These Home states were unaffected by the last source correction. | Retained `runtime-ios-question-done-light.png` and `runtime-ios-image-modal-light.png` from the current build. | Partial runtime evidence verified. |
+
+Build command: `xcodebuild -quiet -project Fiilsa.xcodeproj -scheme Fiilsa -destination 'platform=iOS Simulator,id=89410CC6-A661-4252-B810-0E54DE5FB620' -derivedDataPath /tmp/fiilsa-home-baseline-derived -clonedSourcePackagesDirPath /tmp/fiilsa-firebase-packages CODE_SIGNING_ALLOWED=NO build` — exit 0. The current app was installed before the four affected captures were overwritten.
+
 ## Final assembled-screen result
 
 - Full-frame reference/capture comparison: Figma references are 360×821; retained runtime light capture is 402×874, so no valid full-frame overlay or side-by-side acceptance comparison can be produced.
-- Final runtime capture: six Round 3 paths listed above (partial-only 402×874 current-build evidence); the Round 4 selected-day/default-streak corrections are not yet captured.
-- Result: Blocked after round 4.
-- Remaining differences: recapture the selected-day/default-streak correction; match-device 360×821 geometry; and compare final default/dark/calendar-open/question done/streak tooltip/image modal full frames. The deliberately preserved shared four-tab navigation also differs from the Figma three-tab composition, per screen scope.
+- Final runtime capture: the six paths listed above, including refreshed default light/dark, calendar-open, and streak-tooltip evidence for the final correction.
+- Result: Blocked after round 5.
+- Remaining differences: a 360×821 runtime target is required for final full-frame comparison. The iPhone 17 Pro's 402×874 viewport and the deliberately preserved shared four-tab navigation both prevent strict Figma-frame acceptance; no product change is made for either limitation.
