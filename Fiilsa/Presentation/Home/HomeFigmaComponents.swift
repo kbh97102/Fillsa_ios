@@ -121,16 +121,19 @@ struct HomeFigmaPalette: Equatable {
 struct HomeHeader: View {
     let myPage: () -> Void
     let streakCount: Int?
+    let isStreakStateLoaded: Bool
     let streakStatus: () -> Void
     @Environment(\.colorScheme) private var colorScheme
 
     init(
         myPage: @escaping () -> Void,
         streakCount: Int? = nil,
+        isStreakStateLoaded: Bool = true,
         streakStatus: @escaping () -> Void = {}
     ) {
         self.myPage = myPage
         self.streakCount = streakCount
+        self.isStreakStateLoaded = isStreakStateLoaded
         self.streakStatus = streakStatus
     }
 
@@ -143,27 +146,29 @@ struct HomeHeader: View {
 
             Spacer()
 
-            Button(action: streakStatus) {
-                if let streakCount {
-                    HStack(spacing: 2) {
-                        Image("home_flame")
-                            .resizable()
-                            .scaledToFit()
-                            .frame(width: 20, height: 20)
-                        Text("\(streakCount)일")
-                            .font(FillsaTypography.subtitle1)
-                            .foregroundStyle(palette.primaryText.color)
+            if isStreakStateLoaded {
+                Button(action: streakStatus) {
+                    if let streakCount {
+                        HStack(spacing: 2) {
+                            Image("home_flame")
+                                .resizable()
+                                .scaledToFit()
+                                .frame(width: 20, height: 20)
+                            Text("\(streakCount)일")
+                                .font(FillsaTypography.subtitle1)
+                                .foregroundStyle(palette.primaryText.color)
+                        }
+                    } else {
+                        Image(systemName: "exclamationmark.triangle")
+                            .font(.system(size: 24, weight: .regular))
+                            .foregroundStyle(FillsaColor.purple01)
+                            .frame(width: 24, height: 24)
                     }
-                } else {
-                    Image(systemName: "exclamationmark.triangle.fill")
-                        .font(.system(size: 18, weight: .semibold))
-                        .foregroundStyle(FillsaColor.gray700)
-                        .frame(width: 24, height: 24)
                 }
+                .buttonStyle(.plain)
+                .padding(.trailing, 10)
+                .accessibilityIdentifier("home.streakStatus")
             }
-            .buttonStyle(.plain)
-            .padding(.trailing, 10)
-            .accessibilityIdentifier("home.streakStatus")
 
             Button(action: myPage) {
                 Image("home_profile")

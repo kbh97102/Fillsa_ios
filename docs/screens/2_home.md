@@ -6,7 +6,7 @@
 - 대상 프레임/노드: `2929:13556` (`2.home`)
 - Dark render frame/node: `3039:26518` (`2.home`, 360×821). The section parent `2929:9603` is not a render target.
 - 대상 기기/프레임 크기: light state. Request supplied 360×720, but Figma MCP metadata/export inspected on 2026-08-29 resolves the authoritative node to 360×821; implementation/QA use the actual exported 360×821 frame.
-- 검증 상태: Blocked — simulator runtime full-frame capture and comparison cannot run on the current host because CoreSimulatorService is unavailable.
+- 검증 상태: Blocked — iPhone 17 Pro simulator is booted, but the Home build fails before app compilation because the Xcode 26.6 package graph cannot resolve SwiftSyntax macro modules. Therefore no current-build runtime full-frame capture exists.
 - 기준 이미지: `docs/design-qa/assets/home-figma-2929-17193/2026-09-07/` (default, calendar-open, question-flow, streak-tooltip, image-flow)
 - QA 기록: `docs/design-qa/2026-09-07-ios-home-interactions-qa.md`
 
@@ -37,14 +37,14 @@
 
 | 컴포넌트 | Figma 노드 | 책임 | 조립 위치 | 검증 상태 |
 |---|---|---|---|---|
-| Status/top surface | `2929:13557`, `2929:15476` | `HomeHeader`: safe-area background, 60×26.666 logo, optional real streak, My Page action | `HomeView` top | Blocked — runtime capture unavailable |
-| Date controls | `2929:15667`, `2929:16221`, `3139:1501`, `3204:2435` | 월 선택 토글, inline 월 달력, 선택일을 오른쪽 끝으로 둔 7일 strip; completed dates는 완료된 필사 기록만 사용 | `HomeDateControls` below top surface | Blocked — runtime capture unavailable |
+| Status/top surface | `2929:13557`, `2929:15476` | `HomeHeader`: safe-area background, 60×26.666 logo, loaded zero-streak warning, optional real streak, My Page action | `HomeView` top | Blocked — current-build runtime capture unavailable |
+| Date controls | `2929:15667`, `2929:16221`, `3139:1501`, `3204:2435` | 월 선택 toggle, bounded inline month calendar, selected day at right edge of the strip; completed dates only use genuine completed writing records | `HomeDateControls` below top surface | Blocked — current-build runtime capture unavailable |
 | Locale prompt | `2929:15520` | Typing prompt and Korean/English switch | `HomeView` | Blocked — runtime capture unavailable |
 | Quote card | `2929:13642` | `HomeQuoteCard`: local Figma texture, quote/author search action, and date swipe; on today's latest quote the forward swipe emits no next action | `HomeView` | Blocked — runtime capture unavailable |
 | Quote actions | `2929:15503` | `HomeQuoteActionRow`: 16pt local assets, 42pt row/dividers; existing copy, share, live like toggle, and image registration actions | `HomeView` | Blocked — runtime capture unavailable |
-| Question/answer | `3087:29376`, `3139:1399`, `3087:29378`, `3110:34293` | 200-grapheme 입력, 세션 기록, 저장 토스트, 완료/수정 상태. 명언 필사 route와 분리한다. | `HomeView` / `HomeFeature` | Blocked — runtime capture unavailable; 영구 저장은 별도 범위 |
-| Bottom navigation/ad | `3087:29254`, `3087:29249` | Figma-common Home/Calendar/My page 32pt light assets, existing 4-tab shared navigation, and static 35pt ad surface | `AppView` / `FillsaBottomNavigationBar` / `HomeAdSurface` | Blocked — shared 4-tab route differs from Figma's 3-tab composition; runtime capture unavailable |
-| Dark Home appearance | `3039:26518` | `HomeFigmaPalette` resolves dark root `#212121`, card/input `#424242`, outlines/dividers `#616161`, white primary text, `#E0E0E0` action text, and `#9E9E9E` inactive weekday/input metadata. Local Figma SVG dark appearances cover logo, profile, quote texture, author search, and quote action icons. | `HomeView` / Home Figma components | Blocked — runtime capture unavailable |
+| Question/answer | `3087:29376`, `3139:1399`, `3087:29378`, `3110:34293` | 200-grapheme 입력, 세션 기록, 저장 토스트, 완료/수정 상태. 명언 필사 route와 분리한다. | `HomeView` / `HomeFeature` | Blocked — current-build runtime capture unavailable; 영구 저장은 별도 범위 |
+| Bottom navigation/ad | `3087:29254`, `3087:29249` | Figma-common Home/Calendar/My page 32pt light assets, existing 4-tab shared navigation, and static 35pt ad surface | `AppView` / `FillsaBottomNavigationBar` / `HomeAdSurface` | Blocked — shared 4-tab route differs from Figma's 3-tab composition; current-build runtime capture unavailable |
+| Dark Home appearance | `3039:26518` | `HomeFigmaPalette` resolves dark root `#212121`, card/input `#424242`, outlines/dividers `#616161`, white primary text, `#E0E0E0` action text, and `#9E9E9E` inactive weekday/input metadata. Local Figma SVG dark appearances cover logo, profile, quote texture, author search, and quote action icons. | `HomeView` / Home Figma components | Blocked — current-build runtime capture unavailable |
 
 ## 기본 동작
 

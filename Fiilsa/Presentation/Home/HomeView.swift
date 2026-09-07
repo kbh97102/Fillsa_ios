@@ -25,6 +25,7 @@ struct HomeView: View {
                 HomeHeader(
                     myPage: openMyPage,
                     streakCount: viewStore.streakCount,
+                    isStreakStateLoaded: viewStore.isStreakStateLoaded,
                     streakStatus: { viewStore.send(.streakStatusTapped) }
                 )
                 .padding(.horizontal, 20)
@@ -94,7 +95,12 @@ struct HomeView: View {
                         VStack {
                             HStack {
                                 Spacer()
-                                HomeStreakTooltip(openCalendar: openCalendar)
+                                HomeStreakTooltip(
+                                    openCalendar: {
+                                        viewStore.send(.streakTooltipDismissed)
+                                        openCalendar()
+                                    }
+                                )
                             }
                             .padding(.top, 49)
                             .padding(.trailing, 20)

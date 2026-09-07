@@ -63,6 +63,7 @@ struct HomeFeatureTests {
 
         await store.send(.completionStateLoaded(3, [completed, incomplete])) {
             $0.streakCount = 3
+            $0.isStreakStateLoaded = true
             $0.completedWritingDates = ["2026-08-10"]
         }
     }
@@ -77,6 +78,7 @@ struct HomeFeatureTests {
 
         await store.send(.completionStateLoaded(0, [])) {
             $0.streakCount = nil
+            $0.isStreakStateLoaded = true
         }
     }
 
@@ -86,6 +88,9 @@ struct HomeFeatureTests {
             HomeFeature()
         }
 
+        await store.send(.completionStateLoaded(0, [])) {
+            $0.isStreakStateLoaded = true
+        }
         await store.send(.calendarTriggerTapped) {
             $0.isCalendarPresented = true
             $0.calendarDisplayedMonth = FillsaCalendarDateSupport.startOfMonth(for: $0.date)
@@ -97,6 +102,78 @@ struct HomeFeatureTests {
         await store.send(.streakTooltipDismissed) {
             $0.isStreakTooltipPresented = false
         }
+    }
+
+    @Test
+    func streakWarningWaitsForAConfirmedZeroAndPositiveLoadClosesItsTooltip() async {
+        let store = TestStore(initialState: HomeFeature.State()) {
+            HomeFeature()
+        }
+
+        await store.send(.streakStatusTapped)
+        await store.send(.completionStateLoaded(0, [])) {
+            $0.isStreakStateLoaded = true
+        }
+        await store.send(.streakStatusTapped) {
+            $0.isStreakTooltipPresented = true
+        }
+        await store.send(.completionStateLoaded(2, [])) {
+            $0.streakCount = 2
+            $0.isStreakTooltipPresented = false
+        }
+    }
+
+    @Test
+    func calendarSelectionClosesAndReloadsTheQuote() async {
+        let selectedDate = FillsaCalendarDateSupport.calendar.date(
+            from: DateComponents(year: 2026, month: 8, day: 12)
+        )!
+        var initialState = HomeFeature.State()
+        initialState.isCalendarPresented = true
+        let quote = DailyQuote(dailyQuoteSeq: 99, korQuote: "새 명언")
+        let store = TestStore(initialState: initialState) {
+            HomeFeature()
+        } withDependencies: {
+            $0.homeUseCases.loadDailyQuote = { _ in
+                HomeDailyQuoteResult(quote: quote, isLoggedIn: false)
+            }
+        }
+
+        await store.send(.calendarDateSelected(selectedDate)) {
+            $0.date = selectedDate
+            $0.calendarDisplayedMonth = FillsaCalendarDateSupport.startOfMonth(for: selectedDate)
+            $0.isCalendarPresented = false
+            $0.isLoading = true
+        }
+        await store.receive(.dailyQuoteLoaded(.success(HomeDailyQuoteResult(quote: quote, isLoggedIn: false)))) {
+            $0.quote = quote
+            $0.hasLoaded = true
+            $0.isLoading = false
+        }
+    }
+
+    @Test
+    func overlayDismissalsClearTheVisibleState() async {
+        var initialState = HomeFeature.State()
+        initialState.isCalendarPresented = true
+        initialState.isStreakTooltipPresented = true
+        let store = TestStore(initialState: initialState) {
+            HomeFeature()
+        }
+
+        await store.send(.calendarDismissed) {
+            $0.isCalendarPresented = false
+        }
+        await store.send(.streakTooltipDismissed) {
+            $0.isStreakTooltipPresented = false
+        }
+    }
+
+    @Test
+    func calendarMonthRangeRejectsMonthsOutsideTheSupportedDates() {
+        #expect(HomeCalendarMonthRange.isSelectable(HomeCalendarMonthRange.start))
+        #expect(!HomeCalendarMonthRange.isSelectable(FillsaCalendarDateSupport.addMonths(-1, to: HomeCalendarMonthRange.start)))
+        #expect(!HomeCalendarMonthRange.isSelectable(FillsaCalendarDateSupport.addMonths(1, to: HomeCalendarMonthRange.end)))
     }
 
     @Test

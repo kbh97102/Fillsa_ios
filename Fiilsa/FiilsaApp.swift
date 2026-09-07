@@ -57,6 +57,9 @@ struct FiilsaApp: App {
                 isLoggedIn: true,
                 hasLoaded: true
             )
+            if arguments.contains("-ui-testing-home-zero-streak") {
+                state.home.isStreakStateLoaded = true
+            }
             return state
         }
 

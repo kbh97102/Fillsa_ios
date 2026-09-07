@@ -2,7 +2,7 @@
 
 ## Status
 
-Implementation complete; runtime visual acceptance is **Blocked** on this host.
+Implementation is implemented, but acceptance is pending runtime evidence; current runtime visual acceptance is **Blocked**.
 
 ## Changes
 
@@ -56,3 +56,24 @@ Targeted Home/App and UI tests could not be completed because the simulator serv
 
 - Full-frame visual QA, dark-mode verification, UI-test execution, and build success remain blocked by the unavailable simulator service and the package-cache/Xcode macro dependency mismatch.
 - The Home screen documents `Blocked`, not `Pass`; a working simulator and resolved dependencies are required for final acceptance.
+
+## Follow-up: runtime/review fixes
+
+### Review fixes
+
+- Added explicit streak-load state so the purple outlined zero-streak warning is neither rendered nor actionable before a genuine streak result is available. A positive result also clears any visible zero-state tooltip.
+- The tooltip's Calendar link now dismisses its Home overlay before selecting the existing Calendar tab.
+- Calendar month arrows, menus, and reducer state are bounded to the supported start month through the current month. The year/month labels now use the rounded border and shadow visible in the retained Figma frame.
+- Added regression coverage for pre-load warning suppression, positive-load tooltip cleanup, valid calendar selection/reload, outside dismissal, and month-range bounds.
+
+### Runtime/build evidence
+
+| Command | Result |
+|---|---|
+| `xcrun simctl list devices` | Passed: iPhone 17 Pro `89410CC6-A661-4252-B810-0E54DE5FB620` is booted (iOS 26.5). |
+| Prescribed simulator build with `/tmp/fiilsa-firebase-packages` | Failed before Fiilsa compilation: unresolved SwiftSyntax macro modules in `swift-perception` and `swift-case-paths`. |
+| Fallback build with a fresh derived-data package graph | Failed with the same unresolved SwiftSyntax macro-module error. |
+| Targeted Home/App/UI test invocation on the booted device | No final test-suite result before the harness wait limit; not counted as passing. |
+| `xcrun swiftc -parse` on modified Swift files | Passed syntax parsing. |
+
+No build artifact was produced, so install/launch and the requested default/calendar/question/streak/light/dark runtime captures could not be performed. The QA record and screen status remain `Blocked` pending a compatible Swift package/Xcode environment.

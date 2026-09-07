@@ -15,6 +15,7 @@ struct HomeFeature {
         var isDeleteImageConfirmationPresented = false
         var toastMessage: String?
         var streakCount: Int?
+        var isStreakStateLoaded = false
         var completedWritingDates: Set<String> = []
         var isCalendarPresented = false
         var calendarDisplayedMonth = FillsaCalendarDateSupport.startOfMonth(for: Date())
@@ -219,6 +220,10 @@ struct HomeFeature {
 
             case let .completionStateLoaded(streakCount, streakInfos):
                 state.streakCount = streakCount > 0 ? streakCount : nil
+                state.isStreakStateLoaded = true
+                if streakCount > 0 {
+                    state.isStreakTooltipPresented = false
+                }
                 state.completedWritingDates = Set(
                     streakInfos
                         .filter(\.isDailyWritingCompleted)
@@ -239,7 +244,9 @@ struct HomeFeature {
                 return .none
 
             case let .calendarMonthChanged(month):
-                state.calendarDisplayedMonth = FillsaCalendarDateSupport.startOfMonth(for: month)
+                let targetMonth = FillsaCalendarDateSupport.startOfMonth(for: month)
+                guard HomeCalendarMonthRange.isSelectable(targetMonth) else { return .none }
+                state.calendarDisplayedMonth = targetMonth
                 return .none
 
             case let .calendarDateSelected(date):
@@ -255,7 +262,7 @@ struct HomeFeature {
                 return load(state: &state)
 
             case .streakStatusTapped:
-                guard state.streakCount == nil else { return .none }
+                guard state.isStreakStateLoaded, state.streakCount == nil else { return .none }
                 state.isStreakTooltipPresented.toggle()
                 if state.isStreakTooltipPresented {
                     state.isCalendarPresented = false

@@ -7,6 +7,16 @@ struct HomeCalendarDay: Identifiable, Equatable {
     var id: Date { date }
 }
 
+enum HomeCalendarMonthRange {
+    static var start: Date { FillsaCalendarDateSupport.startMonth }
+    static var end: Date { FillsaCalendarDateSupport.startOfMonth(for: Date()) }
+
+    static func isSelectable(_ date: Date) -> Bool {
+        let month = FillsaCalendarDateSupport.startOfMonth(for: date)
+        return month >= start && month <= end
+    }
+}
+
 enum HomeCalendarGrid {
     static func days(
         displayedMonth: Date,
@@ -74,7 +84,10 @@ struct HomeInlineCalendar: View {
 
             Menu {
                 ForEach(yearRange, id: \.self) { year in
-                    Button("\(year)년") { changeMonth(month(year: year, month: displayedMonthNumber)) }
+                    let target = month(year: year, month: displayedMonthNumber)
+                    if HomeCalendarMonthRange.isSelectable(target) {
+                        Button("\(year)년") { changeMonth(target) }
+                    }
                 }
             } label: {
                 dropdownLabel("\(displayedYear)년", width: 62)
@@ -82,7 +95,10 @@ struct HomeInlineCalendar: View {
 
             Menu {
                 ForEach(1...12, id: \.self) { month in
-                    Button("\(month)월") { changeMonth(self.month(year: displayedYear, month: month)) }
+                    let target = self.month(year: displayedYear, month: month)
+                    if HomeCalendarMonthRange.isSelectable(target) {
+                        Button("\(month)월") { changeMonth(target) }
+                    }
                 }
             } label: {
                 dropdownLabel("\(displayedMonthNumber)월", width: 54)
@@ -95,8 +111,9 @@ struct HomeInlineCalendar: View {
     }
 
     private func monthMoveButton(systemName: String, delta: Int) -> some View {
-        Button {
-            changeMonth(FillsaCalendarDateSupport.addMonths(delta, to: displayedMonth))
+        let target = FillsaCalendarDateSupport.addMonths(delta, to: displayedMonth)
+        return Button {
+            changeMonth(target)
         } label: {
             Image(systemName: systemName)
                 .font(.system(size: 12, weight: .semibold))
@@ -104,6 +121,7 @@ struct HomeInlineCalendar: View {
                 .frame(width: 24, height: 24)
         }
         .buttonStyle(.plain)
+        .disabled(!HomeCalendarMonthRange.isSelectable(target))
     }
 
     private func dropdownLabel(_ title: String, width: CGFloat) -> some View {
@@ -116,6 +134,10 @@ struct HomeInlineCalendar: View {
                 .foregroundStyle(FillsaColor.gray500)
         }
         .frame(width: width, height: 28)
+        .background(FillsaColor.white)
+        .clipShape(RoundedRectangle(cornerRadius: 8))
+        .overlay(RoundedRectangle(cornerRadius: 8).stroke(Color(hex: 0xE7E2D7), lineWidth: 1))
+        .shadow(color: FillsaColor.gray700.opacity(0.12), radius: 2, y: 1)
     }
 
     private func dayCell(_ day: HomeCalendarDay) -> some View {

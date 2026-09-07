@@ -74,4 +74,20 @@ final class AppFeatureTests: XCTestCase {
             $0.alert = AlertFeature.State()
         }
     }
+
+    func test_streakTooltipCalendarLinkClearsHomeOverlayBeforeSelectingCalendar() async {
+        var state = AppFeature.State()
+        state.screen = .main
+        state.home.isStreakTooltipPresented = true
+        let store = TestStore(initialState: state) {
+            AppFeature()
+        }
+
+        await store.send(.home(.streakTooltipDismissed)) {
+            $0.home.isStreakTooltipPresented = false
+        }
+        await store.send(.selectedTabChanged(.calendar)) {
+            $0.selectedTab = .calendar
+        }
+    }
 }
