@@ -60,6 +60,23 @@ struct FiilsaApp: App {
             if arguments.contains("-ui-testing-home-zero-streak") {
                 state.home.isStreakStateLoaded = true
             }
+            if arguments.contains("-ui-testing-home-calendar-open") {
+                state.home.isCalendarPresented = true
+                state.home.calendarDisplayedMonth = FillsaCalendarDateSupport.startOfMonth(for: Self.homeUITestDate)
+            }
+            if arguments.contains("-ui-testing-home-question-done") {
+                state.home.answerDraft = "친구가 힘들 때 언제든 연락하라고 했는데, 한참 뒤에야 그 말이 진심이었다는 걸 믿고 먼저 연락한 적이 있어요."
+                state.home.recordedAnswer = state.home.answerDraft
+                state.home.isEditingAnswer = false
+                state.home.toastMessage = "답변을 기록했어요."
+            }
+            if arguments.contains("-ui-testing-home-streak-tooltip") {
+                state.home.isStreakStateLoaded = true
+                state.home.isStreakTooltipPresented = true
+            }
+            if arguments.contains("-ui-testing-home-image-modal") {
+                state.home.isImageDialogPresented = true
+            }
             return state
         }
 

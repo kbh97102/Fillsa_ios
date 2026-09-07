@@ -77,3 +77,14 @@ Targeted Home/App and UI tests could not be completed because the simulator serv
 | `xcrun swiftc -parse` on modified Swift files | Passed syntax parsing. |
 
 No build artifact was produced, so install/launch and the requested default/calendar/question/streak/light/dark runtime captures could not be performed. The QA record and screen status remain `Blocked` pending a compatible Swift package/Xcode environment.
+
+## Follow-up: base-simulator runtime attempt
+
+| Command | Result |
+|---|---|
+| Serialized `xcodebuild test` for `HomeUITests` on `89410CC6-A661-4252-B810-0E54DE5FB620` | `testHomeCalendarAndQuestionRemainInHome` passed. `testHomeRendersTheFigmaQuestionAndAnswerState` and `testHomeFixtureStaysLightAfterTheAppStartupTask` failed at their shared initial `home.quoteCard` wait after test-host launch, before their individual assertions. |
+| `xcrun simctl install` / `launch` known-good `/tmp/fiilsa-home-baseline-derived/.../Fiilsa.app` | Passed; direct launch reached the Home fixture. |
+| `xcrun simctl io ... screenshot runtime-ios-default-light.png` | Passed; retained partial Home evidence at 402×874pt. |
+| Follow-up build with the new state fixtures | Failed (exit 65) before Fiilsa compilation on unresolved package macro modules. |
+
+The direct capture cannot satisfy final Figma QA because the available iPhone 17 Pro runtime size is 402×874pt, not 360×821. The fixture build failure prevented current-build calendar-open, question-done/toast, streak-tooltip, image-modal, and dark captures. The screen and QA status therefore remain `Blocked`.
