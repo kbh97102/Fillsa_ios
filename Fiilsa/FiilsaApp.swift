@@ -57,8 +57,10 @@ struct FiilsaApp: App {
                 isLoggedIn: true,
                 hasLoaded: true
             )
+            state.home.isStreakStateLoaded = true
+            state.home.streakCount = 100
             if arguments.contains("-ui-testing-home-zero-streak") {
-                state.home.isStreakStateLoaded = true
+                state.home.streakCount = nil
             }
             if arguments.contains("-ui-testing-home-calendar-open") {
                 state.home.isCalendarPresented = true

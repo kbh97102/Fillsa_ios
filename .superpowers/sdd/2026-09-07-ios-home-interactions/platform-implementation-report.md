@@ -88,3 +88,12 @@ No build artifact was produced, so install/launch and the requested default/cale
 | Follow-up build with the new state fixtures | Failed (exit 65) before Fiilsa compilation on unresolved package macro modules. |
 
 The direct capture cannot satisfy final Figma QA because the available iPhone 17 Pro runtime size is 402×874pt, not 360×821. The fixture build failure prevented current-build calendar-open, question-done/toast, streak-tooltip, image-modal, and dark captures. The screen and QA status therefore remain `Blocked`.
+
+## Follow-up: captured-state review and final correction
+
+- Reviewed six retained current-build captures: default light/dark, calendar-open light, question-done light, streak-tooltip light, and image-modal light.
+- Corrected `HomeWeekStrip` so selected and completed days no longer share the purple-filled appearance: selected uses the Figma light/dark surface with primary text and purple outline; completed uses the purple fill with white text.
+- Updated the standard Home UI-testing fixture to the Figma default 100-day streak and made the zero-streak fixture explicitly reset that state.
+- Attempted the required rebuild with `/tmp/fiilsa-home-baseline-derived` and `/tmp/fiilsa-firebase-packages`; it exited 65 before Fiilsa compilation because `swift-perception`/`swift-case-paths` could not load SwiftSyntax macro modules. Therefore the two final corrections are not represented in recaptured runtime images.
+
+Acceptance remains pending: the existing six captures are current-build partial evidence at 402×874pt, while the corrected final state needs a successful build, install, and recapture before it can be compared again.

@@ -6,7 +6,7 @@
 - 대상 프레임/노드: `2929:13556` (`2.home`)
 - Dark render frame/node: `3039:26518` (`2.home`, 360×821). The section parent `2929:9603` is not a render target.
 - 대상 기기/프레임 크기: light state. Request supplied 360×720, but Figma MCP metadata/export inspected on 2026-08-29 resolves the authoritative node to 360×821; implementation/QA use the actual exported 360×821 frame.
-- 검증 상태: Blocked — a known-good iPhone 17 Pro Home build was launched and captured, but its 402×874 runtime frame does not match the 360×821 Figma target. The follow-up fixture build failed before app compilation, so calendar-open/question-done/streak/image/dark current-build captures remain unavailable.
+- 검증 상태: Blocked — six iPhone 17 Pro current-build captures (default light/dark, calendar-open, question-done, streak-tooltip, image-modal) are retained, but their 402×874 runtime frame does not match the 360×821 Figma target. The final selected-day/default-streak correction awaits a successful rebuild and recapture.
 - 기준 이미지: `docs/design-qa/assets/home-figma-2929-17193/2026-09-07/` (default, calendar-open, question-flow, streak-tooltip, image-flow)
 - QA 기록: `docs/design-qa/2026-09-07-ios-home-interactions-qa.md`
 

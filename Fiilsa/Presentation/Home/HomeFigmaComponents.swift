@@ -257,6 +257,7 @@ struct HomeWeekStrip: View {
     let completedWritingDates: Set<String>
     let calendar: Calendar
     let selectDate: (Date) -> Void
+    @Environment(\.colorScheme) private var colorScheme
 
     init(
         selectedDate: Date,
@@ -307,7 +308,7 @@ struct HomeWeekStrip: View {
     private func foreground(for date: Date) -> Color {
         switch dayState(for: date) {
         case .selected:
-            FillsaColor.white
+            palette.primaryText.color
         case .completed:
             FillsaColor.white
         case .default:
@@ -318,7 +319,7 @@ struct HomeWeekStrip: View {
     private func background(for date: Date) -> Color {
         switch dayState(for: date) {
         case .selected:
-            FillsaColor.purple01
+            palette.cardBackground.color
         case .completed:
             FillsaColor.purple01
         case .default:
@@ -348,6 +349,10 @@ struct HomeWeekStrip: View {
     }
 
     private static let dayFormatter: DateFormatter = { let f = DateFormatter(); f.locale = Locale(identifier: "ko_KR"); f.dateFormat = "d"; return f }()
+
+    private var palette: HomeFigmaPalette {
+        .resolve(isDark: colorScheme == .dark)
+    }
 }
 
 enum HomeAnswerInput {
