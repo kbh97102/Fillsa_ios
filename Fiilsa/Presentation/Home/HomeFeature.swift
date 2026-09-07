@@ -16,6 +16,12 @@ struct HomeFeature {
         var toastMessage: String?
         var streakCount: Int?
         var completedWritingDates: Set<String> = []
+        var isCalendarPresented = false
+        var calendarDisplayedMonth = FillsaCalendarDateSupport.startOfMonth(for: Date())
+        var isStreakTooltipPresented = false
+        var answerDraft = ""
+        var recordedAnswer: String?
+        var isEditingAnswer = true
     }
 
     enum Action: Equatable {
@@ -37,6 +43,15 @@ struct HomeFeature {
         case copyCompleted
         case toastDismissed
         case completionStateLoaded(Int, [StreakInfo])
+        case calendarTriggerTapped
+        case calendarDismissed
+        case calendarMonthChanged(Date)
+        case calendarDateSelected(Date)
+        case streakStatusTapped
+        case streakTooltipDismissed
+        case answerDraftChanged(String)
+        case answerRecordTapped
+        case answerEditTapped
     }
 
     @Dependency(\.homeUseCases) private var homeUseCases
@@ -209,6 +224,66 @@ struct HomeFeature {
                         .filter(\.isDailyWritingCompleted)
                         .map(\.date)
                 )
+                return .none
+
+            case .calendarTriggerTapped:
+                state.isCalendarPresented.toggle()
+                if state.isCalendarPresented {
+                    state.calendarDisplayedMonth = FillsaCalendarDateSupport.startOfMonth(for: state.date)
+                    state.isStreakTooltipPresented = false
+                }
+                return .none
+
+            case .calendarDismissed:
+                state.isCalendarPresented = false
+                return .none
+
+            case let .calendarMonthChanged(month):
+                state.calendarDisplayedMonth = FillsaCalendarDateSupport.startOfMonth(for: month)
+                return .none
+
+            case let .calendarDateSelected(date):
+                let selectedDay = FillsaCalendarDateSupport.calendar.startOfDay(for: date)
+                let today = FillsaCalendarDateSupport.calendar.startOfDay(for: Date())
+                guard selectedDay >= FillsaCalendarDateSupport.startDay, selectedDay <= today else {
+                    return .none
+                }
+                state.date = selectedDay
+                state.calendarDisplayedMonth = FillsaCalendarDateSupport.startOfMonth(for: selectedDay)
+                state.isCalendarPresented = false
+                state.hasLoaded = false
+                return load(state: &state)
+
+            case .streakStatusTapped:
+                guard state.streakCount == nil else { return .none }
+                state.isStreakTooltipPresented.toggle()
+                if state.isStreakTooltipPresented {
+                    state.isCalendarPresented = false
+                }
+                return .none
+
+            case .streakTooltipDismissed:
+                state.isStreakTooltipPresented = false
+                return .none
+
+            case let .answerDraftChanged(answer):
+                state.answerDraft = HomeAnswerInput.limit(answer)
+                return .none
+
+            case .answerRecordTapped:
+                let answer = HomeAnswerInput.limit(state.answerDraft)
+                guard !answer.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else {
+                    return .none
+                }
+                state.answerDraft = answer
+                state.recordedAnswer = answer
+                state.isEditingAnswer = false
+                state.toastMessage = "답변을 기록했어요."
+                return .none
+
+            case .answerEditTapped:
+                state.answerDraft = state.recordedAnswer ?? state.answerDraft
+                state.isEditingAnswer = true
                 return .none
             }
         }

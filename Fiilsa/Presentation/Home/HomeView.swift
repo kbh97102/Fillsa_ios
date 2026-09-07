@@ -5,25 +5,38 @@ import SwiftUI
 struct HomeView: View {
     @State private var selectedLocale: HomeLocaleType = .kor
     @State private var selectedPhotoItem: PhotosPickerItem?
-    @State private var answer = ""
     let store: StoreOf<HomeFeature>
     let date: Date
     let openTyping: () -> Void
     let openShare: (String, String) -> Void
     let openLogin: () -> Void
     let openMyPage: () -> Void
+    let openCalendar: () -> Void
     @Environment(\.openURL) private var openURL
     @Environment(\.colorScheme) private var colorScheme
 
-    init(store: StoreOf<HomeFeature> = Store(initialState: HomeFeature.State()) { HomeFeature() }, date: Date = Date(), openTyping: @escaping () -> Void = {}, openShare: @escaping (String, String) -> Void = { _, _ in }, openLogin: @escaping () -> Void = {}, openMyPage: @escaping () -> Void = {}) {
-        self.store = store; self.date = date; self.openTyping = openTyping; self.openShare = openShare; self.openLogin = openLogin; self.openMyPage = openMyPage
+    init(store: StoreOf<HomeFeature> = Store(initialState: HomeFeature.State()) { HomeFeature() }, date: Date = Date(), openTyping: @escaping () -> Void = {}, openShare: @escaping (String, String) -> Void = { _, _ in }, openLogin: @escaping () -> Void = {}, openMyPage: @escaping () -> Void = {}, openCalendar: @escaping () -> Void = {}) {
+        self.store = store; self.date = date; self.openTyping = openTyping; self.openShare = openShare; self.openLogin = openLogin; self.openMyPage = openMyPage; self.openCalendar = openCalendar
     }
 
     var body: some View {
         WithViewStore(store, observe: { $0 }) { viewStore in
             VStack(spacing: 0) {
-                HomeHeader(myPage: openMyPage, streakCount: viewStore.streakCount).padding(.horizontal, 20).frame(height: 50)
-                HomeDateControls(date: viewStore.date, completedWritingDates: viewStore.completedWritingDates).padding(.top, 10).padding(.horizontal, 20)
+                HomeHeader(
+                    myPage: openMyPage,
+                    streakCount: viewStore.streakCount,
+                    streakStatus: { viewStore.send(.streakStatusTapped) }
+                )
+                .padding(.horizontal, 20)
+                .frame(height: 50)
+                HomeDateControls(
+                    date: viewStore.date,
+                    completedWritingDates: viewStore.completedWritingDates,
+                    selectCalendar: { viewStore.send(.calendarTriggerTapped) },
+                    selectDate: { viewStore.send(.calendarDateSelected($0)) }
+                )
+                .padding(.top, 10)
+                .padding(.horizontal, 20)
                 HStack {
                     Text("아래 글을 필사해주세요.").font(FillsaTypography.body3).foregroundStyle(palette.primaryText.color)
                     Spacer()
@@ -35,7 +48,18 @@ struct HomeView: View {
                 .padding(.top, 4).padding(.horizontal, 20).accessibilityIdentifier("home.quoteCard")
                 HomeQuoteActionRow(copy: { UIPasteboard.general.string = copyText(from: viewStore.quote); viewStore.send(.copyCompleted) }, share: { openShare(quote(from: viewStore.quote), author(from: viewStore.quote)) }, isLike: viewStore.quote.likeYn == "Y", setIsLike: { viewStore.send(.likeTapped($0)) }, registerImage: { viewStore.send(.imageTapped) }).padding(.top, 10)
                 Divider().overlay(palette.mainDivider.color.opacity(palette.mainDividerOpacity)).padding(.top, 1)
-                HomeQuestionAnswerCard(answer: $answer, recordAnswer: openTyping).padding(.top, 17).padding(.horizontal, 20)
+                HomeQuestionAnswerCard(
+                    answer: Binding(
+                        get: { viewStore.answerDraft },
+                        set: { viewStore.send(.answerDraftChanged($0)) }
+                    ),
+                    recordedAnswer: viewStore.recordedAnswer,
+                    isEditing: viewStore.isEditingAnswer,
+                    recordAnswer: { viewStore.send(.answerRecordTapped) },
+                    editAnswer: { viewStore.send(.answerEditTapped) }
+                )
+                .padding(.top, 17)
+                .padding(.horizontal, 20)
                 Spacer(minLength: 0)
                 HomeAdSurface()
             }
@@ -44,6 +68,39 @@ struct HomeView: View {
             .onAppear { viewStore.send(.onAppear) }
             .overlay {
                 ZStack {
+                    if viewStore.isCalendarPresented || viewStore.isStreakTooltipPresented {
+                        Color.black.opacity(0.001)
+                            .ignoresSafeArea()
+                            .onTapGesture {
+                                if viewStore.isCalendarPresented { viewStore.send(.calendarDismissed) }
+                                if viewStore.isStreakTooltipPresented { viewStore.send(.streakTooltipDismissed) }
+                            }
+                    }
+                    if viewStore.isCalendarPresented {
+                        VStack {
+                            HomeInlineCalendar(
+                                displayedMonth: viewStore.calendarDisplayedMonth,
+                                selectedDate: viewStore.date,
+                                selectDate: { viewStore.send(.calendarDateSelected($0)) },
+                                changeMonth: { viewStore.send(.calendarMonthChanged($0)) }
+                            )
+                            .padding(.top, 84)
+                            .padding(.leading, 20)
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                            Spacer()
+                        }
+                    }
+                    if viewStore.isStreakTooltipPresented {
+                        VStack {
+                            HStack {
+                                Spacer()
+                                HomeStreakTooltip(openCalendar: openCalendar)
+                            }
+                            .padding(.top, 49)
+                            .padding(.trailing, 20)
+                            Spacer()
+                        }
+                    }
                     if viewStore.isImageDialogPresented { HomeImageDialog(quote: quote(from: viewStore.quote), author: author(from: viewStore.quote), imagePath: viewStore.quote.imagePath ?? "", dismiss: { viewStore.send(.imageDialogDismissed) }, delete: { viewStore.send(.deleteImageTapped) }, selectedPhotoItem: $selectedPhotoItem) }
                     if let message = viewStore.toastMessage {
                         toast(message).transition(.opacity).onAppear { Task { try? await Task.sleep(nanoseconds: 1_600_000_000); await viewStore.send(.toastDismissed).finish() } }

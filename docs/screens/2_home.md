@@ -6,22 +6,45 @@
 - 대상 프레임/노드: `2929:13556` (`2.home`)
 - Dark render frame/node: `3039:26518` (`2.home`, 360×821). The section parent `2929:9603` is not a render target.
 - 대상 기기/프레임 크기: light state. Request supplied 360×720, but Figma MCP metadata/export inspected on 2026-08-29 resolves the authoritative node to 360×821; implementation/QA use the actual exported 360×821 frame.
-- 검증 상태: 구현 전 Figma 기준 이미지 확보. Runtime full-frame capture is pending because CoreSimulatorService is unavailable in the current environment.
-- 기준 이미지: `docs/design-qa/assets/home-figma/2026-08-29-home-figma-reference.png`
-- QA 기록: `docs/design-qa/2026-08-29-home-figma-ui-qa.md`
+- 검증 상태: Blocked — simulator runtime full-frame capture and comparison cannot run on the current host because CoreSimulatorService is unavailable.
+- 기준 이미지: `docs/design-qa/assets/home-figma-2929-17193/2026-09-07/` (default, calendar-open, question-flow, streak-tooltip, image-flow)
+- QA 기록: `docs/design-qa/2026-09-07-ios-home-interactions-qa.md`
+
+### 2026-09-07 Home 상호작용 구현 계약
+
+- 상위 범위: `2929:17193` (`2. home`, SECTION)
+- 기본 Home: `2929:13556`; Dark Home: `3039:26518`
+- 월 선택 기본/열림 컴포넌트: `2929:15667` / `2929:16221`
+- 달력 열림 화면: `3139:1501`; 팝업 본체 `2929:16227`; 이전 월 `2929:16229`; 연도 `2929:16232`; 월 `2929:16236`; 다음 월 `2929:16240`; 요일 `2929:16243`; 날짜 그리드 `2929:16258`
+- 주간 날짜: `3204:2435`. 현재/선택 날짜가 오른쪽 끝에 오도록 7일을 노출하고 과거 방향 탐색을 지원한다.
+- 질문 컴포넌트 세트: `3087:29377`; 기본 `3087:29376`; 입력 포커스 `3139:1399`; 기록 완료 `3087:29378`
+- 질문 흐름: `3110:33782`; 기록 전 `3110:33783`; 기록 중 `3110:34152`; 저장 토스트 `3110:34293`; 기록 후 `3110:34438`
+- 연속 필사 안내 화면: `2929:18871`; 툴팁 그룹 `2929:19015`; 툴팁 `2929:19016`; Calendar 링크 `2929:19017`
+- 이미지 흐름: `3223:5107`; 등록 전 `3223:4982`; 등록 후 `3223:4647`; 보기 `3223:4773`; 대체 보기 `2929:19326`; 삭제 확인 `2929:19488`
+- 복사 토스트: 화면 `2929:19645`, 토스트 `2929:19773`; 좋아요 선택 상태 `2929:19784`
+- 구현 범위 밖의 연결 화면: 필사 `2929:17920`, 공유 `2929:18239`/`2929:18543`, 로그인 모달 `2929:19027`. 기존 route만 유지한다.
+- 기준 캡처: `docs/design-qa/assets/home-figma-2929-17193/2026-09-07/`
+
+#### 상태와 동작
+
+1. 월 영역 탭은 전체 Calendar 탭으로 즉시 이동하지 않고 Home 위에 `248×335pt` 달력 팝업을 토글한다. 외부 탭은 닫기, 날짜 선택은 Home 날짜 갱신·명언 재조회·팝업 닫기를 수행한다.
+2. 연속 필사 수가 0일 때 상태 아이콘 탭은 안내 툴팁을 표시한다. 외부 탭은 닫고, `나의 필사현황 보기`는 기존 Calendar 탭으로 이동한다.
+3. 질문 CTA는 명언 필사 화면으로 이동하지 않는다. 200 grapheme 이내의 답변을 Home 세션 상태에 기록하고 `답변을 기록했어요.` 토스트와 완료/수정 상태를 표시한다. 서버·DB 영구 저장은 별도 data contract가 없어 이번 UI 범위에서 제외한다.
+4. 이미지 등록/보기/변경/삭제, 복사 토스트, 좋아요 선택은 기존 domain/API 연결을 보존하며 위 노드의 시각 상태로 검증한다.
+5. Figma의 3-tab 하단 바와 현재 앱의 4-route 하단 바 차이는 앱 전역 제품 결정이므로 이번 Home 범위에서 변경하지 않는다.
 
 ### 컴포넌트 분해
 
 | 컴포넌트 | Figma 노드 | 책임 | 조립 위치 | 검증 상태 |
 |---|---|---|---|---|
-| Status/top surface | `2929:13557`, `2929:15476` | `HomeHeader`: safe-area background, 60×26.666 logo, optional real streak, My Page action | `HomeView` top | 미검증 |
-| Date controls | `2929:17013`, `2929:15661`, `2929:17161`, `2929:17154`, `2929:13653` | `HomeMonthSelector` (73×30) + `HomeWeekStrip`; completed dates come only from `StreakClient.getAllLocal()` records with `isDailyWritingCompleted == true`; selected day has priority (white/gray text, no completion badge) | `HomeDateControls` below top surface | 미검증 |
-| Locale prompt | `2929:15520` | Typing prompt and Korean/English switch | `HomeView` | 미검증 |
-| Quote card | `2929:13642` | `HomeQuoteCard`: local Figma texture, quote/author search action, and date swipe; on today's latest quote the forward swipe emits no next action | `HomeView` | 미검증 |
-| Quote actions | `2929:15503` | `HomeQuoteActionRow`: 16pt local assets, 42pt row/dividers; existing copy, share, live like toggle, and image registration actions | `HomeView` | 미검증 |
-| Question/answer | `2929:13630` | `HomeQuestionAnswerCard`: 200-grapheme-capped Figma input/CTA UI. CTA follows the existing parameterless quote-typing navigation; the answer is neither handed to `TypingFeature` nor persisted. | `HomeView` → existing `openTyping` → `TypingFeature` | QA Blocked — prompt-answer data contract/storage scope is absent |
-| Bottom navigation/ad | `3087:29254`, `3087:29249` | Figma-common Home/Calendar/My page 32pt light assets, existing 4-tab shared navigation, and static 35pt ad surface | `AppView` / `FillsaBottomNavigationBar` / `HomeAdSurface` | QA Blocked — Figma 3-tab composition differs from shared 4-tab routes |
-| Dark Home appearance | `3039:26518` | `HomeFigmaPalette` resolves dark root `#212121`, card/input `#424242`, outlines/dividers `#616161`, white primary text, `#E0E0E0` action text, and `#9E9E9E` inactive weekday/input metadata. Local Figma SVG dark appearances cover logo, profile, quote texture, author search, and quote action icons. | `HomeView` / Home Figma components | Runtime frame pending — Simulator service unavailable |
+| Status/top surface | `2929:13557`, `2929:15476` | `HomeHeader`: safe-area background, 60×26.666 logo, optional real streak, My Page action | `HomeView` top | Blocked — runtime capture unavailable |
+| Date controls | `2929:15667`, `2929:16221`, `3139:1501`, `3204:2435` | 월 선택 토글, inline 월 달력, 선택일을 오른쪽 끝으로 둔 7일 strip; completed dates는 완료된 필사 기록만 사용 | `HomeDateControls` below top surface | Blocked — runtime capture unavailable |
+| Locale prompt | `2929:15520` | Typing prompt and Korean/English switch | `HomeView` | Blocked — runtime capture unavailable |
+| Quote card | `2929:13642` | `HomeQuoteCard`: local Figma texture, quote/author search action, and date swipe; on today's latest quote the forward swipe emits no next action | `HomeView` | Blocked — runtime capture unavailable |
+| Quote actions | `2929:15503` | `HomeQuoteActionRow`: 16pt local assets, 42pt row/dividers; existing copy, share, live like toggle, and image registration actions | `HomeView` | Blocked — runtime capture unavailable |
+| Question/answer | `3087:29376`, `3139:1399`, `3087:29378`, `3110:34293` | 200-grapheme 입력, 세션 기록, 저장 토스트, 완료/수정 상태. 명언 필사 route와 분리한다. | `HomeView` / `HomeFeature` | Blocked — runtime capture unavailable; 영구 저장은 별도 범위 |
+| Bottom navigation/ad | `3087:29254`, `3087:29249` | Figma-common Home/Calendar/My page 32pt light assets, existing 4-tab shared navigation, and static 35pt ad surface | `AppView` / `FillsaBottomNavigationBar` / `HomeAdSurface` | Blocked — shared 4-tab route differs from Figma's 3-tab composition; runtime capture unavailable |
+| Dark Home appearance | `3039:26518` | `HomeFigmaPalette` resolves dark root `#212121`, card/input `#424242`, outlines/dividers `#616161`, white primary text, `#E0E0E0` action text, and `#9E9E9E` inactive weekday/input metadata. Local Figma SVG dark appearances cover logo, profile, quote texture, author search, and quote action icons. | `HomeView` / Home Figma components | Blocked — runtime capture unavailable |
 
 ## 기본 동작
 
@@ -56,10 +79,11 @@
 
 ## 오늘의 질문 답변
 
-- Figma 입력 박스, 200 grapheme 제한, 남은 글자 수, CTA 및 접근성 라벨은 UI 범위로 유지한다.
-- CTA는 기존 parameterless 명언 필사 이동만 수행한다. 답변은 `TypingFeature.korTyping`/`engTyping`에 전달하거나 회원 명언 API에 저장하지 않는다.
+- Figma 입력 박스, 200 grapheme 제한, 글자 수, 기록/수정 CTA 및 접근성 라벨을 구현한다.
+- 기록 CTA는 Home 세션 상태에 답변을 저장하고 `답변을 기록했어요.` 토스트를 표시한다. 수정 CTA는 동일 카드에서 편집 상태로 돌아간다.
+- 질문 답변은 명언 필사 이동과 분리하며 `TypingFeature.korTyping`/`engTyping`이나 회원 명언 API에 전달하지 않는다.
 - 현재 프로젝트에서 발견된 `memo`, `korTyping`, `engTyping` 저장 계약은 모두 `memberQuoteSeq`/명언 필사 전용이며 일반 질문 답변 계약이 아니다.
-- 후속 기능은 (1) 질문 식별자와 날짜를 제공하는 Home 질문 data contract, (2) 답변 레코드의 저장·조회·수정/삭제 정책, (3) 사용자 피드백과 답변 편집 화면의 제품 정의를 별도 범위에서 정한 뒤 구현해야 한다.
+- 영구 저장 후속 기능은 (1) 질문 식별자와 날짜를 제공하는 Home 질문 data contract, (2) 답변 레코드의 저장·조회·수정/삭제 정책을 별도 범위에서 정한 뒤 구현한다.
 
 ## 하단 내비게이션 및 광고
 

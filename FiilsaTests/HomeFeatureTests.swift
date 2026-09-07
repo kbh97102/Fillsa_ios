@@ -79,4 +79,55 @@ struct HomeFeatureTests {
             $0.streakCount = nil
         }
     }
+
+    @Test
+    func calendarTriggerAndZeroStreakTooltipAreMutuallyExclusive() async {
+        let store = TestStore(initialState: HomeFeature.State()) {
+            HomeFeature()
+        }
+
+        await store.send(.calendarTriggerTapped) {
+            $0.isCalendarPresented = true
+            $0.calendarDisplayedMonth = FillsaCalendarDateSupport.startOfMonth(for: $0.date)
+        }
+        await store.send(.streakStatusTapped) {
+            $0.isCalendarPresented = false
+            $0.isStreakTooltipPresented = true
+        }
+        await store.send(.streakTooltipDismissed) {
+            $0.isStreakTooltipPresented = false
+        }
+    }
+
+    @Test
+    func answerRecordsInHomeSessionAndCanReturnToEditing() async {
+        let store = TestStore(initialState: HomeFeature.State()) {
+            HomeFeature()
+        }
+
+        await store.send(.answerDraftChanged("Home에서만 기록하는 답변")) {
+            $0.answerDraft = "Home에서만 기록하는 답변"
+        }
+        await store.send(.answerRecordTapped) {
+            $0.recordedAnswer = "Home에서만 기록하는 답변"
+            $0.isEditingAnswer = false
+            $0.toastMessage = "답변을 기록했어요."
+        }
+        await store.send(.answerEditTapped) {
+            $0.isEditingAnswer = true
+        }
+    }
+
+    @Test
+    func weekStripEndsAtTheSelectedDate() {
+        var calendar = Calendar(identifier: .gregorian)
+        calendar.timeZone = TimeZone(secondsFromGMT: 0)!
+        let selectedDate = calendar.date(from: DateComponents(year: 2026, month: 8, day: 12))!
+
+        let dates = HomeWeekStrip.visibleDates(endingAt: selectedDate, calendar: calendar)
+
+        #expect(dates.count == 7)
+        #expect(calendar.isDate(dates.last!, inSameDayAs: selectedDate))
+        #expect(calendar.component(.day, from: dates.first!) == 6)
+    }
 }

@@ -152,6 +152,9 @@ struct AppView: View {
                 },
                 openMyPage: {
                     viewStore.send(.selectedTabChanged(.myPage))
+                },
+                openCalendar: {
+                    viewStore.send(.selectedTabChanged(.calendar))
                 }
             )
         case .quoteList:

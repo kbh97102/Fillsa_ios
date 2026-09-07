@@ -121,11 +121,17 @@ struct HomeFigmaPalette: Equatable {
 struct HomeHeader: View {
     let myPage: () -> Void
     let streakCount: Int?
+    let streakStatus: () -> Void
     @Environment(\.colorScheme) private var colorScheme
 
-    init(myPage: @escaping () -> Void, streakCount: Int? = nil) {
+    init(
+        myPage: @escaping () -> Void,
+        streakCount: Int? = nil,
+        streakStatus: @escaping () -> Void = {}
+    ) {
         self.myPage = myPage
         self.streakCount = streakCount
+        self.streakStatus = streakStatus
     }
 
     var body: some View {
@@ -137,18 +143,27 @@ struct HomeHeader: View {
 
             Spacer()
 
-            if let streakCount {
-                HStack(spacing: 2) {
-                    Image("home_flame")
-                        .resizable()
-                        .scaledToFit()
-                        .frame(width: 20, height: 20)
-                    Text("\(streakCount)일")
-                        .font(FillsaTypography.subtitle1)
-                        .foregroundStyle(palette.primaryText.color)
+            Button(action: streakStatus) {
+                if let streakCount {
+                    HStack(spacing: 2) {
+                        Image("home_flame")
+                            .resizable()
+                            .scaledToFit()
+                            .frame(width: 20, height: 20)
+                        Text("\(streakCount)일")
+                            .font(FillsaTypography.subtitle1)
+                            .foregroundStyle(palette.primaryText.color)
+                    }
+                } else {
+                    Image(systemName: "exclamationmark.triangle.fill")
+                        .font(.system(size: 18, weight: .semibold))
+                        .foregroundStyle(FillsaColor.gray700)
+                        .frame(width: 24, height: 24)
                 }
-                .padding(.trailing, 10)
             }
+            .buttonStyle(.plain)
+            .padding(.trailing, 10)
+            .accessibilityIdentifier("home.streakStatus")
 
             Button(action: myPage) {
                 Image("home_profile")
@@ -168,32 +183,60 @@ struct HomeHeader: View {
 struct HomeDateControls: View {
     let date: Date
     let completedWritingDates: Set<String>
+    let selectCalendar: () -> Void
+    let selectDate: (Date) -> Void
+
+    init(
+        date: Date,
+        completedWritingDates: Set<String>,
+        selectCalendar: @escaping () -> Void = {},
+        selectDate: @escaping (Date) -> Void = { _ in }
+    ) {
+        self.date = date
+        self.completedWritingDates = completedWritingDates
+        self.selectCalendar = selectCalendar
+        self.selectDate = selectDate
+    }
 
     var body: some View {
         HStack(spacing: 9) {
-            HomeMonthSelector(date: date)
-            HomeWeekStrip(selectedDate: date, completedWritingDates: completedWritingDates)
+            HomeMonthSelector(date: date, select: selectCalendar)
+            HomeWeekStrip(
+                selectedDate: date,
+                completedWritingDates: completedWritingDates,
+                selectDate: selectDate
+            )
         }
     }
 }
 
 struct HomeMonthSelector: View {
     let date: Date
+    let select: () -> Void
+
+    init(date: Date, select: @escaping () -> Void = {}) {
+        self.date = date
+        self.select = select
+    }
 
     var body: some View {
-        HStack(spacing: 2) {
-            Image("home_calendar_selected")
-                .resizable()
-                .scaledToFit()
-                .frame(width: 12, height: 12)
-            Text(Self.monthFormatter.string(from: date))
-                .font(FillsaTypography.body4)
-                .fontWeight(.bold)
-                .foregroundStyle(FillsaColor.gray700)
+        Button(action: select) {
+            HStack(spacing: 2) {
+                Image("home_calendar_selected")
+                    .resizable()
+                    .scaledToFit()
+                    .frame(width: 12, height: 12)
+                Text(Self.monthFormatter.string(from: date))
+                    .font(FillsaTypography.body4)
+                    .fontWeight(.bold)
+                    .foregroundStyle(FillsaColor.gray700)
+            }
+            .frame(width: 73, height: 30)
+            .background(FillsaColor.white)
+            .clipShape(RoundedRectangle(cornerRadius: 4))
         }
-        .frame(width: 73, height: 30)
-        .background(FillsaColor.white)
-        .clipShape(RoundedRectangle(cornerRadius: 4))
+        .buttonStyle(.plain)
+        .accessibilityIdentifier("home.calendarTrigger")
     }
 
     private static let monthFormatter: DateFormatter = {
@@ -208,48 +251,58 @@ struct HomeWeekStrip: View {
     let selectedDate: Date
     let completedWritingDates: Set<String>
     let calendar: Calendar
+    let selectDate: (Date) -> Void
 
     init(
         selectedDate: Date,
         completedWritingDates: Set<String>,
-        calendar: Calendar = .current
+        calendar: Calendar = .current,
+        selectDate: @escaping (Date) -> Void = { _ in }
     ) {
         self.selectedDate = selectedDate
         self.completedWritingDates = completedWritingDates
         self.calendar = calendar
+        self.selectDate = selectDate
     }
 
     var body: some View {
         HStack(spacing: 5) {
             ForEach(days, id: \.self) { day in
-                Text(Self.dayFormatter.string(from: day))
-                    .font(FillsaTypography.body4)
-                    .foregroundStyle(foreground(for: day))
-                    .frame(width: 30, height: 30)
-                    .background(background(for: day))
-                    .clipShape(Circle())
-                    .overlay(Circle().stroke(border(for: day), lineWidth: 1))
-                    .overlay(alignment: .top) {
-                        if dayState(for: day) == .completed {
-                            Image("home_completed_streak")
-                                .resizable()
-                                .scaledToFit()
-                                .frame(width: 18, height: 18)
-                                .offset(y: -10)
+                Button { selectDate(day) } label: {
+                    Text(Self.dayFormatter.string(from: day))
+                        .font(FillsaTypography.body4)
+                        .foregroundStyle(foreground(for: day))
+                        .frame(width: 30, height: 30)
+                        .background(background(for: day))
+                        .clipShape(Circle())
+                        .overlay(Circle().stroke(border(for: day), lineWidth: 1))
+                        .overlay(alignment: .top) {
+                            if dayState(for: day) == .completed {
+                                Image("home_completed_streak")
+                                    .resizable()
+                                    .scaledToFit()
+                                    .frame(width: 18, height: 18)
+                                    .offset(y: -10)
+                            }
                         }
-                    }
+                }
+                .buttonStyle(.plain)
             }
         }
     }
 
+    static func visibleDates(endingAt date: Date, calendar: Calendar = .current) -> [Date] {
+        (-6...0).compactMap { calendar.date(byAdding: .day, value: $0, to: date) }
+    }
+
     private var days: [Date] {
-        (-2...4).compactMap { calendar.date(byAdding: .day, value: $0, to: selectedDate) }
+        Self.visibleDates(endingAt: selectedDate, calendar: calendar)
     }
 
     private func foreground(for date: Date) -> Color {
         switch dayState(for: date) {
         case .selected:
-            FillsaColor.gray700
+            FillsaColor.white
         case .completed:
             FillsaColor.white
         case .default:
@@ -260,7 +313,7 @@ struct HomeWeekStrip: View {
     private func background(for date: Date) -> Color {
         switch dayState(for: date) {
         case .selected:
-            FillsaColor.white
+            FillsaColor.purple01
         case .completed:
             FillsaColor.purple01
         case .default:
@@ -307,11 +360,29 @@ enum HomeAnswerInput {
 /// Figma `2929:13630`. The prompt remains the established static copy until Home has a question data source.
 struct HomeQuestionAnswerCard: View {
     @Binding var answer: String
+    let recordedAnswer: String?
+    let isEditing: Bool
     let recordAnswer: () -> Void
+    let editAnswer: () -> Void
+    @FocusState private var isAnswerFocused: Bool
     @Environment(\.colorScheme) private var colorScheme
 
     private let question = "누군가의 호의를 한참 뒤에야 받아들인 적 있나요?"
     private let placeholder = "오늘의 질문을 보고 떠오른 생각을 자유롭게 기록해보세요."
+
+    init(
+        answer: Binding<String>,
+        recordedAnswer: String? = nil,
+        isEditing: Bool = true,
+        recordAnswer: @escaping () -> Void,
+        editAnswer: @escaping () -> Void = {}
+    ) {
+        _answer = answer
+        self.recordedAnswer = recordedAnswer
+        self.isEditing = isEditing
+        self.recordAnswer = recordAnswer
+        self.editAnswer = editAnswer
+    }
 
     var body: some View {
         VStack(alignment: .leading, spacing: 4) {
@@ -332,6 +403,8 @@ struct HomeQuestionAnswerCard: View {
                     .accessibilityIdentifier("home.answer")
                     .accessibilityLabel("오늘의 답변")
                     .accessibilityHint("최대 200자까지 입력할 수 있습니다.")
+                    .disabled(!isEditing)
+                    .focused($isAnswerFocused)
 
                 if answer.isEmpty {
                     Text(placeholder)
@@ -345,33 +418,40 @@ struct HomeQuestionAnswerCard: View {
             .frame(maxWidth: .infinity, minHeight: 174, maxHeight: 174)
             .background(palette.answerFieldBackground.color.opacity(palette.answerFieldOpacity))
             .clipShape(RoundedRectangle(cornerRadius: 17))
-            .overlay(RoundedRectangle(cornerRadius: 17).stroke(palette.answerFieldBorder.color, lineWidth: 1))
+            .overlay(
+                RoundedRectangle(cornerRadius: 17)
+                    .stroke(
+                        isAnswerFocused && isEditing ? FillsaColor.purple01 : palette.answerFieldBorder.color,
+                        lineWidth: 1
+                    )
+            )
 
-            Text("\(answer.count) / \(HomeAnswerInput.maximumCharacterCount)")
+            Text("\(isEditing ? answer.count : 0) / \(HomeAnswerInput.maximumCharacterCount)")
                 .font(FillsaTypography.body4)
                 .foregroundStyle(palette.answerCount.color)
                 .frame(maxWidth: .infinity, alignment: .trailing)
                 .padding(.top, -1)
 
-            Button(action: recordAnswer) {
+            Button(action: isEditing ? recordAnswer : editAnswer) {
                 HStack(spacing: 4) {
                     Image("home_answer_record")
                         .resizable()
+                        .renderingMode(.template)
                         .scaledToFit()
                         .frame(width: 18, height: 18)
-                    Text("내 답변 기록하기")
+                    Text(isEditing ? "내 답변 기록하기" : "내 답변 수정하기")
                         .font(FillsaTypography.subtitle1)
                 }
-                .foregroundStyle(FillsaColor.white)
+                .foregroundStyle(isEditing ? FillsaColor.white : FillsaColor.purple01)
                 .frame(maxWidth: .infinity)
                 .frame(height: 49)
-                .background(FillsaColor.purple01)
+                .background(isEditing ? FillsaColor.purple01 : Color(hex: 0xD3D5FF))
                 .clipShape(RoundedRectangle(cornerRadius: 8))
             }
             .buttonStyle(.plain)
-            .accessibilityIdentifier("home.recordAnswer")
-            .accessibilityLabel("내 답변 기록하기")
-            .accessibilityHint("기존 명언 필사 화면으로 이동합니다. 입력한 답변은 아직 저장되지 않습니다.")
+            .accessibilityIdentifier(isEditing ? "home.answerRecord" : "home.answerEdit")
+            .accessibilityLabel(isEditing ? "내 답변 기록하기" : "내 답변 수정하기")
+            .accessibilityHint(isEditing ? "입력한 답변을 현재 홈 화면에 기록합니다." : "기록한 답변을 수정합니다.")
         }
     }
 

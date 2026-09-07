@@ -10,7 +10,7 @@ final class HomeUITests: XCTestCase {
         XCTAssertTrue(app.otherElements["home.quoteCard"].waitForExistence(timeout: 2))
         XCTAssertTrue(app.staticTexts["오늘의 질문"].exists)
         XCTAssertTrue(app.textViews["home.answer"].exists)
-        XCTAssertTrue(app.buttons["home.recordAnswer"].exists)
+        XCTAssertTrue(app.buttons["home.answerRecord"].exists)
         XCTAssertTrue(app.buttons["home.registerImage"].exists)
     }
 
@@ -27,6 +27,27 @@ final class HomeUITests: XCTestCase {
 
         let image = app.screenshot().image
         XCTAssertEqual(rgb(at: CGPoint(x: 10, y: 100), in: image, appFrame: app.frame), "255,239,204")
+    }
+
+    @MainActor
+    func testHomeCalendarAndQuestionRemainInHome() throws {
+        let app = XCUIApplication()
+        app.launchArguments = ["-ui-testing-home"]
+        app.launch()
+
+        XCTAssertTrue(app.buttons["home.calendarTrigger"].waitForExistence(timeout: 2))
+        app.buttons["home.calendarTrigger"].tap()
+        XCTAssertTrue(app.otherElements["home.calendarPopup"].waitForExistence(timeout: 2))
+
+        app.buttons["home.calendarTrigger"].tap()
+        XCTAssertFalse(app.otherElements["home.calendarPopup"].exists)
+
+        let answer = app.textViews["home.answer"]
+        answer.tap()
+        answer.typeText("홈에 남기는 답변")
+        app.buttons["home.answerRecord"].tap()
+        XCTAssertTrue(app.buttons["home.answerEdit"].waitForExistence(timeout: 2))
+        XCTAssertTrue(app.staticTexts["답변을 기록했어요."].exists)
     }
 
     private func rgb(at point: CGPoint, in image: UIImage, appFrame: CGRect) -> String? {
