@@ -176,7 +176,7 @@ struct HomeView: View {
     }
 }
 
-private struct HomeAdSurface: View {
+struct HomeAdSurface: View {
     @Environment(\.colorScheme) private var colorScheme
 
     var body: some View {

@@ -60,7 +60,7 @@ struct CalendarMonthSection: View {
         }
         .background(
             RoundedRectangle(cornerRadius: 12)
-                .fill(FillsaColor.dynamic(light: FillsaColor.white.opacity(0.5), dark: FillsaColor.gray600))
+                .fill(FillsaColor.dynamic(light: FillsaColor.white.opacity(0.5), dark: FillsaColor.gray700))
         )
         .overlay {
             RoundedRectangle(cornerRadius: 12)

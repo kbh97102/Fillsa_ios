@@ -9,6 +9,7 @@
 - 검증 상태: Blocked — seven current-build iPhone 17 Pro captures are retained, but their 402×874 runtime frame does not match the 360×821 Figma target, so strict full-frame acceptance remains unavailable.
 - 기준 이미지: `docs/design-qa/assets/home-figma-2929-17193/2026-09-07/` (default, calendar-open, question-flow, streak-tooltip, image-flow)
 - QA 기록: `docs/design-qa/2026-09-07-ios-home-interactions-qa.md`
+- Dark root 상세 명세: `docs/screens/2_home_dark.md` (root `2929:9603`, 상태별 render node와 기준 이미지)
 
 ### 2026-09-07 Home 상호작용 구현 계약
 

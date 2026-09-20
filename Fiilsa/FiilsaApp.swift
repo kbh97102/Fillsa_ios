@@ -33,7 +33,20 @@ struct FiilsaApp: App {
             state.screen = .main
             state.selectedTab = .calendar
             state.selectedTheme = arguments.contains("ui-testing-theme-dark") ? .dark : .light
+            let selectedDay = Self.calendarUITestDate
+            state.calendar.currentMonth = FillsaCalendarDateSupport.startOfMonth(for: selectedDay)
+            state.calendar.selectedDay = selectedDay
+            state.calendar.memberQuotes = Self.calendarUITestQuotes(
+                completed: arguments.contains("ui-testing-calendar-completed")
+            )
+            let count = arguments.contains("ui-testing-calendar-completed") ? 4 : 3
+            state.calendar.monthlySummary = MonthlySummaryData(
+                typingCount: count,
+                likeCount: arguments.contains("ui-testing-calendar-completed") ? 4 : 2,
+                streakCount: 100
+            )
             state.calendar.displayStreakCount = 100
+            state.calendar.hasLoaded = true
             return state
         }
 
@@ -109,6 +122,42 @@ struct FiilsaApp: App {
         components.day = 12
         return components.date ?? Date(timeIntervalSince1970: 0)
     }()
+
+    private static let calendarUITestDate: Date = {
+        FillsaCalendarDateSupport.calendar.date(
+            from: DateComponents(year: 2025, month: 3, day: ProcessInfo.processInfo.arguments.contains("ui-testing-calendar-completed") ? 21 : 17)
+        ) ?? Date(timeIntervalSince1970: 0)
+    }()
+
+    private static func calendarUITestQuotes(completed: Bool) -> [MemberQuotesData] {
+        let selectedQuote = completed
+            ? "영광은 먼지와 땀과 피로 얼굴이 얼룩진 채 경기장에 서 있는 사람의 것이다."
+            : "인간은 자연에서 가장 연약한 한 줄기 갈대일 뿐이지만, 생각하는 갈대이다."
+        let selectedDay = completed ? 21 : 17
+        let recordedDays = completed ? [18, 19, 20, 21] : [18, 19, 20]
+
+        return recordedDays.map { day in
+            MemberQuotesData(
+                dailyQuoteSeq: day,
+                quoteDate: String(format: "2025-03-%02d", day),
+                quote: day == selectedDay ? selectedQuote : "테스트 명언",
+                author: "",
+                completed: true,
+                likeYn: completed || day != 18 ? "Y" : "N",
+                todayCompleted: true
+            )
+        } + (completed ? [] : [
+            MemberQuotesData(
+                dailyQuoteSeq: selectedDay,
+                quoteDate: String(format: "2025-03-%02d", selectedDay),
+                quote: selectedQuote,
+                author: "",
+                completed: false,
+                likeYn: "N",
+                todayCompleted: false
+            )
+        ])
+    }
 
     private var appStore: StoreOf<AppFeature> {
         if OnboardingGuideUITestLaunchConfiguration.isEnabled {

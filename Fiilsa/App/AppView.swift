@@ -5,8 +5,6 @@ import SwiftUI
 struct AppView: View {
     let store: StoreOf<AppFeature>
 
-    @Environment(\.colorScheme) private var colorScheme
-
     var body: some View {
         WithViewStore(store, observe: { $0 }) { viewStore in
             ZStack {
@@ -105,31 +103,19 @@ struct AppView: View {
         VStack(spacing: 0) {
             selectedContent(for: viewStore.selectedTab, viewStore: viewStore)
 
-            if !hidesBottomNavigation(for: viewStore) {
-                FillsaBottomNavigationBar(
-                    selectedTab: viewStore.selectedTab,
-                    select: { tab in
-                        viewStore.send(.selectedTabChanged(tab))
-                    }
-                )
+            FillsaBottomNavigationBar(
+                selectedTab: viewStore.selectedTab,
+                tabs: viewStore.selectedTab == .calendar ? [.home, .calendar, .myPage] : AppTab.allCases,
+                select: { tab in
+                    viewStore.send(.selectedTabChanged(tab))
+                }
+            )
+
+            if viewStore.selectedTab == .calendar {
+                HomeAdSurface()
             }
         }
         .background(FillsaColor.background.ignoresSafeArea())
-    }
-
-    private func hidesBottomNavigation(
-        for viewStore: ViewStore<AppFeature.State, AppFeature.Action>
-    ) -> Bool {
-        guard viewStore.selectedTab == .calendar else { return false }
-
-        switch viewStore.selectedTheme {
-        case .light:
-            return true
-        case .dark:
-            return false
-        case .system:
-            return colorScheme == .light
-        }
     }
 
     @ViewBuilder

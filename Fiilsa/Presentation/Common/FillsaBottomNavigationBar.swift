@@ -2,11 +2,22 @@ import SwiftUI
 
 struct FillsaBottomNavigationBar: View {
     let selectedTab: AppTab
+    let tabs: [AppTab]
     let select: (AppTab) -> Void
+
+    init(
+        selectedTab: AppTab,
+        tabs: [AppTab] = AppTab.allCases,
+        select: @escaping (AppTab) -> Void
+    ) {
+        self.selectedTab = selectedTab
+        self.tabs = tabs
+        self.select = select
+    }
 
     var body: some View {
         HStack(spacing: 0) {
-            ForEach(AppTab.allCases) { tab in
+            ForEach(tabs) { tab in
                 BottomNavigationItem(
                     tab: tab,
                     isSelected: selectedTab == tab,

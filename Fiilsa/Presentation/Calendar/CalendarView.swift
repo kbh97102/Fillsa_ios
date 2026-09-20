@@ -52,7 +52,6 @@ struct CalendarView: View {
                             viewStore.send(.daySelected($0))
                         }
                     )
-                    .frame(maxWidth: .infinity)
                     .frame(height: 396)
 
                     CalendarCountSection(
@@ -62,7 +61,7 @@ struct CalendarView: View {
                             viewStore.send(.countTapped)
                         }
                     )
-                    .padding(.top, 8)
+                    .padding(.top, 10)
 
                     CalendarSelectedDaySection(
                         selectedDayRecord: selectedDayRecord(
@@ -74,7 +73,6 @@ struct CalendarView: View {
                             viewStore.send(.bottomQuoteTapped)
                         }
                     )
-                    .padding(.top, 10)
                     }
                     .padding(.horizontal, 20)
                 }

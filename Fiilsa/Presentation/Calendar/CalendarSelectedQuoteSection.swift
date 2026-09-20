@@ -19,7 +19,7 @@ struct CalendarSelectedDaySection: View {
     }
 
     var body: some View {
-        VStack(spacing: 10) {
+        VStack(spacing: presentation == .incomplete ? -16 : 10) {
             if presentation == .incomplete {
                 CalendarNoWritingMessage()
                     .frame(height: 100)
@@ -35,9 +35,9 @@ struct CalendarSelectedDaySection: View {
 
             if presentation == .completed {
                 CalendarQuestionAnswerSection()
-                    .padding(.top, 3)
             }
         }
+        .padding(.top, presentation == .completed ? 10 : 0)
     }
 }
 
@@ -51,7 +51,7 @@ private struct CalendarNoWritingMessage: View {
 
             Text("필사하지 않은 날이에요.\n아래 필사를 선택하여 기록해주세요!")
                 .font(FillsaTypography.body3)
-                .foregroundStyle(FillsaColor.purple01)
+                .foregroundStyle(FillsaColor.dynamic(light: FillsaColor.purple01, dark: FillsaColor.yellow02))
                 .multilineTextAlignment(.leading)
                 .fixedSize(horizontal: false, vertical: true)
                 .padding(.trailing, 16)
@@ -87,13 +87,14 @@ struct CalendarSelectedQuoteSection: View {
         VStack(spacing: 0) {
             Button(action: onClick) {
                 quoteContent
-                    .frame(height: isCompleted ? 91 : 80)
+                    .frame(height: 80)
+                    .frame(height: isCompleted ? 90 : 80, alignment: .top)
             }
             .buttonStyle(.plain)
 
             if isCompleted {
                 CalendarUnavailableQuoteActionRow(isLiked: isLiked)
-                    .frame(height: 42)
+                    .frame(height: 43)
             }
         }
         .background(
@@ -139,7 +140,7 @@ struct CalendarSelectedQuoteSection: View {
     }
 
     private var cardBorder: Color {
-        colorScheme == .dark ? FillsaColor.gray500 : .clear
+        colorScheme == .dark && !isCompleted ? FillsaColor.yellow02 : .clear
     }
 }
 
@@ -147,14 +148,25 @@ private struct CalendarUnavailableQuoteActionRow: View {
     let isLiked: Bool
 
     var body: some View {
-        HStack(spacing: 0) {
-            action("home_action_copy", "복사")
-            divider
-            action("home_action_share", "공유")
-            divider
-            likeAction
-            divider
-            action("home_action_camera", "이미지 등록")
+        VStack(spacing: 0) {
+            Rectangle()
+                .fill(FillsaColor.gray500)
+                .frame(height: 1)
+
+            HStack(spacing: 0) {
+                action("home_action_copy", "복사")
+                    .frame(width: 70)
+                divider
+                action("home_action_share", "공유")
+                    .frame(width: 70)
+                divider
+                likeAction
+                    .frame(width: 70)
+                divider
+                action("home_action_camera", "이미지 등록")
+                    .frame(width: 107)
+            }
+            .frame(height: 42)
         }
         .foregroundStyle(FillsaColor.gray500)
         .accessibilityElement(children: .combine)

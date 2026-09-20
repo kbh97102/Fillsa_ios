@@ -52,7 +52,7 @@ struct CalendarDayCell: View {
         if isEnabled {
             isSelected ? FillsaColor.onPrimaryContainer : FillsaColor.onBackground1
         } else {
-            isCurrentMonth ? FillsaColor.gray400 : FillsaColor.gray400
+            FillsaColor.gray500
         }
     }
 }
