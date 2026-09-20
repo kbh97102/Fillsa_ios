@@ -110,9 +110,6 @@ struct AppView: View {
                 }
             )
 
-            if viewStore.selectedTab == .calendar {
-                HomeAdSurface()
-            }
         }
         .background(FillsaColor.background.ignoresSafeArea())
     }

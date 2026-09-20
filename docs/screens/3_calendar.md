@@ -26,7 +26,7 @@
 | `CalendarSelectedDaySection` 미필사 | `3039:25073`, `3039:25079` | 100pt 캐릭터/안내와 80pt 명언 카드 | 통계 아래 | 미검증 |
 | `CalendarSelectedDaySection` 완료 | `3051:1049`, `3051:1076` | 133pt 명언/액션 카드와 298pt 질문 입력 | 통계 아래 | 미검증 |
 | 캘린더 하단 내비게이션 | `3039:25097`, `3051:1117` | Home/Calendar/My page 3개 목적지 | 캘린더 콘텐츠 아래 | 미검증 |
-| 광고 surface | `3039:27545`, `3051:1088` | 35pt 광고 자리 표시 | 전체 프레임 하단 | 미검증 |
+| 광고 surface | `3039:27545`, `3051:1088` | 이번 출시에서 제외 | 렌더링하지 않음 | 사용자 승인 |
 
 ### 변경 디자인에서 고정된 배치
 
@@ -34,7 +34,7 @@
 - 월 통계: 월 카드 아래 10pt, 우측 정렬.
 - 미필사 상태: 안내 영역은 통계 직후 시작하며 명언 카드가 안내 영역과 16pt 겹친다.
 - 완료 상태: 명언 카드는 통계 아래 10pt, 질문 영역은 명언 카드 아래 10pt에 배치한다.
-- 캘린더 화면의 하단 내비게이션은 `Home / Calendar / My page` 3개이며 그 아래 35pt 광고 surface가 온다.
+- 캘린더 화면의 하단 내비게이션은 `Home / Calendar / My page` 3개이며 광고 surface는 렌더링하지 않는다.
 
 ## Figma composition (2026-08-30 rework)
 
@@ -44,7 +44,7 @@
 - Component map: `CalendarDayCell` owns the 36×50/radius-10 selected day and 12pt record icons; `CalendarCountSection` keeps the genuine 16pt monthly heart/fire totals and quote-list action; `CalendarSelectedDaySection` selects incomplete/completed composition and retains the existing selected-quote → Home navigation.
 - Data map: `MemberQuotesData.likeYn == "Y"` renders the Figma heart. `completed || todayCompleted` renders the fire and selects completed detail; no quote-text heuristic, Calendar store, API, or persistence was added.
 - Detail states: incomplete shows the durable 100pt Figma handwriting character/message followed by the 80pt tappable quote card. Completed shows the 133pt quote/action card and then the scrollable 200-grapheme question UI. Calendar has no copy/share/like/image or prompt-answer persistence/navigation contract: those Figma affordances are intentionally non-mutating, and the answer CTA has no side effect until a separately owned data/routing contract is approved.
-- The shared bottom navigation follows the Figma reference with Home/Calendar/My page only. QuoteList remains an internal route for the existing monthly-count action, and the static ad surface remains intact.
+- The shared bottom navigation follows the Figma reference with Home/Calendar/My page only. QuoteList remains an internal route for the existing monthly-count action, and all ad UI is excluded from this release by user approval.
 
 ## 기본 동작
 

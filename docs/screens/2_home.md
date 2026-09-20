@@ -44,7 +44,7 @@
 | Quote card | `2929:13642` | `HomeQuoteCard`: local Figma texture, quote/author search action, and date swipe; on today's latest quote the forward swipe emits no next action | `HomeView` | Partial current-build runtime evidence; strict acceptance blocked by viewport only |
 | Quote actions | `2929:15503` | `HomeQuoteActionRow`: 16pt local assets, 42pt row/dividers; existing copy, share, live like toggle, and image registration actions | `HomeView` | Partial current-build runtime evidence; strict acceptance blocked by viewport only |
 | Question/answer | `3087:29376`, `3139:1399`, `3087:29378`, `3110:34293` | 200-grapheme 입력, 세션 기록, 저장 토스트, 완료/수정 상태. 명언 필사 route와 분리한다. | `HomeView` / `HomeFeature` | Partial current-build runtime evidence; strict acceptance blocked by viewport only; 영구 저장은 별도 범위 |
-| Bottom navigation/ad | `3087:29254`, `3087:29249` | Figma-common Home/Calendar/My page 32pt light assets, shared 3-tab navigation, and static 35pt ad surface | `AppView` / `FillsaBottomNavigationBar` / `HomeAdSurface` | Partial current-build runtime evidence; strict acceptance blocked by viewport only |
+| Bottom navigation | `3087:29254` | Figma-common Home/Calendar/My page 32pt light assets and shared 3-tab navigation | `AppView` / `FillsaBottomNavigationBar` | Partial current-build runtime evidence; strict acceptance blocked by viewport only |
 | Dark Home appearance | `3039:26518` | `HomeFigmaPalette` resolves dark root `#212121`, card/input `#424242`, outlines/dividers `#616161`, white primary text, `#E0E0E0` action text, and `#9E9E9E` inactive weekday/input metadata. Local Figma SVG dark appearances cover logo, profile, quote texture, author search, and quote action icons. | `HomeView` / Home Figma components | Partial current-build runtime evidence; strict acceptance blocked by viewport only |
 
 ## 기본 동작
@@ -90,7 +90,7 @@
 
 - Figma `3087:29254`는 3개(Home/Calendar/My page) 120×60pt 항목이며, 공통 세 탭은 durable `home_nav_*` Figma SVG를 32pt template icon으로 사용한다. 선택 색은 `#5C65FF`, 비선택 텍스트/아이콘은 `#212121`이다.
 - iOS 앱의 공용 하단 바는 Home/Calendar/My page 3개 탭만 노출한다. QuoteList 구현은 기존 기능 내부 이동을 위해 유지한다.
-- Figma `3087:29249`의 35pt 정적 AD 표면(AD badge, “광고가 들어가는 영역입니다.”)은 기존 `HomeAdSurface`가 담당한다. 광고 제공 연동은 별도 범위다.
+- Figma `3087:29249`의 광고 자리 표시 영역은 이번 출시에서 제외한다. Home을 포함한 모든 화면에 광고 UI를 렌더링하지 않는다.
 
 ---
 
@@ -105,7 +105,7 @@
 
 ### 하단
 
-- 하단 내비게이션 바 및 광고 영역 숨김
+- 하단 내비게이션 바 숨김
 - OS 자판 표시
 
 | 버튼 | 동작 |
@@ -158,7 +158,7 @@
 - 앱 설치 후 첫 진입 시에만 가이드 화면 노출
 - 좌우 슬라이드로 공유 이미지 변경 가능
 - 카카오톡 공유하기 지원 (템플릿: 이미지 + 명언 문구)
-- 저장 / 공유 / 복사 버튼 및 하단 광고 영역 노출
+- 저장 / 공유 / 복사 버튼 노출
 
 ---
 

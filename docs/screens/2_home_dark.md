@@ -102,7 +102,7 @@ Home의 보호된 이미지 action에서 기존 인증 정책에 따라 modal/ro
 ## 공통 구현 원칙
 
 1. 라이트 Home에서 이미 구현한 상태 전이와 domain/API는 공유한다. dark 전용 reducer/ViewModel 상태를 복제하지 않는다.
-2. Figma의 3-tab/static AD와 앱의 4-route/live AD 차이는 전역 제품 결정이다. Home dark 범위에서는 기존 앱 contract를 보존하고 QA에 차이로 기록한다.
+2. 공용 하단 바는 3개 탭을 사용하며, 이번 출시에서는 Figma의 static AD를 포함한 모든 광고 UI를 제외한다.
 3. 질문 답변은 현재 data contract가 없으므로 UI session state만 사용한다.
 4. 구현 순서는 Home 조립 화면 → 질문 → 이미지 → 필사/인증/공유 연결 화면이다.
 5. 테스트는 구현 후 기존 회귀 테스트와 추가된 상태 검증을 실행한다. 별도 TDD 단계는 두지 않는다.

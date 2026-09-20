@@ -71,7 +71,6 @@ struct HomeView: View {
                 .padding(.top, 17)
                 .padding(.horizontal, 20)
                 Spacer(minLength: 0)
-                HomeAdSurface()
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
             .background(palette.rootBackground.color.ignoresSafeArea())
@@ -169,19 +168,6 @@ struct HomeView: View {
 
     private var isQuestionDoneFixture: Bool {
         ProcessInfo.processInfo.arguments.contains("-ui-testing-home-question-done")
-    }
-
-    private var palette: HomeFigmaPalette {
-        .resolve(isDark: colorScheme == .dark)
-    }
-}
-
-struct HomeAdSurface: View {
-    @Environment(\.colorScheme) private var colorScheme
-
-    var body: some View {
-        HStack(spacing: 6) { Text("AD").font(FillsaTypography.body4).foregroundStyle(FillsaColor.white).padding(.horizontal, 6).background(Capsule().fill(FillsaColor.purple01)); Text("광고가 들어가는 영역입니다.").font(.system(size: 10)).foregroundStyle(palette.primaryText.color) }
-            .frame(maxWidth: .infinity).frame(height: 35)
     }
 
     private var palette: HomeFigmaPalette {

@@ -2,7 +2,7 @@ import XCTest
 
 final class CalendarUITests: XCTestCase {
     @MainActor
-    func testDarkCalendarNoWritingShowsRenewalNavigationAndAd() throws {
+    func testDarkCalendarNoWritingShowsRenewalNavigationWithoutAd() throws {
         let app = launchCalendar(theme: "dark", state: "no-writing")
 
         XCTAssertTrue(app.descendants(matching: .any)["calendarMonthCard"].waitForExistence(timeout: 3))
@@ -13,7 +13,7 @@ final class CalendarUITests: XCTestCase {
         XCTAssertTrue(app.buttons["Calendar"].exists)
         XCTAssertTrue(app.buttons["My page"].exists)
         XCTAssertFalse(app.buttons["List"].exists)
-        XCTAssertTrue(app.staticTexts["광고가 들어가는 영역입니다."].exists)
+        XCTAssertFalse(app.staticTexts["광고가 들어가는 영역입니다."].exists)
     }
 
     @MainActor

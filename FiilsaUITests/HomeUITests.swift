@@ -12,6 +12,7 @@ final class HomeUITests: XCTestCase {
         XCTAssertTrue(app.textViews["home.answer"].exists)
         XCTAssertTrue(app.buttons["home.answerRecord"].exists)
         XCTAssertTrue(app.buttons["home.registerImage"].exists)
+        XCTAssertFalse(app.staticTexts["광고가 들어가는 영역입니다."].exists)
     }
 
     @MainActor

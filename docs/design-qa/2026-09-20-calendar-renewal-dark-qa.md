@@ -22,7 +22,7 @@
 | Incomplete selected day | `3039:25073`, `3039:25079` | no writing | 미검증 |
 | Completed selected day | `3051:1049`, `3051:1076` | writing complete, answer empty | 미검증 |
 | Bottom navigation | `3039:25097`, `3051:1117` | Calendar selected | 미검증 |
-| Ad surface | `3039:27545`, `3051:1088` | static placeholder | 미검증 |
+| Ad surface | `3039:27545`, `3051:1088` | 이번 출시에서 제외 | 사용자 승인 |
 
 ## Validation rounds
 
