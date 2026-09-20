@@ -168,7 +168,7 @@ private struct CalendarUnavailableQuoteActionRow: View {
             }
             .frame(height: 42)
         }
-        .foregroundStyle(FillsaColor.gray500)
+        .foregroundStyle(FillsaColor.dynamic(light: HomeFigmaColorToken.lightActionText.color, dark: FillsaColor.gray400))
         .accessibilityElement(children: .combine)
         .accessibilityLabel("명언 작업")
         .accessibilityHint("캘린더에는 복사, 공유, 좋아요, 이미지 등록 동작 계약이 아직 없습니다.")

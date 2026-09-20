@@ -1,3 +1,4 @@
+import UIKit
 import XCTest
 
 final class CalendarUITests: XCTestCase {
@@ -27,10 +28,73 @@ final class CalendarUITests: XCTestCase {
     }
 
     @MainActor
+    func testLightCalendarCompletedActionLabelUsesFigmaColor() throws {
+        assertCompletedActionLabelColor(
+            theme: "light",
+            expected: (86, 81, 73)
+        )
+    }
+
+    @MainActor
+    func testDarkCalendarCompletedActionLabelUsesFigmaColor() throws {
+        assertCompletedActionLabelColor(
+            theme: "dark",
+            expected: (158, 158, 158)
+        )
+    }
+
+    @MainActor
+    private func assertCompletedActionLabelColor(
+        theme: String,
+        expected: (UInt8, UInt8, UInt8)
+    ) {
+        let app = launchCalendar(theme: theme, state: "completed")
+        let actions = app.descendants(matching: .any)["명언 작업"]
+        XCTAssertTrue(actions.waitForExistence(timeout: 3))
+
+        let labelArea = CGRect(
+            x: actions.frame.minX + 60,
+            y: actions.frame.minY + 13,
+            width: 14,
+            height: 18
+        )
+        XCTAssertGreaterThan(
+            pixelCount(in: labelArea, image: app.screenshot().image, appFrame: app.frame, near: expected),
+            5
+        )
+    }
+
+    @MainActor
     private func launchCalendar(theme: String, state: String) -> XCUIApplication {
         let app = XCUIApplication()
         app.launchArguments = ["ui-testing-calendar", "ui-testing-theme-\(theme)", "ui-testing-calendar-\(state)"]
         app.launch()
         return app
+    }
+
+    private func pixelCount(
+        in area: CGRect,
+        image: UIImage,
+        appFrame: CGRect,
+        near target: (UInt8, UInt8, UInt8)
+    ) -> Int {
+        guard let cgImage = image.cgImage,
+              let data = cgImage.dataProvider?.data,
+              let bytes = CFDataGetBytePtr(data) else { return 0 }
+        let scale = CGFloat(cgImage.width) / appFrame.width
+        let bounds = area.applying(CGAffineTransform(scaleX: scale, y: scale)).integral
+        var matches = 0
+
+        for y in max(0, Int(bounds.minY))..<min(cgImage.height, Int(bounds.maxY)) {
+            for x in max(0, Int(bounds.minX))..<min(cgImage.width, Int(bounds.maxX)) {
+                let offset = y * cgImage.bytesPerRow + x * 4
+                if abs(Int(bytes[offset]) - Int(target.0)) <= 3,
+                   abs(Int(bytes[offset + 1]) - Int(target.1)) <= 3,
+                   abs(Int(bytes[offset + 2]) - Int(target.2)) <= 3 {
+                    matches += 1
+                }
+            }
+        }
+        return matches
     }
 }

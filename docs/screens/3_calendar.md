@@ -4,14 +4,17 @@
 
 - Figma URL:
   - 필사하지 않은 경우: `https://www.figma.com/design/VdFocqyqTgevMVCQxwAQ2X/%25E2%259C%2592%25EF%25B8%258F%25ED%2595%2584%25EC%2582%25AC?node-id=3039-24906&t=pxxJ6i8fGGEVuuMH-11`
-  - 필사를 한 경우: `https://www.figma.com/design/VdFocqyqTgevMVCQxwAQ2X/%25E2%259C%2592%25EF%25B8%258F%25ED%2595%2584%25EC%2582%25AC?node-id=3051-899&t=pxxJ6i8fGGEVuuMH-11`
+  - 필사를 한 경우 Light: `https://www.figma.com/design/VdFocqyqTgevMVCQxwAQ2X/%25E2%259C%2592%25EF%25B8%258F%25ED%2595%2584%25EC%2582%25AC?node-id=2987-22796&t=pxxJ6i8fGGEVuuMH-11`
+  - 필사를 한 경우 Dark: `https://www.figma.com/design/VdFocqyqTgevMVCQxwAQ2X/%25E2%259C%2592%25EF%25B8%258F%25ED%2595%2584%25EC%2582%25AC?node-id=3051-899&t=pxxJ6i8fGGEVuuMH-11`
 - 대상 프레임/노드:
   - `3039:24906` — `3. calendar_리뉴얼[Dark]_HTML 승인본`, 필사하지 않은 선택 날짜, 360×816pt
+  - `2987:22796` — `3. calendar`, 필사를 완료한 선택 날짜, Light, 360×1101pt
   - `3051:899` — `3. calendar_리뉴얼[Dark]_답변 미작성`, 필사를 완료한 선택 날짜, 360×1101pt
-- 대상 기기/프레임 크기: iOS, Figma 360pt 폭, 다크 모드. 짧은 상태는 360×816pt 전체 프레임, 완료 상태는 360×1101pt 전체 스크롤 콘텐츠.
+- 대상 기기/프레임 크기: iOS, Figma 360pt 폭, Light/Dark. 짧은 상태는 360×816pt 전체 프레임, 완료 상태는 360×1101pt 전체 스크롤 콘텐츠.
 - 표시 데이터/상호작용: 2025년 3월, 헤더 스트릭 100일, 날짜 선택, 이전·다음 달 이동, 월 통계 선택, 미필사 명언 카드 선택 시 Home 이동, 완료 카드 액션 및 질문 입력 UI.
 - 검증 상태: 구현 전 기준 확보
 - 기준 이미지:
+  - `docs/design-qa/assets/calendar-figma/2026-08-30-calendar-completed-2987-22796-reference.png`
   - `docs/design-qa/assets/calendar-figma/2026-09-20/calendar-no-handwriting-3039-24906-reference.png`
   - `docs/design-qa/assets/calendar-figma/2026-09-20/calendar-handwriting-3051-899-reference.png`
 - QA 기록: `docs/design-qa/2026-09-20-calendar-renewal-dark-qa.md`
@@ -24,7 +27,7 @@
 | `CalendarMonthSection` | `3039:24908`, `3051:902` | 월 이동, 요일/날짜 그리드, 선택 및 기록 아이콘 | `CalendarView` 스크롤 콘텐츠 | 미검증 |
 | `CalendarCountSection` | `3039:25035`, `3051:1040` | 월 좋아요/필사 횟수 | 월 카드 아래 | 미검증 |
 | `CalendarSelectedDaySection` 미필사 | `3039:25073`, `3039:25079` | 100pt 캐릭터/안내와 80pt 명언 카드 | 통계 아래 | 미검증 |
-| `CalendarSelectedDaySection` 완료 | `3051:1049`, `3051:1076` | 133pt 명언/액션 카드와 298pt 질문 입력 | 통계 아래 | 미검증 |
+| `CalendarSelectedDaySection` 완료 | Light `2987:22949`–`2987:22975`, Dark `3051:1049`–`3051:1074` | 133pt 명언/액션 카드. 액션 텍스트는 Light `#565149`, Dark `#9E9E9E` | 통계 아래 | 자동 UI 테스트 통과, 육안 검증 대기 |
 | 캘린더 하단 내비게이션 | `3039:25097`, `3051:1117` | Home/Calendar/My page 3개 목적지 | 캘린더 콘텐츠 아래 | 미검증 |
 | 광고 surface | `3039:27545`, `3051:1088` | 이번 출시에서 제외 | 렌더링하지 않음 | 사용자 승인 |
 
