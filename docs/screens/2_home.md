@@ -96,6 +96,10 @@
 
 ## 타이핑 화면 `2-3.write`
 
+- Light target: https://www.figma.com/design/VdFocqyqTgevMVCQxwAQ2X/%E2%9C%92%EF%B8%8F%ED%95%84%EC%82%AC?node-id=2929-17920 (`2929:17920`)
+- Dark target: https://www.figma.com/design/VdFocqyqTgevMVCQxwAQ2X/%E2%9C%92%EF%B8%8F%ED%95%84%EC%82%AC?node-id=3087-28815 (`3087:28815`)
+- QA 기록: `docs/design-qa/2026-08-29-home-figma-ui-qa.md`, `docs/design-qa/2026-09-07-ios-home-dark-root-qa.md`
+
 ### 상단
 
 - 명언 노출, 타이핑 시 글자별 색상 변경
@@ -114,6 +118,7 @@
 | 복사 | "{명언} - {저자}" 형식으로 클립보드 복사 |
 | 공유 | 바텀시트로 공유 (텍스트 형식: "{명언} - {저자}") |
 | 좋아요 | 좋아요 토글 저장 |
+| 저장하기 | 흰색 채움과 `#212121` 텍스트. Light `3087:28769`는 `#212121` 테두리, Dark `3087:28973`은 흰색 테두리. 타이핑 내역 저장 후 이전 화면으로 이동 |
 
 - 뒤로가기 버튼 클릭 시에도 타이핑 내역 저장
 

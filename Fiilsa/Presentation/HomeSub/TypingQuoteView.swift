@@ -9,6 +9,7 @@ import ComposableArchitecture
 import SwiftUI
 
 struct TypingQuoteView: View {
+    @Environment(\.colorScheme) private var colorScheme
     @State private var selectedLocale: HomeLocaleType = .kor
 
     let store: StoreOf<TypingFeature>
@@ -101,7 +102,11 @@ struct TypingQuoteView: View {
                     .padding(.vertical, 8)
                     .background(
                         RoundedRectangle(cornerRadius: 8)
-                            .stroke(FillsaColor.gray700, lineWidth: 1)
+                            .fill(FillsaColor.white)
+                    )
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 8)
+                            .stroke(colorScheme == .dark ? FillsaColor.white : FillsaColor.gray700, lineWidth: 1)
                     )
             }
             .buttonStyle(.plain)

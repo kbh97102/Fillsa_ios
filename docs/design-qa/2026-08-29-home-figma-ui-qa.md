@@ -5,7 +5,9 @@
 - Figma URL: https://www.figma.com/design/VdFocqyqTgevMVCQxwAQ2X/2.home?node-id=2929-13556
 - Target frames/nodes: `2929:13556` (`2.home`); metadata reports 360×821, although the implementation request listed 360×720.
 - Dark target frame/node: `3039:26518` (`2.home`, 360×821); `2929:9603` is a parent section, not a render target.
+- Light typing target: https://www.figma.com/design/VdFocqyqTgevMVCQxwAQ2X/%E2%9C%92%EF%B8%8F%ED%95%84%EC%82%AC?node-id=2929-17920 (`2929:17920`, 360×720).
 - Full-frame reference image: `docs/design-qa/assets/home-figma/2026-08-29-home-figma-reference.png` (360×821; root background, status bar, safe area, bottom navigation, and ad area included).
+- Light typing reference image: `docs/design-qa/assets/home-figma/2026-09-20-typing-light-2929-17920.png` (360×720).
 - Runtime target: iOS Simulator, light state, deterministic Home quote state (pending).
 - Runtime full-frame capture: unavailable — CoreSimulatorService could not be reached on 2026-08-29.
 - Crop boundaries: reference full frame `0,0,360,821`; runtime capture pending.
@@ -21,6 +23,7 @@
 | Quote card | `2929:13642` | Light/default quote | Pending |
 | Quote actions | `2929:15521` | Not liked | Pending |
 | Question/answer | `2929:13630` | Empty answer | Pending |
+| Light typing save button | `3087:28769` | white fill, `#212121` border/label, 8pt radius | 부분 통과 — UI pixel test 통과 |
 | Bottom navigation/ad | `3087:29254`, `3087:29249` | Home selected; static ad | Blocked — Figma has 3 × 120pt items; existing app preserves 4 × 90pt items including QuoteList by approved scope |
 
 ## Validation rounds
@@ -68,6 +71,12 @@
 | Dark palette | Root `#212121`; quote card and answer field `#424242`; outlines/dividers `#616161`; primary text `#FFFFFF`; action text `#E0E0E0`; inactive weekday/placeholder/count `#9E9E9E`; main divider has 55% opacity. Selected weekday, completed weekday, white calendar, and purple CTA retain their Figma states. | Added the testable `HomeFigmaPalette`, then applied it to Home root/header/prompt/quote card/actions/question input/ad. A pure palette test locks the dark token mapping. | GREEN — focused Home test suite 7/7 |
 | Dark Figma vectors | The dark frame uses visually different logo/profile/search/action/texture vectors; light SVG bytes would not match. | Downloaded Figma `3039:26518` SVG bytes and committed universal 1× `luminosity=dark` asset-catalog appearances for `home_logo`, `home_profile`, `home_quote_texture`, `home_author_search`, `home_action_copy`, `home_action_share`, `home_action_like`, and `home_action_camera`. | Asset catalog builds successfully |
 | Runtime full frame | A deterministic dark fixture is required to inspect the full device frame without altering normal navigation. | `-ui-testing-home ui-testing-theme-dark` now selects only the existing isolated Home fixture's dark app theme; normal launch behavior is unchanged. Build succeeded, but `simctl install/launch/screenshot` failed before installation with `CoreSimulatorService connection refused` / `simdiskimaged ... not responding`. No service was killed or reconfigured. | Blocked — no dark runtime capture can be produced in this environment |
+
+### Round 6 — Light typing `2929:17920`
+
+| Scope | Difference | Fix | Result |
+|---|---|---|---|
+| Save button `3087:28769` | 공통 버튼의 테두리가 흰색으로 고정되어 Light의 `#212121` 테두리와 다름 | Light/Dark appearance에 따라 기존 테두리 색상만 전환 | 부분 통과 — `testLightTypingSaveButtonUsesDarkBorder` 및 dark 회귀 테스트 통과, 전체 프레임 비교는 사용자 검증 대기 |
 
 ## Final assembled-screen result
 

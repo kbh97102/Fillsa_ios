@@ -31,6 +31,52 @@ final class HomeUITests: XCTestCase {
     }
 
     @MainActor
+    func testDarkTypingSaveButtonUsesVisibleWhiteFill() throws {
+        let app = XCUIApplication()
+        app.launchArguments = ["-ui-testing-home", "ui-testing-theme-dark"]
+        app.launch()
+
+        let quoteCard = app.buttons["home.quoteCard"]
+        XCTAssertTrue(quoteCard.waitForExistence(timeout: 2))
+        quoteCard.tap()
+
+        let save = app.buttons["저장하기"]
+        XCTAssertTrue(save.waitForExistence(timeout: 2))
+        let image = app.screenshot().image
+        XCTAssertEqual(
+            rgb(
+                at: CGPoint(x: save.frame.minX + 4, y: save.frame.midY),
+                in: image,
+                appFrame: app.frame
+            ),
+            "255,255,255"
+        )
+    }
+
+    @MainActor
+    func testLightTypingSaveButtonUsesDarkBorder() throws {
+        let app = XCUIApplication()
+        app.launchArguments = ["-ui-testing-home"]
+        app.launch()
+
+        let quoteCard = app.buttons["home.quoteCard"]
+        XCTAssertTrue(quoteCard.waitForExistence(timeout: 2))
+        quoteCard.tap()
+
+        let save = app.buttons["저장하기"]
+        XCTAssertTrue(save.waitForExistence(timeout: 2))
+        let image = app.screenshot().image
+        XCTAssertEqual(
+            rgb(
+                at: CGPoint(x: save.frame.minX + 0.5, y: save.frame.midY),
+                in: image,
+                appFrame: app.frame
+            ),
+            "33,33,33"
+        )
+    }
+
+    @MainActor
     func testHomeCalendarAndQuestionRemainInHome() throws {
         let app = XCUIApplication()
         app.launchArguments = ["-ui-testing-home"]

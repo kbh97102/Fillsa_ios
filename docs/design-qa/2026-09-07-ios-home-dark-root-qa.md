@@ -6,6 +6,7 @@
 - Root inventory: `2929:9603` (`2. home[Dark]`)
 - Full-frame render targets: `3039:26518`, `3139:1753`, `3039:26778`, `3039:26996`, `3039:27295`, `3139:910`, `3136:1198`, `3139:1061`, `3139:1238`, `3223:5985`, `3223:6126`, `3223:6435`, `3223:6600`, `3223:6912`
 - Linked route targets: `3087:28815`, `2929:9764`, `2929:9801`, `2929:9844`, `2929:9884`, `2929:9931`, `2929:10788`, `2929:10884`, `2929:10850`
+- Typing target URL: https://www.figma.com/design/VdFocqyqTgevMVCQxwAQ2X/%E2%9C%92%EF%B8%8F%ED%95%84%EC%82%AC?node-id=3087-28815
 - Reference images: `docs/design-qa/assets/home-figma-2929-9603/2026-09-07/figma-dark-*.png`
 - Runtime target: iOS Simulator, dark appearance, Korean locale; Home frames target 360×821 and linked legacy frames target 360×720
 - Runtime full-frame capture: not created; this change is documentation-only
@@ -22,13 +23,18 @@
 | Copy/liked/image actions | `3039:26996`, `3039:27295` | toast/selected/registered | Not evaluated |
 | Question flow | `3136:863` | before/focus/toast/done | Not evaluated |
 | Image flow | `3223:5589` | before/after/two previews/delete | Not evaluated |
+| Typing save button | `3087:28973` | white fill/border, dark label, visible above keyboard | 부분 통과 — UI pixel test |
 | Typing results | `3087:28815`, `2929:9764`–`2929:9884` | input/save/outcomes | Not evaluated |
 | Login | `2929:9931`, `2929:10788` | modal/full screen | Not evaluated |
 | Share | `2929:10884`, `2929:10850` | first guide/carousel | Not evaluated |
 
 ## Validation rounds
 
-No runtime validation round was performed. Implementation, tests, simulator launch, and comparison are outside the current documentation-only scope.
+### Round 1
+
+| Scope | Difference | Fix | Result |
+|---|---|---|---|
+| Typing save button `3087:28973` | 기존 버튼이 투명 배경과 `gray700` 테두리를 사용해 dark root에서 보이지 않음 | Figma의 흰색 채움/테두리와 dark label 적용 | 부분 통과 — `testDarkTypingSaveButtonUsesVisibleWhiteFill` 통과, 전체 프레임 비교는 사용자 검증 대기 |
 
 ## Final assembled-screen result
 

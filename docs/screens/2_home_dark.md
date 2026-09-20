@@ -57,6 +57,8 @@
 
 ### E. 연결 화면: 필사·저장 결과
 
+- Target URL: https://www.figma.com/design/VdFocqyqTgevMVCQxwAQ2X/%E2%9C%92%EF%B8%8F%ED%95%84%EC%82%AC?node-id=3087-28815
+
 | 상태 | Node | 크기 |
 |---|---|---:|
 | 필사 입력 중 | `3087:28815` | 360×720 |
@@ -69,6 +71,7 @@
 | 미완료 modal 단독 | `3025:24618` | 320×245 |
 
 대표 reference는 `figma-dark-3087-28815-typing-active.png`이다. 이 묶음은 Home 내부 컴포넌트가 아니라 기존 필사 route의 dark appearance 회귀 범위다.
+입력 중 화면의 `저장하기` 버튼은 `3087:28973`이며 흰색 채움/테두리, `#212121` 텍스트, 8pt radius를 사용한다.
 
 ### F. 연결 화면: 인증
 
