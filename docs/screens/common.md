@@ -9,12 +9,13 @@
 
 ## 하단 내비게이션 바
 
-- 노출 항목: Home / List / Calendar / My page
-- 노출 화면: Home, List, Calendar, My page
+- 노출 항목: Home / Calendar / My page
+- 노출 화면: Home, Calendar, My page
+- QuoteList는 하단 내비게이션 목적지에서 제외하며, 기존 기능 내부 이동 경로만 유지한다.
 
 ## 상단 헤더
 
 | 화면 | 구성 | 동작 |
 |------|------|------|
-| Home / List / Calendar | 로고 + 사용자 아이콘 | 사용자 아이콘 클릭 → My page 이동 / 로고 클릭 → 액션 없음 |
+| Home / Calendar | 로고 + 사용자 아이콘 | 사용자 아이콘 클릭 → My page 이동 / 로고 클릭 → 액션 없음 |
 | My page | 로고만 | 로고 클릭 → 액션 없음 |

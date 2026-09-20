@@ -44,7 +44,7 @@
 - Component map: `CalendarDayCell` owns the 36×50/radius-10 selected day and 12pt record icons; `CalendarCountSection` keeps the genuine 16pt monthly heart/fire totals and quote-list action; `CalendarSelectedDaySection` selects incomplete/completed composition and retains the existing selected-quote → Home navigation.
 - Data map: `MemberQuotesData.likeYn == "Y"` renders the Figma heart. `completed || todayCompleted` renders the fire and selects completed detail; no quote-text heuristic, Calendar store, API, or persistence was added.
 - Detail states: incomplete shows the durable 100pt Figma handwriting character/message followed by the 80pt tappable quote card. Completed shows the 133pt quote/action card and then the scrollable 200-grapheme question UI. Calendar has no copy/share/like/image or prompt-answer persistence/navigation contract: those Figma affordances are intentionally non-mutating, and the answer CTA has no side effect until a separately owned data/routing contract is approved.
-- Existing shared 4-tab navigation and static ad surface remain intact. The Figma reference has 3 tabs, so whole-frame parity remains product-scope blocked until navigation ownership approves a 3/4-tab decision.
+- The shared bottom navigation follows the Figma reference with Home/Calendar/My page only. QuoteList remains an internal route for the existing monthly-count action, and the static ad surface remains intact.
 
 ## 기본 동작
 

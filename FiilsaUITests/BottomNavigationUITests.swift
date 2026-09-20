@@ -3,15 +3,17 @@ import XCTest
 
 final class BottomNavigationUITests: XCTestCase {
     @MainActor
-    func testDarkUnselectedCalendarIconUsesFigmaGrayWhileSelectedListUsesWhite() throws {
+    func testDarkBottomNavigationUsesThreeFigmaTabsAndUpdatesSelection() throws {
         let app = XCUIApplication()
-        app.launchArguments = ["-uiTestingQuoteList", "-uiTestingDark"]
+        app.launchArguments = ["-ui-testing-home", "ui-testing-theme-dark"]
         app.launch()
 
-        let list = app.buttons["List"]
+        let home = app.buttons["Home"]
         let calendar = app.buttons["Calendar"]
-        XCTAssertTrue(list.waitForExistence(timeout: 2))
+        XCTAssertTrue(home.waitForExistence(timeout: 2))
         XCTAssertTrue(calendar.waitForExistence(timeout: 2))
+        XCTAssertTrue(app.buttons["My page"].exists)
+        XCTAssertFalse(app.buttons["List"].exists)
 
         let screenshot = app.screenshot().image
         let attachment = XCTAttachment(image: screenshot)
@@ -19,7 +21,7 @@ final class BottomNavigationUITests: XCTestCase {
         add(attachment)
         XCTAssertGreaterThan(
             pixelCount(
-                in: iconArea(of: list),
+                in: iconArea(of: home),
                 image: screenshot,
                 appFrame: app.frame,
                 near: .white
@@ -44,7 +46,7 @@ final class BottomNavigationUITests: XCTestCase {
         add(selectedCalendarAttachment)
         XCTAssertGreaterThan(
             pixelCount(
-                in: iconArea(of: list),
+                in: iconArea(of: home),
                 image: selectedCalendarScreenshot,
                 appFrame: app.frame,
                 near: UIColor(red: 158 / 255, green: 158 / 255, blue: 158 / 255, alpha: 1)

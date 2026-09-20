@@ -32,7 +32,7 @@
 2. 연속 필사 수가 0일 때 상태 아이콘 탭은 안내 툴팁을 표시한다. 외부 탭은 닫고, `나의 필사현황 보기`는 기존 Calendar 탭으로 이동한다.
 3. 질문 CTA는 명언 필사 화면으로 이동하지 않는다. 200 grapheme 이내의 답변을 Home 세션 상태에 기록하고 `답변을 기록했어요.` 토스트와 완료/수정 상태를 표시한다. 서버·DB 영구 저장은 별도 data contract가 없어 이번 UI 범위에서 제외한다.
 4. 이미지 등록/보기/변경/삭제, 복사 토스트, 좋아요 선택은 기존 domain/API 연결을 보존하며 위 노드의 시각 상태로 검증한다.
-5. Figma의 3-tab 하단 바와 현재 앱의 4-route 하단 바 차이는 앱 전역 제품 결정이므로 이번 Home 범위에서 변경하지 않는다.
+5. 하단 바는 Figma와 사용자 확인에 따라 Home/Calendar/My page 3개 탭만 노출한다. QuoteList는 기존 기능 내부 이동 경로만 유지한다.
 
 ### 컴포넌트 분해
 
@@ -44,7 +44,7 @@
 | Quote card | `2929:13642` | `HomeQuoteCard`: local Figma texture, quote/author search action, and date swipe; on today's latest quote the forward swipe emits no next action | `HomeView` | Partial current-build runtime evidence; strict acceptance blocked by viewport only |
 | Quote actions | `2929:15503` | `HomeQuoteActionRow`: 16pt local assets, 42pt row/dividers; existing copy, share, live like toggle, and image registration actions | `HomeView` | Partial current-build runtime evidence; strict acceptance blocked by viewport only |
 | Question/answer | `3087:29376`, `3139:1399`, `3087:29378`, `3110:34293` | 200-grapheme 입력, 세션 기록, 저장 토스트, 완료/수정 상태. 명언 필사 route와 분리한다. | `HomeView` / `HomeFeature` | Partial current-build runtime evidence; strict acceptance blocked by viewport only; 영구 저장은 별도 범위 |
-| Bottom navigation/ad | `3087:29254`, `3087:29249` | Figma-common Home/Calendar/My page 32pt light assets, existing 4-tab shared navigation, and static 35pt ad surface | `AppView` / `FillsaBottomNavigationBar` / `HomeAdSurface` | Partial current-build runtime evidence; strict acceptance blocked by viewport only |
+| Bottom navigation/ad | `3087:29254`, `3087:29249` | Figma-common Home/Calendar/My page 32pt light assets, shared 3-tab navigation, and static 35pt ad surface | `AppView` / `FillsaBottomNavigationBar` / `HomeAdSurface` | Partial current-build runtime evidence; strict acceptance blocked by viewport only |
 | Dark Home appearance | `3039:26518` | `HomeFigmaPalette` resolves dark root `#212121`, card/input `#424242`, outlines/dividers `#616161`, white primary text, `#E0E0E0` action text, and `#9E9E9E` inactive weekday/input metadata. Local Figma SVG dark appearances cover logo, profile, quote texture, author search, and quote action icons. | `HomeView` / Home Figma components | Partial current-build runtime evidence; strict acceptance blocked by viewport only |
 
 ## 기본 동작
@@ -89,8 +89,8 @@
 ## 하단 내비게이션 및 광고
 
 - Figma `3087:29254`는 3개(Home/Calendar/My page) 120×60pt 항목이며, 공통 세 탭은 durable `home_nav_*` Figma SVG를 32pt template icon으로 사용한다. 선택 색은 `#5C65FF`, 비선택 텍스트/아이콘은 `#212121`이다.
-- iOS 앱은 QuoteList를 포함한 4개 shared route를 보존한다. 이는 이번 Home 범위 밖의 전역 제품 결정이며, 현재 strict acceptance `Blocked` 사유는 402×874pt 대 360×821의 runtime viewport 차이만이다.
-- Figma `3087:29249`의 35pt 정적 AD 표면(AD badge, “광고가 들어가는 영역입니다.”)은 기존 `HomeAdSurface`가 담당한다. 광고 제공/탭 구성 변경은 제품 결정이 필요한 별도 범위다.
+- iOS 앱의 공용 하단 바는 Home/Calendar/My page 3개 탭만 노출한다. QuoteList 구현은 기존 기능 내부 이동을 위해 유지한다.
+- Figma `3087:29249`의 35pt 정적 AD 표면(AD badge, “광고가 들어가는 영역입니다.”)은 기존 `HomeAdSurface`가 담당한다. 광고 제공 연동은 별도 범위다.
 
 ---
 

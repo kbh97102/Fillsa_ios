@@ -105,7 +105,6 @@ struct AppView: View {
 
             FillsaBottomNavigationBar(
                 selectedTab: viewStore.selectedTab,
-                tabs: viewStore.selectedTab == .calendar ? [.home, .calendar, .myPage] : AppTab.allCases,
                 select: { tab in
                     viewStore.send(.selectedTabChanged(tab))
                 }
