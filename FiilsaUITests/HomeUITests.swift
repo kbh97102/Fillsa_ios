@@ -2,6 +2,34 @@ import XCTest
 
 final class HomeUITests: XCTestCase {
     @MainActor
+    func testAnswerRecordButtonRemainsVisibleAboveKeyboard() throws {
+        XCUIDevice.shared.orientation = .portrait
+        let app = XCUIApplication()
+        app.launchArguments = ["-ui-testing-home"]
+        app.terminate()
+        app.launch()
+
+        let answer = app.textViews["home.answer"]
+        XCTAssertTrue(answer.waitForExistence(timeout: 2))
+        answer.tap()
+        answer.typeText("홈에 남기는 답변")
+
+        XCTAssertTrue(app.keyboards.element.waitForExistence(timeout: 2))
+        XCTAssertTrue(app.descendants(matching: .any)["bottomNavigation"].waitForNonExistence(timeout: 2))
+        let recordAnswer = app.buttons["home.answerRecord"]
+        let recordAnswerIsHittable = XCTNSPredicateExpectation(
+            predicate: NSPredicate(format: "isHittable == true"),
+            object: recordAnswer
+        )
+        XCTAssertEqual(XCTWaiter.wait(for: [recordAnswerIsHittable], timeout: 2), .completed)
+
+        recordAnswer.tap()
+        XCTAssertTrue(app.buttons["home.answerEdit"].waitForExistence(timeout: 2))
+        XCTAssertTrue(app.staticTexts["답변을 기록했어요."].exists)
+        XCTAssertTrue(app.keyboards.element.waitForNonExistence(timeout: 2))
+    }
+
+    @MainActor
     func testHomeRendersTheFigmaQuestionAndAnswerState() throws {
         let app = XCUIApplication()
         app.launchArguments = ["-ui-testing-home"]

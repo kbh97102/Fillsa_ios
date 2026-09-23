@@ -9,6 +9,7 @@
 - 검증 상태: Blocked — seven current-build iPhone 17 Pro captures are retained, but their 402×874 runtime frame does not match the 360×821 Figma target, so strict full-frame acceptance remains unavailable.
 - 기준 이미지: `docs/design-qa/assets/home-figma-2929-17193/2026-09-07/` (default, calendar-open, question-flow, streak-tooltip, image-flow)
 - QA 기록: `docs/design-qa/2026-09-07-ios-home-interactions-qa.md`
+- 답변 키보드 회귀 QA: `docs/design-qa/2026-09-23-ios-home-answer-keyboard-qa.md`
 - Dark root 상세 명세: `docs/screens/2_home_dark.md` (root `2929:9603`, 상태별 render node와 기준 이미지)
 
 ### 2026-09-07 Home 상호작용 구현 계약
@@ -33,6 +34,7 @@
 3. 질문 CTA는 명언 필사 화면으로 이동하지 않는다. 200 grapheme 이내의 답변을 Home 세션 상태에 기록하고 `답변을 기록했어요.` 토스트와 완료/수정 상태를 표시한다. 서버·DB 영구 저장은 별도 data contract가 없어 이번 UI 범위에서 제외한다.
 4. 이미지 등록/보기/변경/삭제, 복사 토스트, 좋아요 선택은 기존 domain/API 연결을 보존하며 위 노드의 시각 상태로 검증한다.
 5. 하단 바는 Figma와 사용자 확인에 따라 Home/Calendar/My page 3개 탭만 노출한다. QuoteList는 기존 기능 내부 이동 경로만 유지한다.
+6. 답변 편집 포커스(`3139:1399`, 조립 화면 `3110:34152`)에서는 Home 헤더를 고정하고 본문을 스크롤해 기록 CTA를 키보드 바로 위에 유지한다. Home 하단 바는 키보드 위로 올라오지 않으며, 본문 드래그로 키보드를 내릴 수 있다.
 
 ### 컴포넌트 분해
 
@@ -43,7 +45,7 @@
 | Locale prompt | `2929:15520` | Typing prompt and Korean/English switch | `HomeView` | Partial current-build runtime evidence; strict acceptance blocked by viewport only |
 | Quote card | `2929:13642` | `HomeQuoteCard`: local Figma texture, quote/author search action, and date swipe; on today's latest quote the forward swipe emits no next action | `HomeView` | Partial current-build runtime evidence; strict acceptance blocked by viewport only |
 | Quote actions | `2929:15503` | `HomeQuoteActionRow`: 16pt local assets, 42pt row/dividers; existing copy, share, live like toggle, and image registration actions | `HomeView` | Partial current-build runtime evidence; strict acceptance blocked by viewport only |
-| Question/answer | `3087:29376`, `3139:1399`, `3087:29378`, `3110:34293` | 200-grapheme 입력, 세션 기록, 저장 토스트, 완료/수정 상태. 명언 필사 route와 분리한다. | `HomeView` / `HomeFeature` | Partial current-build runtime evidence; strict acceptance blocked by viewport only; 영구 저장은 별도 범위 |
+| Question/answer | `3087:29376`, `3139:1399`, `3087:29378`, `3110:34152`, `3110:34293` | 200-grapheme 입력, 키보드 포커스 시 CTA 노출·대화형 키보드 닫기, 세션 기록, 저장 토스트, 완료/수정 상태. 명언 필사 route와 분리한다. | `HomeView` / `HomeFeature` | Focused interaction pass on iPhone 17 Pro; strict acceptance blocked by viewport only; 영구 저장은 별도 범위 |
 | Bottom navigation | `3087:29254` | Figma-common Home/Calendar/My page 32pt light assets and shared 3-tab navigation | `AppView` / `FillsaBottomNavigationBar` | Partial current-build runtime evidence; strict acceptance blocked by viewport only |
 | Dark Home appearance | `3039:26518` | `HomeFigmaPalette` resolves dark root `#212121`, card/input `#424242`, outlines/dividers `#616161`, white primary text, `#E0E0E0` action text, and `#9E9E9E` inactive weekday/input metadata. Local Figma SVG dark appearances cover logo, profile, quote texture, author search, and quote action icons. | `HomeView` / Home Figma components | Partial current-build runtime evidence; strict acceptance blocked by viewport only |
 

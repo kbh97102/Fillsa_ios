@@ -1,9 +1,11 @@
 import ComposableArchitecture
 import Foundation
 import SwiftUI
+import UIKit
 
 struct AppView: View {
     let store: StoreOf<AppFeature>
+    @State private var isKeyboardPresented = false
 
     var body: some View {
         WithViewStore(store, observe: { $0 }) { viewStore in
@@ -18,6 +20,12 @@ struct AppView: View {
             .task {
                 guard !ProcessInfo.processInfo.arguments.contains("ui-testing-calendar") else { return }
                 await viewStore.send(.task).finish()
+            }
+            .onReceive(NotificationCenter.default.publisher(for: UIResponder.keyboardWillShowNotification)) { _ in
+                isKeyboardPresented = true
+            }
+            .onReceive(NotificationCenter.default.publisher(for: UIResponder.keyboardWillHideNotification)) { _ in
+                isKeyboardPresented = false
             }
         }
     }
@@ -103,12 +111,14 @@ struct AppView: View {
         VStack(spacing: 0) {
             selectedContent(for: viewStore.selectedTab, viewStore: viewStore)
 
-            FillsaBottomNavigationBar(
-                selectedTab: viewStore.selectedTab,
-                select: { tab in
-                    viewStore.send(.selectedTabChanged(tab))
-                }
-            )
+            if viewStore.selectedTab != .home || !isKeyboardPresented {
+                FillsaBottomNavigationBar(
+                    selectedTab: viewStore.selectedTab,
+                    select: { tab in
+                        viewStore.send(.selectedTabChanged(tab))
+                    }
+                )
+            }
 
         }
         .background(FillsaColor.background.ignoresSafeArea())

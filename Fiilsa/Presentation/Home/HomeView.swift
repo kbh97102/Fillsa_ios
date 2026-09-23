@@ -39,38 +39,50 @@ struct HomeView: View {
                 )
                 .padding(.horizontal, 20)
                 .frame(height: 50)
-                HomeDateControls(
-                    date: viewStore.date,
-                    completedWritingDates: viewStore.completedWritingDates,
-                    selectCalendar: { viewStore.send(.calendarTriggerTapped) },
-                    selectDate: { viewStore.send(.calendarDateSelected($0)) }
-                )
-                .padding(.top, 10)
-                .padding(.horizontal, 20)
-                HStack {
-                    Text("아래 글을 필사해주세요.").font(FillsaTypography.body3).foregroundStyle(palette.primaryText.color)
-                    Spacer()
-                    HomeLocaleSwitch(selected: $selectedLocale)
-                }.padding(.top, 16).padding(.horizontal, 20)
-                HomeQuoteCard(text: quote(from: viewStore.quote), author: author(from: viewStore.quote), date: viewStore.date, next: { viewStore.send(.nextTapped) }, before: { viewStore.send(.beforeTapped) }, navigate: openTyping, authorTapped: {
-                    if let urlString = viewStore.quote.authorUrl, let url = URL(string: urlString) { openURL(url) }
-                })
-                .padding(.top, 4).padding(.horizontal, 20).accessibilityIdentifier("home.quoteCard")
-                HomeQuoteActionRow(copy: { UIPasteboard.general.string = copyText(from: viewStore.quote); viewStore.send(.copyCompleted) }, share: { openShare(quote(from: viewStore.quote), author(from: viewStore.quote)) }, isLike: viewStore.quote.likeYn == "Y", setIsLike: { viewStore.send(.likeTapped($0)) }, registerImage: { viewStore.send(.imageTapped) }).padding(.top, 10)
-                Divider().overlay(palette.mainDivider.color.opacity(palette.mainDividerOpacity)).padding(.top, 1)
-                HomeQuestionAnswerCard(
-                    answer: Binding(
-                        get: { viewStore.answerDraft },
-                        set: { viewStore.send(.answerDraftChanged($0)) }
-                    ),
-                    recordedAnswer: viewStore.recordedAnswer,
-                    isEditing: viewStore.isEditingAnswer,
-                    recordAnswer: { viewStore.send(.answerRecordTapped) },
-                    editAnswer: { viewStore.send(.answerEditTapped) }
-                )
-                .padding(.top, 17)
-                .padding(.horizontal, 20)
-                Spacer(minLength: 0)
+                ScrollViewReader { proxy in
+                    ScrollView {
+                        VStack(spacing: 0) {
+                            HomeDateControls(
+                                date: viewStore.date,
+                                completedWritingDates: viewStore.completedWritingDates,
+                                selectCalendar: { viewStore.send(.calendarTriggerTapped) },
+                                selectDate: { viewStore.send(.calendarDateSelected($0)) }
+                            )
+                            .padding(.top, 10)
+                            .padding(.horizontal, 20)
+                            HStack {
+                                Text("아래 글을 필사해주세요.").font(FillsaTypography.body3).foregroundStyle(palette.primaryText.color)
+                                Spacer()
+                                HomeLocaleSwitch(selected: $selectedLocale)
+                            }.padding(.top, 16).padding(.horizontal, 20)
+                            HomeQuoteCard(text: quote(from: viewStore.quote), author: author(from: viewStore.quote), date: viewStore.date, next: { viewStore.send(.nextTapped) }, before: { viewStore.send(.beforeTapped) }, navigate: openTyping, authorTapped: {
+                                if let urlString = viewStore.quote.authorUrl, let url = URL(string: urlString) { openURL(url) }
+                            })
+                            .padding(.top, 4).padding(.horizontal, 20).accessibilityIdentifier("home.quoteCard")
+                            HomeQuoteActionRow(copy: { UIPasteboard.general.string = copyText(from: viewStore.quote); viewStore.send(.copyCompleted) }, share: { openShare(quote(from: viewStore.quote), author(from: viewStore.quote)) }, isLike: viewStore.quote.likeYn == "Y", setIsLike: { viewStore.send(.likeTapped($0)) }, registerImage: { viewStore.send(.imageTapped) }).padding(.top, 10)
+                            Divider().overlay(palette.mainDivider.color.opacity(palette.mainDividerOpacity)).padding(.top, 1)
+                            HomeQuestionAnswerCard(
+                                answer: Binding(
+                                    get: { viewStore.answerDraft },
+                                    set: { viewStore.send(.answerDraftChanged($0)) }
+                                ),
+                                recordedAnswer: viewStore.recordedAnswer,
+                                isEditing: viewStore.isEditingAnswer,
+                                recordAnswer: { viewStore.send(.answerRecordTapped) },
+                                editAnswer: { viewStore.send(.answerEditTapped) }
+                            )
+                            .id("home.answerCard")
+                            .padding(.top, 17)
+                            .padding(.horizontal, 20)
+                        }
+                    }
+                    .scrollDismissesKeyboard(.interactively)
+                    .onReceive(NotificationCenter.default.publisher(for: UIResponder.keyboardWillShowNotification)) { _ in
+                        DispatchQueue.main.async {
+                            proxy.scrollTo("home.answerCard", anchor: .bottom)
+                        }
+                    }
+                }
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
             .background(palette.rootBackground.color.ignoresSafeArea())
