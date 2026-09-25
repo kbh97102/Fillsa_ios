@@ -10,6 +10,7 @@
 - 기준 이미지: `docs/design-qa/assets/home-figma-2929-17193/2026-09-07/` (default, calendar-open, question-flow, streak-tooltip, image-flow)
 - QA 기록: `docs/design-qa/2026-09-07-ios-home-interactions-qa.md`
 - 답변 키보드 회귀 QA: `docs/design-qa/2026-09-23-ios-home-answer-keyboard-qa.md`
+- 날짜/연속필사 패딩 QA: `docs/design-qa/2026-09-25-ios-home-date-streak-padding-qa.md`
 - Dark root 상세 명세: `docs/screens/2_home_dark.md` (root `2929:9603`, 상태별 render node와 기준 이미지)
 
 ### 2026-09-07 Home 상호작용 구현 계약
@@ -48,6 +49,14 @@
 | Question/answer | `3087:29376`, `3139:1399`, `3087:29378`, `3110:34152`, `3110:34293` | 200-grapheme 입력, 키보드 포커스 시 CTA 노출·대화형 키보드 닫기, 세션 기록, 저장 토스트, 완료/수정 상태. 명언 필사 route와 분리한다. | `HomeView` / `HomeFeature` | Focused interaction pass on iPhone 17 Pro; strict acceptance blocked by viewport only; 영구 저장은 별도 범위 |
 | Bottom navigation | `3087:29254` | Figma-common Home/Calendar/My page 32pt light assets and shared 3-tab navigation | `AppView` / `FillsaBottomNavigationBar` | Partial current-build runtime evidence; strict acceptance blocked by viewport only |
 | Dark Home appearance | `3039:26518` | `HomeFigmaPalette` resolves dark root `#212121`, card/input `#424242`, outlines/dividers `#616161`, white primary text, `#E0E0E0` action text, and `#9E9E9E` inactive weekday/input metadata. Local Figma SVG dark appearances cover logo, profile, quote texture, author search, and quote action icons. | `HomeView` / Home Figma components | Partial current-build runtime evidence; strict acceptance blocked by viewport only |
+
+### 2026-09-25 날짜/연속필사 패딩 QA 범위
+
+- 기준 프레임: `2929:13556` (`2.home`, Light, 360×821)
+- 연속필사: 헤더 `2929:15476`, 연속필사 `2929:15495`, 프로필 `2929:15493`
+- 날짜: 월 선택 `2929:15667` (x=20), 주간 스트립 `3204:2435` (x=102), 두 컴포넌트 간 9pt
+- 대상 상태: 연속필사 100일, 완료 날짜 2개, 오늘 선택 상태
+- 검증 상태: 수정 전 회귀 테스트 및 런타임 캡처 대기
 
 ## 기본 동작
 

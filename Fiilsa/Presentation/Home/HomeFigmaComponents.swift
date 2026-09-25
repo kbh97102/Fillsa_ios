@@ -138,7 +138,7 @@ struct HomeHeader: View {
     }
 
     var body: some View {
-        HStack {
+        HStack(spacing: 12) {
             Image("home_logo")
                 .resizable()
                 .scaledToFit()
@@ -166,7 +166,6 @@ struct HomeHeader: View {
                     }
                 }
                 .buttonStyle(.plain)
-                .padding(.trailing, 10)
                 .accessibilityIdentifier("home.streakStatus")
             }
 
@@ -212,6 +211,7 @@ struct HomeDateControls: View {
                 selectDate: selectDate
             )
         }
+        .frame(maxWidth: .infinity, alignment: .leading)
     }
 }
 
@@ -272,7 +272,7 @@ struct HomeWeekStrip: View {
     }
 
     var body: some View {
-        HStack(spacing: 5) {
+        HStack(spacing: 0) {
             ForEach(days, id: \.self) { day in
                 Button { selectDate(day) } label: {
                     Text(Self.dayFormatter.string(from: day))
@@ -293,8 +293,13 @@ struct HomeWeekStrip: View {
                         }
                 }
                 .buttonStyle(.plain)
+
+                if day != days.last {
+                    Spacer(minLength: 4)
+                }
             }
         }
+        .frame(maxWidth: .infinity)
     }
 
     static func visibleDates(endingAt date: Date, calendar: Calendar = .current) -> [Date] {

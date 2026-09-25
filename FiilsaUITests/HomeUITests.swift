@@ -2,6 +2,24 @@ import XCTest
 
 final class HomeUITests: XCTestCase {
     @MainActor
+    func testHomeDateAndStreakUseFigmaInsets() throws {
+        let app = XCUIApplication()
+        app.launchArguments = ["-ui-testing-home"]
+        app.launch()
+
+        let month = app.buttons["home.calendarTrigger"]
+        let streak = app.buttons["home.streakStatus"]
+        let selectedDay = app.buttons["16"]
+        XCTAssertTrue(month.waitForExistence(timeout: 2))
+        XCTAssertTrue(streak.waitForExistence(timeout: 2))
+        XCTAssertTrue(selectedDay.waitForExistence(timeout: 2))
+
+        XCTAssertEqual(month.frame.minX, 20, accuracy: 1)
+        XCTAssertEqual(selectedDay.frame.maxX, app.frame.maxX - 20, accuracy: 1)
+        XCTAssertEqual(streak.frame.maxX, app.frame.maxX - 56, accuracy: 1)
+    }
+
+    @MainActor
     func testAnswerRecordButtonRemainsVisibleAboveKeyboard() throws {
         XCUIDevice.shared.orientation = .portrait
         let app = XCUIApplication()

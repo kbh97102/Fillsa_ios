@@ -72,6 +72,7 @@ struct FiilsaApp: App {
             )
             state.home.isStreakStateLoaded = true
             state.home.streakCount = 100
+            state.home.completedWritingDates = ["2026-08-10", "2026-08-11"]
             if arguments.contains("-ui-testing-home-zero-streak") {
                 state.home.streakCount = nil
             }
@@ -119,7 +120,7 @@ struct FiilsaApp: App {
         components.timeZone = TimeZone(identifier: "Asia/Seoul")
         components.year = 2026
         components.month = 8
-        components.day = 12
+        components.day = 16
         return components.date ?? Date(timeIntervalSince1970: 0)
     }()
 
