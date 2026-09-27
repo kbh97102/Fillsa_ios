@@ -2,6 +2,67 @@ import XCTest
 
 final class HomeUITests: XCTestCase {
     @MainActor
+    func testQuoteActionsUseFigmaProportionsWithinScreenInsets() throws {
+        let app = XCUIApplication()
+        app.launchArguments = ["-ui-testing-home"]
+        app.launch()
+
+        let copy = app.buttons["home.copy"]
+        let share = app.buttons["home.share"]
+        let like = app.buttons["home.like"]
+        let image = app.buttons["home.registerImage"]
+        XCTAssertTrue(image.waitForExistence(timeout: 2))
+
+        XCTAssertEqual(copy.frame.minX, 20, accuracy: 1)
+        XCTAssertEqual(image.frame.maxX, app.frame.maxX - 20, accuracy: 1)
+        XCTAssertEqual(copy.frame.width, share.frame.width, accuracy: 1)
+        XCTAssertEqual(share.frame.width, like.frame.width, accuracy: 1)
+        XCTAssertEqual(copy.frame.width / image.frame.width, 70.0 / 107.0, accuracy: 0.02)
+    }
+
+    @MainActor
+    func testImageDialogUsesFigmaAspectRatio() throws {
+        let app = XCUIApplication()
+        app.launchArguments = ["-ui-testing-home", "-ui-testing-home-image-modal"]
+        app.launch()
+
+        let dialog = app.otherElements["home.imageDialog"]
+        XCTAssertTrue(dialog.waitForExistence(timeout: 2))
+        XCTAssertEqual(dialog.frame.width / dialog.frame.height, 320.0 / 373.0, accuracy: 0.02)
+        XCTAssertLessThan(app.buttons["확인"].frame.maxY, dialog.frame.maxY)
+    }
+
+    @MainActor
+    func testCalendarPopupIsAnchoredToMonthButton() throws {
+        let app = XCUIApplication()
+        app.launchArguments = ["-ui-testing-home", "-ui-testing-home-calendar-open"]
+        app.launch()
+
+        let trigger = app.buttons["home.calendarTrigger"]
+        let popup = app.otherElements["home.calendarPopup"]
+        XCTAssertTrue(popup.waitForExistence(timeout: 2))
+        XCTAssertEqual(popup.frame.minX, trigger.frame.minX, accuracy: 1)
+        XCTAssertEqual(popup.frame.minY, trigger.frame.maxY + 6, accuracy: 1)
+    }
+
+    @MainActor
+    func testStreakTooltipArrowIsAnchoredToStatusButton() throws {
+        let app = XCUIApplication()
+        app.launchArguments = [
+            "-ui-testing-home",
+            "-ui-testing-home-zero-streak",
+            "-ui-testing-home-streak-tooltip"
+        ]
+        app.launch()
+
+        let trigger = app.buttons["home.streakStatus"]
+        let tooltip = app.otherElements["home.streakTooltip"]
+        XCTAssertTrue(tooltip.waitForExistence(timeout: 2))
+        XCTAssertEqual(tooltip.frame.minY, trigger.frame.maxY + 7, accuracy: 1)
+        XCTAssertEqual(tooltip.frame.maxX - 26.5, trigger.frame.midX, accuracy: 1)
+    }
+
+    @MainActor
     func testHomeDateAndStreakUseFigmaInsets() throws {
         let app = XCUIApplication()
         app.launchArguments = ["-ui-testing-home"]

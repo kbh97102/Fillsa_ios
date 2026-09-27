@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>홈 반응형 레이아웃 · Figma / iOS 비교</title>
+  <style>
+    :root { color-scheme: light; font-family: -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", sans-serif; background: #f4f3ef; color: #242320; }
+    * { box-sizing: border-box; }
+    body { margin: 0; }
+    header { padding: 36px max(24px, calc((100vw - 1040px) / 2)); background: #fff; border-bottom: 1px solid #e5e2dc; }
+    h1 { margin: 0 0 10px; font-size: clamp(24px, 3vw, 34px); letter-spacing: -.04em; }
+    h2 { margin: 0 0 8px; font-size: 23px; letter-spacing: -.03em; }
+    p { line-height: 1.6; }
+    header p { margin: 0; color: #625f59; }
+    nav { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 22px; }
+    nav a { padding: 9px 13px; border-radius: 999px; background: #f0eee8; color: #292823; text-decoration: none; font-size: 14px; }
+    nav a:hover { background: #e1ddff; }
+    main { max-width: 1040px; margin: 0 auto; padding: 18px 24px 60px; }
+    section { scroll-margin-top: 20px; padding: 30px 0 38px; border-bottom: 1px solid #dcd9d2; }
+    .note { margin: 0 0 20px; color: #625f59; font-size: 14px; }
+    .comparison { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 20px; align-items: start; }
+    figure { margin: 0; min-width: 0; padding: 16px; background: #fff; border: 1px solid #e5e2dc; border-radius: 16px; }
+    figcaption { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 4px 12px; margin: 0 0 14px; font-weight: 700; }
+    figcaption small { color: #77736d; font-weight: 400; }
+    figure a { display: block; width: fit-content; max-width: 100%; margin: 0 auto; }
+    figure img { display: block; width: min(100%, 360px); height: auto; border: 1px solid #eeeae2; }
+    .source { margin-top: 14px; font-size: 13px; color: #625f59; }
+    .source a { display: inline; color: #4d50a8; }
+    @media (max-width: 760px) { .comparison { grid-template-columns: 1fr; } header { padding: 26px 20px; } main { padding: 8px 20px 40px; } }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>홈 반응형 레이아웃 비교</h1>
+    <p>Figma 원본과 2026-09-27 iPhone 17 Pro 시뮬레이터 캡처. 이미지를 누르면 원본 PNG가 열립니다.</p>
+    <p>Figma 360×821pt, iOS 402×874pt입니다. 아래 이미지는 가로폭을 최대 360px로 맞춰 표시하며, 세로 좌표는 기기 차이만큼 달라집니다.</p>
+    <nav aria-label="상태별 비교 바로가기">
+      <a href="#default">기본 홈</a><a href="#long-quote">긴 명언</a><a href="#calendar">달력 팝업</a><a href="#streak">연속필사 툴팁</a><a href="#image-dialog">이미지 팝업</a>
+    </nav>
+  </header>
+  <main>
+    <section id="default">
+      <h2>기본 홈</h2>
+      <p class="note">날짜 원형 아이콘, 명언 카드, 액션 버튼 4개, 질문 입력창의 간격과 폭을 함께 확인합니다.</p>
+      <div class="comparison">
+        <figure><figcaption>Figma <small>2929:13556 · 360×821</small></figcaption><a href="assets/home-responsive-layout/2026-09-27/figma-home-default.png"><img src="assets/home-responsive-layout/2026-09-27/figma-home-default.png" alt="Figma 기본 홈" loading="lazy"></a><div class="source"><a href="https://www.figma.com/design/VdFocqyqTgevMVCQxwAQ2X/%E2%9C%92%EF%B8%8F%ED%95%84%EC%82%AC?node-id=2929-13556">Figma 프레임 열기</a></div></figure>
+        <figure><figcaption>현재 iOS <small>iPhone 17 Pro · 402×874</small></figcaption><a href="assets/home-responsive-layout/2026-09-27/home-responsive-default.png"><img src="assets/home-responsive-layout/2026-09-27/home-responsive-default.png" alt="현재 iOS 기본 홈" loading="lazy"></a></figure>
+      </div>
+    </section>
+    <section id="long-quote">
+      <h2>긴 명언</h2>
+      <p class="note">왼쪽은 기본 명언 Figma입니다. 긴 명언 전용 Figma 프레임은 없어 문장 내용은 다르며, 카드 안 줄바꿈과 높이 변화만 비교할 수 있습니다. 오른쪽은 일반 글자 크기 캡처입니다.</p>
+      <div class="comparison">
+        <figure><figcaption>Figma 기본 카드 <small>2929:13642</small></figcaption><a href="assets/home-responsive-layout/2026-09-27/figma-home-default.png"><img src="assets/home-responsive-layout/2026-09-27/figma-home-default.png" alt="Figma 기본 명언이 담긴 홈" loading="lazy"></a></figure>
+        <figure><figcaption>현재 iOS 긴 명언 <small>테스트용 긴 문장</small></figcaption><a href="assets/home-responsive-layout/2026-09-27/home-responsive-long-quote.png"><img src="assets/home-responsive-layout/2026-09-27/home-responsive-long-quote.png" alt="현재 iOS 긴 명언 홈" loading="lazy"></a></figure>
+      </div>
+    </section>
+    <section id="calendar">
+      <h2>달력 팝업</h2>
+      <p class="note">월 선택 버튼의 왼쪽 모서리와 팝업의 시작점, 버튼 아래 간격을 확인합니다. Figma와 iOS 캡처의 선택 날짜는 다릅니다.</p>
+      <div class="comparison">
+        <figure><figcaption>Figma <small>3139:1501 · 360×821</small></figcaption><a href="assets/home-responsive-layout/2026-09-27/figma-home-calendar.png"><img src="assets/home-responsive-layout/2026-09-27/figma-home-calendar.png" alt="Figma 달력 열린 홈" loading="lazy"></a><div class="source"><a href="https://www.figma.com/design/VdFocqyqTgevMVCQxwAQ2X/%E2%9C%92%EF%B8%8F%ED%95%84%EC%82%AC?node-id=3139-1501">Figma 프레임 열기</a></div></figure>
+        <figure><figcaption>현재 iOS <small>iPhone 17 Pro · 402×874</small></figcaption><a href="assets/home-responsive-layout/2026-09-27/home-responsive-calendar.png"><img src="assets/home-responsive-layout/2026-09-27/home-responsive-calendar.png" alt="현재 iOS 달력 열린 홈" loading="lazy"></a></figure>
+      </div>
+    </section>
+    <section id="streak">
+      <h2>연속필사 툴팁</h2>
+      <p class="note">상태 아이콘과 삼각형 화살표의 중심 정렬, 툴팁 폭과 수직 간격을 확인합니다. Figma에는 설명용 빨간 번호가 포함되어 있습니다.</p>
+      <div class="comparison">
+        <figure><figcaption>Figma <small>2929:18871 · 360×821</small></figcaption><a href="assets/home-responsive-layout/2026-09-27/figma-home-streak-tooltip.png"><img src="assets/home-responsive-layout/2026-09-27/figma-home-streak-tooltip.png" alt="Figma 연속필사 툴팁 홈" loading="lazy"></a><div class="source"><a href="https://www.figma.com/design/VdFocqyqTgevMVCQxwAQ2X/%E2%9C%92%EF%B8%8F%ED%95%84%EC%82%AC?node-id=2929-18871">Figma 프레임 열기</a></div></figure>
+        <figure><figcaption>현재 iOS <small>iPhone 17 Pro · 402×874</small></figcaption><a href="assets/home-responsive-layout/2026-09-27/home-responsive-streak-tooltip.png"><img src="assets/home-responsive-layout/2026-09-27/home-responsive-streak-tooltip.png" alt="현재 iOS 연속필사 툴팁 홈" loading="lazy"></a></figure>
+      </div>
+    </section>
+    <section id="image-dialog">
+      <h2>이미지 팝업</h2>
+      <p class="note">배경 이미지가 없는 그라데이션 변형을 비교합니다. Figma는 등록된 이미지 상태라 삭제 버튼이 있고 명언 문구도 다릅니다. 현재 iOS 테스트 상태에는 등록 이미지가 없어 삭제 버튼이 표시되지 않습니다.</p>
+      <div class="comparison">
+        <figure><figcaption>Figma <small>2929:19326 · 360×821</small></figcaption><a href="assets/home-responsive-layout/2026-09-27/figma-home-image-dialog-gradient.png"><img src="assets/home-responsive-layout/2026-09-27/figma-home-image-dialog-gradient.png" alt="Figma 그라데이션 이미지 팝업" loading="lazy"></a><div class="source"><a href="https://www.figma.com/design/VdFocqyqTgevMVCQxwAQ2X/%E2%9C%92%EF%B8%8F%ED%95%84%EC%82%AC?node-id=2929-19326">Figma 프레임 열기</a> · <a href="assets/home-responsive-layout/2026-09-27/figma-home-image-dialog.png">사진 배경 변형 보기</a></div></figure>
+        <figure><figcaption>현재 iOS <small>iPhone 17 Pro · 402×874</small></figcaption><a href="assets/home-responsive-layout/2026-09-27/home-responsive-image-dialog.png"><img src="assets/home-responsive-layout/2026-09-27/home-responsive-image-dialog.png" alt="현재 iOS 그라데이션 이미지 팝업" loading="lazy"></a></figure>
+      </div>
+    </section>
+  </main>
+</body>
+</html>

@@ -51,6 +51,9 @@ struct FiilsaApp: App {
         }
 
         if arguments.contains("-ui-testing-home") {
+            let homeQuote = arguments.contains("-ui-testing-home-long-quote")
+                ? "사랑은 상대를 바꾸려는 마음이 아니라 서로 다른 시간을 이해하고 기다리며, 늦게 도착한 진심까지도 다치지 않게 받아들이는 오래된 연습이다. 그 연습은 오늘의 작은 친절에서 다시 시작된다."
+                : "사랑이라는 선물은 억지로 줄 수 없고 받아들여지기를 기다릴 뿐이다."
             state.screen = .main
             state.selectedTab = .home
             state.selectedTheme = arguments.contains("ui-testing-theme-dark") ? .dark : .light
@@ -59,7 +62,7 @@ struct FiilsaApp: App {
                     likeYn: "N",
                     imagePath: "",
                     dailyQuoteSeq: 1,
-                    korQuote: "사랑이라는 선물은 억지로 줄 수 없고 받아들여지기를 기다릴 뿐이다.",
+                    korQuote: homeQuote,
                     engQuote: "Love is a gift that waits to be received.",
                     korAuthor: "존우든",
                     engAuthor: "John Wooden",

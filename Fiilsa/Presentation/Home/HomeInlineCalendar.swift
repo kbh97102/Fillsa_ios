@@ -73,6 +73,7 @@ struct HomeInlineCalendar: View {
                 .stroke(Color(hex: 0xE7E2D7), lineWidth: 1)
         }
         .shadow(color: FillsaColor.gray700.opacity(0.14), radius: 12, y: 5)
+        .accessibilityElement(children: .contain)
         .accessibilityIdentifier("home.calendarPopup")
     }
 

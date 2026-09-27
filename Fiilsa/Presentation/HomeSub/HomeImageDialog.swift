@@ -47,12 +47,14 @@ struct HomeImageDialog: View {
                         Spacer()
                     }
 
+                    Spacer(minLength: 12)
+
                     Text(quote)
                         .font(FillsaTypography.body2)
                         .foregroundStyle(FillsaColor.gray700)
                         .multilineTextAlignment(.center)
+                        .fixedSize(horizontal: false, vertical: true)
                         .frame(maxWidth: .infinity)
-                        .padding(.top, 90)
 
                     Text(author)
                         .font(FillsaTypography.body2)
@@ -60,6 +62,8 @@ struct HomeImageDialog: View {
                         .multilineTextAlignment(.center)
                         .frame(maxWidth: .infinity)
                         .padding(.top, 12)
+
+                    Spacer(minLength: 12)
 
                     HStack(spacing: 10) {
                         PhotosPicker(
@@ -80,14 +84,15 @@ struct HomeImageDialog: View {
 
                         dialogButton("확인", action: dismiss)
                     }
-                    .padding(.top, 86)
                 }
                 .padding(.horizontal, 12)
                 .padding(.vertical, 20)
             }
+            .aspectRatio(320.0 / 373.0, contentMode: .fit)
             .clipShape(RoundedRectangle(cornerRadius: 12))
+            .accessibilityElement(children: .contain)
+            .accessibilityIdentifier("home.imageDialog")
             .padding(.horizontal, 20)
-            .fixedSize(horizontal: false, vertical: true)
         }
     }
 

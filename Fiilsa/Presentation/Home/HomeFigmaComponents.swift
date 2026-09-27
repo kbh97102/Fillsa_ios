@@ -1,6 +1,22 @@
 import Foundation
 import SwiftUI
 
+enum HomeOverlayAnchor: Hashable {
+    case calendarTrigger
+    case streakStatus
+}
+
+struct HomeOverlayAnchorPreferenceKey: PreferenceKey {
+    static var defaultValue: [HomeOverlayAnchor: Anchor<CGRect>] = [:]
+
+    static func reduce(
+        value: inout [HomeOverlayAnchor: Anchor<CGRect>],
+        nextValue: () -> [HomeOverlayAnchor: Anchor<CGRect>]
+    ) {
+        value.merge(nextValue(), uniquingKeysWith: { _, next in next })
+    }
+}
+
 enum HomeCompletionDateKey {
     static func make(for date: Date, calendar: Calendar = .current) -> String {
         let components = calendar.dateComponents([.year, .month, .day], from: date)
@@ -167,6 +183,11 @@ struct HomeHeader: View {
                 }
                 .buttonStyle(.plain)
                 .accessibilityIdentifier("home.streakStatus")
+                .anchorPreference(
+                    key: HomeOverlayAnchorPreferenceKey.self,
+                    value: .bounds,
+                    transform: { [.streakStatus: $0] }
+                )
             }
 
             Button(action: myPage) {
@@ -242,6 +263,11 @@ struct HomeMonthSelector: View {
         }
         .buttonStyle(.plain)
         .accessibilityIdentifier("home.calendarTrigger")
+        .anchorPreference(
+            key: HomeOverlayAnchorPreferenceKey.self,
+            value: .bounds,
+            transform: { [.calendarTrigger: $0] }
+        )
     }
 
     private static let monthFormatter: DateFormatter = {
@@ -411,7 +437,7 @@ struct HomeQuestionAnswerCard: View {
 
             ZStack(alignment: .topLeading) {
                 TextEditor(text: limitedAnswer)
-                    .font(FillsaTypography.body4)
+                    .font(.custom("Pretendard-Regular", size: 12, relativeTo: .caption))
                     .foregroundStyle(palette.primaryText.color)
                     .scrollContentBackground(.hidden)
                     .background(Color.clear)
@@ -425,14 +451,14 @@ struct HomeQuestionAnswerCard: View {
 
                 if answer.isEmpty {
                     Text(placeholder)
-                        .font(FillsaTypography.body4)
+                        .font(.custom("Pretendard-Regular", size: 12, relativeTo: .caption))
                         .foregroundStyle(palette.answerPlaceholder.color)
                         .padding(.horizontal, 12)
                         .padding(.top, 12)
                         .allowsHitTesting(false)
                 }
             }
-            .frame(maxWidth: .infinity, minHeight: 174, maxHeight: 174)
+            .frame(maxWidth: .infinity, minHeight: 174)
             .background(palette.answerFieldBackground.color.opacity(palette.answerFieldOpacity))
             .clipShape(RoundedRectangle(cornerRadius: 17))
             .overlay(
@@ -494,19 +520,28 @@ struct HomeQuoteActionRow: View {
     @Environment(\.colorScheme) private var colorScheme
 
     var body: some View {
-        HStack(spacing: 0) {
-            action("home_action_copy", "복사", copy)
-                .frame(width: 80)
-            divider
-            action("home_action_share", "공유", share)
-                .frame(width: 80)
-            divider
-            likeAction
-                .frame(width: 80)
-            divider
-            action("home_action_camera", "이미지 등록", registerImage)
-                .frame(width: 90)
-                .accessibilityIdentifier("home.registerImage")
+        GeometryReader { proxy in
+            let buttonWidth = max(0, proxy.size.width - 3)
+            let standardWidth = buttonWidth * 70 / 317
+
+            HStack(spacing: 0) {
+                action("home_action_copy", "복사", width: standardWidth, handler: copy)
+                    .accessibilityIdentifier("home.copy")
+                divider
+                action("home_action_share", "공유", width: standardWidth, handler: share)
+                    .accessibilityIdentifier("home.share")
+                divider
+                likeAction(width: standardWidth)
+                    .accessibilityIdentifier("home.like")
+                divider
+                action(
+                    "home_action_camera",
+                    "이미지 등록",
+                    width: buttonWidth - standardWidth * 3,
+                    handler: registerImage
+                )
+                    .accessibilityIdentifier("home.registerImage")
+            }
         }
         .frame(height: 42)
     }
@@ -517,7 +552,7 @@ struct HomeQuoteActionRow: View {
             .frame(width: 1, height: 28)
     }
 
-    private var likeAction: some View {
+    private func likeAction(width: CGFloat) -> some View {
         Button {
             setIsLike(!isLike)
         } label: {
@@ -535,12 +570,18 @@ struct HomeQuoteActionRow: View {
                     .font(FillsaTypography.body4)
             }
             .foregroundStyle(palette.actionText.color)
-            .frame(maxWidth: .infinity, maxHeight: .infinity)
+            .frame(width: width, height: 42)
+            .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
     }
 
-    private func action(_ icon: String, _ title: String, _ handler: @escaping () -> Void) -> some View {
+    private func action(
+        _ icon: String,
+        _ title: String,
+        width: CGFloat,
+        handler: @escaping () -> Void
+    ) -> some View {
         Button(action: handler) {
             HStack(spacing: 4) {
                 Image(icon)
@@ -551,7 +592,8 @@ struct HomeQuoteActionRow: View {
                     .font(FillsaTypography.body4)
             }
             .foregroundStyle(palette.actionText.color)
-            .frame(maxWidth: .infinity, maxHeight: .infinity)
+            .frame(width: width, height: 42)
+            .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
     }

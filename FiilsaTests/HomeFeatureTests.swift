@@ -1,10 +1,30 @@
 import ComposableArchitecture
 import Foundation
+import SwiftUI
 import Testing
+import UIKit
 @testable import Fiilsa
 
 @Suite("HomeFeature")
 struct HomeFeatureTests {
+    @Test
+    @MainActor
+    func quoteCardGrowsBeyondItsFigmaMinimumForLongContent() {
+        let view = HomeQuoteCard(
+            text: "사랑은 상대를 바꾸려는 마음이 아니라 서로 다른 시간을 이해하고 기다리며, 늦게 도착한 진심까지도 다치지 않게 받아들이는 오래된 연습이다. 그 연습은 오늘의 작은 친절에서 다시 시작된다.",
+            author: "존우든"
+        )
+        .frame(width: 320)
+        .environment(\.dynamicTypeSize, .accessibility3)
+        let host = UIHostingController(rootView: view)
+
+        let size = host.sizeThatFits(
+            in: CGSize(width: 320, height: CGFloat.greatestFiniteMagnitude)
+        )
+
+        #expect(size.height > 150)
+    }
+
     @Test
     func answerInputLimitsExtendedGraphemeClustersAndReportsRemainingCount() {
         let emoji = "👨🏽‍💻"

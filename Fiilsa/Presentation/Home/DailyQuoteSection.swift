@@ -58,10 +58,11 @@ struct HomeQuoteCard: View {
 
                 VStack(spacing: 0) {
                     Text(text)
-                        .font(.custom("GangwonEduAll-Light", size: 16).weight(.bold))
+                        .font(.custom("GangwonEduAll-Light", size: 16, relativeTo: .body).weight(.bold))
                         .foregroundStyle(palette.primaryText.color)
                         .multilineTextAlignment(.center)
                         .lineSpacing(4)
+                        .fixedSize(horizontal: false, vertical: true)
                         .frame(maxWidth: .infinity)
                         .padding(.top, 28)
                         .padding(.horizontal, 10)
@@ -84,7 +85,7 @@ struct HomeQuoteCard: View {
                     .padding(.bottom, 15)
                 }
             }
-            .frame(height: 150)
+            .frame(minHeight: 150)
             .clipShape(RoundedRectangle(cornerRadius: 14))
             .overlay(RoundedRectangle(cornerRadius: 14).stroke(palette.cardBorder.color, lineWidth: 1))
             .shadow(color: colorScheme == .dark ? .clear : Color(hex: 0xCBC0A8, alpha: 0.7), radius: 8, y: 0)

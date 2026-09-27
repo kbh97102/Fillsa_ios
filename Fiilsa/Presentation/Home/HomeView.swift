@@ -59,7 +59,9 @@ struct HomeView: View {
                                 if let urlString = viewStore.quote.authorUrl, let url = URL(string: urlString) { openURL(url) }
                             })
                             .padding(.top, 4).padding(.horizontal, 20).accessibilityIdentifier("home.quoteCard")
-                            HomeQuoteActionRow(copy: { UIPasteboard.general.string = copyText(from: viewStore.quote); viewStore.send(.copyCompleted) }, share: { openShare(quote(from: viewStore.quote), author(from: viewStore.quote)) }, isLike: viewStore.quote.likeYn == "Y", setIsLike: { viewStore.send(.likeTapped($0)) }, registerImage: { viewStore.send(.imageTapped) }).padding(.top, 10)
+                            HomeQuoteActionRow(copy: { UIPasteboard.general.string = copyText(from: viewStore.quote); viewStore.send(.copyCompleted) }, share: { openShare(quote(from: viewStore.quote), author(from: viewStore.quote)) }, isLike: viewStore.quote.likeYn == "Y", setIsLike: { viewStore.send(.likeTapped($0)) }, registerImage: { viewStore.send(.imageTapped) })
+                                .padding(.top, 10)
+                                .padding(.horizontal, 20)
                             Divider().overlay(palette.mainDivider.color.opacity(palette.mainDividerOpacity)).padding(.top, 1)
                             HomeQuestionAnswerCard(
                                 answer: Binding(
@@ -87,8 +89,9 @@ struct HomeView: View {
             .frame(maxWidth: .infinity, maxHeight: .infinity)
             .background(palette.rootBackground.color.ignoresSafeArea())
             .onAppear { viewStore.send(.onAppear) }
-            .overlay {
-                ZStack {
+            .overlayPreferenceValue(HomeOverlayAnchorPreferenceKey.self) { anchors in
+                GeometryReader { proxy in
+                    ZStack(alignment: .topLeading) {
                     if viewStore.isCalendarPresented || viewStore.isStreakTooltipPresented {
                         Color.black.opacity(0.001)
                             .ignoresSafeArea()
@@ -97,35 +100,28 @@ struct HomeView: View {
                                 if viewStore.isStreakTooltipPresented { viewStore.send(.streakTooltipDismissed) }
                             }
                     }
-                    if viewStore.isCalendarPresented {
-                        VStack {
-                            HomeInlineCalendar(
-                                displayedMonth: viewStore.calendarDisplayedMonth,
-                                selectedDate: viewStore.date,
-                                selectDate: { viewStore.send(.calendarDateSelected($0)) },
-                                changeMonth: { viewStore.send(.calendarMonthChanged($0)) }
-                            )
-                            .padding(.top, 84)
-                            .padding(.leading, 20)
-                            .frame(maxWidth: .infinity, alignment: .leading)
-                            Spacer()
-                        }
+                    if viewStore.isCalendarPresented, let anchor = anchors[.calendarTrigger] {
+                        let trigger = proxy[anchor]
+                        HomeInlineCalendar(
+                            displayedMonth: viewStore.calendarDisplayedMonth,
+                            selectedDate: viewStore.date,
+                            selectDate: { viewStore.send(.calendarDateSelected($0)) },
+                            changeMonth: { viewStore.send(.calendarMonthChanged($0)) }
+                        )
+                        .position(x: trigger.minX + 124, y: trigger.maxY + 173.5)
                     }
-                    if viewStore.isStreakTooltipPresented {
-                        VStack {
-                            HStack {
-                                Spacer()
-                                HomeStreakTooltip(
-                                    openCalendar: {
-                                        viewStore.send(.streakTooltipDismissed)
-                                        openCalendar()
-                                    }
-                                )
+                    if viewStore.isStreakTooltipPresented, let anchor = anchors[.streakStatus] {
+                        let trigger = proxy[anchor]
+                        HomeStreakTooltip(
+                            openCalendar: {
+                                viewStore.send(.streakTooltipDismissed)
+                                openCalendar()
                             }
-                            .padding(.top, 49)
-                            .padding(.trailing, 20)
-                            Spacer()
-                        }
+                        )
+                        .position(
+                            x: trigger.midX - 89,
+                            y: trigger.maxY + 41
+                        )
                     }
                     if viewStore.isImageDialogPresented { HomeImageDialog(quote: quote(from: viewStore.quote), author: author(from: viewStore.quote), imagePath: viewStore.quote.imagePath ?? "", dismiss: { viewStore.send(.imageDialogDismissed) }, delete: { viewStore.send(.deleteImageTapped) }, selectedPhotoItem: $selectedPhotoItem) }
                     if let message = viewStore.toastMessage {
@@ -138,6 +134,7 @@ struct HomeView: View {
                                     await viewStore.send(.toastDismissed).finish()
                                 }
                             }
+                    }
                     }
                 }
             }

@@ -27,8 +27,9 @@ struct HomeStreakTooltip: View {
             Triangle()
                 .fill(FillsaColor.gray700)
                 .frame(width: 21, height: 18)
-                .offset(x: -31, y: -9)
+                .offset(x: -16, y: -9)
         }
+        .accessibilityElement(children: .contain)
         .accessibilityIdentifier("home.streakTooltip")
     }
 }
