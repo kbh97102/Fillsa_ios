@@ -4,6 +4,51 @@ import XCTest
 
 @MainActor
 final class AppFeatureTests: XCTestCase {
+    func test_loadingCountControlsGlobalVisibility() async {
+        let store = TestStore(initialState: AppFeature.State()) {
+            AppFeature()
+        }
+        XCTAssertFalse(store.state.isGlobalLoading)
+        await store.send(.loadingCountChanged(2)) {
+            $0.activeLoadingCount = 2
+        }
+        XCTAssertTrue(store.state.isGlobalLoading)
+        await store.send(.loadingCountChanged(1)) {
+            $0.activeLoadingCount = 1
+        }
+        XCTAssertTrue(store.state.isGlobalLoading)
+        await store.send(.loadingCountChanged(0)) {
+            $0.activeLoadingCount = 0
+        }
+        XCTAssertFalse(store.state.isGlobalLoading)
+    }
+
+    func test_startupSubscribesToCurrentLoadingCountWithoutRegisteringScope() async {
+        let registry = LoadingRegistry()
+        let token = await registry.begin()
+        let store = TestStore(initialState: AppFeature.State()) {
+            AppFeature()
+        } withDependencies: {
+            $0.loadingClient = loadingTestClient(registry)
+            $0.settingsClient.getDarkModeType = { .system }
+            $0.sessionExpirationClient.events = { AsyncStream { $0.finish() } }
+            $0.pushTokenClient.tokenUpdates = { AsyncStream { $0.finish() } }
+            $0.pushRegistrationClient.synchronizeIfNeeded = {}
+        }
+        store.exhaustivity = .off
+        let task = await store.send(.task)
+        await store.receive(.loadingCountChanged(1)) {
+            $0.activeLoadingCount = 1
+        }
+        let activeScopes = await loadingCount(registry)
+        XCTAssertEqual(activeScopes, 1)
+        await registry.end(token)
+        await store.receive(.loadingCountChanged(0)) {
+            $0.activeLoadingCount = 0
+        }
+        await task.cancel()
+    }
+
     func test_homeTypingUsesTheExistingQuoteRouteWithAnEmptyTranscript() async {
         var state = AppFeature.State()
         state.home.quote = DailyQuote(

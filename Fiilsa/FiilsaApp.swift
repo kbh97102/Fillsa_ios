@@ -8,6 +8,7 @@
 import SwiftUI
 import ComposableArchitecture
 import KakaoSDKAuth
+import IssueReporting
 
 @main
 struct FiilsaApp: App {
@@ -15,12 +16,14 @@ struct FiilsaApp: App {
 
     var body: some Scene {
         WindowGroup {
-            AppView(
-                store: appStore
-            )
-            .onOpenURL { url in
-                guard AuthApi.isKakaoTalkLoginUrl(url) else { return }
-                _ = AuthController.handleOpenUrl(url: url)
+            if !isTesting {
+                AppView(
+                    store: appStore
+                )
+                .onOpenURL { url in
+                    guard AuthApi.isKakaoTalkLoginUrl(url) else { return }
+                    _ = AuthController.handleOpenUrl(url: url)
+                }
             }
         }
     }

@@ -37,3 +37,32 @@
 - 오류 로그 / xcresult: `/tmp/fiilsa-loading-green-01.log`; 패키지 해석 실패라 xcresult 생성 전 종료.
 - 수정 내용: 프로젝트/패키지 파일을 수정하지 않고 온전한 기존 DerivedData SourcePackages를 사용해 재시도.
 - 재검증 명령 / 결과: `/tmp/fiilsa-loading-green-02.log`, xcresult 관련 테스트 7/7 통과, 실패 0.
+
+## F-04: App 로딩 상태 연결 전 컴파일 실패 (TDD RED)
+
+- 상태 / 분류: 해결 / 의도한 TDD RED와 테스트 코드 오류.
+- 작업 / 테스트: Task 2, AppFeatureTests.
+- 관측 위치 / 원인 위치: `FiilsaTests/AppFeatureTests.swift:11–46` / AppFeature.State에 표시 상태 및 Action 없음. 테스트 43행의 `XCTAssertEqual` autoclosure에서 async 호출한 것도 별도 테스트 오류.
+- 기대값 / 실제값: 0/2/1/0에 따라 false/true/true/false / 해당 상태·Action 부재로 exit 65.
+- 재현 명령 / 환경: `/tmp/fiilsa-app-red-01.log`의 focused xcodebuild, iOS 26.5.
+- 원인 / 확인 근거: 컴파일 오류가 누락된 인터페이스 및 XCTest autoclosure 위치를 명시.
+- 오류 로그 / xcresult: `/tmp/fiilsa-app-red-01.log`, `/tmp/fiilsa-app-red-01.xcresult`.
+- 수정 내용: AppFeature의 count 구독·상태·Action 추가, async 값을 assertion 전에 지역 변수로 읽도록 테스트 수정.
+- 재검증: `/tmp/fiilsa-app-green-06.xcresult`의 App·Loading 관련 13/13 통과, 실패 0. 중간의 취소 ID 컴파일 실패 원인은 아래 추가 발견에 보존.
+
+### 재검증 중 추가 발견
+
+첫 GREEN 시도(`/tmp/fiilsa-app-green-01.log`)는 `AppFeature.swift:130`의 cancellable ID에 Hashable이 아닌 enum 메타타입을 넘겨 컴파일 실패했다. token 값으로 수정했지만 두 번째 시도(`/tmp/fiilsa-app-green-02.log`)에서는 프로젝트의 기본 MainActor 격리 때문에 enum의 Hashable conformance가 Sendable 요구를 만족하지 못했다. ID enum을 `nonisolated`로 선언하고 동일 suite를 재실행한다.
+
+## F-05: 기존 App 테스트의 dependency 미설정
+
+- 상태 / 분류: 해결 / 테스트 host 앱 실행 문제.
+- 작업 / 테스트: Task 2 GREEN 시도, `test_accountDeletionFromMyPageReturnsToFreshHomeState`, `test_homeTypingUsesTheExistingQuoteRouteWithAnEmptyTranscript`.
+- 관측 위치 / 원인 위치: xcresult의 SplashFeature.swift:25–26 dependency 접근 / `FiilsaApp.swift`의 app entry point가 테스트 host에서 별도로 실행되어 앱 Store를 생성.
+- 기대값 / 실제값: 두 기존 App 라우팅 테스트 통과 / TCA가 테스트 컨텍스트에서 live dependency 접근을 경고·실패 처리. 전체 관련 묶음 11 통과, 2 실패.
+- 재현 명령 / 환경: `/tmp/fiilsa-app-green-03.log`, iOS 26.5 / Xcode 26.6.
+- 원인 / 확인 근거: `/tmp/fiilsa-app-green-03.xcresult` 실패 메시지가 host app 방출을 명시한다. 기존 테스트에 전체 의존성을 주입해도 동일했고, 관련 두 신규 테스트만 선택한 `/tmp/fiilsa-app-targeted-01.xcresult`에서도 신규 테스트 2개에 같은 오류가 귀속됐다. 저장소에 설치된 `swift-dependencies` 공식 `Testing.md`의 “Testing host application”은 실제 앱 entry point가 테스트 중 실행되는 현상과 `isTesting`으로 root view를 생략하는 해결책을 설명한다.
+- 오류 로그 / xcresult: 위 경로의 test-results summary/tests.
+- 수정 내용: 테스트에서 부분 변경(`/tmp/fiilsa-app-green-04.xcresult`: 12 통과, 1 실패) 및 전체 의존성 교체(`/tmp/fiilsa-app-green-05.xcresult`: 11 통과, 2 실패)를 시도했지만 같은 경고가 지속됐다. 두 테스트의 변경은 효과가 없어 되돌렸다.
+- 수정 내용: 기존 테스트의 비효과적인 주입 변경은 되돌렸다. `FiilsaApp`의 `WindowGroup`에서 IssueReporting `isTesting`일 때만 root view/appStore 생성을 건너뛴다. 실제 사용자 앱 경로는 변경하지 않는다.
+- 재검증: `/tmp/fiilsa-app-green-06.xcresult`에서 같은 AppFeatureTests 6/6 포함 관련 테스트 13/13 통과, 실패 0.

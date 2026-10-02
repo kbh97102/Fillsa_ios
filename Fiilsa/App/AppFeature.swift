@@ -21,10 +21,13 @@ struct AppFeature {
         var selectedTab: AppTab = .home
         var selectedTheme: DarkModeType = .system
         var isHandlingSessionExpiration = false
+        var activeLoadingCount = 0
+        var isGlobalLoading: Bool { activeLoadingCount > 0 }
     }
 
     enum Action: Equatable {
         case task
+        case loadingCountChanged(Int)
         case themeLoaded(DarkModeType)
         case splash(SplashFeature.Action)
         case login(LoginFeature.Action)
@@ -63,6 +66,9 @@ struct AppFeature {
     @Dependency(\.settingsClient) var settingsClient
     @Dependency(\.pushTokenClient) var pushTokenClient
     @Dependency(\.pushRegistrationClient) var pushRegistrationClient
+    @Dependency(\.loadingClient) var loadingClient
+
+    nonisolated private enum CancelID: Hashable { case loadingSubscription }
 
     var body: some Reducer<State, Action> {
         Scope(state: \.splash, action: \.splash) {
@@ -116,15 +122,22 @@ struct AppFeature {
         Reduce { state, action in
             switch action {
             case .task:
+                let loadingSubscription: Effect<Action> = .run { send in
+                    for await count in await loadingClient.counts() {
+                        await send(.loadingCountChanged(count))
+                    }
+                }
+                .cancellable(id: CancelID.loadingSubscription, cancelInFlight: true)
                 guard !ProcessInfo.processInfo.arguments.contains("-uiTestingQuoteList"),
                       !ProcessInfo.processInfo.arguments.contains("-ui-testing-home"),
                       !ProcessInfo.processInfo.arguments.contains("-ui-testing-login"),
                       !ProcessInfo.processInfo.arguments.contains("-ui-testing-notice-detail"),
                       !ProcessInfo.processInfo.arguments.contains("-ui-testing-memo"),
                       !ProcessInfo.processInfo.arguments.contains("-ui-testing-onboarding-guide") else {
-                    return .none
+                    return loadingSubscription
                 }
                 return .merge(
+                    loadingSubscription,
                     .run { send in
                         let selectedTheme = (try? await settingsClient.getDarkModeType()) ?? .system
                         await send(.themeLoaded(selectedTheme))
@@ -145,6 +158,10 @@ struct AppFeature {
                     }
                     .cancellable(id: "fcmTokenUpdates", cancelInFlight: true)
                 )
+
+            case let .loadingCountChanged(count):
+                state.activeLoadingCount = count
+                return .none
 
             case let .themeLoaded(selectedTheme):
                 state.selectedTheme = selectedTheme
