@@ -54,7 +54,7 @@
 
 첫 GREEN 시도(`/tmp/fiilsa-app-green-01.log`)는 `AppFeature.swift:130`의 cancellable ID에 Hashable이 아닌 enum 메타타입을 넘겨 컴파일 실패했다. token 값으로 수정했지만 두 번째 시도(`/tmp/fiilsa-app-green-02.log`)에서는 프로젝트의 기본 MainActor 격리 때문에 enum의 Hashable conformance가 Sendable 요구를 만족하지 못했다. ID enum을 `nonisolated`로 선언하고 동일 suite를 재실행한다.
 
-## F-05: 기존 App 테스트의 dependency 미설정
+## F-05: 테스트 host 앱의 중복 시작
 
 - 상태 / 분류: 해결 / 테스트 host 앱 실행 문제.
 - 작업 / 테스트: Task 2 GREEN 시도, `test_accountDeletionFromMyPageReturnsToFreshHomeState`, `test_homeTypingUsesTheExistingQuoteRouteWithAnEmptyTranscript`.
@@ -63,8 +63,7 @@
 - 재현 명령 / 환경: `/tmp/fiilsa-app-green-03.log`, iOS 26.5 / Xcode 26.6.
 - 원인 / 확인 근거: `/tmp/fiilsa-app-green-03.xcresult` 실패 메시지가 host app 방출을 명시한다. 기존 테스트에 전체 의존성을 주입해도 동일했고, 관련 두 신규 테스트만 선택한 `/tmp/fiilsa-app-targeted-01.xcresult`에서도 신규 테스트 2개에 같은 오류가 귀속됐다. 저장소에 설치된 `swift-dependencies` 공식 `Testing.md`의 “Testing host application”은 실제 앱 entry point가 테스트 중 실행되는 현상과 `isTesting`으로 root view를 생략하는 해결책을 설명한다.
 - 오류 로그 / xcresult: 위 경로의 test-results summary/tests.
-- 수정 내용: 테스트에서 부분 변경(`/tmp/fiilsa-app-green-04.xcresult`: 12 통과, 1 실패) 및 전체 의존성 교체(`/tmp/fiilsa-app-green-05.xcresult`: 11 통과, 2 실패)를 시도했지만 같은 경고가 지속됐다. 두 테스트의 변경은 효과가 없어 되돌렸다.
-- 수정 내용: 기존 테스트의 비효과적인 주입 변경은 되돌렸다. `FiilsaApp`의 `WindowGroup`에서 IssueReporting `isTesting`일 때만 root view/appStore 생성을 건너뛴다. 실제 사용자 앱 경로는 변경하지 않는다.
+- 수정 내용: 테스트에서 부분 변경(`/tmp/fiilsa-app-green-04.xcresult`: 12 통과, 1 실패) 및 전체 의존성 교체(`/tmp/fiilsa-app-green-05.xcresult`: 11 통과, 2 실패)를 시도했지만 같은 경고가 지속되어 되돌렸다. `FiilsaApp`의 `WindowGroup`에서 IssueReporting `isTesting`일 때만 root view/appStore 생성을 건너뛴다. 실제 사용자 앱 경로는 변경하지 않는다.
 - 재검증: `/tmp/fiilsa-app-green-06.xcresult`에서 같은 AppFeatureTests 6/6 포함 관련 테스트 13/13 통과, 실패 0.
 
 ## F-06: Home 진입 작업이 전역 scope를 등록하지 않음 (TDD RED)
@@ -78,3 +77,27 @@
 - 오류 로그 / xcresult: 위 RED 결과 묶음.
 - 수정 내용: Home 진입을 단일 `.run`의 begin/두 `async let`/모두 await/end로 묶고, 단일 호출은 wrapper로 변경.
 - 재검증: `/tmp/fiilsa-home-loading-green-02.xcresult`에서 Home 및 LoadingEffect 21/21 통과, 실패 0.
+
+## F-07: Calendar·팝업·탈퇴 작업에 scope 없음 (TDD RED)
+
+- 상태 / 분류: 해결 / 의도한 TDD RED.
+- 작업 / 테스트: Task 4, `FeatureLoadingIntegrationTests`의 Calendar 월 조회, 일반 팝업 실패 후 버전 조회, 회원탈퇴 뒤 세션 정리.
+- 관측 위치 / 원인 위치: 각 통합 테스트의 `loadingCount(registry) == 1` / 해당 Feature의 기존 `.run`이 LoadingClient를 사용하지 않음.
+- 기대값 / 실제값: API 대기 중 활성 scope 1 / 0. 세 테스트 모두 다른 Action 결과는 기존대로 실행.
+- 재현 명령 / 환경: `/tmp/fiilsa-features-red-01.log`, Xcode 26.6 / iOS 26.5.
+- 원인 / 확인 근거: `/tmp/fiilsa-features-red-01.xcresult`의 3/3 실패 메시지가 같은 count 기대식.
+- 오류 로그 / xcresult: 위 경로.
+- 수정 내용: 단일 API는 wrapper로, 순차 팝업 조회는 명시적 begin/await/end로 연결. 취소 일반 실패 변환 차단.
+- 재검증: `/tmp/fiilsa-features-green-01.xcresult`에서 관련 기능 21/21 통과, `/tmp/fiilsa-features-integration-04.xcresult`에서 Alert 포함 통합 기능 10/10 통과, 실패 0.
+
+## F-08: Alert 통합 테스트의 프레임워크 import 누락
+
+- 상태 / 분류: 해결 / 테스트 코드 컴파일 오류.
+- 작업 / 테스트: Task 4, `alertPermissionWaitIsUnscopedButServerSyncIsScoped`.
+- 관측 위치 / 원인 위치: `FiilsaTests/FeatureLoadingIntegrationTests.swift:49`의 `.authorized` / 테스트 파일이 enum 정의 모듈 `UserNotifications`를 import하지 않음.
+- 기대값 / 실제값: 권한→서버 동기화 경계 검증 / 빌드 exit 65.
+- 재현 명령 / 환경: `/tmp/fiilsa-features-integration-03.log`, Xcode 26.6 / iOS 26.5.
+- 원인 / 확인 근거: 컴파일러가 “missing import of defining module 'UserNotifications'”를 명시.
+- 오류 로그 / xcresult: 위 로그; 테스트 실행 전에 컴파일 실패.
+- 수정 내용: 테스트 파일에 UserNotifications import.
+- 재검증: `/tmp/fiilsa-features-integration-04.xcresult`에서 Alert 포함 통합 기능 10/10 통과, 실패 0.

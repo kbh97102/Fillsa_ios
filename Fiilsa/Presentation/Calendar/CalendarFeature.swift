@@ -80,13 +80,18 @@ struct CalendarFeature {
         state.isLoading = true
         let yearMonth = yearMonthString(for: state.currentMonth)
 
-        return .run { send in
+        return .runWithLoading { send in
             do {
                 let response = try await calendarUseCases.loadMonth(yearMonth)
+                guard !Task.isCancelled else { return }
                 await send(.monthlyQuotesLoaded(.success(response)))
+            } catch is CancellationError {
+                return
             } catch let error as ErrorResponse {
+                guard !Task.isCancelled else { return }
                 await send(.monthlyQuotesLoaded(.failure(error)))
             } catch {
+                guard !Task.isCancelled else { return }
                 await send(.monthlyQuotesLoaded(.failure(.defaultError)))
             }
         }

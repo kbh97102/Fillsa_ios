@@ -21,6 +21,7 @@ struct GeneralPopupFeature {
 
     @Dependency(\.commonClient) private var commonClient
     @Dependency(\.hiddenPopupClient) private var hiddenPopupClient
+    @Dependency(\.loadingClient) private var loadingClient
 
     var body: some Reducer<State, Action> {
         Reduce { state, action in
@@ -30,22 +31,31 @@ struct GeneralPopupFeature {
                 state.isLoading = true
 
                 return .run { send in
-                    try? await hiddenPopupClient.clearAllIfNeeded()
+                    guard !Task.isCancelled else { return }
+                    let token = await loadingClient.begin()
+                    if !Task.isCancelled {
+                        try? await hiddenPopupClient.clearAllIfNeeded()
 
-                    var popups: [PopupResponse] = []
+                        var popups: [PopupResponse] = []
 
-                    if let generalPopup = try? await commonClient.getPopupGeneral() {
-                        let isHidden = (try? await hiddenPopupClient.isHidden(generalPopup.popupSeq)) ?? false
-                        if !isHidden {
-                            popups.append(generalPopup)
+                        if !Task.isCancelled,
+                           let generalPopup = try? await commonClient.getPopupGeneral() {
+                            let isHidden = (try? await hiddenPopupClient.isHidden(generalPopup.popupSeq)) ?? false
+                            if !isHidden, !Task.isCancelled {
+                                popups.append(generalPopup)
+                            }
+                        }
+
+                        if !Task.isCancelled,
+                           let versionPopup = try? await commonClient.getPopupVersionUpdate(appVersion()) {
+                            popups.append(versionPopup)
+                        }
+
+                        if !Task.isCancelled {
+                            await send(.loaded(popups.sortedByPopupPriority()))
                         }
                     }
-
-                    if let versionPopup = try? await commonClient.getPopupVersionUpdate(appVersion()) {
-                        popups.append(versionPopup)
-                    }
-
-                    await send(.loaded(popups.sortedByPopupPriority()))
+                    await loadingClient.end(token)
                 }
 
             case let .loaded(popups):

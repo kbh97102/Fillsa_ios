@@ -149,11 +149,15 @@ struct LoginFeature {
     }
 
     private func login(user: SocialAuthUser) -> Effect<Action> {
-        .run { send in
+        .runWithLoading { send in
             do {
                 let response = try await authUseCases.login(user)
+                guard !Task.isCancelled else { return }
                 await send(.socialLoginCompleted(.success(response)))
+            } catch is CancellationError {
+                return
             } catch {
+                guard !Task.isCancelled else { return }
                 await send(.socialLoginCompleted(.failure(map(error))))
             }
         }

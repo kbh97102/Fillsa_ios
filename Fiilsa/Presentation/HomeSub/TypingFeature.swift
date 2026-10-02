@@ -47,19 +47,26 @@ struct TypingFeature {
                 guard state.dailyQuoteSeq > 0, !state.hasLoaded else { return .none }
                 let dailyQuoteSeq = state.dailyQuoteSeq
 
-                return .run { send in
+                return .runWithLoading { send in
                     do {
                         let isLoggedIn = (try? await sessionClient.isLoggedIn()) ?? false
+                        guard !Task.isCancelled else { return }
                         if isLoggedIn {
                             let response = try await typingClient.getTyping(dailyQuoteSeq)
+                            guard !Task.isCancelled else { return }
                             await send(.typingLoaded(.success(response)))
                         } else {
                             let localQuote = try await localQuoteClient.findById(dailyQuoteSeq)
+                            guard !Task.isCancelled else { return }
                             await send(.localTypingLoaded(localQuote))
                         }
+                    } catch is CancellationError {
+                        return
                     } catch let error as ErrorResponse {
+                        guard !Task.isCancelled else { return }
                         await send(.typingLoaded(.failure(error)))
                     } catch {
+                        guard !Task.isCancelled else { return }
                         await send(.typingLoaded(.failure(.defaultError)))
                     }
                 }
@@ -108,7 +115,7 @@ struct TypingFeature {
                 let quoteDate = state.quoteDate
                 let dayOfWeek = state.dayOfWeek
 
-                return .run { send in
+                return .runWithLoading { send in
                     do {
                         let response = try await homeUseCases.updateLike(
                             isLike,
@@ -116,10 +123,15 @@ struct TypingFeature {
                             quoteDate,
                             dayOfWeek
                         )
+                        guard !Task.isCancelled else { return }
                         await send(.likeUpdated(.success(response)))
+                    } catch is CancellationError {
+                        return
                     } catch let error as ErrorResponse {
+                        guard !Task.isCancelled else { return }
                         await send(.likeUpdated(.failure(error)))
                     } catch {
+                        guard !Task.isCancelled else { return }
                         await send(.likeUpdated(.failure(.defaultError)))
                     }
                 }
@@ -148,14 +160,17 @@ struct TypingFeature {
                 )
                 let request = TypingQuoteRequest(typingKorQuote: state.korTyping, typingEngQuote: state.engTyping)
 
-                return .run { send in
+                return .runWithLoading { send in
                     do {
                         let isLoggedIn = (try? await sessionClient.isLoggedIn()) ?? false
+                        guard !Task.isCancelled else { return }
                         if isLoggedIn {
                             let response = try await typingClient.postTyping(dailyQuoteSeq, request)
+                            guard !Task.isCancelled else { return }
                             await send(.typingSaved(.success(response)))
                         } else {
                             let storedQuote = try await localQuoteClient.findById(dailyQuoteSeq)
+                            guard !Task.isCancelled else { return }
                             if localQuote.korTyping.isEmpty,
                                localQuote.engTyping.isEmpty,
                                storedQuote?.memo.isEmpty == true,
@@ -178,11 +193,16 @@ struct TypingFeature {
                                     )
                                 )
                             }
+                            guard !Task.isCancelled else { return }
                             await send(.typingSaved(.success(1)))
                         }
+                    } catch is CancellationError {
+                        return
                     } catch let error as ErrorResponse {
+                        guard !Task.isCancelled else { return }
                         await send(.typingSaved(.failure(error)))
                     } catch {
+                        guard !Task.isCancelled else { return }
                         await send(.typingSaved(.failure(.defaultError)))
                     }
                 }

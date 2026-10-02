@@ -31,13 +31,18 @@ struct NoticeFeature {
                 guard !state.hasLoaded, !state.isLoading else { return .none }
                 state.isLoading = true
 
-                return .run { send in
+                return .runWithLoading { send in
                     do {
                         let response = try await commonClient.getNotice(0, 30)
+                        guard !Task.isCancelled else { return }
                         await send(.noticesLoaded(.success(response)))
+                    } catch is CancellationError {
+                        return
                     } catch let error as ErrorResponse {
+                        guard !Task.isCancelled else { return }
                         await send(.noticesLoaded(.failure(error)))
                     } catch {
+                        guard !Task.isCancelled else { return }
                         await send(.noticesLoaded(.failure(.defaultError)))
                     }
                 }

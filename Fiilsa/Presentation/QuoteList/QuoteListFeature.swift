@@ -100,13 +100,18 @@ struct QuoteListFeature {
         let startDate = FillsaCalendarDateSupport.quoteDateString(for: state.startDate)
         let endDate = FillsaCalendarDateSupport.quoteDateString(for: state.endDate)
 
-        return .run { send in
+        return .runWithLoading { send in
             do {
                 let response = try await quoteListUseCases.loadList(page, 30, likeYn, startDate, endDate)
+                guard !Task.isCancelled else { return }
                 await send(.quotesLoaded(.success(response)))
+            } catch is CancellationError {
+                return
             } catch let error as ErrorResponse {
+                guard !Task.isCancelled else { return }
                 await send(.quotesLoaded(.failure(error)))
             } catch {
+                guard !Task.isCancelled else { return }
                 await send(.quotesLoaded(.failure(.defaultError)))
             }
         }

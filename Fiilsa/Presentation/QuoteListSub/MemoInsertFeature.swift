@@ -32,16 +32,21 @@ struct MemoInsertFeature {
                 state.isSaving = true
                 let memberQuoteSeq = state.memberQuoteSeq
 
-                return .run { send in
+                return .runWithLoading { send in
                     do {
                         let response = try await quoteListUseCases.saveMemo(
                             memo,
                             String(memberQuoteSeq)
                         )
+                        guard !Task.isCancelled else { return }
                         await send(.memoSaved(.success(response)))
+                    } catch is CancellationError {
+                        return
                     } catch let error as ErrorResponse {
+                        guard !Task.isCancelled else { return }
                         await send(.memoSaved(.failure(error)))
                     } catch {
+                        guard !Task.isCancelled else { return }
                         await send(.memoSaved(.failure(.defaultError)))
                     }
                 }

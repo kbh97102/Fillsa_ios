@@ -129,20 +129,24 @@ struct MyPageFeature {
                 guard state.isLoggedIn, !state.isProcessing else { return .none }
                 state.isProcessing = true
                 state.isResignDialogPresented = false
-                return .run { send in
+                return .runWithLoading { send in
                     do {
                         try await commonClient.deleteResign()
                     } catch {
+                        guard !Task.isCancelled else { return }
                         guard Self.isAlreadyWithdrawn(error) else {
                             await send(.resignCompleted(.failure(.failed)))
                             return
                         }
                     }
 
+                    guard !Task.isCancelled else { return }
+
                     do {
                         try await sessionClient.logout()
                     } catch {
                     }
+                    guard !Task.isCancelled else { return }
                     await send(.resignCompleted(.success(true)))
                 }
 
