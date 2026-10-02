@@ -66,3 +66,15 @@
 - 수정 내용: 테스트에서 부분 변경(`/tmp/fiilsa-app-green-04.xcresult`: 12 통과, 1 실패) 및 전체 의존성 교체(`/tmp/fiilsa-app-green-05.xcresult`: 11 통과, 2 실패)를 시도했지만 같은 경고가 지속됐다. 두 테스트의 변경은 효과가 없어 되돌렸다.
 - 수정 내용: 기존 테스트의 비효과적인 주입 변경은 되돌렸다. `FiilsaApp`의 `WindowGroup`에서 IssueReporting `isTesting`일 때만 root view/appStore 생성을 건너뛴다. 실제 사용자 앱 경로는 변경하지 않는다.
 - 재검증: `/tmp/fiilsa-app-green-06.xcresult`에서 같은 AppFeatureTests 6/6 포함 관련 테스트 13/13 통과, 실패 0.
+
+## F-06: Home 진입 작업이 전역 scope를 등록하지 않음 (TDD RED)
+
+- 상태 / 분류: 해결 / 의도한 TDD RED.
+- 작업 / 테스트: Task 3, `homeEntryWaitsForQuoteAndCompletionState`.
+- 관측 위치 / 원인 위치: `FiilsaTests/HomeFeatureTests.swift`의 count 기대식 / `HomeFeature.swift:onAppear`가 명언·연속필사 상태를 별도 `.merge` Effect로 실행하고 loading scope를 등록하지 않음.
+- 기대값 / 실제값: 명언 또는 연속필사 작업 한쪽이 끝난 뒤 활성 scope 1 / 0.
+- 재현 명령 / 환경: `/tmp/fiilsa-home-loading-red-02.log`; Xcode 26.6, iOS 26.5. 함수별 `-only-testing`을 사용한 첫 시도는 실제 실행 0건이라 무효로 기록(`/tmp/fiilsa-home-loading-red-01.xcresult`).
+- 원인 / 확인 근거: `/tmp/fiilsa-home-loading-red-02.xcresult`: 19건 중 18 통과, Home 신규 테스트 1 실패. Home 기존 코드에 begin/end가 없음.
+- 오류 로그 / xcresult: 위 RED 결과 묶음.
+- 수정 내용: Home 진입을 단일 `.run`의 begin/두 `async let`/모두 await/end로 묶고, 단일 호출은 wrapper로 변경.
+- 재검증: `/tmp/fiilsa-home-loading-green-02.xcresult`에서 Home 및 LoadingEffect 21/21 통과, 실패 0.

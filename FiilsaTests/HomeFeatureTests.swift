@@ -7,6 +7,116 @@ import UIKit
 
 @Suite("HomeFeature")
 struct HomeFeatureTests {
+    @Test @MainActor
+    func homeEntryWaitsForQuoteAndCompletionState() async {
+        let registry = LoadingRegistry()
+        let quoteGate = AsyncStream<Void>.makeStream()
+        let streakGate = AsyncStream<Void>.makeStream()
+        let quoteStarted = AsyncStream<Void>.makeStream()
+        let streakStarted = AsyncStream<Void>.makeStream()
+        let response = HomeDailyQuoteResult(quote: DailyQuote(dailyQuoteSeq: 3), isLoggedIn: false)
+        let store = TestStore(initialState: HomeFeature.State()) {
+            HomeFeature()
+        } withDependencies: {
+            $0.loadingClient = loadingTestClient(registry)
+            $0.homeUseCases.loadDailyQuote = { _ in
+                quoteStarted.continuation.yield(())
+                for await _ in quoteGate.stream {}
+                return response
+            }
+            $0.streakClient.getCurrentCount = {
+                streakStarted.continuation.yield(())
+                for await _ in streakGate.stream {}
+                return 2
+            }
+            $0.streakClient.getAllLocal = { [] }
+        }
+        let task = await store.send(.onAppear) { $0.isLoading = true }
+        var quoteEvents = quoteStarted.stream.makeAsyncIterator()
+        var streakEvents = streakStarted.stream.makeAsyncIterator()
+        _ = await quoteEvents.next()
+        _ = await streakEvents.next()
+        #expect(await loadingCount(registry) == 1)
+        quoteGate.continuation.finish()
+        await store.receive(.dailyQuoteLoaded(.success(response))) {
+            $0.quote = response.quote
+            $0.hasLoaded = true
+            $0.isLoading = false
+        }
+        #expect(await loadingCount(registry) == 1)
+        streakGate.continuation.finish()
+        await store.receive(.completionStateLoaded(2, [])) {
+            $0.streakCount = 2
+            $0.isStreakStateLoaded = true
+        }
+        await task.finish()
+        #expect(await loadingCount(registry) == 0)
+    }
+
+    @Test @MainActor
+    func quoteFailureStillWaitsForCompletionState() async {
+        let registry = LoadingRegistry()
+        let streakGate = AsyncStream<Void>.makeStream()
+        let streakStarted = AsyncStream<Void>.makeStream()
+        let store = TestStore(initialState: HomeFeature.State()) {
+            HomeFeature()
+        } withDependencies: {
+            $0.loadingClient = loadingTestClient(registry)
+            $0.homeUseCases.loadDailyQuote = { _ in throw ErrorResponse.defaultError }
+            $0.streakClient.getCurrentCount = {
+                streakStarted.continuation.yield(())
+                for await _ in streakGate.stream {}
+                return 0
+            }
+            $0.streakClient.getAllLocal = { [] }
+        }
+        let task = await store.send(.onAppear) { $0.isLoading = true }
+        var started = streakStarted.stream.makeAsyncIterator()
+        _ = await started.next()
+        await store.receive(.dailyQuoteLoaded(.failure(.defaultError))) {
+            $0.hasLoaded = true
+            $0.isLoading = false
+        }
+        #expect(await loadingCount(registry) == 1)
+        streakGate.continuation.finish()
+        await store.receive(.completionStateLoaded(0, [])) {
+            $0.isStreakStateLoaded = true
+        }
+        await task.finish()
+        #expect(await loadingCount(registry) == 0)
+    }
+
+    @Test @MainActor
+    func homeSingleRequestUsesOneScopeAndCancellationSendsNoFailure() async {
+        let registry = LoadingRegistry()
+        let gate = AsyncStream<Void>.makeStream()
+        let started = AsyncStream<Void>.makeStream()
+        let selectedDate = FillsaCalendarDateSupport.calendar.date(
+            from: DateComponents(year: 2026, month: 8, day: 12)
+        )!
+        let store = TestStore(initialState: HomeFeature.State()) {
+            HomeFeature()
+        } withDependencies: {
+            $0.loadingClient = loadingTestClient(registry)
+            $0.homeUseCases.loadDailyQuote = { _ in
+                started.continuation.yield(())
+                for await _ in gate.stream {}
+                throw CancellationError()
+            }
+        }
+        let task = await store.send(.calendarDateSelected(selectedDate)) {
+            $0.date = selectedDate
+            $0.calendarDisplayedMonth = FillsaCalendarDateSupport.startOfMonth(for: selectedDate)
+            $0.isLoading = true
+        }
+        var events = started.stream.makeAsyncIterator()
+        _ = await events.next()
+        #expect(await loadingCount(registry) == 1)
+        await task.cancel()
+        #expect(await loadingCount(registry) == 0)
+        gate.continuation.finish()
+    }
+
     @Test
     @MainActor
     func quoteCardGrowsBeyondItsFigmaMinimumForLongContent() {

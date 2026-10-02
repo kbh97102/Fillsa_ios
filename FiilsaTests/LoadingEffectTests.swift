@@ -5,6 +5,34 @@ import Testing
 
 @Suite("LoadingEffect")
 struct LoadingEffectTests {
+    @Test func groupWaitsForAllThreeChildren() async {
+        let registry = LoadingRegistry()
+        let a = AsyncStream<Void>.makeStream()
+        let b = AsyncStream<Void>.makeStream()
+        let c = AsyncStream<Void>.makeStream()
+        let client = loadingTestClient(registry)
+        let group = Task {
+            let token = await client.begin()
+            async let first: Void = waitForFinish(a.stream)
+            async let second: Void = waitForFinish(b.stream)
+            async let third: Void = waitForFinish(c.stream)
+            _ = await (first, second, third)
+            await client.end(token)
+        }
+        var counts = await registry.counts().makeAsyncIterator()
+        while await counts.next() == 0 {}
+        a.continuation.finish()
+        b.continuation.finish()
+        #expect(await loadingCount(registry) == 1)
+        c.continuation.finish()
+        await group.value
+        #expect(await loadingCount(registry) == 0)
+    }
+
+    private func waitForFinish(_ stream: AsyncStream<Void>) async {
+        for await _ in stream {}
+    }
+
     @Test @MainActor func scopeEndsAfterResultActionIsReduced() async {
         let registry = LoadingRegistry()
         let gate = AsyncStream<Void>.makeStream()

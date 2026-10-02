@@ -57,20 +57,25 @@ struct HomeFeature {
 
     @Dependency(\.homeUseCases) private var homeUseCases
     @Dependency(\.streakClient) private var streakClient
+    @Dependency(\.loadingClient) private var loadingClient
 
     var body: some Reducer<State, Action> {
         Reduce { state, action in
             switch action {
             case .onAppear:
                 guard !state.hasLoaded, !state.isLoading else { return .none }
-                return .merge(
-                    load(state: &state),
-                    .run { send in
-                        let streakCount = await streakClient.getCurrentCount()
-                        let streakInfos = (try? await streakClient.getAllLocal()) ?? []
-                        await send(.completionStateLoaded(streakCount, streakInfos))
+                state.isLoading = true
+                let quoteDate = FillsaCalendarDateSupport.quoteDateString(for: state.date)
+                return .run { send in
+                    guard !Task.isCancelled else { return }
+                    let token = await loadingClient.begin()
+                    if !Task.isCancelled {
+                        async let quote: Void = fetchDailyQuote(quoteDate: quoteDate, send: send)
+                        async let completion: Void = fetchCompletionState(send: send)
+                        _ = await (quote, completion)
                     }
-                )
+                    await loadingClient.end(token)
+                }
 
             case .beforeTapped:
                 let targetDate = FillsaCalendarDateSupport.calendar.date(byAdding: .day, value: -1, to: state.date) ?? state.date
@@ -118,7 +123,7 @@ struct HomeFeature {
                 let quoteDate = FillsaCalendarDateSupport.quoteDateString(for: state.date)
                 let dayOfWeek = dayOfWeekString(for: state.date)
 
-                return .run { send in
+                return .runWithLoading { send in
                     do {
                         let response = try await homeUseCases.updateLike(
                             isLike,
@@ -127,9 +132,13 @@ struct HomeFeature {
                             dayOfWeek
                         )
                         await send(.likeUpdated(.success(response)))
+                    } catch is CancellationError {
+                        return
                     } catch let error as ErrorResponse {
+                        guard !Task.isCancelled else { return }
                         await send(.likeUpdated(.failure(error)))
                     } catch {
+                        guard !Task.isCancelled else { return }
                         await send(.likeUpdated(.failure(.defaultError)))
                     }
                 }
@@ -166,13 +175,17 @@ struct HomeFeature {
                 guard state.quote.dailyQuoteSeq > 0 else { return .none }
                 let dailyQuoteSeq = state.quote.dailyQuoteSeq
 
-                return .run { send in
+                return .runWithLoading { send in
                     do {
                         let response = try await homeUseCases.deleteUploadImage(dailyQuoteSeq)
                         await send(.imageDeleted(.success(response)))
+                    } catch is CancellationError {
+                        return
                     } catch let error as ErrorResponse {
+                        guard !Task.isCancelled else { return }
                         await send(.imageDeleted(.failure(error)))
                     } catch {
+                        guard !Task.isCancelled else { return }
                         await send(.imageDeleted(.failure(.defaultError)))
                     }
                 }
@@ -190,13 +203,17 @@ struct HomeFeature {
                 guard state.quote.dailyQuoteSeq > 0 else { return .none }
                 let dailyQuoteSeq = state.quote.dailyQuoteSeq
 
-                return .run { send in
+                return .runWithLoading { send in
                     do {
                         let response = try await homeUseCases.postUploadImage(fileURL, dailyQuoteSeq)
                         await send(.imageUploaded(.success(response)))
+                    } catch is CancellationError {
+                        return
                     } catch let error as ErrorResponse {
+                        guard !Task.isCancelled else { return }
                         await send(.imageUploaded(.failure(error)))
                     } catch {
+                        guard !Task.isCancelled else { return }
                         await send(.imageUploaded(.failure(.defaultError)))
                     }
                 }
@@ -300,16 +317,33 @@ struct HomeFeature {
         state.isLoading = true
         let quoteDate = FillsaCalendarDateSupport.quoteDateString(for: state.date)
 
-        return .run { send in
-            do {
-                let response = try await homeUseCases.loadDailyQuote(quoteDate)
-                await send(.dailyQuoteLoaded(.success(response)))
-            } catch let error as ErrorResponse {
-                await send(.dailyQuoteLoaded(.failure(error)))
-            } catch {
-                await send(.dailyQuoteLoaded(.failure(.defaultError)))
-            }
+        return .runWithLoading { send in
+            await fetchDailyQuote(quoteDate: quoteDate, send: send)
         }
+    }
+
+    private func fetchDailyQuote(quoteDate: String, send: Send<Action>) async {
+        do {
+            let response = try await homeUseCases.loadDailyQuote(quoteDate)
+            guard !Task.isCancelled else { return }
+            await send(.dailyQuoteLoaded(.success(response)))
+        } catch is CancellationError {
+            return
+        } catch let error as ErrorResponse {
+            guard !Task.isCancelled else { return }
+            await send(.dailyQuoteLoaded(.failure(error)))
+        } catch {
+            guard !Task.isCancelled else { return }
+            await send(.dailyQuoteLoaded(.failure(.defaultError)))
+        }
+    }
+
+    private func fetchCompletionState(send: Send<Action>) async {
+        let streakCount = await streakClient.getCurrentCount()
+        guard !Task.isCancelled else { return }
+        let streakInfos = (try? await streakClient.getAllLocal()) ?? []
+        guard !Task.isCancelled else { return }
+        await send(.completionStateLoaded(streakCount, streakInfos))
     }
 
     private func dayOfWeekString(for date: Date) -> String {
