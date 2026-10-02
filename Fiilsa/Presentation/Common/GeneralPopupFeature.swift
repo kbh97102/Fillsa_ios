@@ -14,6 +14,7 @@ struct GeneralPopupFeature {
     enum Action: Equatable {
         case loadIfNeeded
         case loaded([PopupResponse])
+        case loadCancelled
         case dismissCurrent
         case dismissToday
         case nextPopup
@@ -34,25 +35,49 @@ struct GeneralPopupFeature {
                     guard !Task.isCancelled else { return }
                     let token = await loadingClient.begin()
                     if !Task.isCancelled {
-                        try? await hiddenPopupClient.clearAllIfNeeded()
+                        var wasCancelled = false
+                        do {
+                            try await hiddenPopupClient.clearAllIfNeeded()
+                        } catch is CancellationError {
+                            wasCancelled = true
+                        } catch {}
 
                         var popups: [PopupResponse] = []
 
-                        if !Task.isCancelled,
-                           let generalPopup = try? await commonClient.getPopupGeneral() {
-                            let isHidden = (try? await hiddenPopupClient.isHidden(generalPopup.popupSeq)) ?? false
-                            if !isHidden, !Task.isCancelled {
-                                popups.append(generalPopup)
-                            }
+                        if !wasCancelled, !Task.isCancelled {
+                            do {
+                                let generalPopup = try await commonClient.getPopupGeneral()
+                                let isHidden: Bool
+                                do {
+                                    isHidden = try await hiddenPopupClient.isHidden(generalPopup.popupSeq)
+                                } catch is CancellationError {
+                                    throw CancellationError()
+                                } catch {
+                                    isHidden = false
+                                }
+                                if !isHidden, !Task.isCancelled {
+                                    popups.append(generalPopup)
+                                }
+                            } catch is CancellationError {
+                                wasCancelled = true
+                            } catch {}
                         }
 
-                        if !Task.isCancelled,
-                           let versionPopup = try? await commonClient.getPopupVersionUpdate(appVersion()) {
-                            popups.append(versionPopup)
+                        if !wasCancelled, !Task.isCancelled {
+                            do {
+                                let versionPopup = try await commonClient.getPopupVersionUpdate(appVersion())
+                                popups.append(versionPopup)
+                            } catch is CancellationError {
+                                wasCancelled = true
+                            } catch {}
                         }
 
                         if !Task.isCancelled {
-                            await send(.loaded(popups.sortedByPopupPriority()))
+                            if wasCancelled {
+                                await send(.loadCancelled)
+                            } else {
+                                await send(.loaded(popups.sortedByPopupPriority()))
+                            }
                         }
                     }
                     await loadingClient.end(token)
@@ -63,6 +88,10 @@ struct GeneralPopupFeature {
                 state.isLoading = false
                 state.queue = popups
                 state.currentPopup = state.queue.isEmpty ? nil : state.queue.removeFirst()
+                return .none
+
+            case .loadCancelled:
+                state.isLoading = false
                 return .none
 
             case .dismissCurrent:

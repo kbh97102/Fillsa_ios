@@ -7,6 +7,62 @@ import UserNotifications
 @Suite("Feature loading integration")
 struct FeatureLoadingIntegrationTests {
     @Test @MainActor
+    func popupCancellationDoesNotStartVersionLookup() async {
+        let registry = LoadingRegistry()
+        let store = TestStore(initialState: GeneralPopupFeature.State()) {
+            GeneralPopupFeature()
+        } withDependencies: {
+            $0.loadingClient = loadingTestClient(registry)
+            $0.hiddenPopupClient.clearAllIfNeeded = {}
+            $0.commonClient.getPopupGeneral = { throw CancellationError() }
+            $0.commonClient.getPopupVersionUpdate = { _ in
+                Issue.record("Version lookup must not start after cancellation")
+                throw CancellationError()
+            }
+        }
+        let task = await store.send(.loadIfNeeded) { $0.isLoading = true }
+        await store.receive(.loadCancelled) { $0.isLoading = false }
+        await task.finish()
+        #expect(await loadingCount(registry) == 0)
+    }
+
+    @Test @MainActor
+    func resignationCancellationDoesNotShowFailureToast() async {
+        let registry = LoadingRegistry()
+        let store = TestStore(initialState: MyPageFeature.State(isLoggedIn: true)) {
+            MyPageFeature()
+        } withDependencies: {
+            $0.loadingClient = loadingTestClient(registry)
+            $0.commonClient.deleteResign = { throw CancellationError() }
+            $0.sessionClient.logout = { Issue.record("Logout must not follow cancellation") }
+        }
+        let task = await store.send(.resignConfirmed) { $0.isProcessing = true }
+        await store.receive(.resignCancelled) { $0.isProcessing = false }
+        await task.finish()
+        #expect(store.state.toastMessage == nil)
+        #expect(await loadingCount(registry) == 0)
+    }
+
+    @Test @MainActor
+    func typingSaveCancellationDoesNotFallBackToLocalWrite() async {
+        let registry = LoadingRegistry()
+        let store = TestStore(initialState: TypingFeature.State(dailyQuoteSeq: 7)) {
+            TypingFeature()
+        } withDependencies: {
+            $0.loadingClient = loadingTestClient(registry)
+            $0.sessionClient.isLoggedIn = { throw CancellationError() }
+            $0.localQuoteClient.findById = { _ in
+                Issue.record("Local write path must not follow cancellation")
+                return nil
+            }
+        }
+        let task = await store.send(.saveAndBack) { $0.isSaving = true }
+        await store.receive(.saveCancelled) { $0.isSaving = false }
+        await task.finish()
+        #expect(await loadingCount(registry) == 0)
+    }
+
+    @Test @MainActor
     func typingLocalLoadUsesOneScope() async {
         let registry = LoadingRegistry()
         let gate = AsyncStream<Void>.makeStream()

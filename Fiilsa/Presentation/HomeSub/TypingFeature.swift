@@ -28,6 +28,7 @@ struct TypingFeature {
         case likeUpdated(Result<Int, ErrorResponse>)
         case saveAndBack
         case typingSaved(Result<Int, ErrorResponse>)
+        case saveCancelled
         case delegate(Delegate)
 
         enum Delegate: Equatable {
@@ -49,7 +50,14 @@ struct TypingFeature {
 
                 return .runWithLoading { send in
                     do {
-                        let isLoggedIn = (try? await sessionClient.isLoggedIn()) ?? false
+                        let isLoggedIn: Bool
+                        do {
+                            isLoggedIn = try await sessionClient.isLoggedIn()
+                        } catch is CancellationError {
+                            return
+                        } catch {
+                            isLoggedIn = false
+                        }
                         guard !Task.isCancelled else { return }
                         if isLoggedIn {
                             let response = try await typingClient.getTyping(dailyQuoteSeq)
@@ -162,7 +170,15 @@ struct TypingFeature {
 
                 return .runWithLoading { send in
                     do {
-                        let isLoggedIn = (try? await sessionClient.isLoggedIn()) ?? false
+                        let isLoggedIn: Bool
+                        do {
+                            isLoggedIn = try await sessionClient.isLoggedIn()
+                        } catch is CancellationError {
+                            await send(.saveCancelled)
+                            return
+                        } catch {
+                            isLoggedIn = false
+                        }
                         guard !Task.isCancelled else { return }
                         if isLoggedIn {
                             let response = try await typingClient.postTyping(dailyQuoteSeq, request)
@@ -197,6 +213,7 @@ struct TypingFeature {
                             await send(.typingSaved(.success(1)))
                         }
                     } catch is CancellationError {
+                        await send(.saveCancelled)
                         return
                     } catch let error as ErrorResponse {
                         guard !Task.isCancelled else { return }
@@ -210,6 +227,10 @@ struct TypingFeature {
             case .typingSaved:
                 state.isSaving = false
                 return .send(.delegate(.back))
+
+            case .saveCancelled:
+                state.isSaving = false
+                return .none
 
             case .delegate:
                 return .none

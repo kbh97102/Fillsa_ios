@@ -78,6 +78,32 @@ struct LoadingClientTests {
         started.continuation.finish()
         gate.continuation.finish()
     }
+
+    @Test func cancellationWhileBeginIsSuspendedEndsTheLateToken() async {
+        let registry = LoadingRegistry()
+        let beginGate = AsyncStream<Void>.makeStream()
+        let beginStarted = AsyncStream<Void>.makeStream()
+        let client = LoadingClient(
+            begin: {
+                beginStarted.continuation.yield(())
+                for await _ in beginGate.stream {}
+                return await registry.begin()
+            },
+            end: { await registry.end($0) },
+            counts: { await registry.counts() }
+        )
+        let task = Task {
+            await client.withLoading {
+                Issue.record("Cancelled operation must not start after delayed begin")
+            }
+        }
+        var events = beginStarted.stream.makeAsyncIterator()
+        _ = await events.next()
+        task.cancel()
+        beginGate.continuation.finish()
+        await task.value
+        #expect(await loadingCount(registry) == 0)
+    }
 }
 
 func loadingTestClient(_ registry: LoadingRegistry) -> LoadingClient {

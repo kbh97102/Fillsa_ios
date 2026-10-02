@@ -31,6 +31,7 @@ struct MyPageFeature {
         case resignDialogDismissed
         case resignConfirmed
         case resignCompleted(Result<Bool, ResignError>)
+        case resignCancelled
         case toastDismissed
         case delegate(Delegate)
 
@@ -132,6 +133,9 @@ struct MyPageFeature {
                 return .runWithLoading { send in
                     do {
                         try await commonClient.deleteResign()
+                    } catch is CancellationError {
+                        await send(.resignCancelled)
+                        return
                     } catch {
                         guard !Task.isCancelled else { return }
                         guard Self.isAlreadyWithdrawn(error) else {
@@ -144,6 +148,9 @@ struct MyPageFeature {
 
                     do {
                         try await sessionClient.logout()
+                    } catch is CancellationError {
+                        await send(.resignCancelled)
+                        return
                     } catch {
                     }
                     guard !Task.isCancelled else { return }
@@ -160,6 +167,10 @@ struct MyPageFeature {
             case .resignCompleted(.failure):
                 state.isProcessing = false
                 state.toastMessage = "탈퇴 처리에 실패했습니다."
+                return .none
+
+            case .resignCancelled:
+                state.isProcessing = false
                 return .none
 
             case .toastDismissed:

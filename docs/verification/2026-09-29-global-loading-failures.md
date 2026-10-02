@@ -2,6 +2,8 @@
 
 전체 앱 테스트는 생략하고 변경 관련 suite만 실행한다. 의도한 TDD RED도 예상하지 못한 실패와 구분해 보존한다.
 
+최종 재검증: 관련 유닛 테스트 66/66 통과(`/tmp/fiilsa-loading-focused-final-02.xcresult`), 기존 Home UI 시작 테스트 1/1 통과(`/tmp/fiilsa-loading-host-ui-01.xcresult`). 아래 실패 10건은 원인과 조치·재검증 이력을 보존했으며 모두 해결됐다. 전역 스피너의 Figma 시각 QA는 URL/node-id 미확보로 별도 대기 중이다.
+
 ## F-01: 시뮬레이터 상태 조회 권한 제한
 
 - 상태 / 분류: 해결 / 빌드·환경 문제.
@@ -101,3 +103,27 @@
 - 오류 로그 / xcresult: 위 로그; 테스트 실행 전에 컴파일 실패.
 - 수정 내용: 테스트 파일에 UserNotifications import.
 - 재검증: `/tmp/fiilsa-features-integration-04.xcresult`에서 Alert 포함 통합 기능 10/10 통과, 실패 0.
+
+## F-09: API의 독립적인 취소 예외가 실패/후속 작업으로 이어짐
+
+- 상태 / 분류: 해결 / 코드 리뷰 후 추가한 TDD RED.
+- 작업 / 테스트: Task 4 보강, 팝업 일반 조회·회원탈퇴·Typing 저장의 `CancellationError` 재현 세 건.
+- 관측 위치 / 원인 위치: `FeatureLoadingIntegrationTests.swift:24,40,60`의 신규 취소 Action 부재 / `GeneralPopupFeature.swift`의 `try?`, `MyPageFeature.swift`의 포괄적 catch, `TypingFeature.swift`의 세션 조회 `try?`.
+- 기대값 / 실제값: 취소 뒤 다음 API/로컬 쓰기/실패 토스트 없이 해당 로딩 flag만 재설정 / 기존 코드는 후속 API·로컬 분기·실패 처리로 진행 가능. RED는 신규 Action 미구현으로 빌드 exit 65.
+- 재현 명령 / 환경: `/tmp/fiilsa-cancel-red-01.log`, Xcode 26.6 / iOS 26.5; 해당 의존성 클로저가 부모 Task 취소 없이 `CancellationError`를 던지도록 제어.
+- 원인 / 확인 근거: 코드 리뷰에서 세 포괄적 catch 경로 식별, RED 컴파일러가 누락 Action 세 건을 명시.
+- 오류 로그 / xcresult: 위 RED 로그. 실제 사용자 환경의 독립적인 CancellationError 발생 경로는 확인되지 않았으나 동작 계약과 다른 경로다.
+- 수정 내용: 취소 예외를 일반 오류보다 먼저 구분하고 로딩 flag 재설정 Action을 보내며, 팝업의 남은 조회를 시작하지 않게 수정.
+- 재검증: `/tmp/fiilsa-cancel-green-01.xcresult`에서 새 세 테스트 및 관련 25/25 통과, 실패 0.
+
+## F-10: 결과 순서 테스트의 MainActor 격리 충돌
+
+- 상태 / 분류: 해결 / 테스트 코드 컴파일 오류.
+- 작업 / 테스트: 코드 리뷰 후 `scopeEndsAfterResultActionIsReduced` 강화.
+- 관측 위치 / 원인 위치: `LoadingEffectTests.swift:93` / TCA Reducer의 동기 클로저에서 MainActor 전용 테스트 marker를 직접 수정.
+- 기대값 / 실제값: 결과 Action 처리 전 scope 종료 감지 / Swift 동시성 컴파일 오류, exit 65.
+- 재현 명령 / 환경: `/tmp/fiilsa-contract-tests-01.log`, Xcode 26.6 / iOS 26.5.
+- 원인 / 확인 근거: 컴파일러가 main actor-isolated property를 nonisolated context에서 수정할 수 없다고 명시.
+- 오류 로그 / xcresult: 위 로그; 테스트 실행 전 컴파일 실패.
+- 수정 내용: marker를 테스트 전용 NSLock 보호 값으로 바꾸어 Reducer 동기 처리와 비동기 end 클로저가 같은 상태를 안전하게 관찰하도록 변경.
+- 재검증: `/tmp/fiilsa-contract-tests-03.xcresult`에서 로딩 계약 10/10 통과, 실패 0.
