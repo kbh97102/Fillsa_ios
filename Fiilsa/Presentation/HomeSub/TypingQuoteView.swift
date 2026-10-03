@@ -13,6 +13,7 @@ struct TypingQuoteView: View {
     @State private var selectedLocale: HomeLocaleType = .kor
 
     let store: StoreOf<TypingFeature>
+    let isInputEnabled: Bool
     let share: (String, String) -> Void
 
     var body: some View {
@@ -34,7 +35,8 @@ struct TypingQuoteView: View {
                                     viewStore.send(.engTypingChanged($0))
                                 }
                             }
-                        )
+                        ),
+                        isInputEnabled: isInputEnabled
                     )
                     .padding(.top, 20)
 
@@ -137,6 +139,7 @@ struct TypingQuoteView: View {
         ) {
             TypingFeature()
         },
+        isInputEnabled: true,
         share: { _, _ in }
     )
 }

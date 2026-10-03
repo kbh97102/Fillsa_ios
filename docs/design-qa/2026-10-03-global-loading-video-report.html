@@ -1,0 +1,208 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Fiilsa 전역 로딩 · 화면별 영상 QA</title>
+  <style>
+    :root { color-scheme: light; font-family: -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", sans-serif; background: #f5f5f7; color: #212121; }
+    * { box-sizing: border-box; }
+    body { margin: 0; }
+    header { background: #fff; border-bottom: 1px solid #dedee6; padding: 28px max(24px, calc((100vw - 1300px) / 2)); }
+    h1 { font-size: clamp(26px, 3vw, 38px); margin: 8px 0; }
+    h2 { font-size: 24px; margin: 0 0 14px; }
+    h3 { font-size: 17px; margin: 0 0 10px; }
+    p { line-height: 1.65; }
+    .eyebrow { color: #5c65ff; font-size: 13px; font-weight: 700; letter-spacing: .08em; }
+    .muted { color: #60606b; }
+    .meta, nav { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+    .pill { display: inline-block; padding: 5px 10px; border: 1px solid #d7d7e2; border-radius: 999px; font-size: 12px; background: #fff; }
+    .blocked { color: #7b4e00; background: #fff0ce; border-color: #eed58c; }
+    nav { margin-top: 22px; }
+    a { color: #474fe8; }
+    nav a { text-decoration: none; border-radius: 8px; padding: 8px 12px; background: #f0f0ff; }
+    main { max-width: 1348px; margin: auto; padding: 24px; }
+    section { background: #fff; border: 1px solid #e3e3eb; border-radius: 18px; padding: 24px; margin-bottom: 22px; }
+    .intro { max-width: 950px; }
+    .grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; }
+    .grid.two { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    figure { margin: 0; min-width: 0; border: 1px solid #e5e5eb; border-radius: 12px; overflow: hidden; background: #fafafa; }
+    figcaption { padding: 12px 14px; background: #fff; border-bottom: 1px solid #e5e5eb; font-weight: 700; }
+    figcaption small { display: block; margin-top: 3px; color: #747480; font-weight: 400; }
+    figure img, figure video { display: block; width: 100%; max-height: 650px; object-fit: contain; background: #ececec; }
+    .linkbar { padding: 10px 14px; background: #fff; font-size: 13px; }
+    .video-wrap { max-width: 520px; }
+    .video-wrap video { max-height: 660px; }
+    table { width: 100%; border-collapse: collapse; }
+    th, td { padding: 12px; border-bottom: 1px solid #e6e6ed; text-align: left; vertical-align: top; }
+    th { width: 170px; color: #555563; }
+    .note { padding: 13px 16px; border-radius: 10px; background: #f1f1ff; line-height: 1.6; }
+    @media (max-width: 820px) { .grid, .grid.two { grid-template-columns: 1fr; } figure img, figure video { max-height: 580px; } th { width: 105px; } }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="eyebrow">FIGMA × iOS SIMULATOR</div>
+    <h1>전역 로딩 · 화면별 영상 QA</h1>
+    <p class="muted intro">Figma 공통 스피너와 iPhone 17 Pro 시뮬레이터의 14개 화면을 비교합니다. 화면별 영상은 로딩 카운트를 1로 고정한 테스트 상태이며 실제 API 응답 시간을 재현하지 않습니다. 각 화면의 PNG와 MP4를 직접 열 수 있습니다.</p>
+    <div class="meta"><span class="pill">14개 화면 · 14개 영상</span><span class="pill">iOS 26.5 · 402×874pt</span><span class="pill">검정 딤 alpha 0.2</span><span class="pill">Figma 스피너 SVG 원본</span><span class="pill blocked">전체 프레임 Figma 판정 보류</span></div>
+    <nav aria-label="화면 이동"><a href="#home">Home</a><a href="#splash">Splash</a><a href="#login">Login</a><a href="#onboardingGuide">Onboarding</a><a href="#quoteList">List</a><a href="#calendar">Calendar</a><a href="#myPage">My Page</a><a href="#typing">Typing</a><a href="#share">Share</a><a href="#quoteDetail">Quote Detail</a><a href="#memoInsert">Memo</a><a href="#notice">Notice</a><a href="#noticeDetail">Notice Detail</a><a href="#alert">Alert</a><a href="#spinner">Figma 기준</a><a href="#evidence">검증 결과</a></nav>
+  </header>
+  <main>
+    <section id="home">
+      <div class="eyebrow">SCREEN 01</div>
+      <h2>Home · 로딩 전과 로딩 중</h2>
+      <p class="muted">Figma Home 기본 프레임, iOS 로딩 전, iOS 로딩 중을 비교합니다. 이 화면만 기존 Home 테스트 데이터로 촬영했으며 나머지는 화면별 진입 상태로 촬영했습니다.</p>
+      <div class="grid">
+        <figure><figcaption>Figma Home 기본 화면<small>노드 2929:13556 · 360×821</small></figcaption><a href="assets/home-responsive-layout/2026-09-27/figma-home-default.png"><img src="assets/home-responsive-layout/2026-09-27/figma-home-default.png" alt="Figma Home 기본 화면"></a><div class="linkbar"><a href="https://www.figma.com/design/VdFocqyqTgevMVCQxwAQ2X/2.home?node-id=2929-13556">Figma에서 보기</a></div></figure>
+        <figure><figcaption>iOS · 로딩 전<small>iPhone 17 Pro · 402×874pt</small></figcaption><a href="2026-10-03-global-loading-home-normal.png"><img src="2026-10-03-global-loading-home-normal.png" alt="iOS Home 로딩 전"></a><div class="linkbar"><a href="2026-10-03-global-loading-home-normal.png">원본 PNG 열기</a></div></figure>
+        <figure><figcaption>iOS · 로딩 중<small>검정 20% 딤 · 스피너 중앙 정렬</small></figcaption><a href="2026-10-03-global-loading-runtime-iphone17pro.png"><img src="2026-10-03-global-loading-runtime-iphone17pro.png" alt="iOS Home 위 전역 로딩 오버레이"></a><div class="linkbar"><a href="2026-10-03-global-loading-runtime-iphone17pro.png">원본 PNG 열기</a></div></figure>
+      </div>
+      <h3 style="margin-top: 22px">실행 영상</h3>
+      <div class="video-wrap"><video controls playsinline preload="metadata" poster="2026-10-03-global-loading-home-video-frame.png"><source src="2026-10-03-global-loading-home-720p.mp4" type="video/mp4">이 브라우저에서는 MP4 영상을 재생할 수 없습니다.</video></div>
+      <p class="muted"><a href="2026-10-03-global-loading-home-720p.mp4">MP4 파일 직접 열기</a> · 시뮬레이터 화면 녹화, H.264, 720p 축소본</p>
+    </section>
+    <section id="splash">
+      <div class="eyebrow">SCREEN 02</div>
+      <h2>Splash · 시작 화면</h2>
+      <div class="grid">
+        <figure><figcaption>Figma · 공통 스피너<small>노드 2929:5969 · 단독 기준 화면</small></figcaption><a href="2026-10-03-global-loading-figma.png"><img loading="lazy" src="2026-10-03-global-loading-figma.png" alt="Figma 전역 스피너 디자인"></a></figure>
+        <figure><figcaption>iOS · 로딩 중<small>검정 20% 딤 · 화면 중앙</small></figcaption><a href="2026-10-03-global-loading-splash.png"><img loading="lazy" src="2026-10-03-global-loading-splash.png" alt="Splash · 시작 화면에서 전역 스피너가 보이는 화면"></a><div class="linkbar"><a href="2026-10-03-global-loading-splash.png">PNG 열기</a></div></figure>
+        <figure><figcaption>iOS · 실행 영상<small>시뮬레이터 녹화 · H.264</small></figcaption><video controls playsinline preload="none" poster="2026-10-03-global-loading-splash.png"><source src="2026-10-03-global-loading-splash.mp4" type="video/mp4">이 브라우저에서는 MP4 영상을 재생할 수 없습니다.</video><div class="linkbar"><a href="2026-10-03-global-loading-splash.mp4">MP4 열기</a></div></figure>
+      </div>
+    </section>
+    <section id="login">
+      <div class="eyebrow">SCREEN 03</div>
+      <h2>Login · 로그인</h2>
+      <div class="grid">
+        <figure><figcaption>Figma · 공통 스피너<small>노드 2929:5969 · 단독 기준 화면</small></figcaption><a href="2026-10-03-global-loading-figma.png"><img loading="lazy" src="2026-10-03-global-loading-figma.png" alt="Figma 전역 스피너 디자인"></a></figure>
+        <figure><figcaption>iOS · 로딩 중<small>검정 20% 딤 · 화면 중앙</small></figcaption><a href="2026-10-03-global-loading-login.png"><img loading="lazy" src="2026-10-03-global-loading-login.png" alt="Login · 로그인에서 전역 스피너가 보이는 화면"></a><div class="linkbar"><a href="2026-10-03-global-loading-login.png">PNG 열기</a></div></figure>
+        <figure><figcaption>iOS · 실행 영상<small>시뮬레이터 녹화 · H.264</small></figcaption><video controls playsinline preload="none" poster="2026-10-03-global-loading-login.png"><source src="2026-10-03-global-loading-login.mp4" type="video/mp4">이 브라우저에서는 MP4 영상을 재생할 수 없습니다.</video><div class="linkbar"><a href="2026-10-03-global-loading-login.mp4">MP4 열기</a></div></figure>
+      </div>
+    </section>
+    <section id="onboardingGuide">
+      <div class="eyebrow">SCREEN 04</div>
+      <h2>Onboarding Guide · 사용 안내</h2>
+      <div class="grid">
+        <figure><figcaption>Figma · 공통 스피너<small>노드 2929:5969 · 단독 기준 화면</small></figcaption><a href="2026-10-03-global-loading-figma.png"><img loading="lazy" src="2026-10-03-global-loading-figma.png" alt="Figma 전역 스피너 디자인"></a></figure>
+        <figure><figcaption>iOS · 로딩 중<small>검정 20% 딤 · 화면 중앙</small></figcaption><a href="2026-10-03-global-loading-onboardingGuide.png"><img loading="lazy" src="2026-10-03-global-loading-onboardingGuide.png" alt="Onboarding Guide · 사용 안내에서 전역 스피너가 보이는 화면"></a><div class="linkbar"><a href="2026-10-03-global-loading-onboardingGuide.png">PNG 열기</a></div></figure>
+        <figure><figcaption>iOS · 실행 영상<small>시뮬레이터 녹화 · H.264</small></figcaption><video controls playsinline preload="none" poster="2026-10-03-global-loading-onboardingGuide.png"><source src="2026-10-03-global-loading-onboardingGuide.mp4" type="video/mp4">이 브라우저에서는 MP4 영상을 재생할 수 없습니다.</video><div class="linkbar"><a href="2026-10-03-global-loading-onboardingGuide.mp4">MP4 열기</a></div></figure>
+      </div>
+    </section>
+    <section id="quoteList">
+      <div class="eyebrow">SCREEN 05</div>
+      <h2>Quote List · 명언 목록</h2>
+      <div class="grid">
+        <figure><figcaption>Figma · 공통 스피너<small>노드 2929:5969 · 단독 기준 화면</small></figcaption><a href="2026-10-03-global-loading-figma.png"><img loading="lazy" src="2026-10-03-global-loading-figma.png" alt="Figma 전역 스피너 디자인"></a></figure>
+        <figure><figcaption>iOS · 로딩 중<small>검정 20% 딤 · 화면 중앙</small></figcaption><a href="2026-10-03-global-loading-quoteList.png"><img loading="lazy" src="2026-10-03-global-loading-quoteList.png" alt="Quote List · 명언 목록에서 전역 스피너가 보이는 화면"></a><div class="linkbar"><a href="2026-10-03-global-loading-quoteList.png">PNG 열기</a></div></figure>
+        <figure><figcaption>iOS · 실행 영상<small>시뮬레이터 녹화 · H.264</small></figcaption><video controls playsinline preload="none" poster="2026-10-03-global-loading-quoteList.png"><source src="2026-10-03-global-loading-quoteList.mp4" type="video/mp4">이 브라우저에서는 MP4 영상을 재생할 수 없습니다.</video><div class="linkbar"><a href="2026-10-03-global-loading-quoteList.mp4">MP4 열기</a></div></figure>
+      </div>
+    </section>
+    <section id="calendar">
+      <div class="eyebrow">SCREEN 06</div>
+      <h2>Calendar · 달력</h2>
+      <div class="grid">
+        <figure><figcaption>Figma · 공통 스피너<small>노드 2929:5969 · 단독 기준 화면</small></figcaption><a href="2026-10-03-global-loading-figma.png"><img loading="lazy" src="2026-10-03-global-loading-figma.png" alt="Figma 전역 스피너 디자인"></a></figure>
+        <figure><figcaption>iOS · 로딩 중<small>검정 20% 딤 · 화면 중앙</small></figcaption><a href="2026-10-03-global-loading-calendar.png"><img loading="lazy" src="2026-10-03-global-loading-calendar.png" alt="Calendar · 달력에서 전역 스피너가 보이는 화면"></a><div class="linkbar"><a href="2026-10-03-global-loading-calendar.png">PNG 열기</a></div></figure>
+        <figure><figcaption>iOS · 실행 영상<small>시뮬레이터 녹화 · H.264</small></figcaption><video controls playsinline preload="none" poster="2026-10-03-global-loading-calendar.png"><source src="2026-10-03-global-loading-calendar.mp4" type="video/mp4">이 브라우저에서는 MP4 영상을 재생할 수 없습니다.</video><div class="linkbar"><a href="2026-10-03-global-loading-calendar.mp4">MP4 열기</a></div></figure>
+      </div>
+    </section>
+    <section id="myPage">
+      <div class="eyebrow">SCREEN 07</div>
+      <h2>My Page · 설정</h2>
+      <div class="grid">
+        <figure><figcaption>Figma · 공통 스피너<small>노드 2929:5969 · 단독 기준 화면</small></figcaption><a href="2026-10-03-global-loading-figma.png"><img loading="lazy" src="2026-10-03-global-loading-figma.png" alt="Figma 전역 스피너 디자인"></a></figure>
+        <figure><figcaption>iOS · 로딩 중<small>검정 20% 딤 · 화면 중앙</small></figcaption><a href="2026-10-03-global-loading-myPage.png"><img loading="lazy" src="2026-10-03-global-loading-myPage.png" alt="My Page · 설정에서 전역 스피너가 보이는 화면"></a><div class="linkbar"><a href="2026-10-03-global-loading-myPage.png">PNG 열기</a></div></figure>
+        <figure><figcaption>iOS · 실행 영상<small>시뮬레이터 녹화 · H.264</small></figcaption><video controls playsinline preload="none" poster="2026-10-03-global-loading-myPage.png"><source src="2026-10-03-global-loading-myPage.mp4" type="video/mp4">이 브라우저에서는 MP4 영상을 재생할 수 없습니다.</video><div class="linkbar"><a href="2026-10-03-global-loading-myPage.mp4">MP4 열기</a></div></figure>
+      </div>
+    </section>
+    <section id="typing">
+      <div class="eyebrow">SCREEN 08</div>
+      <h2>Typing · 필사 입력</h2>
+      <div class="grid">
+        <figure><figcaption>Figma · 공통 스피너<small>노드 2929:5969 · 단독 기준 화면</small></figcaption><a href="2026-10-03-global-loading-figma.png"><img loading="lazy" src="2026-10-03-global-loading-figma.png" alt="Figma 전역 스피너 디자인"></a></figure>
+        <figure><figcaption>iOS · 로딩 중<small>검정 20% 딤 · 화면 중앙</small></figcaption><a href="2026-10-03-global-loading-typing.png"><img loading="lazy" src="2026-10-03-global-loading-typing.png" alt="Typing · 필사 입력에서 전역 스피너가 보이는 화면"></a><div class="linkbar"><a href="2026-10-03-global-loading-typing.png">PNG 열기</a></div></figure>
+        <figure><figcaption>iOS · 실행 영상<small>시뮬레이터 녹화 · H.264</small></figcaption><video controls playsinline preload="none" poster="2026-10-03-global-loading-typing.png"><source src="2026-10-03-global-loading-typing.mp4" type="video/mp4">이 브라우저에서는 MP4 영상을 재생할 수 없습니다.</video><div class="linkbar"><a href="2026-10-03-global-loading-typing.mp4">MP4 열기</a></div></figure>
+      </div>
+    </section>
+    <section id="share">
+      <div class="eyebrow">SCREEN 09</div>
+      <h2>Share · 공유 이미지</h2>
+      <div class="grid">
+        <figure><figcaption>Figma · 공통 스피너<small>노드 2929:5969 · 단독 기준 화면</small></figcaption><a href="2026-10-03-global-loading-figma.png"><img loading="lazy" src="2026-10-03-global-loading-figma.png" alt="Figma 전역 스피너 디자인"></a></figure>
+        <figure><figcaption>iOS · 로딩 중<small>검정 20% 딤 · 화면 중앙</small></figcaption><a href="2026-10-03-global-loading-share.png"><img loading="lazy" src="2026-10-03-global-loading-share.png" alt="Share · 공유 이미지에서 전역 스피너가 보이는 화면"></a><div class="linkbar"><a href="2026-10-03-global-loading-share.png">PNG 열기</a></div></figure>
+        <figure><figcaption>iOS · 실행 영상<small>시뮬레이터 녹화 · H.264</small></figcaption><video controls playsinline preload="none" poster="2026-10-03-global-loading-share.png"><source src="2026-10-03-global-loading-share.mp4" type="video/mp4">이 브라우저에서는 MP4 영상을 재생할 수 없습니다.</video><div class="linkbar"><a href="2026-10-03-global-loading-share.mp4">MP4 열기</a></div></figure>
+      </div>
+    </section>
+    <section id="quoteDetail">
+      <div class="eyebrow">SCREEN 10</div>
+      <h2>Quote Detail · 명언 상세</h2>
+      <div class="grid">
+        <figure><figcaption>Figma · 공통 스피너<small>노드 2929:5969 · 단독 기준 화면</small></figcaption><a href="2026-10-03-global-loading-figma.png"><img loading="lazy" src="2026-10-03-global-loading-figma.png" alt="Figma 전역 스피너 디자인"></a></figure>
+        <figure><figcaption>iOS · 로딩 중<small>검정 20% 딤 · 화면 중앙</small></figcaption><a href="2026-10-03-global-loading-quoteDetail.png"><img loading="lazy" src="2026-10-03-global-loading-quoteDetail.png" alt="Quote Detail · 명언 상세에서 전역 스피너가 보이는 화면"></a><div class="linkbar"><a href="2026-10-03-global-loading-quoteDetail.png">PNG 열기</a></div></figure>
+        <figure><figcaption>iOS · 실행 영상<small>시뮬레이터 녹화 · H.264</small></figcaption><video controls playsinline preload="none" poster="2026-10-03-global-loading-quoteDetail.png"><source src="2026-10-03-global-loading-quoteDetail.mp4" type="video/mp4">이 브라우저에서는 MP4 영상을 재생할 수 없습니다.</video><div class="linkbar"><a href="2026-10-03-global-loading-quoteDetail.mp4">MP4 열기</a></div></figure>
+      </div>
+    </section>
+    <section id="memoInsert">
+      <div class="eyebrow">SCREEN 11</div>
+      <h2>Memo Insert · 메모 입력</h2>
+      <div class="grid">
+        <figure><figcaption>Figma · 공통 스피너<small>노드 2929:5969 · 단독 기준 화면</small></figcaption><a href="2026-10-03-global-loading-figma.png"><img loading="lazy" src="2026-10-03-global-loading-figma.png" alt="Figma 전역 스피너 디자인"></a></figure>
+        <figure><figcaption>iOS · 로딩 중<small>검정 20% 딤 · 화면 중앙</small></figcaption><a href="2026-10-03-global-loading-memoInsert.png"><img loading="lazy" src="2026-10-03-global-loading-memoInsert.png" alt="Memo Insert · 메모 입력에서 전역 스피너가 보이는 화면"></a><div class="linkbar"><a href="2026-10-03-global-loading-memoInsert.png">PNG 열기</a></div></figure>
+        <figure><figcaption>iOS · 실행 영상<small>시뮬레이터 녹화 · H.264</small></figcaption><video controls playsinline preload="none" poster="2026-10-03-global-loading-memoInsert.png"><source src="2026-10-03-global-loading-memoInsert.mp4" type="video/mp4">이 브라우저에서는 MP4 영상을 재생할 수 없습니다.</video><div class="linkbar"><a href="2026-10-03-global-loading-memoInsert.mp4">MP4 열기</a></div></figure>
+      </div>
+    </section>
+    <section id="notice">
+      <div class="eyebrow">SCREEN 12</div>
+      <h2>Notice · 공지 목록</h2>
+      <div class="grid">
+        <figure><figcaption>Figma · 공통 스피너<small>노드 2929:5969 · 단독 기준 화면</small></figcaption><a href="2026-10-03-global-loading-figma.png"><img loading="lazy" src="2026-10-03-global-loading-figma.png" alt="Figma 전역 스피너 디자인"></a></figure>
+        <figure><figcaption>iOS · 로딩 중<small>검정 20% 딤 · 화면 중앙</small></figcaption><a href="2026-10-03-global-loading-notice.png"><img loading="lazy" src="2026-10-03-global-loading-notice.png" alt="Notice · 공지 목록에서 전역 스피너가 보이는 화면"></a><div class="linkbar"><a href="2026-10-03-global-loading-notice.png">PNG 열기</a></div></figure>
+        <figure><figcaption>iOS · 실행 영상<small>시뮬레이터 녹화 · H.264</small></figcaption><video controls playsinline preload="none" poster="2026-10-03-global-loading-notice.png"><source src="2026-10-03-global-loading-notice.mp4" type="video/mp4">이 브라우저에서는 MP4 영상을 재생할 수 없습니다.</video><div class="linkbar"><a href="2026-10-03-global-loading-notice.mp4">MP4 열기</a></div></figure>
+      </div>
+    </section>
+    <section id="noticeDetail">
+      <div class="eyebrow">SCREEN 13</div>
+      <h2>Notice Detail · 공지 상세</h2>
+      <div class="grid">
+        <figure><figcaption>Figma · 공통 스피너<small>노드 2929:5969 · 단독 기준 화면</small></figcaption><a href="2026-10-03-global-loading-figma.png"><img loading="lazy" src="2026-10-03-global-loading-figma.png" alt="Figma 전역 스피너 디자인"></a></figure>
+        <figure><figcaption>iOS · 로딩 중<small>검정 20% 딤 · 화면 중앙</small></figcaption><a href="2026-10-03-global-loading-noticeDetail.png"><img loading="lazy" src="2026-10-03-global-loading-noticeDetail.png" alt="Notice Detail · 공지 상세에서 전역 스피너가 보이는 화면"></a><div class="linkbar"><a href="2026-10-03-global-loading-noticeDetail.png">PNG 열기</a></div></figure>
+        <figure><figcaption>iOS · 실행 영상<small>시뮬레이터 녹화 · H.264</small></figcaption><video controls playsinline preload="none" poster="2026-10-03-global-loading-noticeDetail.png"><source src="2026-10-03-global-loading-noticeDetail.mp4" type="video/mp4">이 브라우저에서는 MP4 영상을 재생할 수 없습니다.</video><div class="linkbar"><a href="2026-10-03-global-loading-noticeDetail.mp4">MP4 열기</a></div></figure>
+      </div>
+    </section>
+    <section id="alert">
+      <div class="eyebrow">SCREEN 14</div>
+      <h2>Alert · 알림 설정</h2>
+      <div class="grid">
+        <figure><figcaption>Figma · 공통 스피너<small>노드 2929:5969 · 단독 기준 화면</small></figcaption><a href="2026-10-03-global-loading-figma.png"><img loading="lazy" src="2026-10-03-global-loading-figma.png" alt="Figma 전역 스피너 디자인"></a></figure>
+        <figure><figcaption>iOS · 로딩 중<small>검정 20% 딤 · 화면 중앙</small></figcaption><a href="2026-10-03-global-loading-alert.png"><img loading="lazy" src="2026-10-03-global-loading-alert.png" alt="Alert · 알림 설정에서 전역 스피너가 보이는 화면"></a><div class="linkbar"><a href="2026-10-03-global-loading-alert.png">PNG 열기</a></div></figure>
+        <figure><figcaption>iOS · 실행 영상<small>시뮬레이터 녹화 · H.264</small></figcaption><video controls playsinline preload="none" poster="2026-10-03-global-loading-alert.png"><source src="2026-10-03-global-loading-alert.mp4" type="video/mp4">이 브라우저에서는 MP4 영상을 재생할 수 없습니다.</video><div class="linkbar"><a href="2026-10-03-global-loading-alert.mp4">MP4 열기</a></div></figure>
+      </div>
+    </section>
+    <section id="spinner">
+      <div class="eyebrow">SHARED COMPONENT</div>
+      <h2>전역 스피너 · Figma와 실제 화면</h2>
+      <div class="grid two">
+        <figure><figcaption>Figma 로딩 단독 프레임<small>노드 2929:5969 · 360×720</small></figcaption><a href="2026-10-03-global-loading-figma.png"><img src="2026-10-03-global-loading-figma.png" alt="Figma 로딩 스피너 기준 프레임"></a><div class="linkbar"><a href="https://www.figma.com/design/VdFocqyqTgevMVCQxwAQ2X/%25E2%259C%2592%25EF%25B8%258F%25ED%2595%2584%25EC%2582%25AC?node-id=2929-5969">Figma에서 보기</a></div></figure>
+        <figure><figcaption>iOS Home 위 오버레이<small>사용자 지정 딤: black · alpha 0.2</small></figcaption><a href="2026-10-03-global-loading-runtime-iphone17pro.png"><img src="2026-10-03-global-loading-runtime-iphone17pro.png" alt="실제 앱 화면 위 스피너"></a><div class="linkbar"><a href="2026-10-03-global-loading-runtime-iphone17pro.png">원본 PNG 열기</a></div></figure>
+      </div>
+      <p class="note">Figma 원본은 흰 바탕의 단독 로딩 화면입니다. 실제 구현은 사용자 요청에 따라 기존 화면 위에 검정 20% 딤을 합성합니다. 따라서 두 전체 화면의 배경이 다른 것은 의도된 차이입니다.</p>
+    </section>
+    <section id="evidence">
+      <div class="eyebrow">EVIDENCE</div>
+      <h2>검증 결과와 남은 판단</h2>
+      <table>
+        <tbody>
+          <tr><th>스피너 원본</th><td>Figma에서 내려받은 SVG와 앱 자산의 SHA-256 일치. 112×112pt SVG가 120×120pt 중앙 영역에 배치됩니다.</td></tr>
+          <tr><th>화면 범위</th><td><code>AppScreen</code>의 Splash·Login·Onboarding·Typing·Share·Quote Detail·Memo Insert·Notice·Notice Detail·Alert, 메인 탭의 Home·Quote List·Calendar·My Page까지 14개 화면입니다. 각 섹션의 PNG와 MP4는 해당 화면에서 촬영했습니다.</td></tr>
+          <tr><th>중앙 정렬</th><td>14개 화면을 차례로 연 UI 테스트에서 화면 식별 요소와 스피너가 존재하고 중심 좌표가 앱 화면 중심과 일치함을 확인했습니다.</td></tr>
+          <tr><th>딤 색상</th><td>Home 배경의 RGB (255, 239, 204)가 로딩 중 (204, 191, 163)으로 바뀌어 검정 20% 합성을 확인했습니다.</td></tr>
+          <tr><th>터치 차단</th><td>Home에서 딤 아래 명언 카드를 눌러도 화면 이동이 발생하지 않는 UI 테스트가 통과했습니다. 다른 13개 화면은 동일한 앱 루트 오버레이를 사용하지만 화면별 터치 시도는 이번 보고서에서 별도로 검증하지 않았습니다.</td></tr>
+          <tr><th>시스템 키보드</th><td>키보드는 앱 오버레이보다 위에 표시되므로 로딩 시작 시 앱 루트에서 입력 포커스를 해제합니다. 자동 포커스가 있는 필사 화면은 로딩 중 재활성화하지 않습니다. Home 입력창과 필사 화면의 표적 UI 테스트가 통과했고 필사 PNG/MP4는 수정 후 다시 촬영했습니다.</td></tr>
+          <tr><th>최종 Figma 판정</th><td>보류. Figma 360×720 흰 단독 화면과 iOS 402×874 Home 위 딤 화면은 전체 프레임 동일 조건 비교가 불가능합니다. 컴포넌트·동작 증거는 <a href="2026-10-03-global-loading-qa.md">QA 기록</a>에 정리했습니다.</td></tr>
+        </tbody>
+      </table>
+    </section>
+  </main>
+</body>
+</html>

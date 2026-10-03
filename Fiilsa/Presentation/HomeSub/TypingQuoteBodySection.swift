@@ -12,6 +12,7 @@ import UIKit
 struct TypingQuoteBodySection: View {
     let quote: String
     @Binding var write: String
+    let isInputEnabled: Bool
 
     @Environment(\.colorScheme) private var colorScheme
     @State private var composingWrite: String?
@@ -30,7 +31,8 @@ struct TypingQuoteBodySection: View {
             TypingQuoteInputView(
                 quote: quote,
                 write: $write,
-                composingWrite: $composingWrite
+                composingWrite: $composingWrite,
+                isInputEnabled: isInputEnabled
             )
             .frame(width: 1, height: 1)
             .clipped()
@@ -95,6 +97,7 @@ private struct TypingQuoteInputView: UIViewRepresentable {
     let quote: String
     @Binding var write: String
     @Binding var composingWrite: String?
+    let isInputEnabled: Bool
 
     func makeUIView(context: Context) -> UITextView {
         let textView = UITextView()
@@ -116,10 +119,13 @@ private struct TypingQuoteInputView: UIViewRepresentable {
     func updateUIView(_ textView: UITextView, context: Context) {
         context.coordinator.parent = self
 
-        DispatchQueue.main.async {
-            if !textView.isFirstResponder {
+        if isInputEnabled {
+            DispatchQueue.main.async {
+                guard context.coordinator.parent.isInputEnabled, !textView.isFirstResponder else { return }
                 textView.becomeFirstResponder()
             }
+        } else {
+            textView.resignFirstResponder()
         }
 
         guard textView.markedTextRange == nil else { return }
@@ -191,7 +197,8 @@ private struct TypingQuoteInputView: UIViewRepresentable {
 
     TypingQuoteBodySection(
         quote: "상황을 가장 잘 활용하는 사람이 가장 좋은 상황을 맞는다.",
-        write: $write
+        write: $write,
+        isInputEnabled: true
     )
     .padding()
 }

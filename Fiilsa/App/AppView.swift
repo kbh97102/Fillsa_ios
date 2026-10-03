@@ -11,18 +11,33 @@ struct AppView: View {
         WithViewStore(store, observe: { $0 }) { viewStore in
             ZStack {
                 content(for: viewStore.screen, viewStore: viewStore)
+                    .allowsHitTesting(!viewStore.isGlobalLoading)
 
                 GeneralPopupView(
                     store: store.scope(state: \.generalPopup, action: \.generalPopup)
                 )
+                .allowsHitTesting(!viewStore.isGlobalLoading)
+
+                if viewStore.isGlobalLoading {
+                    GlobalLoadingOverlay()
+                }
             }
             .preferredColorScheme(viewStore.selectedTheme.colorScheme)
             .task {
-                guard !ProcessInfo.processInfo.arguments.contains("ui-testing-calendar") else { return }
+                guard !ProcessInfo.processInfo.arguments.contains("ui-testing-calendar"),
+                      !ProcessInfo.processInfo.arguments.contains("-ui-testing-global-loading") else { return }
                 await viewStore.send(.task).finish()
+            }
+            .onChange(of: viewStore.isGlobalLoading) { _, isLoading in
+                if isLoading {
+                    UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
+                }
             }
             .onReceive(NotificationCenter.default.publisher(for: UIResponder.keyboardWillShowNotification)) { _ in
                 isKeyboardPresented = true
+                if ProcessInfo.processInfo.arguments.contains("-ui-testing-global-loading-on-keyboard") {
+                    viewStore.send(.loadingCountChanged(1))
+                }
             }
             .onReceive(NotificationCenter.default.publisher(for: UIResponder.keyboardWillHideNotification)) { _ in
                 isKeyboardPresented = false
@@ -59,6 +74,7 @@ struct AppView: View {
         case .typing:
             TypingQuoteView(
                 store: store.scope(state: \.typing, action: \.typing),
+                isInputEnabled: !viewStore.isGlobalLoading,
                 share: { quote, author in
                     viewStore.send(.shareSelected(quote: quote, author: author))
                 }
@@ -170,6 +186,33 @@ struct AppView: View {
             MyPageView(
                 store: store.scope(state: \.myPage, action: \.myPage)
             )
+        }
+    }
+}
+
+private struct GlobalLoadingOverlay: View {
+    @State private var rotation = 0.0
+
+    var body: some View {
+        GeometryReader { geometry in
+            ZStack {
+                Color.black.opacity(0.2)
+
+                Image("global_loading_spinner")
+                    .resizable()
+                    .frame(width: 112, height: 112)
+                    .rotationEffect(.degrees(rotation))
+                    .frame(width: 120, height: 120)
+                    .accessibilityLabel("로딩 중")
+                    .accessibilityIdentifier("globalLoading.spinner")
+            }
+            .frame(width: geometry.size.width, height: geometry.size.height)
+        }
+        .ignoresSafeArea()
+        .onAppear {
+            withAnimation(.linear(duration: 1).repeatForever(autoreverses: false)) {
+                rotation = 360
+            }
         }
     }
 }

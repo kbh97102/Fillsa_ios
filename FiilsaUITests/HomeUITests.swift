@@ -2,6 +2,30 @@ import XCTest
 
 final class HomeUITests: XCTestCase {
     @MainActor
+    func testGlobalLoadingDimsScreenAndBlocksHomeTouches() throws {
+        let app = XCUIApplication()
+        app.launchArguments = ["-ui-testing-home", "-ui-testing-global-loading"]
+        app.launch()
+
+        let spinner = app.images["globalLoading.spinner"]
+        XCTAssertTrue(spinner.waitForExistence(timeout: 2))
+        XCTAssertEqual(spinner.frame.midX, app.frame.midX, accuracy: 1)
+        XCTAssertEqual(spinner.frame.midY, app.frame.midY, accuracy: 1)
+        XCTAssertEqual(
+            rgb(at: CGPoint(x: 10, y: 100), in: app.screenshot().image, appFrame: app.frame),
+            "204,191,163"
+        )
+
+        let quoteCard = app.buttons["home.quoteCard"]
+        XCTAssertTrue(quoteCard.exists)
+        app.coordinate(withNormalizedOffset: .zero)
+            .withOffset(CGVector(dx: quoteCard.frame.midX, dy: quoteCard.frame.midY))
+            .tap()
+        XCTAssertTrue(quoteCard.exists)
+        XCTAssertFalse(app.buttons["저장하기"].exists)
+    }
+
+    @MainActor
     func testQuoteActionsUseFigmaProportionsWithinScreenInsets() throws {
         let app = XCUIApplication()
         app.launchArguments = ["-ui-testing-home"]

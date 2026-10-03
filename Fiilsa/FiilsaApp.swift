@@ -30,6 +30,9 @@ struct FiilsaApp: App {
 
     private var launchState: AppFeature.State {
         let arguments = ProcessInfo.processInfo.arguments
+        if let screenArgument = arguments.first(where: { $0.hasPrefix("-ui-testing-global-loading-screen=") }) {
+            return globalLoadingState(for: String(screenArgument.dropFirst("-ui-testing-global-loading-screen=".count)))
+        }
         var state = AppFeature.State()
 
         if arguments.contains("ui-testing-calendar") {
@@ -99,6 +102,9 @@ struct FiilsaApp: App {
             if arguments.contains("-ui-testing-home-image-modal") {
                 state.home.isImageDialogPresented = true
             }
+            if arguments.contains("-ui-testing-global-loading") {
+                state.activeLoadingCount = 1
+            }
             return state
         }
 
@@ -117,6 +123,63 @@ struct FiilsaApp: App {
             state.quoteList.list = QuoteListSampleData.items
         }
 
+        return state
+    }
+
+    private func globalLoadingState(for screen: String) -> AppFeature.State {
+        var state = AppFeature.State()
+        state.selectedTheme = .light
+        state.activeLoadingCount = 1
+
+        switch screen {
+        case "splash":
+            state.splash.isReady = true
+        case "login":
+            state.screen = .login(isOnboarding: false)
+            state.login = LoginFeature.State(isOnboarding: false)
+        case "onboardingGuide":
+            state.screen = .onboardingGuide
+        case "home":
+            state.screen = .main
+            state.home.date = Self.homeUITestDate
+            state.home.hasLoaded = true
+            state.home.isStreakStateLoaded = true
+        case "quoteList":
+            state.screen = .main
+            state.selectedTab = .quoteList
+            state.quoteList.hasLoaded = true
+            state.quoteList.list = QuoteListSampleData.items
+        case "calendar":
+            state.screen = .main
+            state.selectedTab = .calendar
+            state.calendar.hasLoaded = true
+        case "myPage":
+            state.screen = .main
+            state.selectedTab = .myPage
+        case "typing":
+            state.screen = .typing
+            state.typing.hasLoaded = true
+            state.typing.korQuote = "사랑이라는 선물은 억지로 줄 수 없고 받아들여지기를 기다릴 뿐이다."
+            state.typing.korAuthor = "존 우든"
+        case "share":
+            state.screen = .share(quote: "사랑이라는 선물은 억지로 줄 수 없고 받아들여지기를 기다릴 뿐이다.", author: "존 우든")
+            state.share = ShareFeature.State(quote: "사랑이라는 선물은 억지로 줄 수 없고 받아들여지기를 기다릴 뿐이다.", author: "존 우든")
+        case "quoteDetail":
+            state.screen = .quoteDetail(QuoteListSampleData.items[0])
+        case "memoInsert":
+            state.screen = .memoInsert(savedMemo: "", memberQuoteSeq: 1)
+            state.memoInsert = MemoInsertFeature.State(savedMemo: "", memberQuoteSeq: 1)
+        case "notice":
+            state.screen = .notice
+            state.notice.notices = NoticeSampleData.items
+            state.notice.hasLoaded = true
+        case "noticeDetail":
+            state.screen = .noticeDetail(NoticeSampleData.items[0])
+        case "alert":
+            state.screen = .alert
+        default:
+            break
+        }
         return state
     }
 
@@ -167,7 +230,16 @@ struct FiilsaApp: App {
     }
 
     private var appStore: StoreOf<AppFeature> {
-        if OnboardingGuideUITestLaunchConfiguration.isEnabled {
+        if ProcessInfo.processInfo.arguments.contains(where: { $0.hasPrefix("-ui-testing-global-loading-screen=") }) {
+            Store(initialState: launchState) {
+                AppFeature()
+            } withDependencies: {
+                $0.settingsClient.isAlarmPermissionRequestedBefore = { true }
+                $0.settingsClient.getAlarm = { false }
+                $0.settingsClient.getShareDescriptionVisible = { false }
+                $0.pushRegistrationClient.synchronize = { _ in }
+            }
+        } else if OnboardingGuideUITestLaunchConfiguration.isEnabled {
             OnboardingGuideUITestLaunchConfiguration.makeStore()
         } else if LoginUITestLaunchConfiguration.isEnabled {
             LoginUITestLaunchConfiguration.makeStore()
