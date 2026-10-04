@@ -22,7 +22,7 @@ struct AppFeature {
         var selectedTheme: DarkModeType = .system
         var isHandlingSessionExpiration = false
         var activeLoadingCount = 0
-        var isGlobalLoading: Bool { activeLoadingCount > 0 }
+        var isGlobalLoading: Bool { activeLoadingCount > 0 && screen != .splash }
     }
 
     enum Action: Equatable {

@@ -5,7 +5,9 @@ import XCTest
 @MainActor
 final class AppFeatureTests: XCTestCase {
     func test_loadingCountControlsGlobalVisibility() async {
-        let store = TestStore(initialState: AppFeature.State()) {
+        var state = AppFeature.State()
+        state.screen = .login(isOnboarding: false)
+        let store = TestStore(initialState: state) {
             AppFeature()
         }
         XCTAssertFalse(store.state.isGlobalLoading)
@@ -21,6 +23,18 @@ final class AppFeatureTests: XCTestCase {
             $0.activeLoadingCount = 0
         }
         XCTAssertFalse(store.state.isGlobalLoading)
+    }
+
+    func test_splashHidesGlobalLoadingWithoutDiscardingActiveScope() async {
+        let store = TestStore(initialState: AppFeature.State()) {
+            AppFeature()
+        }
+
+        await store.send(.loadingCountChanged(1)) {
+            $0.activeLoadingCount = 1
+        }
+        XCTAssertFalse(store.state.isGlobalLoading)
+        XCTAssertEqual(store.state.activeLoadingCount, 1)
     }
 
     func test_startupSubscribesToCurrentLoadingCountWithoutRegisteringScope() async {

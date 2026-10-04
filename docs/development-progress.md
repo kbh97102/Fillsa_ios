@@ -13,6 +13,7 @@ Current status:
 - Android-matching local/session use cases are in place.
 - TCA dependency clients are in place for local quote, session, settings, streak, hidden popup, and common APIs.
 - The app now starts from a TCA-backed splash route.
+- The shared global loading spinner is excluded from the splash route; the other 13 routable display states retain it when loading is active (2026-10-03).
 
 ## Phase Checklist
 

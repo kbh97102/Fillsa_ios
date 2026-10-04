@@ -1,5 +1,7 @@
 # 전역 로딩 스피너 Figma UI QA
 
+> 아래 14개 화면 기록은 2026-10-03 최초 적용 당시의 증거다. 이후 사용자 요청에 따라 Splash는 전역 스피너 적용 범위에서 제외되었다. 현재 범위와 검증 결과는 [Splash 제외 QA](2026-10-03-global-loading-splash-exclusion-qa.md)를 참고한다.
+
 ## Reference
 
 - Figma URL: https://www.figma.com/design/VdFocqyqTgevMVCQxwAQ2X/%25E2%259C%2592%25EF%25B8%258F%25ED%2595%2584%25EC%2582%25AC?node-id=2929-5969&t=rysafF9DyBGoWDL9-11

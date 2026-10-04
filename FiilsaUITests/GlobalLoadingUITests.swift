@@ -40,9 +40,21 @@ final class GlobalLoadingUITests: XCTestCase {
     }
 
     @MainActor
-    func testSpinnerCoversEveryRoutableScreen() throws {
+    func testSplashDoesNotShowGlobalSpinnerWhileLoadingScopeIsActive() throws {
+        let app = XCUIApplication()
+        app.launchArguments = [
+            "-ui-testing-global-loading",
+            "-ui-testing-global-loading-screen=splash"
+        ]
+        app.launch()
+
+        XCTAssertTrue(app.staticTexts["나만의 필사로 채우다,"].waitForExistence(timeout: 3))
+        XCTAssertFalse(app.images["globalLoading.spinner"].exists)
+    }
+
+    @MainActor
+    func testSpinnerCoversRoutableScreensExceptSplash() throws {
         let routes: [(name: String, marker: String)] = [
-            ("splash", "나만의 필사로 채우다,"),
             ("login", "login.kakao"),
             ("onboardingGuide", "건너뛰기"),
             ("home", "home.quoteCard"),
