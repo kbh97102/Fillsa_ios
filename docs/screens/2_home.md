@@ -16,6 +16,7 @@
 - Dark root 상세 명세: `docs/screens/2_home_dark.md` (root `2929:9603`, 상태별 render node와 기준 이미지)
 - 2026-10-07 QA 조사: [답변 저장](2_home_qa_2026-10-07_answer.md), [이미지 크기 제한](2_home_qa_2026-10-07_image_size.md), [이미지 팝업 크기](2_home_qa_2026-10-07_image_popup.md), [공통 응답 지연](common_qa_2026-10-07_latency.md)
 - 이미지 업로드 바이트 처리 QA: [2026-10-07 Home image size](../design-qa/2026-10-07-ios-home-image-size-qa.md). Figma 이미지 흐름 `3223:5107`, 보기 팝업 `3223:4773`; 표시 상태와 컴포넌트는 위 Home 이미지 흐름 그대로다. 이번 변경은 사진 선택 후 업로드 전 바이트 변환과 임시 파일 수명에 한정된다.
+- 2026-10-07 이미지 팝업 수정 QA: [Figma 대조 기록](../design-qa/2026-10-07-home-image-popup-qa.md)
 - API 계약 갱신 메모: 아래의 “답변 서버 계약 없음/세션 기록” 설명은 해당 UI 구현 당시 범위다. 2026-09-03 운영 배포된 [v2 답변·주간 조회 계약](../superpowers/specs/2026-09-08-home-calendar-api-contract.md)이 현재 존재하며, iOS 연동은 위 QA 문서의 미완료 작업이다.
 
 ### 2026-10-07 답변 저장 대상
@@ -163,6 +164,10 @@
 ## 이미지 팝업 `2-2.img_check/upload`
 
 - 이미지 상세 화면 노출, 배경 딤 처리
+- Figma 기준: [전체 Home 이미지 보기 `3223:4773`](https://www.figma.com/design/VdFocqyqTgevMVCQxwAQ2X/2.home?node-id=3223-4773), 팝업 `3223:4966` (`notice_popup`). Light 360×821 전체 프레임, 중앙 팝업 320×373. 기준 이미지 `docs/design-qa/assets/home-responsive-layout/2026-09-27/figma-home-image-dialog.png` (전체 프레임) 및 2026-10-07 Figma MCP screenshot. 루트 배경, 상태바, safe area, 하단 navigation/home indicator를 포함한다.
+- 대상 상태: 이미지 등록 후 보기. 가로/세로 사진 모두 같은 팝업 외곽과 중심을 유지하고 사진만 팝업 경계 안에서 `fill` crop한다. 다크 상태는 별도 디자인 `docs/screens/2_home_dark.md` 참조.
+- 컴포넌트 분해 및 조립: `3223:4967` 사진 배경은 `HomeImageDialog`의 320×373 컨테이너 안에 배치한다. `3223:7071` 삭제 영역, `3223:4974` 명언/작가, `3223:4968` 하단 버튼 행을 같은 컨테이너 위에 조립한다. 전체 조립 화면은 `3223:4773`이다.
+- 검증 상태: 가로/세로 이미지 팝업 외곽 고정과 crop은 iPhone 17e iOS 26.4 UI 테스트 및 전체 화면 캡처로 부분 통과. Figma 360×821과 런타임 390×844 불일치, 테스트 사진과 Figma 사진 차이 때문에 전체 조립 화면 최종 수용은 `Blocked`. [2026-10-07 QA 기록](../design-qa/2026-10-07-home-image-popup-qa.md)에 컴포넌트 및 전체 화면 증거를 기록한다.
 
 | 버튼 | 동작 |
 |------|------|

@@ -4,11 +4,11 @@
 - 화면 계획: [Home 이미지 팝업](2_home.md#이미지-팝업-2-2img_checkupload)
 - Figma: [이미지 보기 `3223:4773`](https://www.figma.com/design/VdFocqyqTgevMVCQxwAQ2X/2.home?node-id=3223-4773), 팝업 `3223:4966` (화면 계획의 320:373 비율), 이미지 흐름 `3223:5107`
 - 기준 자료: `docs/design-qa/assets/home-figma-2929-17193/2026-09-07/fillsa-home-image-flow.png`; 과거 기본 배경 런타임 캡처 `runtime-ios-image-modal-light.png`
-- 판단 범위: 이미지 종류별 현재 빌드 팝업 프레임은 아직 측정하지 않았다. 아래 레이아웃 원인은 가설이다.
+- 판단 범위: 2026-10-07 이미지가 있는 상태를 별도 iPhone 17e iOS 26.4 시뮬레이터에서 재현했다. 가로 640×80 이미지는 팝업 접근성 프레임을 5624×703pt, 세로 80×640 이미지는 350×2800pt로 확대했다. 레이아웃 경계가 없는 `scaledToFill` 이미지가 원인이었다. [수정 및 Figma QA 기록](../design-qa/2026-10-07-home-image-popup-qa.md).
 
 ## 코드에서 확인한 점
 
-`HomeImageDialog`는 바깥 `ZStack` 안의 팝업에 `.aspectRatio(320/373, contentMode: .fit)`만 적용한다 (`Fiilsa/Presentation/HomeSub/HomeImageDialog.swift:19-25,90-96`). 이미지 성공 상태는 `AsyncImage`를 `.resizable().scaledToFill()`로 그리며, 팝업 배경의 고정 프레임이나 별도 clipping은 없다 (`:99-113`). **가설:** 실제 이미지가 들어올 때 배경 뷰의 제안 크기/내용 크기가 바깥 레이아웃에 영향을 주어, 기본 그라데이션과 다른 팝업 프레임이 계산될 수 있다. 기존 UI 테스트는 기본 이미지 팝업의 비율만 검사하며 업로드 이미지별 크기는 검사하지 않는다 (`FiilsaUITests/HomeUITests.swift:47-57`). 따라서 현재 원인을 확정하려면 재현 측정이 필요하다.
+수정 전 `HomeImageDialog`는 바깥 `ZStack` 안의 팝업에 `.aspectRatio(320/373, contentMode: .fit)`만 적용했다. 이미지 성공 상태의 `AsyncImage.resizable().scaledToFill()`은 별도 프레임과 clipping 없이 자식 크기 계산에 참여해, 넓거나 긴 원본 사진에서 팝업과 버튼 위치를 밀었다. 기본 그라데이션만 검사하는 기존 UI 테스트는 이를 발견하지 못했다. 이제 `GeometryReader`에서 부모 폭 기준 팝업 외곽을 먼저 계산하고, 이미지에 같은 프레임과 clipping을 적용한다.
 
 ## 해결 방안
 

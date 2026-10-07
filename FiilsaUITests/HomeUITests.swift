@@ -57,6 +57,44 @@ final class HomeUITests: XCTestCase {
     }
 
     @MainActor
+    func testImageDialogKeepsFrameForWideAndTallImages() throws {
+        let app = XCUIApplication()
+        var defaultFrame: CGRect?
+        var defaultConfirmFrame: CGRect?
+        for fixture in [nil, "-ui-testing-home-image-wide", "-ui-testing-home-image-tall"] {
+            app.launchArguments = ["-ui-testing-home", "-ui-testing-home-image-modal"] + (fixture.map { [$0] } ?? [])
+            app.launch()
+            let dialog = app.otherElements["home.imageDialog"]
+            XCTAssertTrue(dialog.waitForExistence(timeout: 3))
+            let frame = dialog.frame
+            let confirmFrame = app.buttons["확인"].frame
+            if let defaultFrame, let defaultConfirmFrame {
+                XCTAssertEqual(confirmFrame.minX, defaultConfirmFrame.minX, accuracy: 1)
+                XCTAssertEqual(confirmFrame.minY, defaultConfirmFrame.minY, accuracy: 1)
+                XCTAssertEqual(confirmFrame.width, defaultConfirmFrame.width, accuracy: 1)
+                XCTAssertEqual(confirmFrame.height, defaultConfirmFrame.height, accuracy: 1)
+                XCTAssertTrue(app.buttons["삭제하기"].exists)
+                let screenshot = app.screenshot().image
+                XCTAssertEqual(
+                    rgb(at: CGPoint(x: defaultFrame.midX, y: defaultFrame.minY + 80), in: screenshot, appFrame: app.frame),
+                    "255,0,0"
+                )
+                XCTAssertNotEqual(
+                    rgb(at: CGPoint(x: defaultFrame.minX - 5, y: defaultFrame.midY), in: screenshot, appFrame: app.frame),
+                    "255,0,0"
+                )
+            } else {
+                XCTAssertEqual(frame.width, app.frame.width - 40, accuracy: 1)
+                XCTAssertEqual(frame.width / frame.height, 320.0 / 373.0, accuracy: 0.02)
+                XCTAssertEqual(frame.midX, app.frame.midX, accuracy: 1)
+                defaultFrame = frame
+                defaultConfirmFrame = confirmFrame
+            }
+            app.terminate()
+        }
+    }
+
+    @MainActor
     func testCalendarPopupIsAnchoredToMonthButton() throws {
         let app = XCUIApplication()
         app.launchArguments = ["-ui-testing-home", "-ui-testing-home-calendar-open"]

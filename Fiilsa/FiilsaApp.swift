@@ -57,6 +57,12 @@ struct FiilsaApp: App {
         }
 
         if arguments.contains("-ui-testing-home") {
+            let imageFixture = arguments.contains("-ui-testing-home-image-wide") ? "home-dialog-wide" :
+                arguments.contains("-ui-testing-home-image-tall") ? "home-dialog-tall" : nil
+            let imagePath = imageFixture.flatMap {
+                Bundle.main.url(forResource: $0, withExtension: "png", subdirectory: "UITestFixtures") ??
+                    Bundle.main.url(forResource: $0, withExtension: "png")
+            }?.absoluteString ?? ""
             let homeQuote = arguments.contains("-ui-testing-home-long-quote")
                 ? "사랑은 상대를 바꾸려는 마음이 아니라 서로 다른 시간을 이해하고 기다리며, 늦게 도착한 진심까지도 다치지 않게 받아들이는 오래된 연습이다. 그 연습은 오늘의 작은 친절에서 다시 시작된다."
                 : "사랑이라는 선물은 억지로 줄 수 없고 받아들여지기를 기다릴 뿐이다."
@@ -66,7 +72,7 @@ struct FiilsaApp: App {
             state.home = HomeFeature.State(
                 quote: DailyQuote(
                     likeYn: "N",
-                    imagePath: "",
+                    imagePath: imagePath,
                     dailyQuoteSeq: 1,
                     korQuote: homeQuote,
                     engQuote: "Love is a gift that waits to be received.",
