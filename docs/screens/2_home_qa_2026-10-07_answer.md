@@ -32,3 +32,10 @@ Home의 `내 답변 기록하기`는 성공 토스트를 띄우지만 앱 재실
 - 실패 응답에서는 성공 상태가 되지 않으며 입력 내용이 남는다. 200자/공백 입력/미래 날짜 서버 검증을 확인한다.
 - Calendar 기록 버튼도 서버 요청을 보내고 저장·수정 결과를 월간 상세에 반영한다.
 - 토스트 및 두 화면 질문 컴포넌트와 전체 화면을 대상 Figma와 비교해 QA 기록에 남긴다.
+
+## 구현 및 검증 기록 (2026-10-07)
+
+- 회원 Home은 v2 일간 응답의 날짜별 질문·기존 답변을 읽는다. `내 답변 기록하기`/수정은 `POST /api/v2/member-quotes/{dailyQuoteSeq}/answer` 성공 응답을 받은 뒤에만 완료 상태와 토스트를 바꾼다. 실패하면 작성 중인 입력을 보존한다.
+- Home 질문 카드에는 서버 `questionKo`를 전달한다. Figma 성공 토스트 `3110:34293`의 좌우 20pt 여백, 50pt 높이, 24pt 아이콘을 맞췄고 저장 완료 시 키보드 포커스를 해제한다.
+- `HomeFeatureTests`는 성공 응답 전/후 상태, 실패 시 입력 유지, v2 일간 응답의 질문·답변 디코딩을 검증했다. 전체 `FiilsaTests` 대상은 iPhone 17 Pro iOS 26.5에서 통과했다. 기존 `HomeUITests.testAnswerRecordButtonRemainsVisibleAboveKeyboard`는 변경 전 실패를 확인한 뒤 저장 응답 fixture와 포커스 수정 후 통과했다.
+- [Home UI 캡처·영상·Figma QA 기록](../design-qa/2026-10-07-ios-home-calendar-answer-qa.md). 영상은 서버 왕복이 아닌 저장 완료 UI fixture다. 실제 회원 API 연동, Calendar 왕복, Figma와 같은 360×821pt 전체 화면 비교는 별도 검증 상태로 관리한다.
