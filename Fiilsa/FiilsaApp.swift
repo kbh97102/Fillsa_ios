@@ -249,6 +249,14 @@ struct FiilsaApp: App {
             NoticeDetailUITestLaunchConfiguration.makeStore()
         } else if MemoUITestLaunchConfiguration.isEnabled {
             MemoUITestLaunchConfiguration.makeStore()
+        } else if ProcessInfo.processInfo.arguments.contains("-ui-testing-home-image-size-upload") {
+            Store(initialState: launchState) {
+                AppFeature()
+            } withDependencies: {
+                $0.homeUseCases.postUploadImage = { fileURL, dailyQuoteSeq in
+                    try HomeImageSizeFixture.acceptUpload(fileURL: fileURL, dailyQuoteSeq: dailyQuoteSeq)
+                }
+            }
         } else {
             Store(initialState: launchState) {
                 AppFeature()
