@@ -498,6 +498,9 @@ struct HomeQuestionAnswerCard: View {
             .accessibilityLabel(isEditing ? "내 답변 기록하기" : "내 답변 수정하기")
             .accessibilityHint(isEditing ? "입력한 답변을 현재 홈 화면에 기록합니다." : "기록한 답변을 수정합니다.")
         }
+        .onChange(of: isEditing) { _, editing in
+            if !editing { isAnswerFocused = false }
+        }
     }
 
     private var limitedAnswer: Binding<String> {

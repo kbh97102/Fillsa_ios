@@ -15,7 +15,7 @@
 | Component | Figma node | Target state | Final result |
 |---|---|---|---|
 | Home question card | `3110:33783`, `3110:34152`, `3110:34438` | empty, editing, saved | Saved fixture captured; full-frame geometry blocked by viewport mismatch |
-| Home success toast | `3110:34293` | server-confirmed save | 20pt left inset corrected and captured; full-frame geometry blocked by viewport mismatch |
+| Home success toast | `3110:34293` | server-confirmed save | Figma 20pt side insets, 50pt height, 24pt icon matched at runtime; full-frame geometry blocked by viewport mismatch |
 | Calendar completed question card | `2987:22796`, `3051:899` | empty, editing, saved | Pending |
 
 ## Validation rounds
@@ -30,7 +30,13 @@
 
 | Scope | Difference | Fix | Result |
 |---|---|---|---|
-| Home toast and saved card | Runtime fixture screenshot and video show x=20pt toast and saved card; viewport still differs from Figma | No further UI decision without same-size frame | Partial component verification; assembled Home Blocked |
+| Home toast and saved card | After the inset fix, the success toast still used its text's intrinsic width, while Figma `3110:34427` spans 320pt within the 360pt frame | Expanded the success card to the available width, set 50pt height and 24pt icon; retained other toast style | Component width/height corrected; assembled Home still has unequal viewport dimensions |
+
+### Round 3
+
+| Scope | Difference | Fix | Result |
+|---|---|---|---|
+| Saved answer interaction | Existing UI test showed that the keyboard stayed visible after server-confirmed save | Cleared `HomeQuestionAnswerCard` focus when editing ends; injected a deterministic server response in the Home UI fixture | Focused UI test passes; full-frame saved fixture image/video recaptured. Strict 360×821pt assembled comparison remains blocked by 402×874pt runtime |
 
 ## Final assembled-screen result
 

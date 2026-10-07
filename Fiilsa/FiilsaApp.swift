@@ -249,6 +249,18 @@ struct FiilsaApp: App {
             NoticeDetailUITestLaunchConfiguration.makeStore()
         } else if MemoUITestLaunchConfiguration.isEnabled {
             MemoUITestLaunchConfiguration.makeStore()
+        } else if ProcessInfo.processInfo.arguments.contains("-ui-testing-home") {
+            Store(initialState: launchState) {
+                AppFeature()
+            } withDependencies: {
+                $0.homeUseCases.saveAnswer = { answer, dailyQuoteSeq in
+                    AnswerResponse(
+                        memberQuoteSeq: dailyQuoteSeq,
+                        answer: answer,
+                        answeredAt: "2026-10-07T12:00:00"
+                    )
+                }
+            }
         } else {
             Store(initialState: launchState) {
                 AppFeature()

@@ -162,17 +162,19 @@ struct HomeView: View {
             HStack(spacing: 8) {
                 if presentation == .success {
                     Image(systemName: "checkmark.circle.fill")
-                        .font(.system(size: 16, weight: .semibold))
+                        .font(.system(size: 20, weight: .semibold))
                         .foregroundStyle(FillsaColor.onToastMessage2)
+                        .frame(width: 24, height: 24)
                 }
                 Text(message)
                     .font(FillsaTypography.body2)
                     .foregroundStyle(FillsaColor.onToastMessage1)
             }
-            .padding(.horizontal, 16)
-            .frame(height: 36)
+            .padding(.horizontal, presentation == .success ? 12 : 16)
+            .frame(maxWidth: presentation == .success ? .infinity : nil, alignment: .leading)
+            .frame(height: presentation == .success ? 50 : 36)
             .background(FillsaColor.toastMessageBackground, in: RoundedRectangle(cornerRadius: 8))
-            .padding(.leading, 20)
+            .padding(.horizontal, presentation == .success ? 20 : 0)
             .padding(.bottom, 28)
         }
     }
