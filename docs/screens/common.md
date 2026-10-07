@@ -8,6 +8,7 @@
 - 설계: [전역 로딩 scope 계약](../superpowers/specs/2026-09-29-global-loading-scopes.md)
 - 구현 계획: [Global Loading Scopes](../superpowers/plans/2026-09-29-global-loading-scopes.md)
 - 검증 실패 및 재검증: [전역 로딩 실패 기록](../verification/2026-09-29-global-loading-failures.md)
+- 2026-10-07 QA 조사: [공통 응답 지연](common_qa_2026-10-07_latency.md)
 - 로딩 카운트가 1 이상일 때 스플래시를 제외한 앱 화면 위에 로딩 오버레이를 표시한다. 종료 시 제거한다.
 
 ### Figma UI 기준

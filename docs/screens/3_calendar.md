@@ -18,6 +18,7 @@
   - `docs/design-qa/assets/calendar-figma/2026-09-20/calendar-no-handwriting-3039-24906-reference.png`
   - `docs/design-qa/assets/calendar-figma/2026-09-20/calendar-handwriting-3051-899-reference.png`
 - QA 기록: `docs/design-qa/2026-09-20-calendar-renewal-dark-qa.md`
+- 2026-10-07 QA 조사: [완료 카드 명언 작업](3_calendar_qa_2026-10-07_actions.md), [질문 답변 저장](2_home_qa_2026-10-07_answer.md), [공통 응답 지연](common_qa_2026-10-07_latency.md)
 
 ### 컴포넌트 분해
 
