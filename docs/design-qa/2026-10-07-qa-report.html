@@ -54,7 +54,7 @@
           <tr><td><a href="#answer">질문 답변 저장</a></td><td>Home 메모리 기록, Calendar 빈 콜백</td><td>두 화면 저장 경로 연결</td><td>회원 API 실연동, Figma 전체 화면</td></tr>
           <tr><td><a href="#image-size">이미지 2MB 제한</a></td><td>원본을 JPEG로 표시해 그대로 업로드</td><td>압축·용량 검사 완료</td><td>회원 업로드 서버 왕복</td></tr>
           <tr><td><a href="#image-popup">이미지 팝업 크기</a></td><td>원본 이미지가 팝업 레이아웃을 확장</td><td>고정 경계·클리핑 완료</td><td>동일 viewport Figma 대조</td></tr>
-          <tr><td><a href="#calendar-actions">캘린더 명언 기능</a></td><td>버튼·액션 연결이 없음</td><td>진행 중</td><td>기능별 서버 왕복</td></tr>
+          <tr><td><a href="#calendar-actions">캘린더 명언 기능</a></td><td>버튼·액션 연결이 없음</td><td>네 가지 동작 연결 완료</td><td>좋아요·이미지 서버 왕복, Figma 전체 화면</td></tr>
           <tr><td><a href="#latency">응답 지연</a></td><td>날짜마다 일간 조회 반복, 전체 구간 계측 부재</td><td>요청 계측·주간 캐시 완료</td><td>QA 환경 실측·서버 처리 시간</td></tr>
         </tbody>
       </table>
@@ -116,16 +116,19 @@
 
     <article class="issue" id="calendar-actions">
       <h2>4. 캘린더 명언 작업</h2>
-      <div class="meta"><span class="tag limited">codex/qa-calendar-actions · 진행 중</span></div>
+      <div class="meta"><span class="tag">codex/qa-calendar-actions</span><span class="tag limited">서버·전체 화면 검증 보류</span></div>
       <div class="grid">
         <dl>
           <dt>원인</dt><dd>완료 카드의 복사·공유·좋아요·이미지 등록 행이 <code>HStack</code> 표시만 하고 버튼과 reducer 액션을 갖지 않았습니다.</dd>
-          <dt>해결</dt><dd>선택 날짜의 명언을 대상으로 각 동작과 기존 use case·공유 경로·이미지 팝업을 연결하는 중입니다.</dd>
-          <dt>검증</dt><dd>구현 및 테스트 진행 중입니다.</dd>
+          <dt>해결</dt><dd>선택한 완료 날짜의 명언을 대상으로 복사·공유·좋아요·이미지 버튼을 연결했습니다. 좋아요·이미지는 기존 Home use case를 사용하고 이미지 보기 팝업을 재사용합니다. 비동기 요청 중 날짜가 바뀌어도 최초 선택한 명언의 식별자를 유지합니다.</dd>
+          <dt>검증</dt><dd>분리된 시뮬레이터의 Calendar UI 테스트 6개와 전체 단위 테스트 62개 통과. 복사 결과는 시뮬레이터 클립보드로 확인했습니다. 영상은 완료 날짜 fixture의 액션 행을 보여주며 라이브 API 왕복은 포함하지 않습니다. 전체 화면 Figma 승인은 크기·기존 날짜 그리드 차이로 보류했습니다.</dd>
         </dl>
-        <div class="pending-video">동작 시연 영상 준비 중입니다.</div>
+        <figure>
+          <video controls playsinline preload="metadata" poster="assets/calendar-actions/2026-10-07/calendar-actions-light.png"><source src="assets/calendar-actions/2026-10-07/calendar-actions-completed-light.mp4" type="video/mp4">영상 재생을 지원하지 않는 브라우저입니다.</video>
+          <figcaption>iPhone 17e · 완료 날짜 Light fixture · 액션 행 표시 · 5초. 버튼 탭과 서버 응답 장면은 QA 기록의 UI 테스트 결과로 확인</figcaption>
+        </figure>
       </div>
-      <div class="links"><a href="../screens/3_calendar_qa_2026-10-07_actions.md">원인·해결 문서</a></div>
+      <div class="links"><a href="../screens/3_calendar_qa_2026-10-07_actions.md">원인·해결 문서</a><a href="2026-10-07-calendar-actions-qa.md">Figma QA 기록</a></div>
     </article>
 
     <article class="issue" id="latency">

@@ -269,6 +269,7 @@ struct CalendarFeatureTests {
             $0.memberQuotes = response.memberQuotes
             $0.monthlySummary = response.monthlySummary
             $0.displayStreakCount = 7
+            $0.isLoggedIn = true
             $0.isLoading = false
         }
         await task.finish()
@@ -328,6 +329,7 @@ struct CalendarFeatureTests {
             $0.memberQuotes = response.memberQuotes
             $0.monthlySummary = response.monthlySummary
             $0.displayStreakCount = response.monthlySummary.streakCount
+            $0.isLoggedIn = true
             $0.isLoading = false
         }
         await task.finish()
