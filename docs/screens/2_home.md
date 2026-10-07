@@ -14,6 +14,7 @@
 - 반응형 레이아웃 QA: `docs/design-qa/2026-09-25-ios-home-responsive-layout-qa.md`
 - Dark root 상세 명세: `docs/screens/2_home_dark.md` (root `2929:9603`, 상태별 render node와 기준 이미지)
 - 2026-10-07 QA 조사: [답변 저장](2_home_qa_2026-10-07_answer.md), [이미지 크기 제한](2_home_qa_2026-10-07_image_size.md), [이미지 팝업 크기](2_home_qa_2026-10-07_image_popup.md), [공통 응답 지연](common_qa_2026-10-07_latency.md)
+- 이미지 업로드 바이트 처리 QA: [2026-10-07 Home image size](../design-qa/2026-10-07-ios-home-image-size-qa.md). Figma 이미지 흐름 `3223:5107`, 보기 팝업 `3223:4773`; 표시 상태와 컴포넌트는 위 Home 이미지 흐름 그대로다. 이번 변경은 사진 선택 후 업로드 전 바이트 변환과 임시 파일 수명에 한정된다.
 - API 계약 갱신 메모: 아래의 “답변 서버 계약 없음/세션 기록” 설명은 해당 UI 구현 당시 범위다. 2026-09-03 운영 배포된 [v2 답변·주간 조회 계약](../superpowers/specs/2026-09-08-home-calendar-api-contract.md)이 현재 존재하며, iOS 연동은 위 QA 문서의 미완료 작업이다.
 
 ### 2026-09-07 Home 상호작용 구현 계약

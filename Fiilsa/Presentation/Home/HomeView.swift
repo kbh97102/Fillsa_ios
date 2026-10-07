@@ -142,7 +142,14 @@ struct HomeView: View {
             .alert("이미지를 삭제하시겠습니까?", isPresented: Binding(get: { viewStore.isDeleteImageConfirmationPresented }, set: { if !$0 { viewStore.send(.deleteImageCancelled) } })) { Button("삭제하기", role: .destructive) { viewStore.send(.deleteImageConfirmed) }; Button("취소", role: .cancel) {} } message: { Text("삭제 후 이미지를 되돌릴 수 없습니다.") }
             .onChange(of: selectedPhotoItem) { _, item in
                 guard let item else { return }
-                Task { guard let fileURL = await makeTemporaryImageFile(from: item) else { return }; await viewStore.send(.imagePicked(fileURL)).finish(); selectedPhotoItem = nil }
+                Task {
+                    defer { selectedPhotoItem = nil }
+                    guard let fileURL = await makeTemporaryImageFile(from: item) else {
+                        await viewStore.send(.imageUploaded(.failure(.defaultError))).finish()
+                        return
+                    }
+                    await viewStore.send(.imagePicked(fileURL)).finish()
+                }
             }
         }
     }
@@ -152,8 +159,13 @@ struct HomeView: View {
     private func copyText(from data: DailyQuote) -> String { "\(quote(from: data)) - \(author(from: data))" }
     private func makeTemporaryImageFile(from item: PhotosPickerItem) async -> URL? {
         guard let data = try? await item.loadTransferable(type: Data.self) else { return nil }
-        let url = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString).appendingPathExtension("jpg")
-        do { try data.write(to: url, options: .atomic); return url } catch { return nil }
+        return await Task.detached(priority: .userInitiated) {
+            guard let jpeg = HomeUploadImagePreparer.prepare(data) else { return nil }
+            let url = FileManager.default.temporaryDirectory
+                .appendingPathComponent(UUID().uuidString)
+                .appendingPathExtension("jpg")
+            do { try jpeg.write(to: url, options: .atomic); return url } catch { return nil }
+        }.value
     }
     private func toast(_ message: String, presentation: HomeToastPresentation) -> some View {
         VStack {
