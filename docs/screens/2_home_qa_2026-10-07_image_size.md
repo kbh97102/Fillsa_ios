@@ -4,6 +4,8 @@
 - 화면 계획: [Home 이미지 팝업](2_home.md#이미지-팝업-2-2img_checkupload)
 - Figma: [이미지 흐름 `3223:5107`](https://www.figma.com/design/VdFocqyqTgevMVCQxwAQ2X/2.home?node-id=3223-5107), 이미지 팝업 `3223:4773`
 - 판단 범위: iOS 업로드 전 크기 검사·압축 부재는 코드로 확인. 실제 서버의 2MB 경계 응답은 미측정.
+- 구현 계약 가정: QA 원문은 `2MB`라고만 하며 2,000,000/2,097,152바이트 경계와 허용 포맷을 정의하지 않는다. 기존 iOS multipart 계약이 `image/jpeg`이므로 JPEG로 변환하고 더 엄격한 2,000,000바이트 이하를 적용한다. 서버 실측 또는 명세가 나오면 경계와 포맷을 재확인한다.
+- 검증 기록: [Home image size QA](../design-qa/2026-10-07-ios-home-image-size-qa.md)
 
 ## 원인
 
