@@ -39,7 +39,7 @@
 
 ## Behavior and tests
 
-- Separate iPhone 17e iOS 26.4 simulator: `CalendarFeatureTests` 9/9 and `CalendarUITests` 6/6; `xcodebuild` reported `TEST SUCCEEDED`. Persistent summary: `assets/calendar-actions/2026-10-07/calendar-actions-tests.txt`; full local bundle: `.artifacts/calendar-actions-verified.xcresult`.
+- Separate iPhone 17e iOS 26.4 simulator: `CalendarFeatureTests` 9/9, `CalendarUITests` 6/6, and the full `FiilsaTests` unit run 62/62; both `xcodebuild` runs reported `TEST SUCCEEDED`. Persistent summaries: `assets/calendar-actions/2026-10-07/calendar-actions-tests.txt` and `assets/calendar-actions/2026-10-07/calendar-actions-all-unit-tests.txt`; full local bundles: `.artifacts/calendar-actions-verified.xcresult` and `.artifacts/calendar-actions-all-unit.xcresult`.
 - The like reducer test switches selected day during the request, then verifies the original quote sequence/date, the refreshed count of 2, and heart marker on the originally tapped day. The image test checks its fixed upload target and temporary JPEG deletion.
 - Reading the clipboard directly from the XCTest runner invoked the iOS cross-app paste permission sheet. The final UI suite taps Copy without reading from the runner; a separate `xcrun simctl pbpaste` returned the selected quote and author string (`영광은 먼지와 땀과 피로 얼굴이 얼룩진 채 경기장에 서 있는 사람의 것이다. - `), confirming the pasteboard effect on the fixture simulator.
 - Live authentication, like API, image upload/delete API and photo picker were not exercised against a server. The dialog UI fixture uses a local signed-in response.
