@@ -20,6 +20,15 @@
 - QA 기록: `docs/design-qa/2026-09-20-calendar-renewal-dark-qa.md`
 - 2026-10-07 답변 저장 QA: `docs/design-qa/2026-10-07-ios-home-calendar-answer-qa.md`
 - 2026-10-07 QA 조사: [완료 카드 명언 작업](3_calendar_qa_2026-10-07_actions.md), [질문 답변 저장](2_home_qa_2026-10-07_answer.md), [공통 응답 지연](common_qa_2026-10-07_latency.md)
+- 2026-10-07 완료 카드 액션 구현 QA: [Figma 대조 기록](../design-qa/2026-10-07-calendar-actions-qa.md)
+
+### 2026-10-07 완료 카드 명언 액션 대상
+
+- Figma URL/전체 프레임: [Light `2987:22796`](https://www.figma.com/design/VdFocqyqTgevMVCQxwAQ2X?node-id=2987-22796) 360×1101pt, [Dark `3051:899`](https://www.figma.com/design/VdFocqyqTgevMVCQxwAQ2X?node-id=3051-899) 360×1101pt. 상태바, 배경, safe area, 하단 탐색/indicator 포함 기준 이미지는 위 `calendar-figma` 경로다.
+- 액션 컴포넌트: 완료 날짜 카드 Light `2987:22949`–`2987:22975` (해당 하위 ID는 2026-10-07 Figma MCP에서 직접 조회되지 않아 전체 프레임 이미지로 확인), Dark `3051:1049`–`3051:1074`. `CalendarSelectedDaySection` 아래 `CalendarSelectedQuoteSection`의 복사/공유/좋아요/이미지 행이 담당한다.
+- 표시 데이터: 선택 날짜의 `dailyQuoteSeq`, 명언/저자, 좋아요 상태, 이미지 경로. 날짜를 전환해도 각 액션은 현재 선택한 완료 레코드만 대상으로 한다.
+- 대상 상태와 동작: Light/Dark 완료 날짜, 좋아요 비선택/선택, 이미지 미등록/등록 후 보기/변경/삭제. 복사는 선택 명언, 공유는 기존 공유 화면, 좋아요와 이미지는 기존 Home use case 계약을 사용한다. 미완료 날짜의 기존 Home 이동은 유지한다.
+- 검증 상태: 네 액션 연결과 단위/UI 테스트 통과. 390×844pt 런타임과 360×1101pt Figma 전체 프레임이 달라 최종 화면 시각 수용은 `Blocked`; 컴포넌트와 조립 화면의 부분 비교·남은 차이는 [QA 기록](../design-qa/2026-10-07-calendar-actions-qa.md)에 남긴다.
 
 ### 2026-10-07 완료 카드 답변 저장 대상
 

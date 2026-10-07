@@ -28,6 +28,30 @@ final class CalendarUITests: XCTestCase {
     }
 
     @MainActor
+    func testCompletedQuoteActionsAreTappableForTheSelectedDay() throws {
+        let app = launchCalendar(theme: "light", state: "completed")
+        XCTAssertTrue(app.descendants(matching: .any)["calendarMonthCard"].waitForExistence(timeout: 3))
+
+        for identifier in ["calendar.copy", "calendar.share", "calendar.like", "calendar.image"] {
+            XCTAssertTrue(app.buttons[identifier].exists, "Missing action button: \(identifier)")
+        }
+
+        app.buttons["calendar.copy"].tap()
+        app.buttons["calendar.share"].tap()
+        XCTAssertTrue(app.staticTexts["배경을 선택해주세요."].waitForExistence(timeout: 3))
+        XCTAssertTrue(app.staticTexts["영광은 먼지와 땀과 피로 얼굴이 얼룩진 채 경기장에 서 있는 사람의 것이다."].exists)
+    }
+
+    @MainActor
+    func testCompletedCalendarImageActionOpensTheExistingDialog() throws {
+        let app = launchCalendar(theme: "dark", state: "completed")
+        let image = app.buttons["calendar.image"]
+        XCTAssertTrue(image.waitForExistence(timeout: 3))
+        image.tap()
+        XCTAssertTrue(app.otherElements["home.imageDialog"].waitForExistence(timeout: 3))
+    }
+
+    @MainActor
     func testLightCalendarCompletedActionLabelUsesFigmaColor() throws {
         assertCompletedActionLabelColor(
             theme: "light",
@@ -49,15 +73,10 @@ final class CalendarUITests: XCTestCase {
         expected: (UInt8, UInt8, UInt8)
     ) {
         let app = launchCalendar(theme: theme, state: "completed")
-        let actions = app.descendants(matching: .any)["명언 작업"]
-        XCTAssertTrue(actions.waitForExistence(timeout: 3))
+        let copyAction = app.buttons["calendar.copy"]
+        XCTAssertTrue(copyAction.waitForExistence(timeout: 3))
 
-        let labelArea = CGRect(
-            x: actions.frame.minX + 60,
-            y: actions.frame.minY + 13,
-            width: 14,
-            height: 18
-        )
+        let labelArea = copyAction.frame.insetBy(dx: 2, dy: 2)
         XCTAssertGreaterThan(
             pixelCount(in: labelArea, image: app.screenshot().image, appFrame: app.frame, near: expected),
             5

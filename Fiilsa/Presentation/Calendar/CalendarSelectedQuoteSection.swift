@@ -6,13 +6,14 @@
 import SwiftUI
 
 /// Figma selected and expanded calendar states (2985:22510, 2987:22796).
-/// Calendar owns no quote mutation, sharing, image, or prompt-answer contract,
-/// so the corresponding affordances are rendered disabled rather than routed to
-/// a different feature or silently persisted as a quote transcript.
 struct CalendarSelectedDaySection: View {
     let selectedDayRecord: MemberQuotesData?
     let selectedDay: Date
     let onClick: () -> Void
+    let onCopy: () -> Void
+    let onShare: () -> Void
+    let onLike: () -> Void
+    let onImage: () -> Void
 
     private var presentation: CalendarSelectedDayPresentation {
         CalendarSelectedDayPresentation.resolve(for: selectedDayRecord)
@@ -29,8 +30,11 @@ struct CalendarSelectedDaySection: View {
                 selectedDayQuote: selectedDayRecord?.quote ?? "",
                 selectedDay: selectedDay,
                 isCompleted: presentation == .completed,
-                isLiked: selectedDayRecord?.likeYn == "Y",
-                onClick: onClick
+                onClick: onClick,
+                onCopy: onCopy,
+                onShare: onShare,
+                onLike: onLike,
+                onImage: onImage
             )
 
             if presentation == .completed {
@@ -64,8 +68,11 @@ struct CalendarSelectedQuoteSection: View {
     let selectedDayQuote: String
     let selectedDay: Date
     let isCompleted: Bool
-    let isLiked: Bool
     let onClick: () -> Void
+    let onCopy: () -> Void
+    let onShare: () -> Void
+    let onLike: () -> Void
+    let onImage: () -> Void
 
     @Environment(\.colorScheme) private var colorScheme
 
@@ -73,14 +80,20 @@ struct CalendarSelectedQuoteSection: View {
         selectedDayQuote: String,
         selectedDay: Date,
         isCompleted: Bool = false,
-        isLiked: Bool = false,
-        onClick: @escaping () -> Void = {}
+        onClick: @escaping () -> Void = {},
+        onCopy: @escaping () -> Void = {},
+        onShare: @escaping () -> Void = {},
+        onLike: @escaping () -> Void = {},
+        onImage: @escaping () -> Void = {}
     ) {
         self.selectedDayQuote = selectedDayQuote
         self.selectedDay = selectedDay
         self.isCompleted = isCompleted
-        self.isLiked = isLiked
         self.onClick = onClick
+        self.onCopy = onCopy
+        self.onShare = onShare
+        self.onLike = onLike
+        self.onImage = onImage
     }
 
     var body: some View {
@@ -93,7 +106,12 @@ struct CalendarSelectedQuoteSection: View {
             .buttonStyle(.plain)
 
             if isCompleted {
-                CalendarUnavailableQuoteActionRow(isLiked: isLiked)
+                CalendarQuoteActionRow(
+                    onCopy: onCopy,
+                    onShare: onShare,
+                    onLike: onLike,
+                    onImage: onImage
+                )
                     .frame(height: 43)
             }
         }
@@ -144,8 +162,11 @@ struct CalendarSelectedQuoteSection: View {
     }
 }
 
-private struct CalendarUnavailableQuoteActionRow: View {
-    let isLiked: Bool
+private struct CalendarQuoteActionRow: View {
+    let onCopy: () -> Void
+    let onShare: () -> Void
+    let onLike: () -> Void
+    let onImage: () -> Void
 
     var body: some View {
         VStack(spacing: 0) {
@@ -154,58 +175,62 @@ private struct CalendarUnavailableQuoteActionRow: View {
                 .frame(height: 1)
 
             HStack(spacing: 0) {
-                action("home_action_copy", "복사")
+                action("home_action_copy", "복사", identifier: "calendar.copy", action: onCopy)
                     .frame(width: 70)
                 divider
-                action("home_action_share", "공유")
+                action("home_action_share", "공유", identifier: "calendar.share", action: onShare)
                     .frame(width: 70)
                 divider
                 likeAction
                     .frame(width: 70)
                 divider
-                action("home_action_camera", "이미지 등록")
+                action("home_action_camera", "이미지 등록", identifier: "calendar.image", action: onImage)
                     .frame(width: 107)
             }
             .frame(height: 42)
         }
         .foregroundStyle(FillsaColor.dynamic(light: HomeFigmaColorToken.lightActionText.color, dark: FillsaColor.gray400))
-        .accessibilityElement(children: .combine)
-        .accessibilityLabel("명언 작업")
-        .accessibilityHint("캘린더에는 복사, 공유, 좋아요, 이미지 등록 동작 계약이 아직 없습니다.")
+        .accessibilityElement(children: .contain)
+        .accessibilityIdentifier("명언 작업")
     }
 
-    private func action(_ icon: String, _ title: String) -> some View {
-        HStack(spacing: 4) {
-            Image(icon)
-                .resizable()
-                .scaledToFit()
-                .frame(width: 16, height: 16)
-            Text(title)
-                .font(FillsaTypography.body4)
+    private func action(_ icon: String, _ title: String, identifier: String, action: @escaping () -> Void) -> some View {
+        Button(action: action) {
+            HStack(spacing: 4) {
+                Image(icon)
+                    .resizable()
+                    .renderingMode(icon == "home_action_camera" ? .template : .original)
+                    .foregroundStyle(icon == "home_action_camera" ? FillsaColor.purple01 : FillsaColor.gray400)
+                    .scaledToFit()
+                    .frame(width: 16, height: 16)
+                Text(title)
+                    .font(FillsaTypography.body4)
+            }
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
         }
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .buttonStyle(.plain)
+        .accessibilityIdentifier(identifier)
     }
 
     private var likeAction: some View {
-        HStack(spacing: 4) {
-            if isLiked {
-                HeartActionIcon(isFilled: true)
-                    .frame(width: 16, height: 16)
-            } else {
+        Button(action: onLike) {
+            HStack(spacing: 4) {
                 Image("home_action_like")
                     .resizable()
                     .scaledToFit()
                     .frame(width: 16, height: 16)
+                Text("좋아요")
+                    .font(FillsaTypography.body4)
             }
-            Text("좋아요")
-                .font(FillsaTypography.body4)
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
         }
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .buttonStyle(.plain)
+        .accessibilityIdentifier("calendar.like")
     }
 
     private var divider: some View {
         Rectangle()
-            .fill(FillsaColor.gray200)
+            .fill(FillsaColor.dynamic(light: FillsaColor.gray200, dark: FillsaColor.gray500))
             .frame(width: 1, height: 28)
     }
 }
@@ -227,7 +252,11 @@ private struct CalendarQuestionAnswerSection: View {
     CalendarSelectedDaySection(
         selectedDayRecord: nil,
         selectedDay: Date(),
-        onClick: {}
+        onClick: {},
+        onCopy: {},
+        onShare: {},
+        onLike: {},
+        onImage: {}
     )
     .padding(20)
     .background(FillsaColor.background)

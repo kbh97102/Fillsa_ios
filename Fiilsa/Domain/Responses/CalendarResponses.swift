@@ -11,8 +11,16 @@ struct MemberQuotesData: Codable, Equatable, Identifiable {
     let quote: String
     let author: String
     let completed: Bool
-    let likeYn: String
+    var likeYn: String
     let todayCompleted: Bool
+    var engQuote: String? = nil
+    var engAuthor: String? = nil
+    var authorUrl: String? = nil
+    var questionKo: String? = nil
+    var questionEn: String? = nil
+    var answer: String? = nil
+    var answeredAt: String? = nil
+    var imagePath: String? = nil
 }
 
 struct MonthlySummaryData: Codable, Equatable {
@@ -29,4 +37,3 @@ struct MonthlyQuoteResponse: Codable, Equatable, Identifiable {
     let quote: String
     let author: String
 }
-
