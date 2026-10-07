@@ -4,6 +4,46 @@ import XCTest
 
 @MainActor
 final class AppFeatureTests: XCTestCase {
+    func test_nonmemberHomeReloadRestoresSelectedDaysSessionAnswer() async {
+        var state = AppFeature.State()
+        let date = FillsaCalendarDateSupport.quoteDateString(for: state.home.date)
+        state.calendar.sessionAnswers[date] = "세션에서 기록한 답변"
+        let store = TestStore(initialState: state) { AppFeature() }
+        store.exhaustivity = .off
+        let result = HomeDailyQuoteResult(quote: DailyQuote(dailyQuoteSeq: 42), isLoggedIn: false)
+
+        await store.send(.home(.dailyQuoteLoaded(.success(result))))
+
+        XCTAssertEqual(store.state.home.answerDraft, "세션에서 기록한 답변")
+        XCTAssertEqual(store.state.home.recordedAnswer, "세션에서 기록한 답변")
+        XCTAssertFalse(store.state.home.isEditingAnswer)
+    }
+    func test_answerSaveInvalidatesTheOtherTabsCachedData() async {
+        let saved = AnswerResponse(memberQuoteSeq: 42, answer: "서버 답변", answeredAt: "2025-03-21T12:00:00")
+        var state = AppFeature.State()
+        state.home.quote = DailyQuote(dailyQuoteSeq: 42)
+        state.home.isLoggedIn = true
+        state.home.hasLoaded = true
+        state.calendar.hasLoaded = true
+        let store = TestStore(initialState: state) { AppFeature() }
+        store.exhaustivity = .off
+
+        await store.send(.home(.answerSaved(42, .success(saved))))
+        XCTAssertFalse(store.state.calendar.hasLoaded)
+
+        var calendarState = AppFeature.State()
+        calendarState.home.hasLoaded = true
+        calendarState.calendar.hasLoaded = true
+        calendarState.calendar.memberQuotes = [
+            MemberQuotesData(dailyQuoteSeq: 42, quoteDate: FillsaCalendarDateSupport.quoteDateString(for: calendarState.calendar.selectedDay),
+                             quote: "명언", author: "작가", completed: true, likeYn: "N", todayCompleted: true)
+        ]
+        let reverseStore = TestStore(initialState: calendarState) { AppFeature() }
+        reverseStore.exhaustivity = .off
+
+        await reverseStore.send(.calendar(.answerSaved(42, .success(saved))))
+        XCTAssertFalse(reverseStore.state.home.hasLoaded)
+    }
     func test_loadingCountControlsGlobalVisibility() async {
         var state = AppFeature.State()
         state.screen = .login(isOnboarding: false)

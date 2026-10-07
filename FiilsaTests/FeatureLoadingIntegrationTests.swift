@@ -304,6 +304,7 @@ struct FeatureLoadingIntegrationTests {
         await store.receive(.monthlyQuotesLoaded(.success(response))) {
             $0.monthlySummary = response.monthlySummary
             $0.displayStreakCount = 4
+            $0.isLoggedIn = true
             $0.hasLoaded = true
             $0.isLoading = false
         }

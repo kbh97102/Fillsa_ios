@@ -6,12 +6,15 @@
 import SwiftUI
 
 /// Figma selected and expanded calendar states (2985:22510, 2987:22796).
-/// Calendar owns no quote mutation, sharing, image, or prompt-answer contract,
-/// so the corresponding affordances are rendered disabled rather than routed to
-/// a different feature or silently persisted as a quote transcript.
+/// Quote action affordances remain visual while the question card uses CalendarFeature state.
 struct CalendarSelectedDaySection: View {
     let selectedDayRecord: MemberQuotesData?
     let selectedDay: Date
+    @Binding var answer: String
+    let recordedAnswer: String?
+    let isEditingAnswer: Bool
+    let recordAnswer: () -> Void
+    let editAnswer: () -> Void
     let onClick: () -> Void
 
     private var presentation: CalendarSelectedDayPresentation {
@@ -34,7 +37,14 @@ struct CalendarSelectedDaySection: View {
             )
 
             if presentation == .completed {
-                CalendarQuestionAnswerSection()
+                CalendarQuestionAnswerSection(
+                    answer: $answer,
+                    question: selectedDayRecord?.questionKo ?? "누군가의 호의를 한참 뒤에야 받아들인 적 있나요?",
+                    recordedAnswer: recordedAnswer,
+                    isEditing: isEditingAnswer,
+                    recordAnswer: recordAnswer,
+                    editAnswer: editAnswer
+                )
             }
         }
         .padding(.top, presentation == .completed ? 10 : 0)
@@ -211,15 +221,17 @@ private struct CalendarUnavailableQuoteActionRow: View {
 }
 
 private struct CalendarQuestionAnswerSection: View {
-    @State private var answer = ""
+    @Binding var answer: String
+    let question: String
+    let recordedAnswer: String?
+    let isEditing: Bool
+    let recordAnswer: () -> Void
+    let editAnswer: () -> Void
 
     var body: some View {
-        HomeQuestionAnswerCard(answer: $answer, recordAnswer: {
-            // CalendarFeature has no answer-record persistence or navigation
-            // contract. The Figma CTA remains visually present but has no side
-            // effect until that separate product contract is introduced.
-        })
-        .accessibilityHint("답변은 최대 200자까지 입력할 수 있습니다. 저장 기능은 아직 제공되지 않습니다.")
+        HomeQuestionAnswerCard(answer: $answer, question: question,
+                               recordedAnswer: recordedAnswer, isEditing: isEditing,
+                               recordAnswer: recordAnswer, editAnswer: editAnswer)
     }
 }
 
@@ -227,6 +239,11 @@ private struct CalendarQuestionAnswerSection: View {
     CalendarSelectedDaySection(
         selectedDayRecord: nil,
         selectedDay: Date(),
+        answer: .constant(""),
+        recordedAnswer: nil,
+        isEditingAnswer: true,
+        recordAnswer: {},
+        editAnswer: {},
         onClick: {}
     )
     .padding(20)

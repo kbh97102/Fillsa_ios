@@ -40,7 +40,8 @@ struct LoadCalendarMonthUseCase {
                 typingCount: memberQuotes.count { $0.completed },
                 likeCount: memberQuotes.count { $0.likeYn == "Y" },
                 streakCount: localStreak?.streakDateCount ?? 0
-            )
+            ),
+            isLoggedIn: false
         )
     }
 }

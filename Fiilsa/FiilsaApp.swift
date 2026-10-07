@@ -45,6 +45,18 @@ struct FiilsaApp: App {
             state.calendar.memberQuotes = Self.calendarUITestQuotes(
                 completed: arguments.contains("ui-testing-calendar-completed")
             )
+            if arguments.contains("ui-testing-calendar-answer-saved") {
+                let answer = "오늘의 질문에 답을 기록했어요."
+                state.calendar.memberQuotes.indices.forEach { index in
+                    if state.calendar.memberQuotes[index].quoteDate == "2025-03-21" {
+                        state.calendar.memberQuotes[index].answer = answer
+                    }
+                }
+                state.calendar.answerDraft = answer
+                state.calendar.recordedAnswer = answer
+                state.calendar.isEditingAnswer = false
+                state.calendar.isLoggedIn = true
+            }
             let count = arguments.contains("ui-testing-calendar-completed") ? 4 : 3
             state.calendar.monthlySummary = MonthlySummaryData(
                 typingCount: count,
