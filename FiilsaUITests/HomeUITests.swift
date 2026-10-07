@@ -200,8 +200,8 @@ final class HomeUITests: XCTestCase {
         XCTAssertEqual(XCTWaiter.wait(for: [recordAnswerIsHittable], timeout: 2), .completed)
 
         recordAnswer.tap()
+        XCTAssertTrue(app.staticTexts["답변을 기록했어요."].waitForExistence(timeout: 2))
         XCTAssertTrue(app.buttons["home.answerEdit"].waitForExistence(timeout: 2))
-        XCTAssertTrue(app.staticTexts["답변을 기록했어요."].exists)
         XCTAssertTrue(app.keyboards.element.waitForNonExistence(timeout: 2))
     }
 
