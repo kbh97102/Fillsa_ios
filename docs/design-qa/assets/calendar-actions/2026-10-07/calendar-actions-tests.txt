@@ -1,0 +1,8 @@
+✔ Test run with 9 tests in 1 suite passed after 0.094 seconds.
+Test Case '-[FiilsaUITests.CalendarUITests testCompletedCalendarImageActionOpensTheExistingDialog]' passed (5.021 seconds).
+Test Case '-[FiilsaUITests.CalendarUITests testCompletedQuoteActionsAreTappableForTheSelectedDay]' passed (6.443 seconds).
+Test Case '-[FiilsaUITests.CalendarUITests testDarkCalendarCompletedActionLabelUsesFigmaColor]' passed (4.680 seconds).
+Test Case '-[FiilsaUITests.CalendarUITests testDarkCalendarCompletedWritingShowsQuoteActionsAndQuestion]' passed (4.571 seconds).
+Test Case '-[FiilsaUITests.CalendarUITests testDarkCalendarNoWritingShowsRenewalNavigationWithoutAd]' passed (4.623 seconds).
+Test Case '-[FiilsaUITests.CalendarUITests testLightCalendarCompletedActionLabelUsesFigmaColor]' passed (4.701 seconds).
+** TEST SUCCEEDED **

@@ -180,6 +180,12 @@ struct AppView: View {
                 store: store.scope(state: \.calendar, action: \.calendar),
                 openMyPage: {
                     viewStore.send(.selectedTabChanged(.myPage))
+                },
+                openShare: { quote, author in
+                    viewStore.send(.shareSelected(quote: quote, author: author))
+                },
+                openLogin: {
+                    viewStore.send(.loginSelected)
                 }
             )
         case .myPage:

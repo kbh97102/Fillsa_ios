@@ -309,6 +309,12 @@ struct FiilsaApp: App {
                     )
                 }
             }
+        } else if ProcessInfo.processInfo.arguments.contains("ui-testing-calendar") {
+            Store(initialState: launchState) {
+                AppFeature()
+            } withDependencies: {
+                $0.sessionClient.isLoggedIn = { true }
+            }
         } else {
             Store(initialState: launchState) {
                 AppFeature()

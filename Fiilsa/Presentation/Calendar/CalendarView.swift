@@ -8,19 +8,28 @@
 import SwiftUI
 import ComposableArchitecture
 import Foundation
+import PhotosUI
+import UIKit
 
 struct CalendarView: View {
+    @State private var selectedPhotoItem: PhotosPickerItem?
     let store: StoreOf<CalendarFeature>
     let openMyPage: () -> Void
+    let openShare: (String, String) -> Void
+    let openLogin: () -> Void
 
     init(
         store: StoreOf<CalendarFeature> = Store(initialState: CalendarFeature.State()) {
             CalendarFeature()
         },
-        openMyPage: @escaping () -> Void = {}
+        openMyPage: @escaping () -> Void = {},
+        openShare: @escaping (String, String) -> Void = { _, _ in },
+        openLogin: @escaping () -> Void = {}
     ) {
         self.store = store
         self.openMyPage = openMyPage
+        self.openShare = openShare
+        self.openLogin = openLogin
     }
 
     var body: some View {
@@ -64,11 +73,12 @@ struct CalendarView: View {
                     )
                     .padding(.top, 10)
 
+                    let selectedRecord = selectedDayRecord(
+                        from: viewStore.memberQuotes,
+                        selectedDay: viewStore.selectedDay
+                    )
                     CalendarSelectedDaySection(
-                        selectedDayRecord: selectedDayRecord(
-                            from: viewStore.memberQuotes,
-                            selectedDay: viewStore.selectedDay
-                        ),
+                        selectedDayRecord: selectedRecord,
                         selectedDay: viewStore.selectedDay,
                         answer: Binding(
                             get: { viewStore.answerDraft },
@@ -80,6 +90,22 @@ struct CalendarView: View {
                         editAnswer: { viewStore.send(.answerEditTapped) },
                         onClick: {
                             viewStore.send(.bottomQuoteTapped)
+                        },
+                        onCopy: {
+                            guard let selectedRecord else { return }
+                            UIPasteboard.general.string = "\(selectedRecord.quote) - \(selectedRecord.author)"
+                        },
+                        onShare: {
+                            guard let selectedRecord else { return }
+                            openShare(selectedRecord.quote, selectedRecord.author)
+                        },
+                        onLike: {
+                            guard let selectedRecord else { return }
+                            viewStore.send(.likeTapped(selectedRecord.dailyQuoteSeq, selectedRecord.likeYn != "Y"))
+                        },
+                        onImage: {
+                            guard let selectedRecord else { return }
+                            viewStore.send(.imageTapped(selectedRecord.dailyQuoteSeq))
                         }
                     )
                     .id("calendar.selectedDayAnswer")
@@ -96,6 +122,50 @@ struct CalendarView: View {
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
             .background(FillsaColor.background.ignoresSafeArea())
+            .overlay {
+                if viewStore.isImageDialogPresented,
+                   let targetSeq = viewStore.imageTargetSeq,
+                   let record = viewStore.memberQuotes.first(where: { $0.dailyQuoteSeq == targetSeq }) {
+                    HomeImageDialog(
+                        quote: record.quote,
+                        author: record.author,
+                        imagePath: record.imagePath ?? "",
+                        dismiss: { viewStore.send(.imageDialogDismissed) },
+                        delete: { viewStore.send(.deleteImageTapped) },
+                        selectedPhotoItem: $selectedPhotoItem
+                    )
+                }
+            }
+            .alert("로그인 후 사용하실 수 있습니다.", isPresented: Binding(
+                get: { viewStore.isLoginRequiredDialogPresented },
+                set: { if !$0 { viewStore.send(.loginRequiredDialogDismissed) } }
+            )) {
+                Button("로그인 하기") {
+                    viewStore.send(.loginRequiredDialogDismissed)
+                    openLogin()
+                }
+                Button("취소", role: .cancel) {}
+            }
+            .alert("이미지를 삭제하시겠습니까?", isPresented: Binding(
+                get: { viewStore.isDeleteImageConfirmationPresented },
+                set: { if !$0 { viewStore.send(.deleteImageCancelled) } }
+            )) {
+                Button("삭제하기", role: .destructive) { viewStore.send(.deleteImageConfirmed) }
+                Button("취소", role: .cancel) {}
+            } message: {
+                Text("삭제 후 이미지를 되돌릴 수 없습니다.")
+            }
+            .onChange(of: selectedPhotoItem) { _, item in
+                guard let item else { return }
+                Task {
+                    defer { selectedPhotoItem = nil }
+                    guard let fileURL = await makeTemporaryImageFile(from: item) else {
+                        await viewStore.send(.imagePreparationFailed).finish()
+                        return
+                    }
+                    await viewStore.send(.imagePicked(fileURL)).finish()
+                }
+            }
             .onAppear {
                 guard !ProcessInfo.processInfo.arguments.contains("ui-testing-calendar") else { return }
                 viewStore.send(.onAppear)
@@ -106,6 +176,17 @@ struct CalendarView: View {
     private func selectedDayRecord(from memberQuotes: [MemberQuotesData], selectedDay: Date) -> MemberQuotesData? {
         let targetDate = FillsaCalendarDateSupport.quoteDateString(for: selectedDay)
         return memberQuotes.first { $0.quoteDate == targetDate }
+    }
+
+    private func makeTemporaryImageFile(from item: PhotosPickerItem) async -> URL? {
+        guard let source = try? await item.loadTransferable(type: Data.self) else { return nil }
+        return await Task.detached(priority: .userInitiated) {
+            guard let jpeg = HomeUploadImagePreparer.prepare(source) else { return nil }
+            let url = FileManager.default.temporaryDirectory
+                .appendingPathComponent(UUID().uuidString)
+                .appendingPathExtension("jpg")
+            do { try jpeg.write(to: url, options: .atomic); return url } catch { return nil }
+        }.value
     }
 }
 

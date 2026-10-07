@@ -33,23 +33,16 @@ struct MemberQuotesData: Codable, Equatable, Identifiable {
     let quote: String
     let author: String
     let completed: Bool
-    let likeYn: String
+    var likeYn: String
     let todayCompleted: Bool
-    let questionKo: String?
-    var answer: String?
-
-    init(dailyQuoteSeq: Int, quoteDate: String, quote: String, author: String, completed: Bool,
-         likeYn: String, todayCompleted: Bool, questionKo: String? = nil, answer: String? = nil) {
-        self.dailyQuoteSeq = dailyQuoteSeq
-        self.quoteDate = quoteDate
-        self.quote = quote
-        self.author = author
-        self.completed = completed
-        self.likeYn = likeYn
-        self.todayCompleted = todayCompleted
-        self.questionKo = questionKo
-        self.answer = answer
-    }
+    var engQuote: String? = nil
+    var engAuthor: String? = nil
+    var authorUrl: String? = nil
+    var questionKo: String? = nil
+    var questionEn: String? = nil
+    var answer: String? = nil
+    var answeredAt: String? = nil
+    var imagePath: String? = nil
 }
 
 struct MonthlySummaryData: Codable, Equatable {
