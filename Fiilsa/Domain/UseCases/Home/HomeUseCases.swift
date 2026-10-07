@@ -115,6 +115,17 @@ struct PostUploadImageUseCase {
     }
 }
 
+struct SaveAnswerUseCase {
+    let homeRepository: HomeRepository
+
+    func callAsFunction(_ answer: String, dailyQuoteSeq: Int) async throws -> AnswerResponse {
+        try await homeRepository.postAnswer(
+            AnswerRequest(answer: answer),
+            dailyQuoteSeq: dailyQuoteSeq
+        )
+    }
+}
+
 struct DeleteUploadImageUseCase {
     let homeRepository: HomeRepository
 

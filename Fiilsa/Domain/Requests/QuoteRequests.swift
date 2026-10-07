@@ -7,6 +7,10 @@ struct LikeRequest: Codable, Equatable {
     let likeYn: String
 }
 
+struct AnswerRequest: Codable, Equatable {
+    let answer: String
+}
+
 struct MemoRequest: Codable, Equatable {
     let memo: String
 }
@@ -26,4 +30,3 @@ struct LocalQuoteInfo: Codable, Equatable, Identifiable {
     let date: String
     let dayOfWeek: String
 }
-

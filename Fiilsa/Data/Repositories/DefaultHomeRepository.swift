@@ -50,4 +50,13 @@ struct DefaultHomeRepository: HomeRepository {
         )
         return try await apiClient.send(request, responseType: Int.self)
     }
+
+    func postAnswer(_ requestBody: AnswerRequest, dailyQuoteSeq: Int) async throws -> AnswerResponse {
+        let request = APIRequest(
+            method: .post,
+            path: APIEndpoint.answer(dailyQuoteSeq: dailyQuoteSeq),
+            body: requestBody
+        )
+        return try await apiClient.send(request, responseType: AnswerResponse.self)
+    }
 }

@@ -1,7 +1,7 @@
 enum APIEndpoint {
     static let login = "/api/v1/auth/login"
     static let dailyQuoteNonMember = "/api/v1/quotes/daily"
-    static let dailyQuote = "/api/v1/member-quotes/daily"
+    static let dailyQuote = "/api/v2/member-quotes/daily"
     static let quoteList = "/api/v2/member-quotes"
     static let memberMonthlyQuotes = "/api/v2/member-quotes/monthly"
     static let notice = "/api/v1/notices"
@@ -15,6 +15,10 @@ enum APIEndpoint {
 
     static func like(dailyQuoteSeq: Int) -> String {
         "/api/v1/member-quotes/\(dailyQuoteSeq)/like"
+    }
+
+    static func answer(dailyQuoteSeq: Int) -> String {
+        "/api/v2/member-quotes/\(dailyQuoteSeq)/answer"
     }
 
     static func uploadImage(dailyQuoteSeq: Int) -> String {
