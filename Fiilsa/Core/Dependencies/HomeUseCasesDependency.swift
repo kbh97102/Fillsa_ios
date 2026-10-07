@@ -11,6 +11,7 @@ struct HomeUseCases {
     ) async throws -> Int
     var postUploadImage: @Sendable (_ fileURL: URL, _ dailyQuoteSeq: Int) async throws -> MemberQuoteImageResponse
     var deleteUploadImage: @Sendable (_ dailyQuoteSeq: Int) async throws -> Int
+    var saveAnswer: @Sendable (_ answer: String, _ dailyQuoteSeq: Int) async throws -> AnswerResponse
 }
 
 extension HomeUseCases: DependencyKey {
@@ -44,6 +45,12 @@ extension HomeUseCases: DependencyKey {
             },
             deleteUploadImage: { dailyQuoteSeq in
                 try await DeleteUploadImageUseCase(homeRepository: homeRepository)(
+                    dailyQuoteSeq: dailyQuoteSeq
+                )
+            },
+            saveAnswer: { answer, dailyQuoteSeq in
+                try await SaveAnswerUseCase(homeRepository: homeRepository)(
+                    answer,
                     dailyQuoteSeq: dailyQuoteSeq
                 )
             }

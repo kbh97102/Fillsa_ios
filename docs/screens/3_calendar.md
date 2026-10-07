@@ -18,7 +18,16 @@
   - `docs/design-qa/assets/calendar-figma/2026-09-20/calendar-no-handwriting-3039-24906-reference.png`
   - `docs/design-qa/assets/calendar-figma/2026-09-20/calendar-handwriting-3051-899-reference.png`
 - QA 기록: `docs/design-qa/2026-09-20-calendar-renewal-dark-qa.md`
+- 2026-10-07 답변 저장 QA: `docs/design-qa/2026-10-07-ios-home-calendar-answer-qa.md`
 - 2026-10-07 QA 조사: [완료 카드 명언 작업](3_calendar_qa_2026-10-07_actions.md), [질문 답변 저장](2_home_qa_2026-10-07_answer.md), [공통 응답 지연](common_qa_2026-10-07_latency.md)
+
+### 2026-10-07 완료 카드 답변 저장 대상
+
+- Figma URL/노드: [Light `2987:22796`](https://www.figma.com/design/VdFocqyqTgevMVCQxwAQ2X?node-id=2987-22796), [Dark `3051:899`](https://www.figma.com/design/VdFocqyqTgevMVCQxwAQ2X?node-id=3051-899).
+- 컴포넌트: `CalendarSelectedDaySection` 완료 상태의 질문 카드. 월간 응답의 날짜별 질문·답변을 사용하고 기존 `HomeQuestionAnswerCard`의 입력·기록·수정 상태를 연결한다.
+- 데이터/상호작용: 날짜 선택 시 해당 일자의 답변을 표시한다. 회원 저장 성공 후 월간 레코드를 갱신하고 Home 재조회 경계를 둔다. 미필사 카드에는 질문 카드를 추가하지 않는다.
+- 대상 상태/예외: Light/Dark 완료 카드, 답변 없음·입력·저장 후·수정, 긴 질문·답변, 날짜·월 전환. 전체 360×1101pt 기준을 QA 기록에 남긴다.
+- QA 기록: [2026-10-07 Home·Calendar 답변](../design-qa/2026-10-07-ios-home-calendar-answer-qa.md).
 
 ### 컴포넌트 분해
 

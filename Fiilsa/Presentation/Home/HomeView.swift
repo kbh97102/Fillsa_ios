@@ -68,6 +68,7 @@ struct HomeView: View {
                                     get: { viewStore.answerDraft },
                                     set: { viewStore.send(.answerDraftChanged($0)) }
                                 ),
+                                question: viewStore.quote.questionKo ?? "누군가의 호의를 한참 뒤에야 받아들인 적 있나요?",
                                 recordedAnswer: viewStore.recordedAnswer,
                                 isEditing: viewStore.isEditingAnswer,
                                 recordAnswer: { viewStore.send(.answerRecordTapped) },

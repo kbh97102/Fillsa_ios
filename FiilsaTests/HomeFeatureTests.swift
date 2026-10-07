@@ -7,6 +7,19 @@ import UIKit
 
 @Suite("HomeFeature")
 struct HomeFeatureTests {
+    @Test
+    func v2DailyQuoteDecodesQuestionAndPreviouslySavedAnswer() throws {
+        let payload = Data("""
+        {"date":"2026-10-07","dailyQuoteSeq":42,"korQuote":"명언","questionKo":"오늘의 질문","answer":"기존 답변","likeYn":"N"}
+        """.utf8)
+
+        let quote = try JSONDecoder().decode(DailyQuote.self, from: payload)
+
+        #expect(quote.quoteDate == "2026-10-07")
+        #expect(quote.questionKo == "오늘의 질문")
+        #expect(quote.answer == "기존 답변")
+    }
+
     @Test @MainActor
     func homeEntryWaitsForQuoteAndCompletionState() async {
         let registry = LoadingRegistry()
@@ -323,6 +336,63 @@ struct HomeFeatureTests {
         await store.send(.answerEditTapped) {
             $0.isEditingAnswer = true
         }
+    }
+
+    @Test @MainActor
+    func answerRecordWaitsForServerBeforeShowingSuccess() async {
+        var state = HomeFeature.State()
+        state.isLoggedIn = true
+        state.quote = DailyQuote(dailyQuoteSeq: 42)
+        state.answerDraft = "서버에 저장할 답변"
+        let gate = AsyncStream<Void>.makeStream()
+        let calls = AsyncStream<(String, Int)>.makeStream()
+        let saved = AnswerResponse(memberQuoteSeq: 84, answer: "서버에 저장할 답변", answeredAt: "2026-10-07 21:40:00")
+        let store = TestStore(initialState: state) {
+            HomeFeature()
+        } withDependencies: {
+            $0.homeUseCases.saveAnswer = { answer, dailyQuoteSeq in
+                calls.continuation.yield((answer, dailyQuoteSeq))
+                for await _ in gate.stream {}
+                return saved
+            }
+        }
+
+        let task = await store.send(.answerRecordTapped)
+        var receivedCalls = calls.stream.makeAsyncIterator()
+        let call = await receivedCalls.next()
+        #expect(call?.0 == "서버에 저장할 답변")
+        #expect(call?.1 == 42)
+        #expect(store.state.recordedAnswer == nil)
+        #expect(store.state.toastMessage == nil)
+
+        gate.continuation.finish()
+        await store.receive(.answerSaved(42, .success(saved))) {
+            $0.answerDraft = saved.answer
+            $0.recordedAnswer = saved.answer
+            $0.isEditingAnswer = false
+            $0.quote = DailyQuote(dailyQuoteSeq: 42, answer: saved.answer)
+            $0.toastMessage = "답변을 기록했어요."
+        }
+        await task.finish()
+    }
+
+    @Test @MainActor
+    func failedAnswerSaveKeepsDraftAndDoesNotClaimSuccess() async {
+        var state = HomeFeature.State()
+        state.isLoggedIn = true
+        state.quote = DailyQuote(dailyQuoteSeq: 42)
+        state.answerDraft = "다시 시도할 답변"
+        let store = TestStore(initialState: state) {
+            HomeFeature()
+        } withDependencies: {
+            $0.homeUseCases.saveAnswer = { _, _ in throw ErrorResponse.defaultError }
+        }
+
+        await store.send(.answerRecordTapped)
+        await store.receive(.answerSaved(42, .failure(.defaultError)))
+        #expect(store.state.answerDraft == "다시 시도할 답변")
+        #expect(store.state.recordedAnswer == nil)
+        #expect(store.state.toastMessage == nil)
     }
 
     @Test

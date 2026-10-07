@@ -6,5 +6,5 @@ protocol HomeRepository {
     func postLike(_ request: LikeRequest, dailyQuoteSeq: Int) async throws -> Int
     func postUploadImage(fileURL: URL, dailyQuoteSeq: Int) async throws -> MemberQuoteImageResponse
     func deleteUploadImage(dailyQuoteSeq: Int) async throws -> Int
+    func postAnswer(_ request: AnswerRequest, dailyQuoteSeq: Int) async throws -> AnswerResponse
 }
-

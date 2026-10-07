@@ -52,6 +52,7 @@ struct HomeFeature {
         case streakTooltipDismissed
         case answerDraftChanged(String)
         case answerRecordTapped
+        case answerSaved(Int, Result<AnswerResponse, ErrorResponse>)
         case answerEditTapped
     }
 
@@ -96,6 +97,11 @@ struct HomeFeature {
             case let .dailyQuoteLoaded(.success(result)):
                 state.quote = result.quote
                 state.isLoggedIn = result.isLoggedIn
+                if result.isLoggedIn {
+                    state.answerDraft = result.quote.answer ?? ""
+                    state.recordedAnswer = result.quote.answer
+                    state.isEditingAnswer = result.quote.answer == nil
+                }
                 state.hasLoaded = true
                 state.isLoading = false
                 return .none
@@ -115,7 +121,11 @@ struct HomeFeature {
                     korAuthor: state.quote.korAuthor,
                     engAuthor: state.quote.engAuthor,
                     authorUrl: state.quote.authorUrl,
-                    quoteDate: state.quote.quoteDate
+                    quoteDate: state.quote.quoteDate,
+                    questionKo: state.quote.questionKo,
+                    questionEn: state.quote.questionEn,
+                    answer: state.quote.answer,
+                    answeredAt: state.quote.answeredAt
                 )
 
                 guard state.quote.dailyQuoteSeq > 0 else { return .none }
@@ -299,10 +309,40 @@ struct HomeFeature {
                 guard !answer.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else {
                     return .none
                 }
+                if state.isLoggedIn {
+                    guard state.quote.dailyQuoteSeq > 0 else { return .none }
+                    let dailyQuoteSeq = state.quote.dailyQuoteSeq
+                    return .runWithLoading { send in
+                        do {
+                            let response = try await homeUseCases.saveAnswer(answer, dailyQuoteSeq)
+                            await send(.answerSaved(dailyQuoteSeq, .success(response)))
+                        } catch is CancellationError {
+                            return
+                        } catch let error as ErrorResponse {
+                            guard !Task.isCancelled else { return }
+                            await send(.answerSaved(dailyQuoteSeq, .failure(error)))
+                        } catch {
+                            guard !Task.isCancelled else { return }
+                            await send(.answerSaved(dailyQuoteSeq, .failure(.defaultError)))
+                        }
+                    }
+                }
                 state.answerDraft = answer
                 state.recordedAnswer = answer
                 state.isEditingAnswer = false
                 state.toastMessage = "답변을 기록했어요."
+                return .none
+
+            case let .answerSaved(dailyQuoteSeq, .success(response)):
+                guard state.quote.dailyQuoteSeq == dailyQuoteSeq else { return .none }
+                state.answerDraft = response.answer
+                state.recordedAnswer = response.answer
+                state.isEditingAnswer = false
+                state.quote = state.quote.copy(answer: response.answer)
+                state.toastMessage = "답변을 기록했어요."
+                return .none
+
+            case .answerSaved(_, .failure):
                 return .none
 
             case .answerEditTapped:
@@ -315,6 +355,9 @@ struct HomeFeature {
 
     private func load(state: inout State) -> Effect<Action> {
         state.isLoading = true
+        state.answerDraft = ""
+        state.recordedAnswer = nil
+        state.isEditingAnswer = true
         let quoteDate = FillsaCalendarDateSupport.quoteDateString(for: state.date)
 
         return .runWithLoading { send in
@@ -357,7 +400,8 @@ struct HomeFeature {
 private extension DailyQuote {
     func copy(
         likeYn: String? = nil,
-        imagePath: String? = nil
+        imagePath: String? = nil,
+        answer: String? = nil
     ) -> DailyQuote {
         DailyQuote(
             likeYn: likeYn ?? self.likeYn,
@@ -368,7 +412,11 @@ private extension DailyQuote {
             korAuthor: korAuthor,
             engAuthor: engAuthor,
             authorUrl: authorUrl,
-            quoteDate: quoteDate
+            quoteDate: quoteDate,
+            questionKo: questionKo,
+            questionEn: questionEn,
+            answer: answer ?? self.answer,
+            answeredAt: answeredAt
         )
     }
 }

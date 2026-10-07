@@ -10,11 +10,20 @@
 - 기준 이미지: `docs/design-qa/assets/home-figma-2929-17193/2026-09-07/` (default, calendar-open, question-flow, streak-tooltip, image-flow)
 - QA 기록: `docs/design-qa/2026-09-07-ios-home-interactions-qa.md`
 - 답변 키보드 회귀 QA: `docs/design-qa/2026-09-23-ios-home-answer-keyboard-qa.md`
+- 2026-10-07 답변 저장 QA: `docs/design-qa/2026-10-07-ios-home-calendar-answer-qa.md`
 - 날짜/연속필사 패딩 QA: `docs/design-qa/2026-09-25-ios-home-date-streak-padding-qa.md`
 - 반응형 레이아웃 QA: `docs/design-qa/2026-09-25-ios-home-responsive-layout-qa.md`
 - Dark root 상세 명세: `docs/screens/2_home_dark.md` (root `2929:9603`, 상태별 render node와 기준 이미지)
 - 2026-10-07 QA 조사: [답변 저장](2_home_qa_2026-10-07_answer.md), [이미지 크기 제한](2_home_qa_2026-10-07_image_size.md), [이미지 팝업 크기](2_home_qa_2026-10-07_image_popup.md), [공통 응답 지연](common_qa_2026-10-07_latency.md)
 - API 계약 갱신 메모: 아래의 “답변 서버 계약 없음/세션 기록” 설명은 해당 UI 구현 당시 범위다. 2026-09-03 운영 배포된 [v2 답변·주간 조회 계약](../superpowers/specs/2026-09-08-home-calendar-api-contract.md)이 현재 존재하며, iOS 연동은 위 QA 문서의 미완료 작업이다.
+
+### 2026-10-07 답변 저장 대상
+
+- Figma: 질문 흐름 `3110:33782`, 기록 전 `3110:33783`, 입력 `3110:34152`, 성공 토스트 `3110:34293`, 기록 후 `3110:34438` (동일 파일 URL은 위 QA 조사 문서 참조).
+- 컴포넌트: `HomeQuestionAnswerCard`가 v2 `questionKo`와 `answer`를 표시한다. `HomeView`는 기존 입력·기록·수정 UI를 유지하고 `HomeFeature`가 서버 저장 성공 후에만 완료 상태와 토스트를 바꾼다.
+- 데이터/상호작용: 회원 일간 조회의 날짜별 `dailyQuoteSeq`, 질문, 답변을 사용한다. 비회원 입력 정책은 확인 중이다. 성공·실패·재진입·날짜 전환을 검증한다.
+- 시각적 예외: 긴 서버 질문/답변, 키보드 포커스, 토스트 위치를 컴포넌트와 전체 360×821pt 프레임에서 확인한다.
+- QA 기록: [2026-10-07 Home·Calendar 답변](../design-qa/2026-10-07-ios-home-calendar-answer-qa.md).
 
 ### 2026-09-07 Home 상호작용 구현 계약
 

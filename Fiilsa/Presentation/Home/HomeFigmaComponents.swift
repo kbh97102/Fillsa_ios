@@ -398,9 +398,10 @@ enum HomeAnswerInput {
     }
 }
 
-/// Figma `2929:13630`. The prompt remains the established static copy until Home has a question data source.
+/// Figma `2929:13630`. The daily prompt comes from the selected quote when available.
 struct HomeQuestionAnswerCard: View {
     @Binding var answer: String
+    let question: String
     let recordedAnswer: String?
     let isEditing: Bool
     let recordAnswer: () -> Void
@@ -408,17 +409,18 @@ struct HomeQuestionAnswerCard: View {
     @FocusState private var isAnswerFocused: Bool
     @Environment(\.colorScheme) private var colorScheme
 
-    private let question = "누군가의 호의를 한참 뒤에야 받아들인 적 있나요?"
     private let placeholder = "오늘의 질문을 보고 떠오른 생각을 자유롭게 기록해보세요."
 
     init(
         answer: Binding<String>,
+        question: String = "누군가의 호의를 한참 뒤에야 받아들인 적 있나요?",
         recordedAnswer: String? = nil,
         isEditing: Bool = true,
         recordAnswer: @escaping () -> Void,
         editAnswer: @escaping () -> Void = {}
     ) {
         _answer = answer
+        self.question = question
         self.recordedAnswer = recordedAnswer
         self.isEditing = isEditing
         self.recordAnswer = recordAnswer
