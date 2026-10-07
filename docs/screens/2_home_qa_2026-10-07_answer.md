@@ -39,3 +39,6 @@ Home의 `내 답변 기록하기`는 성공 토스트를 띄우지만 앱 재실
 - Home 질문 카드에는 서버 `questionKo`를 전달한다. Figma 성공 토스트 `3110:34293`의 좌우 20pt 여백, 50pt 높이, 24pt 아이콘을 맞췄고 저장 완료 시 키보드 포커스를 해제한다.
 - `HomeFeatureTests`는 성공 응답 전/후 상태, 실패 시 입력 유지, v2 일간 응답의 질문·답변 디코딩을 검증했다. 전체 `FiilsaTests` 대상은 iPhone 17 Pro iOS 26.5에서 통과했다. 기존 `HomeUITests.testAnswerRecordButtonRemainsVisibleAboveKeyboard`는 변경 전 실패를 확인한 뒤 저장 응답 fixture와 포커스 수정 후 통과했다.
 - [Home UI 캡처·영상·Figma QA 기록](../design-qa/2026-10-07-ios-home-calendar-answer-qa.md). 영상은 서버 왕복이 아닌 저장 완료 UI fixture다. 실제 회원 API 연동, Calendar 왕복, Figma와 같은 360×821pt 전체 화면 비교는 별도 검증 상태로 관리한다.
+- Calendar는 v2 월간 응답의 날짜별 질문·답변을 받으며, 완료 카드 입력을 `CalendarFeature` 상태에 바인딩했다. 회원 저장은 같은 답변 API의 성공 응답 뒤에만 월간 레코드에 반영한다. 다른 날짜를 선택하거나 실패했을 때 입력이 잘못 반영되지 않도록 reducer 테스트를 통과했다.
+- Home↔Calendar 회원 저장 후 상대 화면의 로드 캐시를 무효화해 재진입 시 조회한다. 비회원은 기존 세션 정책에 맞춰 날짜별 답변을 앱 실행 중 복원하며, Home 날짜 재조회 뒤에도 복원한다.
+- Calendar 저장 상태 UI 테스트와 83개 단위 테스트가 iPhone 17e iOS 26.5에서 통과했다. [Calendar fixture 캡처·영상](../design-qa/2026-10-07-ios-home-calendar-answer-qa.md)은 라이브 API 증거가 아니며, Figma 360×1101pt 전체 콘텐츠와의 동일 크기 대조 및 회원 실서버 재진입 검증은 남아 있다.
