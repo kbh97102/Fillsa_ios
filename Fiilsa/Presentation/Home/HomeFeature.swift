@@ -210,10 +210,14 @@ struct HomeFeature {
                 return .none
 
             case let .imagePicked(fileURL):
-                guard state.quote.dailyQuoteSeq > 0 else { return .none }
+                guard state.quote.dailyQuoteSeq > 0 else {
+                    try? FileManager.default.removeItem(at: fileURL)
+                    return .none
+                }
                 let dailyQuoteSeq = state.quote.dailyQuoteSeq
 
                 return .runWithLoading { send in
+                    defer { try? FileManager.default.removeItem(at: fileURL) }
                     do {
                         let response = try await homeUseCases.postUploadImage(fileURL, dailyQuoteSeq)
                         await send(.imageUploaded(.success(response)))
