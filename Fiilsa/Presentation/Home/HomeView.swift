@@ -30,7 +30,50 @@ struct HomeView: View {
 
     var body: some View {
         WithViewStore(store, observe: { $0 }) { viewStore in
-            VStack(spacing: 0) {
+            imagePickerContent(viewStore: viewStore)
+        }
+    }
+
+    private func imagePickerContent(viewStore: ViewStore<HomeFeature.State, HomeFeature.Action>) -> some View {
+        alertContent(viewStore: viewStore)
+            .onChange(of: selectedPhotoItem) {
+                guard let item = selectedPhotoItem else { return }
+                Task {
+                    defer { selectedPhotoItem = nil }
+                    guard let fileURL = await makeTemporaryImageFile(from: item) else {
+                        await viewStore.send(.imageUploaded(viewStore.quote.dailyQuoteSeq, .failure(.defaultError))).finish()
+                        return
+                    }
+                    await viewStore.send(.imagePicked(fileURL)).finish()
+                }
+            }
+    }
+
+    private func alertContent(viewStore: ViewStore<HomeFeature.State, HomeFeature.Action>) -> some View {
+        baseContent(viewStore: viewStore)
+            .alert("로그인 후 사용하실 수 있습니다.", isPresented: Binding(
+                get: { viewStore.isLoginRequiredDialogPresented },
+                set: { if !$0 { viewStore.send(.loginRequiredDialogDismissed) } }
+            )) {
+                Button("로그인 하기") {
+                    viewStore.send(.loginRequiredDialogDismissed)
+                    openLogin()
+                }
+                Button("취소", role: .cancel) {}
+            }
+            .alert("이미지를 삭제하시겠습니까?", isPresented: Binding(
+                get: { viewStore.isDeleteImageConfirmationPresented },
+                set: { if !$0 { viewStore.send(.deleteImageCancelled) } }
+            )) {
+                Button("삭제하기", role: .destructive) { viewStore.send(.deleteImageConfirmed) }
+                Button("취소", role: .cancel) {}
+            } message: {
+                Text("삭제 후 이미지를 되돌릴 수 없습니다.")
+            }
+    }
+
+    private func baseContent(viewStore: ViewStore<HomeFeature.State, HomeFeature.Action>) -> some View {
+        VStack(spacing: 0) {
                 HomeHeader(
                     myPage: openMyPage,
                     streakCount: viewStore.streakCount,
@@ -41,43 +84,7 @@ struct HomeView: View {
                 .frame(height: 50)
                 ScrollViewReader { proxy in
                     ScrollView {
-                        VStack(spacing: 0) {
-                            HomeDateControls(
-                                date: viewStore.date,
-                                completedWritingDates: viewStore.completedWritingDates,
-                                selectCalendar: { viewStore.send(.calendarTriggerTapped) },
-                                selectDate: { viewStore.send(.calendarDateSelected($0)) }
-                            )
-                            .padding(.top, 10)
-                            .padding(.horizontal, 20)
-                            HStack {
-                                Text("아래 글을 필사해주세요.").font(FillsaTypography.body3).foregroundStyle(palette.primaryText.color)
-                                Spacer()
-                                HomeLocaleSwitch(selected: $selectedLocale)
-                            }.padding(.top, 16).padding(.horizontal, 20)
-                            HomeQuoteCard(text: quote(from: viewStore.quote), author: author(from: viewStore.quote), date: viewStore.date, next: { viewStore.send(.nextTapped) }, before: { viewStore.send(.beforeTapped) }, navigate: openTyping, authorTapped: {
-                                if let urlString = viewStore.quote.authorUrl, let url = URL(string: urlString) { openURL(url) }
-                            })
-                            .padding(.top, 4).padding(.horizontal, 20).accessibilityIdentifier("home.quoteCard")
-                            HomeQuoteActionRow(copy: { UIPasteboard.general.string = copyText(from: viewStore.quote); viewStore.send(.copyCompleted) }, share: { openShare(quote(from: viewStore.quote), author(from: viewStore.quote)) }, isLike: viewStore.quote.likeYn == "Y", setIsLike: { viewStore.send(.likeTapped($0)) }, registerImage: { viewStore.send(.imageTapped) })
-                                .padding(.top, 10)
-                                .padding(.horizontal, 20)
-                            Divider().overlay(palette.mainDivider.color.opacity(palette.mainDividerOpacity)).padding(.top, 1)
-                            HomeQuestionAnswerCard(
-                                answer: Binding(
-                                    get: { viewStore.answerDraft },
-                                    set: { viewStore.send(.answerDraftChanged($0)) }
-                                ),
-                                question: viewStore.quote.questionKo ?? "누군가의 호의를 한참 뒤에야 받아들인 적 있나요?",
-                                recordedAnswer: viewStore.recordedAnswer,
-                                isEditing: viewStore.isEditingAnswer,
-                                recordAnswer: { viewStore.send(.answerRecordTapped) },
-                                editAnswer: { viewStore.send(.answerEditTapped) }
-                            )
-                            .id("home.answerCard")
-                            .padding(.top, 17)
-                            .padding(.horizontal, 20)
-                        }
+                        scrollContent(viewStore: viewStore)
                     }
                     .scrollDismissesKeyboard(.interactively)
                     .onReceive(NotificationCenter.default.publisher(for: UIResponder.keyboardWillShowNotification)) { _ in
@@ -92,65 +99,133 @@ struct HomeView: View {
             .onAppear { viewStore.send(.onAppear) }
             .overlayPreferenceValue(HomeOverlayAnchorPreferenceKey.self) { anchors in
                 GeometryReader { proxy in
-                    ZStack(alignment: .topLeading) {
-                    if viewStore.isCalendarPresented || viewStore.isStreakTooltipPresented {
-                        Color.black.opacity(0.001)
-                            .ignoresSafeArea()
-                            .onTapGesture {
-                                if viewStore.isCalendarPresented { viewStore.send(.calendarDismissed) }
-                                if viewStore.isStreakTooltipPresented { viewStore.send(.streakTooltipDismissed) }
-                            }
-                    }
-                    if viewStore.isCalendarPresented, let anchor = anchors[.calendarTrigger] {
-                        let trigger = proxy[anchor]
-                        HomeInlineCalendar(
-                            displayedMonth: viewStore.calendarDisplayedMonth,
-                            selectedDate: viewStore.date,
-                            selectDate: { viewStore.send(.calendarDateSelected($0)) },
-                            changeMonth: { viewStore.send(.calendarMonthChanged($0)) }
-                        )
-                        .position(x: trigger.minX + 124, y: trigger.maxY + 173.5)
-                    }
-                    if viewStore.isStreakTooltipPresented, let anchor = anchors[.streakStatus] {
-                        let trigger = proxy[anchor]
-                        HomeStreakTooltip(
-                            openCalendar: {
-                                viewStore.send(.streakTooltipDismissed)
-                                openCalendar()
-                            }
-                        )
-                        .position(
-                            x: trigger.midX - 89,
-                            y: trigger.maxY + 41
-                        )
-                    }
-                    if viewStore.isImageDialogPresented { HomeImageDialog(quote: quote(from: viewStore.quote), author: author(from: viewStore.quote), imagePath: viewStore.quote.imagePath ?? "", dismiss: { viewStore.send(.imageDialogDismissed) }, delete: { viewStore.send(.deleteImageTapped) }, selectedPhotoItem: $selectedPhotoItem) }
-                    if let message = viewStore.toastMessage {
-                        toast(message, presentation: .resolve(message: message))
-                            .transition(.opacity)
-                            .onAppear {
-                                guard !isQuestionDoneFixture else { return }
-                                Task {
-                                    try? await Task.sleep(nanoseconds: 1_600_000_000)
-                                    await viewStore.send(.toastDismissed).finish()
-                                }
-                            }
-                    }
-                    }
+                    overlayContent(viewStore: viewStore, anchors: anchors, proxy: proxy)
                 }
             }
-            .alert("로그인 후 사용하실 수 있습니다.", isPresented: Binding(get: { viewStore.isLoginRequiredDialogPresented }, set: { if !$0 { viewStore.send(.loginRequiredDialogDismissed) } })) { Button("로그인 하기") { viewStore.send(.loginRequiredDialogDismissed); openLogin() }; Button("취소", role: .cancel) {} }
-            .alert("이미지를 삭제하시겠습니까?", isPresented: Binding(get: { viewStore.isDeleteImageConfirmationPresented }, set: { if !$0 { viewStore.send(.deleteImageCancelled) } })) { Button("삭제하기", role: .destructive) { viewStore.send(.deleteImageConfirmed) }; Button("취소", role: .cancel) {} } message: { Text("삭제 후 이미지를 되돌릴 수 없습니다.") }
-            .onChange(of: selectedPhotoItem) { _, item in
-                guard let item else { return }
-                Task {
-                    defer { selectedPhotoItem = nil }
-                    guard let fileURL = await makeTemporaryImageFile(from: item) else {
-                        await viewStore.send(.imageUploaded(.failure(.defaultError))).finish()
-                        return
+    }
+
+    private func scrollContent(viewStore: ViewStore<HomeFeature.State, HomeFeature.Action>) -> some View {
+        VStack(spacing: 0) {
+            HomeDateControls(
+                date: viewStore.date,
+                completedWritingDates: viewStore.completedWritingDates,
+                selectCalendar: { viewStore.send(.calendarTriggerTapped) },
+                selectDate: { viewStore.send(.calendarDateSelected($0)) }
+            )
+            .padding(.top, 10)
+            .padding(.horizontal, 20)
+            HStack {
+                Text("아래 글을 필사해주세요.")
+                    .font(FillsaTypography.body3)
+                    .foregroundStyle(palette.primaryText.color)
+                Spacer()
+                HomeLocaleSwitch(selected: $selectedLocale)
+            }
+            .padding(.top, 16)
+            .padding(.horizontal, 20)
+            HomeQuoteCard(
+                text: quote(from: viewStore.quote),
+                author: author(from: viewStore.quote),
+                date: viewStore.date,
+                next: { viewStore.send(.nextTapped) },
+                before: { viewStore.send(.beforeTapped) },
+                navigate: openTyping,
+                authorTapped: {
+                    if let urlString = viewStore.quote.authorUrl, let url = URL(string: urlString) {
+                        openURL(url)
                     }
-                    await viewStore.send(.imagePicked(fileURL)).finish()
                 }
+            )
+            .padding(.top, 4)
+            .padding(.horizontal, 20)
+            .accessibilityIdentifier("home.quoteCard")
+            HomeQuoteActionRow(
+                copy: {
+                    UIPasteboard.general.string = copyText(from: viewStore.quote)
+                    viewStore.send(.copyCompleted)
+                },
+                share: { openShare(quote(from: viewStore.quote), author(from: viewStore.quote)) },
+                isLike: viewStore.quote.likeYn == "Y",
+                setIsLike: { viewStore.send(.likeTapped($0)) },
+                registerImage: { viewStore.send(.imageTapped) }
+            )
+            .padding(.top, 10)
+            .padding(.horizontal, 20)
+            Divider()
+                .overlay(palette.mainDivider.color.opacity(palette.mainDividerOpacity))
+                .padding(.top, 1)
+            HomeQuestionAnswerCard(
+                answer: Binding(
+                    get: { viewStore.answerDraft },
+                    set: { viewStore.send(.answerDraftChanged($0)) }
+                ),
+                question: viewStore.quote.questionKo ?? "누군가의 호의를 한참 뒤에야 받아들인 적 있나요?",
+                recordedAnswer: viewStore.recordedAnswer,
+                isEditing: viewStore.isEditingAnswer,
+                recordAnswer: { viewStore.send(.answerRecordTapped) },
+                editAnswer: { viewStore.send(.answerEditTapped) }
+            )
+            .id("home.answerCard")
+            .padding(.top, 17)
+            .padding(.horizontal, 20)
+        }
+    }
+
+    @ViewBuilder
+    private func overlayContent(
+        viewStore: ViewStore<HomeFeature.State, HomeFeature.Action>,
+        anchors: [HomeOverlayAnchor: Anchor<CGRect>],
+        proxy: GeometryProxy
+    ) -> some View {
+        ZStack(alignment: .topLeading) {
+            if viewStore.isCalendarPresented || viewStore.isStreakTooltipPresented {
+                Color.black.opacity(0.001)
+                    .ignoresSafeArea()
+                    .onTapGesture {
+                        if viewStore.isCalendarPresented { viewStore.send(.calendarDismissed) }
+                        if viewStore.isStreakTooltipPresented { viewStore.send(.streakTooltipDismissed) }
+                    }
+            }
+            if viewStore.isCalendarPresented, let anchor = anchors[.calendarTrigger] {
+                let trigger = proxy[anchor]
+                HomeInlineCalendar(
+                    displayedMonth: viewStore.calendarDisplayedMonth,
+                    selectedDate: viewStore.date,
+                    selectDate: { viewStore.send(.calendarDateSelected($0)) },
+                    changeMonth: { viewStore.send(.calendarMonthChanged($0)) }
+                )
+                .position(x: trigger.minX + 124, y: trigger.maxY + 173.5)
+            }
+            if viewStore.isStreakTooltipPresented, let anchor = anchors[.streakStatus] {
+                let trigger = proxy[anchor]
+                HomeStreakTooltip(
+                    openCalendar: {
+                        viewStore.send(.streakTooltipDismissed)
+                        openCalendar()
+                    }
+                )
+                .position(x: trigger.midX - 89, y: trigger.maxY + 41)
+            }
+            if viewStore.isImageDialogPresented {
+                HomeImageDialog(
+                    quote: quote(from: viewStore.quote),
+                    author: author(from: viewStore.quote),
+                    imagePath: viewStore.quote.imagePath ?? "",
+                    dismiss: { viewStore.send(.imageDialogDismissed) },
+                    delete: { viewStore.send(.deleteImageTapped) },
+                    selectedPhotoItem: $selectedPhotoItem
+                )
+            }
+            if let message = viewStore.toastMessage {
+                toast(message, presentation: .resolve(message: message))
+                    .transition(.opacity)
+                    .onAppear {
+                        guard !isQuestionDoneFixture else { return }
+                        Task {
+                            try? await Task.sleep(nanoseconds: 1_600_000_000)
+                            await viewStore.send(.toastDismissed).finish()
+                        }
+                    }
             }
         }
     }
