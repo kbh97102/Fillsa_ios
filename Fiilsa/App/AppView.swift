@@ -24,6 +24,18 @@ struct AppView: View {
             }
             .preferredColorScheme(viewStore.selectedTheme.colorScheme)
             .task {
+                if ProcessInfo.processInfo.arguments.contains("-ui-testing-home-image-size-upload") {
+                    do {
+                        let fixture = try await Task.detached(priority: .userInitiated) {
+                            try HomeImageSizeFixture.prepareUpload()
+                        }.value
+                        await viewStore.send(.home(.imagePicked(fixture.fileURL))).finish()
+                        if viewStore.home.quote.imagePath?.isEmpty == false {
+                            await viewStore.send(.home(.imageTapped)).finish()
+                        }
+                    } catch {}
+                    return
+                }
                 guard !ProcessInfo.processInfo.arguments.contains("ui-testing-calendar"),
                       !ProcessInfo.processInfo.arguments.contains("-ui-testing-global-loading") else { return }
                 await viewStore.send(.task).finish()

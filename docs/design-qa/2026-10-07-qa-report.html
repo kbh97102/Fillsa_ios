@@ -90,9 +90,12 @@
         <dl>
           <dt>원인</dt><dd>PhotosPicker 원본을 디코딩·변환하지 않고 <code>.jpg</code> 파일명과 <code>image/jpeg</code> 요청으로 업로드했습니다.</dd>
           <dt>해결</dt><dd>방향을 반영해 JPEG로 변환하고 품질·해상도를 조정해 2,000,000바이트 이하로 만든 뒤 업로드합니다. 임시 파일을 요청 종료 시 정리합니다.</dd>
-          <dt>검증</dt><dd>큰 PNG의 변환·용량 상한과 잘못된 이미지 데이터 거부 테스트 통과. QA의 “2MB”를 보수적으로 2,000,000바이트로 해석했습니다.</dd>
+          <dt>검증</dt><dd>2MB 초과 PNG를 실제 준비 경로로 변환해 JPEG 서명·디코딩·2,000,000바이트 상한을 검사하고, stub 업로드 뒤 기존 팝업에 표시했습니다. 전체 단위 테스트 77개와 관련 UI 테스트 2개가 분리 브랜치에서 통과했습니다. 영상은 성공 후 팝업 fixture이며 라이브 서버 업로드는 포함하지 않습니다.</dd>
         </dl>
-        <div class="pending-video">실제 사진 선택 → 압축 → 서버 업로드 영상은 회원 테스트 환경에서 아직 확보하지 못했습니다. 이 변경의 직접 증거는 바이트 단위 자동 테스트입니다.</div>
+        <figure>
+          <video controls playsinline preload="metadata" poster="assets/home-image-size-2026-10-07/fixture-upload-complete.png"><source src="assets/home-image-size-2026-10-07/fixture-upload-complete.mp4" type="video/mp4">영상 재생을 지원하지 않는 브라우저입니다.</video>
+          <figcaption>iPhone 17e · 2MB 초과 PNG 변환과 stub 업로드 성공 후 팝업 fixture · 5초. 용량은 자동 테스트에서 검증</figcaption>
+        </figure>
       </div>
       <div class="links"><a href="../screens/2_home_qa_2026-10-07_image_size.md">원인·해결 문서</a><a href="2026-10-07-ios-home-image-size-qa.md">검증 기록</a></div>
     </article>

@@ -107,12 +107,16 @@ struct HomeImageDialog: View {
     @ViewBuilder
     private var background: some View {
         if let url = URL(string: imagePath), !imagePath.isEmpty {
-            AsyncImage(url: url) { phase in
-                switch phase {
-                case let .success(image):
-                    image.resizable().scaledToFill()
-                default:
-                    defaultBackground
+            if url.isFileURL, let image = UIImage(contentsOfFile: url.path) {
+                Image(uiImage: image).resizable().scaledToFill()
+            } else {
+                AsyncImage(url: url) { phase in
+                    switch phase {
+                    case let .success(image):
+                        image.resizable().scaledToFill()
+                    default:
+                        defaultBackground
+                    }
                 }
             }
         } else {

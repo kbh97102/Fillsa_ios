@@ -22,6 +22,21 @@ final class HomeUITests: XCTestCase {
     }
 
     @MainActor
+    func testOversizedImageFixtureShowsCompletedDialog() throws {
+        let app = XCUIApplication()
+        app.launchArguments = ["-ui-testing-home", "-ui-testing-home-image-size-upload"]
+        app.launch()
+
+        let dialog = app.otherElements["home.imageDialog"]
+        XCTAssertTrue(dialog.waitForExistence(timeout: 8))
+        let changeButton = app.buttons["이미지 변경"]
+        XCTAssertGreaterThanOrEqual(changeButton.frame.minX, app.frame.minX)
+        XCTAssertLessThanOrEqual(changeButton.frame.maxX, app.frame.maxX)
+        XCTAssertTrue(app.buttons["삭제하기"].exists)
+
+    }
+
+    @MainActor
     func testGlobalLoadingDimsScreenAndBlocksHomeTouches() throws {
         let app = XCUIApplication()
         app.launchArguments = ["-ui-testing-home", "-ui-testing-global-loading"]
