@@ -33,6 +33,7 @@ struct CalendarView: View {
                 .padding(.horizontal, 20)
                 .frame(height: 50)
 
+                ScrollViewReader { scrollProxy in
                 ScrollView(showsIndicators: false) {
                     VStack(spacing: 0) {
                     CalendarMonthSection(
@@ -69,14 +70,29 @@ struct CalendarView: View {
                             selectedDay: viewStore.selectedDay
                         ),
                         selectedDay: viewStore.selectedDay,
+                        answer: Binding(
+                            get: { viewStore.answerDraft },
+                            set: { viewStore.send(.answerDraftChanged($0)) }
+                        ),
+                        recordedAnswer: viewStore.recordedAnswer,
+                        isEditingAnswer: viewStore.isEditingAnswer,
+                        recordAnswer: { viewStore.send(.answerRecordTapped) },
+                        editAnswer: { viewStore.send(.answerEditTapped) },
                         onClick: {
                             viewStore.send(.bottomQuoteTapped)
                         }
                     )
+                    .id("calendar.selectedDayAnswer")
                     }
                     .padding(.horizontal, 20)
                 }
                 .padding(.top, 10)
+                .onAppear {
+                    if ProcessInfo.processInfo.arguments.contains("ui-testing-calendar-answer-saved") {
+                        scrollProxy.scrollTo("calendar.selectedDayAnswer", anchor: .bottom)
+                    }
+                }
+                }
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
             .background(FillsaColor.background.ignoresSafeArea())

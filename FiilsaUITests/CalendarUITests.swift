@@ -28,6 +28,19 @@ final class CalendarUITests: XCTestCase {
     }
 
     @MainActor
+    func testSavedCalendarAnswerFixtureShowsEditState() throws {
+        let app = XCUIApplication()
+        app.launchArguments = ["ui-testing-calendar", "ui-testing-theme-light",
+                               "ui-testing-calendar-completed", "ui-testing-calendar-answer-saved"]
+        app.launch()
+        app.swipeUp()
+
+        XCTAssertTrue(app.textViews["home.answer"].waitForExistence(timeout: 3))
+        XCTAssertEqual(app.textViews["home.answer"].value as? String, "오늘의 질문에 답을 기록했어요.")
+        XCTAssertTrue(app.buttons["내 답변 수정하기"].exists)
+    }
+
+    @MainActor
     func testLightCalendarCompletedActionLabelUsesFigmaColor() throws {
         assertCompletedActionLabelColor(
             theme: "light",

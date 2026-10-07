@@ -275,6 +275,47 @@ struct AppFeature {
                 }
                 return .send(.quoteList(.refresh))
 
+            case let .home(.dailyQuoteLoaded(.success(result))):
+                if !result.isLoggedIn {
+                    let date = FillsaCalendarDateSupport.quoteDateString(for: state.home.date)
+                    if let answer = state.calendar.sessionAnswers[date] {
+                        state.home.answerDraft = answer
+                        state.home.recordedAnswer = answer
+                        state.home.isEditingAnswer = false
+                    }
+                }
+                return .none
+
+            case .home(.answerSaved(_, .success)):
+                state.calendar.hasLoaded = false
+                return .none
+
+            case .calendar(.answerSaved(_, .success)):
+                state.home.hasLoaded = false
+                return .none
+
+            case .home(.answerRecordTapped):
+                if !state.home.isLoggedIn, let answer = state.home.recordedAnswer {
+                    let date = FillsaCalendarDateSupport.quoteDateString(for: state.home.date)
+                    state.calendar.sessionAnswers[date] = answer
+                    if FillsaCalendarDateSupport.quoteDateString(for: state.calendar.selectedDay) == date {
+                        state.calendar.answerDraft = answer
+                        state.calendar.recordedAnswer = answer
+                        state.calendar.isEditingAnswer = false
+                    }
+                }
+                return .none
+
+            case .calendar(.answerRecordTapped):
+                if !state.calendar.isLoggedIn, let answer = state.calendar.recordedAnswer,
+                   FillsaCalendarDateSupport.quoteDateString(for: state.home.date)
+                    == FillsaCalendarDateSupport.quoteDateString(for: state.calendar.selectedDay) {
+                    state.home.answerDraft = answer
+                    state.home.recordedAnswer = answer
+                    state.home.isEditingAnswer = false
+                }
+                return .none
+
             case .home, .quoteList, .calendar:
                 return .none
 
