@@ -26,6 +26,15 @@ struct DefaultHomeRepository: HomeRepository {
         return try await apiClient.send(request, responseType: DailyQuote.self)
     }
 
+    func getWeeklyQuotes(endDate: String?) async throws -> MemberWeeklyQuoteResponse {
+        let request = APIRequest<EmptyRequestBody>(
+            method: .get,
+            path: APIEndpoint.memberWeeklyQuotes,
+            queryItems: endDate.map { [.init(name: "endDate", value: $0)] } ?? []
+        )
+        return try await apiClient.send(request, responseType: MemberWeeklyQuoteResponse.self)
+    }
+
     func postLike(_ requestBody: LikeRequest, dailyQuoteSeq: Int) async throws -> Int {
         let request = APIRequest(
             method: .post,

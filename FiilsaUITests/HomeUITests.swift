@@ -2,6 +2,26 @@ import XCTest
 
 final class HomeUITests: XCTestCase {
     @MainActor
+    func testCachedWeeklyDatesChangeQuoteWithoutLoadingOverlay() throws {
+        let app = XCUIApplication()
+        app.launchArguments = ["-ui-testing-home", "-ui-testing-home-weekly-cache"]
+        app.launch()
+
+        let card = app.buttons["home.quoteCard"]
+        XCTAssertTrue(card.waitForExistence(timeout: 2))
+        XCTAssertTrue(app.staticTexts["오늘의 명언"].exists)
+        NSLog("WEEKLY_VIDEO_READY")
+        Thread.sleep(forTimeInterval: 1.5)
+        app.buttons["15"].tap()
+        XCTAssertTrue(app.staticTexts["15일의 명언"].waitForExistence(timeout: 2))
+        XCTAssertFalse(app.images["globalLoading.spinner"].exists)
+        Thread.sleep(forTimeInterval: 1.5)
+        app.buttons["14"].tap()
+        XCTAssertTrue(app.staticTexts["14일의 명언"].waitForExistence(timeout: 2))
+        Thread.sleep(forTimeInterval: 1.5)
+    }
+
+    @MainActor
     func testGlobalLoadingDimsScreenAndBlocksHomeTouches() throws {
         let app = XCUIApplication()
         app.launchArguments = ["-ui-testing-home", "-ui-testing-global-loading"]

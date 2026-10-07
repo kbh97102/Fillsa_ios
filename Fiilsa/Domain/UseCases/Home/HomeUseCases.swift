@@ -5,6 +5,26 @@ struct HomeDailyQuoteResult: Equatable {
     let isLoggedIn: Bool
 }
 
+enum HomeFeedResult: Equatable {
+    case member(MemberWeeklyQuoteResponse)
+    case guest(HomeDailyQuoteResult)
+}
+
+struct LoadHomeFeedUseCase {
+    let homeRepository: HomeRepository
+    let localRepository: LocalRepository
+
+    func callAsFunction(endDate: String?, guestQuoteDate: String) async throws -> HomeFeedResult {
+        if try await GetLoginStatusUseCase(localRepository: localRepository)() {
+            return .member(try await homeRepository.getWeeklyQuotes(endDate: endDate))
+        }
+        return .guest(try await LoadHomeDailyQuoteUseCase(
+            homeRepository: homeRepository,
+            localRepository: localRepository
+        )(quoteDate: guestQuoteDate))
+    }
+}
+
 struct LoadHomeDailyQuoteUseCase {
     let homeRepository: HomeRepository
     let localRepository: LocalRepository

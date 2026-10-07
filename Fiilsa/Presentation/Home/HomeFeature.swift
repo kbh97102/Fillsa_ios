@@ -23,6 +23,10 @@ struct HomeFeature {
         var answerDraft = ""
         var recordedAnswer: String?
         var isEditingAnswer = true
+        var serverToday: String?
+        var weeklyWindows: [String: MemberWeeklyQuoteResponse] = [:]
+        var feedRequestID: Int?
+        var nextFeedRequestID = 0
     }
 
     enum Action: Equatable {
@@ -30,6 +34,8 @@ struct HomeFeature {
         case beforeTapped
         case nextTapped
         case dailyQuoteLoaded(Result<HomeDailyQuoteResult, ErrorResponse>)
+        case datedDailyQuoteLoaded(String, Result<HomeDailyQuoteResult, ErrorResponse>)
+        case feedLoaded(Int, Result<HomeFeedResult, ErrorResponse>)
         case likeTapped(Bool)
         case likeUpdated(Result<Int, ErrorResponse>)
         case imageTapped
@@ -38,9 +44,9 @@ struct HomeFeature {
         case deleteImageTapped
         case deleteImageCancelled
         case deleteImageConfirmed
-        case imageDeleted(Result<Int, ErrorResponse>)
+        case imageDeleted(Int, Result<Int, ErrorResponse>)
         case imagePicked(URL)
-        case imageUploaded(Result<MemberQuoteImageResponse, ErrorResponse>)
+        case imageUploaded(Int, Result<MemberQuoteImageResponse, ErrorResponse>)
         case copyCompleted
         case toastDismissed
         case completionStateLoaded(Int, [StreakInfo])
@@ -66,12 +72,15 @@ struct HomeFeature {
             case .onAppear:
                 guard !state.hasLoaded, !state.isLoading else { return .none }
                 state.isLoading = true
+                state.nextFeedRequestID += 1
+                let requestID = state.nextFeedRequestID
+                state.feedRequestID = requestID
                 let quoteDate = FillsaCalendarDateSupport.quoteDateString(for: state.date)
                 return .run { send in
                     guard !Task.isCancelled else { return }
                     let token = await loadingClient.begin()
                     if !Task.isCancelled {
-                        async let quote: Void = fetchDailyQuote(quoteDate: quoteDate, send: send)
+                        async let quote: Void = fetchFeed(endDate: nil, quoteDate: quoteDate, requestID: requestID, send: send)
                         async let completion: Void = fetchCompletionState(send: send)
                         _ = await (quote, completion)
                     }
@@ -95,18 +104,61 @@ struct HomeFeature {
                 return load(state: &state)
 
             case let .dailyQuoteLoaded(.success(result)):
-                state.quote = result.quote
-                state.isLoggedIn = result.isLoggedIn
-                if result.isLoggedIn {
-                    state.answerDraft = result.quote.answer ?? ""
-                    state.recordedAnswer = result.quote.answer
-                    state.isEditingAnswer = result.quote.answer == nil
-                }
+                applyDailyResult(result, state: &state)
+                return .none
+
+            case .dailyQuoteLoaded(.failure):
                 state.hasLoaded = true
                 state.isLoading = false
                 return .none
 
-            case .dailyQuoteLoaded(.failure):
+            case let .datedDailyQuoteLoaded(quoteDate, .success(result)):
+                guard quoteDate == FillsaCalendarDateSupport.quoteDateString(for: state.date) else { return .none }
+                applyDailyResult(result, state: &state)
+                return .none
+
+            case let .datedDailyQuoteLoaded(quoteDate, .failure):
+                guard quoteDate == FillsaCalendarDateSupport.quoteDateString(for: state.date) else { return .none }
+                state.hasLoaded = true
+                state.isLoading = false
+                return .none
+
+            case let .feedLoaded(requestID, .success(result)):
+                guard state.feedRequestID == requestID else { return .none }
+                state.feedRequestID = nil
+                switch result {
+                case let .guest(daily):
+                    state.weeklyWindows = [:]
+                    state.serverToday = nil
+                    if daily.quote.quoteDate != FillsaCalendarDateSupport.quoteDateString(for: state.date) {
+                        state.isLoggedIn = false
+                        return load(state: &state)
+                    }
+                    applyDailyResult(daily, state: &state)
+                    return .none
+                case let .member(week):
+                    state.isLoggedIn = true
+                    if state.serverToday == nil { state.serverToday = week.endDate }
+                    state.weeklyWindows[week.endDate] = week
+                    let key = FillsaCalendarDateSupport.quoteDateString(for: state.date)
+                    if let day = week.day(key) {
+                        applyDailyResult(HomeDailyQuoteResult(quote: day.asDailyQuote, isLoggedIn: true), state: &state)
+                        return .none
+                    }
+                    if let anchor = state.serverToday,
+                       let neededEndDate = QuoteDateWindow.endDate(containing: key, anchor: anchor),
+                       neededEndDate != week.endDate {
+                        return load(state: &state)
+                    }
+                    state.isLoading = true
+                    return .runWithLoading { send in
+                        await fetchDailyQuote(quoteDate: key, send: send)
+                    }
+                }
+
+            case let .feedLoaded(requestID, .failure):
+                guard state.feedRequestID == requestID else { return .none }
+                state.feedRequestID = nil
                 state.hasLoaded = true
                 state.isLoading = false
                 return .none
@@ -127,6 +179,7 @@ struct HomeFeature {
                     answer: state.quote.answer,
                     answeredAt: state.quote.answeredAt
                 )
+                updateCachedDay(state: &state) { $0.likeYn = isLike ? "Y" : "N" }
 
                 guard state.quote.dailyQuoteSeq > 0 else { return .none }
                 let quote = state.quote
@@ -188,24 +241,26 @@ struct HomeFeature {
                 return .runWithLoading { send in
                     do {
                         let response = try await homeUseCases.deleteUploadImage(dailyQuoteSeq)
-                        await send(.imageDeleted(.success(response)))
+                        await send(.imageDeleted(dailyQuoteSeq, .success(response)))
                     } catch is CancellationError {
                         return
                     } catch let error as ErrorResponse {
                         guard !Task.isCancelled else { return }
-                        await send(.imageDeleted(.failure(error)))
+                        await send(.imageDeleted(dailyQuoteSeq, .failure(error)))
                     } catch {
                         guard !Task.isCancelled else { return }
-                        await send(.imageDeleted(.failure(.defaultError)))
+                        await send(.imageDeleted(dailyQuoteSeq, .failure(.defaultError)))
                     }
                 }
 
-            case .imageDeleted(.success):
+            case let .imageDeleted(dailyQuoteSeq, .success):
+                updateCachedDay(state: &state, dailyQuoteSeq: dailyQuoteSeq) { $0.imagePath = "" }
+                guard state.quote.dailyQuoteSeq == dailyQuoteSeq else { return .none }
                 state.quote = state.quote.copy(imagePath: "")
                 state.toastMessage = "이미지가 삭제되었습니다."
                 return .none
 
-            case .imageDeleted(.failure):
+            case .imageDeleted(_, .failure):
                 state.toastMessage = "이미지 삭제에 실패했습니다."
                 return .none
 
@@ -216,24 +271,26 @@ struct HomeFeature {
                 return .runWithLoading { send in
                     do {
                         let response = try await homeUseCases.postUploadImage(fileURL, dailyQuoteSeq)
-                        await send(.imageUploaded(.success(response)))
+                        await send(.imageUploaded(dailyQuoteSeq, .success(response)))
                     } catch is CancellationError {
                         return
                     } catch let error as ErrorResponse {
                         guard !Task.isCancelled else { return }
-                        await send(.imageUploaded(.failure(error)))
+                        await send(.imageUploaded(dailyQuoteSeq, .failure(error)))
                     } catch {
                         guard !Task.isCancelled else { return }
-                        await send(.imageUploaded(.failure(.defaultError)))
+                        await send(.imageUploaded(dailyQuoteSeq, .failure(.defaultError)))
                     }
                 }
 
-            case let .imageUploaded(.success(response)):
+            case let .imageUploaded(dailyQuoteSeq, .success(response)):
+                updateCachedDay(state: &state, dailyQuoteSeq: dailyQuoteSeq) { $0.imagePath = response.imagePath }
+                guard state.quote.dailyQuoteSeq == dailyQuoteSeq else { return .none }
                 state.quote = state.quote.copy(imagePath: response.imagePath)
                 state.toastMessage = "이미지가 변경되었습니다."
                 return .none
 
-            case .imageUploaded(.failure):
+            case .imageUploaded(_, .failure):
                 state.toastMessage = "이미지 변경에 실패했습니다."
                 return .none
 
@@ -334,6 +391,10 @@ struct HomeFeature {
                 return .none
 
             case let .answerSaved(dailyQuoteSeq, .success(response)):
+                updateCachedDay(state: &state, dailyQuoteSeq: dailyQuoteSeq) {
+                    $0.answer = response.answer
+                    $0.answeredAt = response.answeredAt
+                }
                 guard state.quote.dailyQuoteSeq == dailyQuoteSeq else { return .none }
                 state.answerDraft = response.answer
                 state.recordedAnswer = response.answer
@@ -354,14 +415,82 @@ struct HomeFeature {
     }
 
     private func load(state: inout State) -> Effect<Action> {
+        let quoteDate = FillsaCalendarDateSupport.quoteDateString(for: state.date)
+        if state.isLoggedIn,
+           let day = state.weeklyWindows.values.compactMap({ $0.day(quoteDate) }).first {
+            applyDailyResult(HomeDailyQuoteResult(quote: day.asDailyQuote, isLoggedIn: true), state: &state)
+            return .none
+        }
+        if state.feedRequestID != nil {
+            // The in-flight first week supplies the server's date anchor. Apply its
+            // response to the latest selection before deciding if another week is needed.
+            state.isLoading = true
+            state.answerDraft = ""
+            state.recordedAnswer = nil
+            state.isEditingAnswer = true
+            return .none
+        }
         state.isLoading = true
         state.answerDraft = ""
         state.recordedAnswer = nil
         state.isEditingAnswer = true
-        let quoteDate = FillsaCalendarDateSupport.quoteDateString(for: state.date)
-
+        if state.isLoggedIn, let anchor = state.serverToday,
+           let endDate = QuoteDateWindow.endDate(containing: quoteDate, anchor: anchor) {
+            state.nextFeedRequestID += 1
+            let requestID = state.nextFeedRequestID
+            state.feedRequestID = requestID
+            return .runWithLoading { send in
+                await fetchFeed(endDate: endDate, quoteDate: quoteDate, requestID: requestID, send: send)
+            }
+        }
         return .runWithLoading { send in
             await fetchDailyQuote(quoteDate: quoteDate, send: send)
+        }
+    }
+
+    private func applyDailyResult(_ result: HomeDailyQuoteResult, state: inout State) {
+        state.quote = result.quote
+        state.isLoggedIn = result.isLoggedIn
+        if result.isLoggedIn {
+            state.answerDraft = result.quote.answer ?? ""
+            state.recordedAnswer = result.quote.answer
+            state.isEditingAnswer = result.quote.answer == nil
+        }
+        state.hasLoaded = true
+        state.isLoading = false
+    }
+
+    private func updateCachedDay(
+        state: inout State,
+        dailyQuoteSeq: Int? = nil,
+        _ update: (inout MemberQuoteDay) -> Void
+    ) {
+        let key = FillsaCalendarDateSupport.quoteDateString(for: state.date)
+        for (endDate, var week) in state.weeklyWindows {
+            if let index = week.days.firstIndex(where: {
+                if let dailyQuoteSeq { return $0.dailyQuoteSeq == dailyQuoteSeq }
+                return $0.date == key
+            }) {
+                update(&week.days[index])
+                state.weeklyWindows[endDate] = week
+                return
+            }
+        }
+    }
+
+    private func fetchFeed(endDate: String?, quoteDate: String, requestID: Int, send: Send<Action>) async {
+        do {
+            let result = try await homeUseCases.loadFeed(endDate, quoteDate)
+            guard !Task.isCancelled else { return }
+            await send(.feedLoaded(requestID, .success(result)))
+        } catch is CancellationError {
+            return
+        } catch let error as ErrorResponse {
+            guard !Task.isCancelled else { return }
+            await send(.feedLoaded(requestID, .failure(error)))
+        } catch {
+            guard !Task.isCancelled else { return }
+            await send(.feedLoaded(requestID, .failure(.defaultError)))
         }
     }
 
@@ -369,15 +498,15 @@ struct HomeFeature {
         do {
             let response = try await homeUseCases.loadDailyQuote(quoteDate)
             guard !Task.isCancelled else { return }
-            await send(.dailyQuoteLoaded(.success(response)))
+            await send(.datedDailyQuoteLoaded(quoteDate, .success(response)))
         } catch is CancellationError {
             return
         } catch let error as ErrorResponse {
             guard !Task.isCancelled else { return }
-            await send(.dailyQuoteLoaded(.failure(error)))
+            await send(.datedDailyQuoteLoaded(quoteDate, .failure(error)))
         } catch {
             guard !Task.isCancelled else { return }
-            await send(.dailyQuoteLoaded(.failure(.defaultError)))
+            await send(.datedDailyQuoteLoaded(quoteDate, .failure(.defaultError)))
         }
     }
 

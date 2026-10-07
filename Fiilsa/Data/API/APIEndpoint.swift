@@ -2,6 +2,7 @@ enum APIEndpoint {
     static let login = "/api/v1/auth/login"
     static let dailyQuoteNonMember = "/api/v1/quotes/daily"
     static let dailyQuote = "/api/v2/member-quotes/daily"
+    static let memberWeeklyQuotes = "/api/v2/member-quotes/weekly"
     static let quoteList = "/api/v2/member-quotes"
     static let memberMonthlyQuotes = "/api/v2/member-quotes/monthly"
     static let notice = "/api/v1/notices"

@@ -82,6 +82,12 @@ struct FiilsaApp: App {
             state.home.isStreakStateLoaded = true
             state.home.streakCount = 100
             state.home.completedWritingDates = ["2026-08-10", "2026-08-11"]
+            if arguments.contains("-ui-testing-home-weekly-cache") {
+                let week = Self.homeUITestWeek
+                state.home.serverToday = week.endDate
+                state.home.weeklyWindows[week.endDate] = week
+                state.home.quote = week.day("2026-08-16")!.asDailyQuote
+            }
             if arguments.contains("-ui-testing-home-zero-streak") {
                 state.home.streakCount = nil
             }
@@ -191,6 +197,30 @@ struct FiilsaApp: App {
         components.month = 8
         components.day = 16
         return components.date ?? Date(timeIntervalSince1970: 0)
+    }()
+
+    private static let homeUITestWeek: MemberWeeklyQuoteResponse = {
+        let days = (10...16).map { day in
+            MemberQuoteDay(
+                date: String(format: "2026-08-%02d", day),
+                dayOfWeek: "",
+                state: day == 16 ? "today" : "none",
+                dailyQuoteSeq: day,
+                korQuote: day == 16 ? "오늘의 명언" : String(format: "%d일의 명언", day),
+                engQuote: "Quote for day \(day)",
+                korAuthor: "존우든",
+                engAuthor: "John Wooden",
+                authorUrl: "",
+                questionKo: "오늘의 질문",
+                questionEn: "Question of the day",
+                answer: nil,
+                answeredAt: nil,
+                likeYn: "N",
+                imagePath: "",
+                completed: false
+            )
+        }
+        return MemberWeeklyQuoteResponse(startDate: "2026-08-10", endDate: "2026-08-16", days: days)
     }()
 
     private static let calendarUITestDate: Date = {

@@ -3,10 +3,278 @@ import Foundation
 import SwiftUI
 import Testing
 import UIKit
+import Alamofire
 @testable import Fiilsa
 
 @Suite("HomeFeature")
 struct HomeFeatureTests {
+    @Test
+    func weeklyDateWindowUsesServerAnchorAcrossMonthBoundary() {
+        #expect(QuoteDateWindow.endDate(containing: "2026-08-31", anchor: "2026-09-03") == "2026-09-03")
+        #expect(QuoteDateWindow.endDate(containing: "2026-08-27", anchor: "2026-09-03") == "2026-08-27")
+        #expect(QuoteDateWindow.endDate(containing: "2026-09-04", anchor: "2026-09-03") == nil)
+    }
+
+    @Test
+    func weeklyResponsePreservesUnassignedDayAndAnswer() throws {
+        let payload = Data("""
+        {"startDate":"2026-09-01","endDate":"2026-09-07","days":[
+          {"date":"2026-09-01","dayOfWeek":"TUESDAY","state":"none","dailyQuoteSeq":null},
+          {"date":"2026-09-07","dayOfWeek":"MONDAY","state":"today","dailyQuoteSeq":42,"questionKo":"질문","answer":"답","likeYn":"Y"}
+        ]}
+        """.utf8)
+        let week = try JSONDecoder().decode(MemberWeeklyQuoteResponse.self, from: payload)
+        #expect(week.days[0].dailyQuoteSeq == nil)
+        #expect(week.days[0].date == "2026-09-01")
+        #expect(week.days[1].answer == "답")
+        #expect(week.days[1].asDailyQuote.dailyQuoteSeq == 42)
+    }
+
+    @Test
+    func weeklyRepositoryOmitsInitialEndDateAndUsesItOnOlderWindow() async throws {
+        let configuration = URLSessionConfiguration.ephemeral
+        configuration.protocolClasses = [WeeklyRequestURLProtocol.self]
+        let repository = DefaultHomeRepository(apiClient: APIClient(session: Session(configuration: configuration)))
+
+        _ = try await repository.getWeeklyQuotes(endDate: nil)
+        _ = try await repository.getWeeklyQuotes(endDate: "2026-08-31")
+
+        var requests = WeeklyRequestURLProtocol.requests.stream.makeAsyncIterator()
+        let first = try #require(await requests.next())
+        let second = try #require(await requests.next())
+        #expect(first.path == "/api/v2/member-quotes/weekly")
+        #expect(first.query == nil)
+        #expect(second.query == "endDate=2026-08-31")
+    }
+
+    @Test @MainActor
+    func memberMovesWithinCachedWeekWithoutAnotherRequest() async throws {
+        let week = try JSONDecoder().decode(MemberWeeklyQuoteResponse.self, from: Data("""
+        {"startDate":"2026-08-06","endDate":"2026-08-12","days":[
+          {"date":"2026-08-11","dayOfWeek":"TUESDAY","state":"done","dailyQuoteSeq":11,"korQuote":"전날","likeYn":"N"},
+          {"date":"2026-08-12","dayOfWeek":"WEDNESDAY","state":"today","dailyQuoteSeq":12,"korQuote":"오늘","likeYn":"N"}
+        ]}
+        """.utf8))
+        let selectedDate = FillsaCalendarDateSupport.calendar.date(from: DateComponents(year: 2026, month: 8, day: 12))!
+        var state = HomeFeature.State()
+        state.date = selectedDate
+        state.quote = week.day("2026-08-12")!.asDailyQuote
+        state.isLoggedIn = true
+        state.hasLoaded = true
+        state.serverToday = "2026-08-12"
+        state.weeklyWindows[week.endDate] = week
+        let store = TestStore(initialState: state) { HomeFeature() } withDependencies: {
+            $0.homeUseCases.loadFeed = { _, _ in
+                Issue.record("A cached date must not issue another request")
+                throw ErrorResponse.defaultError
+            }
+        }
+
+        await store.send(.beforeTapped) {
+            $0.date = FillsaCalendarDateSupport.calendar.date(byAdding: .day, value: -1, to: selectedDate)!
+            $0.quote = week.day("2026-08-11")!.asDailyQuote
+            $0.hasLoaded = true
+        }
+        await store.finish()
+    }
+
+    @Test @MainActor
+    func crossingWeeklyBoundaryFetchesOnceAndReturningUsesCache() async throws {
+        let current = try JSONDecoder().decode(MemberWeeklyQuoteResponse.self, from: Data("""
+        {"startDate":"2026-08-06","endDate":"2026-08-12","days":[{"date":"2026-08-06","dayOfWeek":"THURSDAY","state":"none","dailyQuoteSeq":6}]}
+        """.utf8))
+        let older = try JSONDecoder().decode(MemberWeeklyQuoteResponse.self, from: Data("""
+        {"startDate":"2026-07-30","endDate":"2026-08-05","days":[{"date":"2026-08-05","dayOfWeek":"WEDNESDAY","state":"done","dailyQuoteSeq":5}]}
+        """.utf8))
+        let selected = FillsaCalendarDateSupport.calendar.date(from: DateComponents(year: 2026, month: 8, day: 6))!
+        var state = HomeFeature.State()
+        state.date = selected
+        state.quote = current.day("2026-08-06")!.asDailyQuote
+        state.isLoggedIn = true
+        state.hasLoaded = true
+        state.serverToday = current.endDate
+        state.weeklyWindows[current.endDate] = current
+        let calls = AsyncStream<String>.makeStream()
+        let store = TestStore(initialState: state) { HomeFeature() } withDependencies: {
+            $0.homeUseCases.loadFeed = { endDate, _ in
+                calls.continuation.yield(endDate ?? "omitted")
+                return .member(older)
+            }
+        }
+        let previous = FillsaCalendarDateSupport.calendar.date(byAdding: .day, value: -1, to: selected)!
+
+        await store.send(.beforeTapped) {
+            $0.date = previous
+            $0.hasLoaded = false
+            $0.isLoading = true
+            $0.feedRequestID = 1
+            $0.nextFeedRequestID = 1
+        }
+        var requestIterator = calls.stream.makeAsyncIterator()
+        #expect(await requestIterator.next() == "2026-08-05")
+        await store.receive(.feedLoaded(1, .success(.member(older)))) {
+            $0.feedRequestID = nil
+            $0.weeklyWindows[older.endDate] = older
+            $0.quote = older.day("2026-08-05")!.asDailyQuote
+            $0.hasLoaded = true
+            $0.isLoading = false
+        }
+        await store.send(.nextTapped) {
+            $0.date = selected
+            $0.quote = current.day("2026-08-06")!.asDailyQuote
+        }
+        await store.finish()
+    }
+
+    @Test @MainActor
+    func answerSavedAfterDateChangeUpdatesOnlyItsCachedDay() async throws {
+        let week = try JSONDecoder().decode(MemberWeeklyQuoteResponse.self, from: Data("""
+        {"startDate":"2026-08-06","endDate":"2026-08-12","days":[
+          {"date":"2026-08-11","dayOfWeek":"TUESDAY","state":"none","dailyQuoteSeq":11,"answer":null},
+          {"date":"2026-08-12","dayOfWeek":"WEDNESDAY","state":"today","dailyQuoteSeq":12,"answer":null}
+        ]}
+        """.utf8))
+        var state = HomeFeature.State()
+        state.date = FillsaCalendarDateSupport.calendar.date(from: DateComponents(year: 2026, month: 8, day: 12))!
+        state.quote = week.day("2026-08-12")!.asDailyQuote
+        state.isLoggedIn = true
+        state.hasLoaded = true
+        state.weeklyWindows[week.endDate] = week
+        let saved = AnswerResponse(memberQuoteSeq: 88, answer: "수정 답변", answeredAt: "2026-08-12 10:00:00")
+        let store = TestStore(initialState: state) { HomeFeature() }
+
+        await store.send(.answerSaved(11, .success(saved))) {
+            $0.weeklyWindows[week.endDate]!.days[0].answer = saved.answer
+            $0.weeklyWindows[week.endDate]!.days[0].answeredAt = saved.answeredAt
+        }
+        #expect(store.state.quote.dailyQuoteSeq == 12)
+        #expect(store.state.recordedAnswer == nil)
+    }
+
+    @Test @MainActor
+    func imageUploadForPreviousDateDoesNotReplaceSelectedDateImage() async throws {
+        let week = try JSONDecoder().decode(MemberWeeklyQuoteResponse.self, from: Data("""
+        {"startDate":"2026-08-06","endDate":"2026-08-12","days":[
+          {"date":"2026-08-11","dayOfWeek":"TUESDAY","state":"none","dailyQuoteSeq":11,"imagePath":null},
+          {"date":"2026-08-12","dayOfWeek":"WEDNESDAY","state":"today","dailyQuoteSeq":12,"imagePath":"today.jpg"}
+        ]}
+        """.utf8))
+        var state = HomeFeature.State()
+        state.date = FillsaCalendarDateSupport.calendar.date(from: DateComponents(year: 2026, month: 8, day: 12))!
+        state.quote = week.day("2026-08-12")!.asDailyQuote
+        state.isLoggedIn = true
+        state.weeklyWindows[week.endDate] = week
+        let response = MemberQuoteImageResponse(memberQuoteSeq: 77, imagePath: "yesterday.jpg")
+        let store = TestStore(initialState: state) { HomeFeature() }
+
+        await store.send(.imageUploaded(11, .success(response))) {
+            $0.weeklyWindows[week.endDate]!.days[0].imagePath = "yesterday.jpg"
+        }
+        #expect(store.state.quote.imagePath == "today.jpg")
+    }
+
+    @Test @MainActor
+    func memberHomeEntryLoadsOneWeeklyWindowWithoutEndDate() async throws {
+        let week = try JSONDecoder().decode(MemberWeeklyQuoteResponse.self, from: Data("""
+        {"startDate":"2026-08-06","endDate":"2026-08-12","days":[{"date":"2026-08-12","dayOfWeek":"WEDNESDAY","state":"today","dailyQuoteSeq":12,"answer":"기록"}]}
+        """.utf8))
+        let calls = AsyncStream<String>.makeStream()
+        let streakGate = AsyncStream<Void>.makeStream()
+        var state = HomeFeature.State()
+        state.date = FillsaCalendarDateSupport.calendar.date(from: DateComponents(year: 2026, month: 8, day: 12))!
+        let store = TestStore(initialState: state) { HomeFeature() } withDependencies: {
+            $0.homeUseCases.loadFeed = { endDate, _ in
+                calls.continuation.yield(endDate ?? "omitted")
+                return .member(week)
+            }
+            $0.streakClient.getCurrentCount = {
+                for await _ in streakGate.stream {}
+                return 0
+            }
+            $0.streakClient.getAllLocal = { [] }
+        }
+
+        await store.send(.onAppear) {
+            $0.isLoading = true
+            $0.feedRequestID = 1
+            $0.nextFeedRequestID = 1
+        }
+        var requestIterator = calls.stream.makeAsyncIterator()
+        #expect(await requestIterator.next() == "omitted")
+        await store.receive(.feedLoaded(1, .success(.member(week)))) {
+            $0.feedRequestID = nil
+            $0.isLoggedIn = true
+            $0.serverToday = "2026-08-12"
+            $0.weeklyWindows[week.endDate] = week
+            $0.quote = week.day("2026-08-12")!.asDailyQuote
+            $0.answerDraft = "기록"
+            $0.recordedAnswer = "기록"
+            $0.isEditingAnswer = false
+            $0.hasLoaded = true
+            $0.isLoading = false
+        }
+        streakGate.continuation.finish()
+        await store.receive(.completionStateLoaded(0, [])) { $0.isStreakStateLoaded = true }
+        await store.finish()
+    }
+
+    @Test @MainActor
+    func selectionDuringInitialWeeklyLoadUsesItsResultForLatestDate() async throws {
+        let today = try JSONDecoder().decode(MemberWeeklyQuoteResponse.self, from: Data("""
+        {"startDate":"2026-08-06","endDate":"2026-08-12","days":[{"date":"2026-08-12","dayOfWeek":"WEDNESDAY","state":"today","dailyQuoteSeq":12}]}
+        """.utf8))
+        let selected = try JSONDecoder().decode(MemberWeeklyQuoteResponse.self, from: Data("""
+        {"startDate":"2026-08-06","endDate":"2026-08-12","days":[{"date":"2026-08-11","dayOfWeek":"TUESDAY","state":"none","dailyQuoteSeq":11}]}
+        """.utf8))
+        var state = HomeFeature.State()
+        state.date = FillsaCalendarDateSupport.calendar.date(from: DateComponents(year: 2026, month: 8, day: 12))!
+        state.isLoading = true
+        state.feedRequestID = 1
+        state.nextFeedRequestID = 1
+        let selectedDate = FillsaCalendarDateSupport.calendar.date(byAdding: .day, value: -1, to: state.date)!
+        let store = TestStore(initialState: state) { HomeFeature() } withDependencies: {
+            $0.homeUseCases.loadDailyQuote = { _ in
+                Issue.record("Selection during weekly load must not fall back to daily")
+                throw ErrorResponse.defaultError
+            }
+            $0.homeUseCases.loadFeed = { _, _ in
+                Issue.record("In-flight first week should serve its selected date")
+                throw ErrorResponse.defaultError
+            }
+        }
+
+        await store.send(.calendarDateSelected(selectedDate)) {
+            $0.date = selectedDate
+            $0.calendarDisplayedMonth = FillsaCalendarDateSupport.startOfMonth(for: selectedDate)
+        }
+        await store.send(.feedLoaded(1, .success(.member(selected)))) {
+            $0.feedRequestID = nil
+            $0.isLoggedIn = true
+            $0.serverToday = "2026-08-12"
+            $0.weeklyWindows[selected.endDate] = selected
+            $0.quote = selected.day("2026-08-11")!.asDailyQuote
+            $0.hasLoaded = true
+            $0.isLoading = false
+        }
+        await store.send(.feedLoaded(1, .success(.member(today))))
+        #expect(store.state.quote.dailyQuoteSeq == 11)
+        await store.finish()
+    }
+
+    @Test @MainActor
+    func lateDailyResultCannotOverwriteANewerSelectedDate() async {
+        var state = HomeFeature.State()
+        state.date = FillsaCalendarDateSupport.calendar.date(from: DateComponents(year: 2026, month: 8, day: 12))!
+        state.quote = DailyQuote(dailyQuoteSeq: 12, quoteDate: "2026-08-12")
+        let store = TestStore(initialState: state) { HomeFeature() }
+
+        await store.send(.datedDailyQuoteLoaded(
+            "2026-08-11",
+            .success(HomeDailyQuoteResult(quote: DailyQuote(dailyQuoteSeq: 11, quoteDate: "2026-08-11"), isLoggedIn: false))
+        ))
+        #expect(store.state.quote.dailyQuoteSeq == 12)
+    }
+
     @Test
     func v2DailyQuoteDecodesQuestionAndPreviouslySavedAnswer() throws {
         let payload = Data("""
@@ -27,15 +295,18 @@ struct HomeFeatureTests {
         let streakGate = AsyncStream<Void>.makeStream()
         let quoteStarted = AsyncStream<Void>.makeStream()
         let streakStarted = AsyncStream<Void>.makeStream()
-        let response = HomeDailyQuoteResult(quote: DailyQuote(dailyQuoteSeq: 3), isLoggedIn: false)
+        let response = HomeDailyQuoteResult(
+            quote: DailyQuote(dailyQuoteSeq: 3, quoteDate: FillsaCalendarDateSupport.quoteDateString(for: Date())),
+            isLoggedIn: false
+        )
         let store = TestStore(initialState: HomeFeature.State()) {
             HomeFeature()
         } withDependencies: {
             $0.loadingClient = loadingTestClient(registry)
-            $0.homeUseCases.loadDailyQuote = { _ in
+            $0.homeUseCases.loadFeed = { _, _ in
                 quoteStarted.continuation.yield(())
                 for await _ in quoteGate.stream {}
-                return response
+                return .guest(response)
             }
             $0.streakClient.getCurrentCount = {
                 streakStarted.continuation.yield(())
@@ -44,14 +315,16 @@ struct HomeFeatureTests {
             }
             $0.streakClient.getAllLocal = { [] }
         }
-        let task = await store.send(.onAppear) { $0.isLoading = true }
+        let task = await store.send(.onAppear) { $0.isLoading = true; $0.feedRequestID = 1; $0.nextFeedRequestID = 1 }
+        let requestID = 1
         var quoteEvents = quoteStarted.stream.makeAsyncIterator()
         var streakEvents = streakStarted.stream.makeAsyncIterator()
         _ = await quoteEvents.next()
         _ = await streakEvents.next()
         #expect(await loadingCount(registry) == 1)
         quoteGate.continuation.finish()
-        await store.receive(.dailyQuoteLoaded(.success(response))) {
+        await store.receive(.feedLoaded(requestID, .success(.guest(response)))) {
+            $0.feedRequestID = nil
             $0.quote = response.quote
             $0.hasLoaded = true
             $0.isLoading = false
@@ -75,7 +348,7 @@ struct HomeFeatureTests {
             HomeFeature()
         } withDependencies: {
             $0.loadingClient = loadingTestClient(registry)
-            $0.homeUseCases.loadDailyQuote = { _ in throw ErrorResponse.defaultError }
+            $0.homeUseCases.loadFeed = { _, _ in throw ErrorResponse.defaultError }
             $0.streakClient.getCurrentCount = {
                 streakStarted.continuation.yield(())
                 for await _ in streakGate.stream {}
@@ -83,10 +356,12 @@ struct HomeFeatureTests {
             }
             $0.streakClient.getAllLocal = { [] }
         }
-        let task = await store.send(.onAppear) { $0.isLoading = true }
+        let task = await store.send(.onAppear) { $0.isLoading = true; $0.feedRequestID = 1; $0.nextFeedRequestID = 1 }
+        let requestID = 1
         var started = streakStarted.stream.makeAsyncIterator()
         _ = await started.next()
-        await store.receive(.dailyQuoteLoaded(.failure(.defaultError))) {
+        await store.receive(.feedLoaded(requestID, .failure(.defaultError))) {
+            $0.feedRequestID = nil
             $0.hasLoaded = true
             $0.isLoading = false
         }
@@ -288,7 +563,7 @@ struct HomeFeatureTests {
             $0.isCalendarPresented = false
             $0.isLoading = true
         }
-        await store.receive(.dailyQuoteLoaded(.success(HomeDailyQuoteResult(quote: quote, isLoggedIn: false)))) {
+        await store.receive(.datedDailyQuoteLoaded("2026-08-12", .success(HomeDailyQuoteResult(quote: quote, isLoggedIn: false)))) {
             $0.quote = quote
             $0.hasLoaded = true
             $0.isLoading = false
@@ -415,4 +690,22 @@ struct HomeFeatureTests {
         #expect(calendar.isDate(dates.last!, inSameDayAs: selectedDate))
         #expect(calendar.component(.day, from: dates.first!) == 6)
     }
+}
+
+private final class WeeklyRequestURLProtocol: URLProtocol {
+    static let requests = AsyncStream<URLComponents>.makeStream()
+
+    override class func canInit(with request: URLRequest) -> Bool { true }
+    override class func canonicalRequest(for request: URLRequest) -> URLRequest { request }
+
+    override func startLoading() {
+        let components = URLComponents(url: request.url!, resolvingAgainstBaseURL: false)!
+        Self.requests.continuation.yield(components)
+        let response = HTTPURLResponse(url: request.url!, statusCode: 200, httpVersion: nil, headerFields: nil)!
+        client?.urlProtocol(self, didReceive: response, cacheStoragePolicy: .notAllowed)
+        client?.urlProtocol(self, didLoad: Data(#"{"startDate":"2026-08-25","endDate":"2026-08-31","days":[]}"#.utf8))
+        client?.urlProtocolDidFinishLoading(self)
+    }
+
+    override func stopLoading() {}
 }
