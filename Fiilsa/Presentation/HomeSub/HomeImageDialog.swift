@@ -21,78 +21,86 @@ struct HomeImageDialog: View {
             Color.black.opacity(0.32)
                 .ignoresSafeArea()
 
-            ZStack(alignment: .topLeading) {
-                background
+            GeometryReader { geometry in
+                let dialogWidth = geometry.size.width - 40
+                let dialogHeight = dialogWidth * 373.0 / 320.0
 
-                VStack(spacing: 0) {
-                    HStack(spacing: 8) {
-                        Button(action: dismiss) {
-                            Image(systemName: "xmark")
-                                .font(.system(size: 18, weight: .semibold))
-                                .foregroundStyle(FillsaColor.gray700)
-                                .frame(width: 30, height: 30)
-                        }
-                        .buttonStyle(.plain)
+                ZStack(alignment: .topLeading) {
+                    background
+                        .frame(width: dialogWidth, height: dialogHeight)
+                        .clipped()
 
-                        if !imagePath.isEmpty {
-                            Button(action: delete) {
-                                Text("삭제하기")
-                                    .font(FillsaTypography.body2)
+                    VStack(spacing: 0) {
+                        HStack(spacing: 8) {
+                            Button(action: dismiss) {
+                                Image(systemName: "xmark")
+                                    .font(.system(size: 18, weight: .semibold))
                                     .foregroundStyle(FillsaColor.gray700)
-                                    .underline()
+                                    .frame(width: 30, height: 30)
                             }
                             .buttonStyle(.plain)
+
+                            if !imagePath.isEmpty {
+                                Button(action: delete) {
+                                    Text("삭제하기")
+                                        .font(FillsaTypography.body2)
+                                        .foregroundStyle(FillsaColor.gray700)
+                                        .underline()
+                                }
+                                .buttonStyle(.plain)
+                            }
+
+                            Spacer()
                         }
 
-                        Spacer()
-                    }
+                        Spacer(minLength: 12)
 
-                    Spacer(minLength: 12)
+                        Text(quote)
+                            .font(FillsaTypography.body2)
+                            .foregroundStyle(FillsaColor.gray700)
+                            .multilineTextAlignment(.center)
+                            .fixedSize(horizontal: false, vertical: true)
+                            .frame(maxWidth: .infinity)
 
-                    Text(quote)
-                        .font(FillsaTypography.body2)
-                        .foregroundStyle(FillsaColor.gray700)
-                        .multilineTextAlignment(.center)
-                        .fixedSize(horizontal: false, vertical: true)
-                        .frame(maxWidth: .infinity)
+                        Text(author)
+                            .font(FillsaTypography.body2)
+                            .foregroundStyle(FillsaColor.gray700)
+                            .multilineTextAlignment(.center)
+                            .frame(maxWidth: .infinity)
+                            .padding(.top, 12)
 
-                    Text(author)
-                        .font(FillsaTypography.body2)
-                        .foregroundStyle(FillsaColor.gray700)
-                        .multilineTextAlignment(.center)
-                        .frame(maxWidth: .infinity)
-                        .padding(.top, 12)
+                        Spacer(minLength: 12)
 
-                    Spacer(minLength: 12)
+                        HStack(spacing: 10) {
+                            PhotosPicker(
+                                selection: $selectedPhotoItem,
+                                matching: .images
+                            ) {
+                                Text("이미지 변경")
+                                    .font(FillsaTypography.subtitle1)
+                                    .foregroundStyle(FillsaColor.gray700)
+                                    .frame(maxWidth: .infinity)
+                                    .padding(.vertical, 15)
+                                    .background(
+                                        RoundedRectangle(cornerRadius: 12)
+                                            .fill(FillsaColor.white.opacity(0.9))
+                                    )
+                            }
+                            .buttonStyle(.plain)
 
-                    HStack(spacing: 10) {
-                        PhotosPicker(
-                            selection: $selectedPhotoItem,
-                            matching: .images
-                        ) {
-                            Text("이미지 변경")
-                                .font(FillsaTypography.subtitle1)
-                                .foregroundStyle(FillsaColor.gray700)
-                                .frame(maxWidth: .infinity)
-                                .padding(.vertical, 15)
-                                .background(
-                                    RoundedRectangle(cornerRadius: 12)
-                                        .fill(FillsaColor.white.opacity(0.9))
-                                )
+                            dialogButton("확인", action: dismiss)
                         }
-                        .buttonStyle(.plain)
-
-                        dialogButton("확인", action: dismiss)
                     }
+                    .padding(.horizontal, 12)
+                    .padding(.vertical, 20)
+                    .frame(width: dialogWidth, height: dialogHeight)
                 }
-                .padding(.horizontal, 12)
-                .padding(.vertical, 20)
+                .frame(width: dialogWidth, height: dialogHeight)
+                .clipShape(RoundedRectangle(cornerRadius: 12))
+                .accessibilityElement(children: .contain)
+                .accessibilityIdentifier("home.imageDialog")
+                .position(x: geometry.size.width / 2, y: geometry.size.height / 2)
             }
-            .aspectRatio(320.0 / 373.0, contentMode: .fit)
-            .clipShape(RoundedRectangle(cornerRadius: 12))
-            .accessibilityElement(children: .contain)
-            .accessibilityIdentifier("home.imageDialog")
-            .padding(.horizontal, 20)
         }
     }
 

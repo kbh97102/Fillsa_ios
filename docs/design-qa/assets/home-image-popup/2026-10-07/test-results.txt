@@ -1,0 +1,23 @@
+Simulator: iPhone 17e, iOS 26.4; serial UI tests, isolated .derivedData
+Red command: xcodebuild test-without-building -project Fiilsa.xcodeproj -scheme Fiilsa -destination platform=iOS Simulator,id=6C263489-FBEE-4DC7-9904-55D99393D4EC -parallel-testing-enabled NO -only-testing:FiilsaUITests/HomeUITests/testImageDialogKeepsFrameForWideAndTallImages
+/Users/gangbohun/iosProjects/Fiilsa/.worktrees/qa-image-popup/FiilsaUITests/HomeUITests.swift:69: error: -[FiilsaUITests.HomeUITests testImageDialogKeepsFrameForWideAndTallImages] : XCTAssertEqualWithAccuracy failed: ("5624.0") is not equal to ("350.0") +/- ("1.0")
+/Users/gangbohun/iosProjects/Fiilsa/.worktrees/qa-image-popup/FiilsaUITests/HomeUITests.swift:70: error: -[FiilsaUITests.HomeUITests testImageDialogKeepsFrameForWideAndTallImages] : XCTAssertEqualWithAccuracy failed: ("8.0") is not equal to ("0.8579088471849866") +/- ("0.02")
+/Users/gangbohun/iosProjects/Fiilsa/.worktrees/qa-image-popup/FiilsaUITests/HomeUITests.swift:71: error: -[FiilsaUITests.HomeUITests testImageDialogKeepsFrameForWideAndTallImages] : XCTAssertEqualWithAccuracy failed: ("2832.0") is not equal to ("195.0") +/- ("1.0")
+/Users/gangbohun/iosProjects/Fiilsa/.worktrees/qa-image-popup/FiilsaUITests/HomeUITests.swift:74: error: -[FiilsaUITests.HomeUITests testImageDialogKeepsFrameForWideAndTallImages] : XCTAssertEqualWithAccuracy failed: ("47.0") is not equal to ("194.66666666666666") +/- ("1.0")
+/Users/gangbohun/iosProjects/Fiilsa/.worktrees/qa-image-popup/FiilsaUITests/HomeUITests.swift:75: error: -[FiilsaUITests.HomeUITests testImageDialogKeepsFrameForWideAndTallImages] : XCTAssertEqualWithAccuracy failed: ("5624.0") is not equal to ("350.0") +/- ("1.0")
+/Users/gangbohun/iosProjects/Fiilsa/.worktrees/qa-image-popup/FiilsaUITests/HomeUITests.swift:76: error: -[FiilsaUITests.HomeUITests testImageDialogKeepsFrameForWideAndTallImages] : XCTAssertEqualWithAccuracy failed: ("703.0") is not equal to ("407.66666666666663") +/- ("1.0")
+/Users/gangbohun/iosProjects/Fiilsa/.worktrees/qa-image-popup/FiilsaUITests/HomeUITests.swift:78: error: -[FiilsaUITests.HomeUITests testImageDialogKeepsFrameForWideAndTallImages] : XCTAssertEqual failed: ("nil") is not equal to ("Optional("255,0,0")")
+/Users/gangbohun/iosProjects/Fiilsa/.worktrees/qa-image-popup/FiilsaUITests/HomeUITests.swift:70: error: -[FiilsaUITests.HomeUITests testImageDialogKeepsFrameForWideAndTallImages] : XCTAssertEqualWithAccuracy failed: ("0.125") is not equal to ("0.8579088471849866") +/- ("0.02")
+/Users/gangbohun/iosProjects/Fiilsa/.worktrees/qa-image-popup/FiilsaUITests/HomeUITests.swift:74: error: -[FiilsaUITests.HomeUITests testImageDialogKeepsFrameForWideAndTallImages] : XCTAssertEqualWithAccuracy failed: ("47.0") is not equal to ("194.66666666666666") +/- ("1.0")
+/Users/gangbohun/iosProjects/Fiilsa/.worktrees/qa-image-popup/FiilsaUITests/HomeUITests.swift:76: error: -[FiilsaUITests.HomeUITests testImageDialogKeepsFrameForWideAndTallImages] : XCTAssertEqualWithAccuracy failed: ("2800.0") is not equal to ("407.66666666666663") +/- ("1.0")
+	 Executed 1 test, with 10 failures (0 unexpected) in 17.144 (17.145) seconds
+	 Executed 1 test, with 10 failures (0 unexpected) in 17.144 (17.146) seconds
+	 Executed 1 test, with 10 failures (0 unexpected) in 17.144 (17.147) seconds
+
+Final command: xcodebuild test -project Fiilsa.xcodeproj -scheme Fiilsa -destination platform=iOS Simulator,id=6C263489-FBEE-4DC7-9904-55D99393D4EC -parallel-testing-enabled NO -only-testing:FiilsaUITests/HomeUITests/testImageDialogUsesFigmaAspectRatio -only-testing:FiilsaUITests/HomeUITests/testImageDialogKeepsFrameForWideAndTallImages CODE_SIGNING_ALLOWED=NO
+Test Case '-[FiilsaUITests.HomeUITests testImageDialogKeepsFrameForWideAndTallImages]' passed (15.205 seconds).
+Test Case '-[FiilsaUITests.HomeUITests testImageDialogUsesFigmaAspectRatio]' passed (5.870 seconds).
+	 Executed 2 tests, with 0 failures (0 unexpected) in 21.075 (21.077) seconds
+	 Executed 2 tests, with 0 failures (0 unexpected) in 21.075 (21.078) seconds
+	 Executed 2 tests, with 0 failures (0 unexpected) in 21.075 (21.079) seconds
+** TEST SUCCEEDED **
