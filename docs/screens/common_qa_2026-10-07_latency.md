@@ -9,9 +9,24 @@
 
 `LoadingClient`는 비동기 작업이 시작될 때 토큰을 등록하고 모든 등록 작업이 끝나면 제거한다 (`Fiilsa/Core/Dependencies/LoadingClient.swift:9-16,19-33`). 앱은 활성 토큰이 하나라도 있으면 Splash 외 화면에 로딩 오버레이를 표시한다 (`Fiilsa/App/AppFeature.swift:24-25`, `Fiilsa/App/AppView.swift:193-218`). 따라서 긴 로딩 표시만으로 서버 지연을 단정할 수 없다.
 
-Home 첫 진입은 daily 명언 조회와 완료 상태 조회를 병렬 실행하지만 **둘 다 종료될 때까지** 한 로딩 토큰을 유지한다 (`Fiilsa/Presentation/Home/HomeFeature.swift:65-78`). 회원의 명언 조회는 v1 daily API, 연속 일수 조회는 별도 API다 (`Fiilsa/Domain/UseCases/Home/HomeUseCases.swift:12-19`, `Fiilsa/Domain/UseCases/Common/MemberStreakUseCases.swift:24-36`). Home의 날짜 이동은 매번 daily 조회를 다시 호출한다 (`Fiilsa/Presentation/Home/HomeFeature.swift:80-95,316-322`). 2026-09-03 서버 가이드는 이 지연을 줄이기 위한 v2 weekly 응답을 제공하며, 이미 받은 7일 창의 날짜·카드 이동에는 추가 호출이 없도록 명시한다. 현재 구현에는 아직 반영되지 않았다. 이는 반복 로딩의 **확인된 클라이언트 기여 요인**이지만, 모든 화면의 지연 원인이라는 뜻은 아니다.
+Home 첫 진입은 명언 조회와 완료 상태 조회를 병렬 실행하지만 **둘 다 종료될 때까지** 한 로딩 토큰을 유지한다. 회원 명언 조회는 이번 변경에서 v2 weekly로 전환했고, 연속 일수는 별도 API다. 날짜 이동은 응답에 포함된 7일 창과 이전에 받아 둔 창을 캐시에서 읽는다. 이 변경은 반복 로딩의 **확인된 클라이언트 기여 요인**인 날짜별 재요청을 줄인다. 모든 화면 지연의 주원인이나 서버 처리 시간은 아직 알 수 없다.
 
 Debug 빌드의 `HTTPLogger`는 각 HTTP 요청의 Alamofire task 총 시간을 ms로 출력한다 (`Fiilsa/Data/API/APIClient.swift:202-210`). 이 값만으로 DNS/연결, 서버 처리, 응답 전송, 디코딩, 여러 작업의 합류 대기를 나눌 수는 없다.
+
+## 2026-10-07 클라이언트 요청 수 확인
+
+코드 경로로 확인한 기본 요청 수다(인증 refresh 재시도 제외). 운영 환경에서 측정한 응답 시간이나 서버 처리 시간이 아니다.
+
+| 회원 Home 액션 | 변경 전 | 변경 후 | 근거 |
+|---|---:|---:|---|
+| 첫 진입 | 2 | 2 | 변경 전 v2 daily 1회, 변경 후 v2 weekly 1회. member streak 1회는 유지. |
+| 이미 받은 7일 창 안의 날짜 선택 | 1회/선택 | 0회/선택 | 변경 전 daily 재요청, 변경 후 reducer 캐시 선택. |
+| 같은 창 안의 날짜 6회 이동 | 6 | 0 | reducer 테스트로 in-window 0회와 경계 진입 1회 확인. 실제 벽시계 대기 시간은 미측정. |
+| 새 7일 창 경계 진입 | 1 | 1 | v2 weekly를 한 번 받은 뒤 해당 창 재진입은 0회. |
+
+변경 전 수치는 base answer 연동 브랜치의 호출 경로, 변경 후 수치는 mock response를 사용하는 reducer 및 URLProtocol 테스트에서 확인한 요청 수다. 운영 계정·네트워크의 실제 시간 측정은 없다. [주간 캐시 QA](../design-qa/2026-10-07-ios-home-weekly-cache-qa.md)에 실행 영상과 미검증 범위를 기록했다.
+
+`APIClient`에는 Debug 빌드에서 `API timing <method> <path> outcome=<...> request=<...>ms decode=<...>ms total=<...>ms` 한 줄을 추가했다. `request`는 URL 요청 시작부터 Alamofire가 응답 데이터를 전달할 때까지, `decode`는 그 뒤 모델 디코딩까지의 경과 시간이다. 경로만 기록하며 query와 body는 새 성능 기록에서 제외한다. 이 값은 네트워크와 서버 처리 시간을 더 세분화하거나 전역 로딩 시간 전체를 뜻하지 않는다. 로컬 URLProtocol 테스트는 계측 이벤트 1회, 경로의 query 제거, 시간 구간을 검증했다. QA 기기/계정/네트워크에서 동일 액션을 반복한 실제 지연 샘플 및 서버 처리 시간은 아직 없다.
 
 ## 원인 분리 및 해결 방안
 

@@ -1,6 +1,17 @@
 import Foundation
 import Alamofire
 
+struct APIRequestTiming: Equatable, Sendable {
+    enum Outcome: Equatable, Sendable { case success, failure }
+
+    let method: String
+    let path: String
+    let outcome: Outcome
+    let requestMilliseconds: Int
+    let decodeMilliseconds: Int
+    let totalMilliseconds: Int
+}
+
 @preconcurrency
 protocol APIClientProtocol {
     func send<Response: Decodable, Body: Encodable>(
@@ -20,29 +31,63 @@ struct APIClient: APIClientProtocol {
     private let session: Session
     private let encoder: JSONEncoder
     private let decoder: JSONDecoder
+    private let onTiming: @Sendable (APIRequestTiming) -> Void
 
     init(
         environment: APIEnvironment = .production,
         session: Session = .default,
         encoder: JSONEncoder = JSONEncoder(),
-        decoder: JSONDecoder = JSONDecoder()
+        decoder: JSONDecoder = JSONDecoder(),
+        onTiming: @escaping @Sendable (APIRequestTiming) -> Void = { HTTPLogger.logTiming($0) }
     ) {
         self.environment = environment
         self.session = session
         self.encoder = encoder
         self.decoder = decoder
+        self.onTiming = onTiming
     }
 
     func send<Response: Decodable, Body: Encodable>(
         _ request: APIRequest<Body>,
         responseType: Response.Type = Response.self
     ) async throws -> Response {
-        if Response.self == EmptyResponse.self {
-            _ = try await data(for: request)
-            return EmptyResponse() as! Response
+        let started = ProcessInfo.processInfo.systemUptime
+        var responseReceived: TimeInterval?
+        do {
+            let data = try await data(for: request)
+            responseReceived = ProcessInfo.processInfo.systemUptime
+            if Response.self == EmptyResponse.self {
+                onTiming(timing(for: request, started: started, responseReceived: responseReceived, outcome: .success))
+                return EmptyResponse() as! Response
+            }
+            let decoded = try decode(data, responseType: Response.self)
+            onTiming(timing(for: request, started: started, responseReceived: responseReceived, outcome: .success))
+            return decoded
+        } catch {
+            onTiming(timing(for: request, started: started, responseReceived: responseReceived, outcome: .failure))
+            throw error
         }
+    }
 
-        let data = try await data(for: request)
+    private func timing<Body: Encodable>(
+        for request: APIRequest<Body>,
+        started: TimeInterval,
+        responseReceived: TimeInterval?,
+        outcome: APIRequestTiming.Outcome
+    ) -> APIRequestTiming {
+        let finished = ProcessInfo.processInfo.systemUptime
+        let received = responseReceived ?? finished
+        return APIRequestTiming(
+            method: request.method.rawValue,
+            path: request.path,
+            outcome: outcome,
+            requestMilliseconds: Int((received - started) * 1_000),
+            decodeMilliseconds: Int((finished - received) * 1_000),
+            totalMilliseconds: Int((finished - started) * 1_000)
+        )
+    }
+
+    private func decode<Response: Decodable>(_ data: Data, responseType: Response.Type) throws -> Response {
         do {
             return try decoder.decode(Response.self, from: data)
         } catch {
@@ -181,6 +226,11 @@ private enum APIAppVersion {
 }
 
 private enum HTTPLogger {
+    static func logTiming(_ timing: APIRequestTiming) {
+        #if DEBUG
+        print("API timing \(timing.method) \(timing.path) outcome=\(timing.outcome) request=\(timing.requestMilliseconds)ms decode=\(timing.decodeMilliseconds)ms total=\(timing.totalMilliseconds)ms")
+        #endif
+    }
     static func logRequest(_ request: URLRequest) {
         #if DEBUG
         print("---------- REQUEST ----------")

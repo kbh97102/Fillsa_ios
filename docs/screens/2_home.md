@@ -11,6 +11,7 @@
 - QA 기록: `docs/design-qa/2026-09-07-ios-home-interactions-qa.md`
 - 답변 키보드 회귀 QA: `docs/design-qa/2026-09-23-ios-home-answer-keyboard-qa.md`
 - 2026-10-07 답변 저장 QA: `docs/design-qa/2026-10-07-ios-home-calendar-answer-qa.md`
+- 2026-10-07 주간 조회 캐시 QA: [Home weekly cache QA](../design-qa/2026-10-07-ios-home-weekly-cache-qa.md)
 - 날짜/연속필사 패딩 QA: `docs/design-qa/2026-09-25-ios-home-date-streak-padding-qa.md`
 - 반응형 레이아웃 QA: `docs/design-qa/2026-09-25-ios-home-responsive-layout-qa.md`
 - Dark root 상세 명세: `docs/screens/2_home_dark.md` (root `2929:9603`, 상태별 render node와 기준 이미지)
@@ -26,6 +27,14 @@
 - 데이터/상호작용: 회원 일간 조회의 날짜별 `dailyQuoteSeq`, 질문, 답변을 사용한다. 비회원 입력 정책은 확인 중이다. 성공·실패·재진입·날짜 전환을 검증한다.
 - 시각적 예외: 긴 서버 질문/답변, 키보드 포커스, 토스트 위치를 컴포넌트와 전체 360×821pt 프레임에서 확인한다.
 - QA 기록: [2026-10-07 Home·Calendar 답변](../design-qa/2026-10-07-ios-home-calendar-answer-qa.md).
+
+### 2026-10-07 회원 주간 조회 캐시
+
+- Figma 기준: Home 전체 `2929:13556`, 주간 날짜 스트립 `3204:2435`의 현재 선택 날짜 우측 끝 배치와 명언 카드/질문 영역. 화면 구성과 날짜 선택 동작은 변경하지 않는다.
+- 회원 첫 진입은 `GET /api/v2/member-quotes/weekly`에 `endDate` 없이 요청하고 서버 응답의 `endDate`를 7일 창 기준 날짜로 보관한다. 창 안 날짜 선택에는 HTTP 요청을 하지 않는다. 경계를 넘으면 서버 기준 7일 단위 `endDate`로 한 번 요청하고 기존 창 재진입은 캐시에서 읽는다.
+- 같은 날짜의 답변·좋아요·이미지 변경은 메모리의 주간 캐시에 반영한다. 명언 ID가 없는 날짜는 날짜 셀은 유지하고 쓰기 액션의 기존 ID guard를 적용한다. 게스트는 기존 v1 일간 조회, 주간 응답에 선택 날짜가 누락된 회원은 v2 일간 조회를 사용한다.
+- `HomeWeekStrip`과 명언 카드의 레이아웃·문구·자산은 수정하지 않았다. 새 데이터 경로의 요청 수와 날짜별 상태를 reducer 테스트 및 fixture UI 테스트로 확인했다. Figma 연결 재인증 필요와 런타임/Figma 프레임 크기 차이로 전체 시각 검증은 `Blocked`다.
+- QA 기록: [주간 조회 캐시 QA](../design-qa/2026-10-07-ios-home-weekly-cache-qa.md).
 
 ### 2026-09-07 Home 상호작용 구현 계약
 
@@ -221,13 +230,13 @@ GET /api/v1/quotes/daily?quoteDate={quoteDate}
 ### 일일 명언 조회 (회원)
 
 ```
-GET /api/v1/member-quotes/daily?quoteDate={quoteDate}
+GET /api/v2/member-quotes/daily?quoteDate={quoteDate}
 ```
 
 **Response: `DailyQuoteDto`**
 
-- 회원 일일 명언 응답에는 `quoteDate` 필드가 포함되지 않는다.
-- iOS는 응답 디코딩 시 `quoteDate`를 빈 기본값으로 처리한다. 화면의 현재 날짜와 필사 화면 전달 날짜는 선택한 날짜 상태에서 별도로 계산한다.
+- v2 일일 명언 응답의 `date`를 `quoteDate`로 해석한다. 오래된 응답처럼 날짜 필드가 없을 때는 빈 기본값을 사용하며 화면의 선택 날짜는 Home state에서 별도로 관리한다.
+- 선택 날짜가 주간 응답에 없을 때만 위 일간 조회를 보조 경로로 사용한다. 최초 회원 Home 조회는 `GET /api/v2/member-quotes/weekly`이며 `endDate`를 생략한다.
 
 ### 좋아요
 

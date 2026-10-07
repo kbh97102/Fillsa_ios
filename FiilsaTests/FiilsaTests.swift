@@ -76,6 +76,34 @@ struct FiilsaTests {
         _ = try await client.send(request, responseType: EmptyResponse.self)
     }
 
+    @Test func apiClientEmitsOneTimingWithoutQueryOrBody() async throws {
+        let configuration = URLSessionConfiguration.ephemeral
+        configuration.protocolClasses = [EmptySuccessURLProtocol.self]
+        let traces = AsyncStream<APIRequestTiming>.makeStream()
+        let client = APIClient(
+            session: Session(configuration: configuration),
+            onTiming: { traces.continuation.yield($0) }
+        )
+        let request = APIRequest<EmptyRequestBody>(
+            method: .get,
+            path: "/api/test",
+            queryItems: [.init(name: "answer", value: "private-text")]
+        )
+
+        _ = try await client.send(request, responseType: EmptyResponse.self)
+        traces.continuation.finish()
+        var iterator = traces.stream.makeAsyncIterator()
+        let timing = try #require(await iterator.next())
+
+        #expect(timing.method == "GET")
+        #expect(timing.path == "/api/test")
+        #expect(timing.outcome == .success)
+        #expect(timing.requestMilliseconds >= 0)
+        #expect(timing.decodeMilliseconds >= 0)
+        #expect(timing.totalMilliseconds >= timing.requestMilliseconds)
+        #expect(await iterator.next() == nil)
+    }
+
     @Test @MainActor func noticeList_usesFigmaTextColorsInDarkMode() {
         let lightTrait = UITraitCollection(userInterfaceStyle: .light)
         let darkTrait = UITraitCollection(userInterfaceStyle: .dark)

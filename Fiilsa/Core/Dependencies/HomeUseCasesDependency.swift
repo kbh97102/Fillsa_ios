@@ -3,6 +3,7 @@ import Foundation
 
 struct HomeUseCases {
     var loadDailyQuote: @Sendable (_ quoteDate: String) async throws -> HomeDailyQuoteResult
+    var loadFeed: @Sendable (_ endDate: String?, _ guestQuoteDate: String) async throws -> HomeFeedResult
     var updateLike: @Sendable (
         _ isLike: Bool,
         _ quote: DailyQuote,
@@ -25,6 +26,12 @@ extension HomeUseCases: DependencyKey {
                     homeRepository: homeRepository,
                     localRepository: localRepository
                 )(quoteDate: quoteDate)
+            },
+            loadFeed: { endDate, guestQuoteDate in
+                try await LoadHomeFeedUseCase(
+                    homeRepository: homeRepository,
+                    localRepository: localRepository
+                )(endDate: endDate, guestQuoteDate: guestQuoteDate)
             },
             updateLike: { isLike, quote, quoteDate, dayOfWeek in
                 try await UpdateHomeLikeUseCase(
