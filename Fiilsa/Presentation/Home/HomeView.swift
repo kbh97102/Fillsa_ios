@@ -172,6 +172,7 @@ struct HomeView: View {
             .padding(.horizontal, 16)
             .frame(height: 36)
             .background(FillsaColor.toastMessageBackground, in: RoundedRectangle(cornerRadius: 8))
+            .padding(.leading, 20)
             .padding(.bottom, 28)
         }
     }
