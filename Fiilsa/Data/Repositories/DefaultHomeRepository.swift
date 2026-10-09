@@ -3,7 +3,7 @@ import Foundation
 struct DefaultHomeRepository: HomeRepository {
     private let apiClient: APIClientProtocol
 
-    init(apiClient: APIClientProtocol = APIClientFactory.authenticated(deviceIDProvider: { "" })) {
+    init(apiClient: APIClientProtocol = APIClientFactory.authenticated()) {
         self.apiClient = apiClient
     }
 
