@@ -5,7 +5,7 @@ enum APIClientFactory {
     static func authenticated(
         environment: APIEnvironment = .production,
         tokenStore: TokenStore = KeychainTokenStore(),
-        sessionConfiguration: URLSessionConfiguration = .default
+        sessionConfiguration: URLSessionConfiguration = .af.default
     ) -> APIClient {
         let refreshClient = APIClient(
             environment: environment,
