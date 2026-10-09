@@ -37,7 +37,7 @@ extension DependencyValues {
     }
 }
 
-private struct LoginUseCase {
+struct LoginUseCase {
     let authRepository: AuthRepository
     let localRepository: LocalRepository
     let currentPushToken: @Sendable () async -> String?
@@ -83,6 +83,7 @@ private struct LoginUseCase {
         try await SetUserNameUseCase(localRepository: localRepository)(response.nickname)
         try await localRepository.setImageURI(response.profileImageUrl)
         try await ClearLocalDataUseCase(localRepository: localRepository)()
+        try await localRepository.setLogoutRequested(false)
         return response
     }
 }

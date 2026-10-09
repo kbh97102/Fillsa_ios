@@ -34,6 +34,7 @@ struct LogoutUseCase {
     let localRepository: LocalRepository
 
     func callAsFunction() async throws {
+        try await localRepository.setLogoutRequested(true)
         try await localRepository.clearAuthentication()
         try await localRepository.setName("")
         try await localRepository.setImageURI("")

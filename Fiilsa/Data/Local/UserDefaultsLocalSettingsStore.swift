@@ -5,6 +5,7 @@ struct UserDefaultsLocalSettingsStore {
         static let imageURI = "image_uri"
         static let userName = "user_name"
         static let isFirstOpen = "is_first_open"
+        static let logoutRequested = "logout_requested"
         static let alarm = "alarm_key"
         static let tokenExpired = "token_expired"
         static let permissionRequested = "PERMISSION_REQUESTED"
@@ -44,6 +45,14 @@ struct UserDefaultsLocalSettingsStore {
             return true
         }
         return userDefaults.bool(forKey: Key.isFirstOpen)
+    }
+
+    func setLogoutRequested(_ requested: Bool) {
+        userDefaults.set(requested, forKey: Key.logoutRequested)
+    }
+
+    func isLogoutRequested() -> Bool {
+        userDefaults.bool(forKey: Key.logoutRequested)
     }
 
     func setAlarm(_ value: Bool) {

@@ -1,10 +1,10 @@
 final class DefaultLocalRepository: LocalRepository {
-    private let tokenStore: KeychainTokenStore
+    private let tokenStore: any TokenStore
     private let settingsStore: UserDefaultsLocalSettingsStore
     private let localStore: SQLiteLocalStore
 
     init(
-        tokenStore: KeychainTokenStore = KeychainTokenStore(),
+        tokenStore: any TokenStore = KeychainTokenStore(),
         settingsStore: UserDefaultsLocalSettingsStore = UserDefaultsLocalSettingsStore(),
         localStore: SQLiteLocalStore? = nil
     ) throws {
@@ -44,9 +44,14 @@ final class DefaultLocalRepository: LocalRepository {
     }
 
     func isLoggedIn() async throws -> Bool {
+        guard !settingsStore.isLogoutRequested() else { return false }
         let accessToken = await tokenStore.accessToken()
         let refreshToken = await tokenStore.refreshToken()
         return !accessToken.isEmpty && !refreshToken.isEmpty
+    }
+
+    func setLogoutRequested(_ requested: Bool) async throws {
+        settingsStore.setLogoutRequested(requested)
     }
 
     func setImageURI(_ uri: String) async throws {
