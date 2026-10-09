@@ -38,6 +38,7 @@ struct MyPageFeature {
         enum Delegate: Equatable {
             case homeSelected
             case loginSelected
+            case loggedOut
             case noticeSelected
             case alertSelected
             case resignCompleted
@@ -115,7 +116,7 @@ struct MyPageFeature {
                 state.isLoggedIn = false
                 state.userName = ""
                 state.imagePath = ""
-                return .none
+                return .send(.delegate(.loggedOut))
 
             case .resignTapped:
                 guard state.isLoggedIn, !state.isProcessing else { return .none }

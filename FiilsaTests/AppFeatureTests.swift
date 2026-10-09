@@ -4,6 +4,45 @@ import XCTest
 
 @MainActor
 final class AppFeatureTests: XCTestCase {
+    func test_logoutFromMyPageOpensLoginAndClearsMemberScreens() async {
+        var state = AppFeature.State()
+        state.screen = .main
+        state.selectedTab = .myPage
+        state.selectedTheme = .dark
+        state.login.isProcessing = true
+        state.home.answerDraft = "private answer"
+        state.quoteList.hasLoaded = true
+        state.calendar.recordedAnswer = "private answer"
+        state.myPage = MyPageFeature.State(isLoggedIn: true, userName: "필사", selectedTheme: .dark)
+        state.notice.hasLoaded = true
+        state.alert.isAlarmOn = true
+        state.memoInsert.savedMemo = "private memo"
+        state.typing.korTyping = "private typing"
+        state.share.quote = "private quote"
+        state.generalPopup.hasLoaded = true
+        let store = TestStore(initialState: state) { AppFeature() }
+        store.exhaustivity = .off
+
+        await store.send(.myPage(.delegate(.loggedOut)))
+
+        XCTAssertEqual(store.state.screen, .login(isOnboarding: false))
+        XCTAssertEqual(store.state.selectedTab, .home)
+        XCTAssertEqual(store.state.selectedTheme, .dark)
+        XCTAssertFalse(store.state.login.isProcessing)
+        XCTAssertEqual(store.state.home.answerDraft, "")
+        XCTAssertFalse(store.state.quoteList.hasLoaded)
+        XCTAssertNil(store.state.calendar.recordedAnswer)
+        XCTAssertFalse(store.state.myPage.isLoggedIn)
+        XCTAssertEqual(store.state.myPage.userName, "")
+        XCTAssertEqual(store.state.myPage.selectedTheme, .dark)
+        XCTAssertFalse(store.state.notice.hasLoaded)
+        XCTAssertFalse(store.state.alert.isAlarmOn)
+        XCTAssertEqual(store.state.memoInsert.savedMemo, "")
+        XCTAssertEqual(store.state.typing.korTyping, "")
+        XCTAssertEqual(store.state.share.quote, "")
+        XCTAssertFalse(store.state.generalPopup.hasLoaded)
+    }
+
     func test_nonmemberHomeReloadRestoresSelectedDaysSessionAnswer() async {
         var state = AppFeature.State()
         let date = FillsaCalendarDateSupport.quoteDateString(for: state.home.date)

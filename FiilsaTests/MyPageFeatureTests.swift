@@ -4,6 +4,42 @@ import XCTest
 
 @MainActor
 final class MyPageFeatureTests: XCTestCase {
+    func test_logoutEmitsLoginNavigationAfterClearingMemberState() async {
+        let store = TestStore(
+            initialState: MyPageFeature.State(isLoggedIn: true, userName: "필사", imagePath: "profile")
+        ) {
+            MyPageFeature()
+        } withDependencies: {
+            $0.sessionClient.logout = {}
+        }
+
+        await store.send(.logoutTapped)
+        await store.receive(.loggedOut) {
+            $0.isLoggedIn = false
+            $0.userName = ""
+            $0.imagePath = ""
+        }
+        await store.receive(.delegate(.loggedOut))
+    }
+
+    func test_logoutStillEmitsLoginNavigationWhenLocalCleanupFails() async {
+        let store = TestStore(
+            initialState: MyPageFeature.State(isLoggedIn: true, userName: "필사", imagePath: "profile")
+        ) {
+            MyPageFeature()
+        } withDependencies: {
+            $0.sessionClient.logout = { throw TestResignError.failed }
+        }
+
+        await store.send(.logoutTapped)
+        await store.receive(.loggedOut) {
+            $0.isLoggedIn = false
+            $0.userName = ""
+            $0.imagePath = ""
+        }
+        await store.receive(.delegate(.loggedOut))
+    }
+
     func test_resignConfirmationDeletesAccountThenEmitsSuccessDelegate() async {
         let counts = ResignEffectCounts()
         let store = TestStore(

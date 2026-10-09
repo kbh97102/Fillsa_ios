@@ -34,6 +34,23 @@ final class MyPageUITests: XCTestCase {
         XCTAssertFalse(app.buttons[Identifier.guestCard].exists)
     }
 
+    func test_memberLogoutOpensLogin() {
+        launchMyPage(isMember: true, isDark: false)
+
+        let logout = app.buttons[Identifier.logout]
+        XCTAssertTrue(logout.waitForExistence(timeout: 3))
+        logout.tap()
+
+        XCTAssertTrue(app.buttons["login.kakao"].waitForExistence(timeout: 3))
+        XCTAssertTrue(app.buttons["login.apple"].exists)
+        XCTAssertFalse(app.otherElements[Identifier.screen].exists)
+
+        let attachment = XCTAttachment(screenshot: app.screenshot())
+        attachment.name = "Login after member logout"
+        attachment.lifetime = .keepAlways
+        add(attachment)
+    }
+
     func test_memberSeesDirectAccountDeletionAndGuestDoesNot() {
         launchMyPage(isMember: true, isDark: false)
 
@@ -209,6 +226,7 @@ private enum Identifier {
     static let themeLight = "myPage.theme.light"
     static let themeDark = "myPage.theme.dark"
     static let themeConfirm = "myPage.themeConfirm"
+    static let logout = "myPage.logout"
     static let resign = "myPage.resign"
     static let resignDialog = "myPage.resignDialog"
     static let resignConfirm = "myPage.resign.confirm"

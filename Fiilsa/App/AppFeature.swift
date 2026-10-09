@@ -329,6 +329,22 @@ struct AppFeature {
                 state.login = LoginFeature.State(isOnboarding: false)
                 return .none
 
+            case .myPage(.delegate(.loggedOut)):
+                state.screen = .login(isOnboarding: false)
+                state.selectedTab = .home
+                state.login = LoginFeature.State(isOnboarding: false)
+                state.home = HomeFeature.State()
+                state.quoteList = QuoteListFeature.State()
+                state.calendar = CalendarFeature.State()
+                state.myPage = MyPageFeature.State(selectedTheme: state.selectedTheme)
+                state.notice = NoticeFeature.State()
+                state.alert = AlertFeature.State()
+                state.memoInsert = MemoInsertFeature.State()
+                state.typing = TypingFeature.State()
+                state.share = ShareFeature.State()
+                state.generalPopup = GeneralPopupFeature.State()
+                return .none
+
             case .myPage(.delegate(.noticeSelected)):
                 state.screen = .notice
                 state.notice = NoticeFeature.State()
