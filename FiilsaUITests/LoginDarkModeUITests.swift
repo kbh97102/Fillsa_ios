@@ -22,7 +22,7 @@ final class LoginDarkModeUITests: XCTestCase {
     }
 
     @MainActor
-    func testDarkLoginUsesFigmaLogoAndButtonColors() throws {
+    func testDarkLoginShowsMemberButtonsWithoutGuestButton() throws {
         let app = XCUIApplication()
         app.launchArguments = ["-ui-testing-login", "-ui-testing-login-dark"]
         app.launch()
@@ -35,12 +35,11 @@ final class LoginDarkModeUITests: XCTestCase {
         XCTAssertTrue(logo.waitForExistence(timeout: 3))
         XCTAssertTrue(apple.exists)
         XCTAssertTrue(kakao.exists)
-        XCTAssertTrue(guest.exists)
+        XCTAssertFalse(guest.exists)
 
         let screenshot = app.screenshot().image
         assertColor(at: CGPoint(x: 80, y: 380), in: screenshot, equals: .white)
         assertColor(at: CGPoint(x: 80, y: 330), in: screenshot, equals: UIColor(red: 1, green: 230 / 255, blue: 0, alpha: 1))
-        assertColor(at: CGPoint(x: 80, y: 435), in: screenshot, equals: UIColor(red: 92 / 255, green: 101 / 255, blue: 1, alpha: 1))
     }
 
     @MainActor

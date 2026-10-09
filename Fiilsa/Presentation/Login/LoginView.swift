@@ -91,21 +91,6 @@ struct LoginView: View {
             .padding(.top, 16)
             .disabled(viewStore.isProcessing)
 
-            if !viewStore.isOnboarding {
-                LoginButton(
-                    icon: .pencil,
-                    text: "비회원으로 시작하기",
-                    backgroundColor: colorScheme == .dark ? FillsaColor.purple01 : FillsaColor.white,
-                    textColor: colorScheme == .dark ? FillsaColor.white : FillsaColor.gray700,
-                    isDarkMode: colorScheme == .dark,
-                    accessibilityIdentifier: "login.guest",
-                    onClick: {
-                        viewStore.send(.nonMemberTapped)
-                    }
-                )
-                .padding(.top, 16)
-            }
-
             LoginAgreementText(
                 openTerms: {
                     openURL(URL(string: "https://home.fillsa.store/7vgjr4m1n5gkk2dwpy86")!)
