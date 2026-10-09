@@ -2,16 +2,14 @@ import Alamofire
 import Foundation
 
 enum APIClientFactory {
-    typealias DeviceIDProvider = @Sendable () async -> String
-
     static func authenticated(
         environment: APIEnvironment = .production,
         tokenStore: TokenStore = KeychainTokenStore(),
-        deviceIDProvider: @escaping DeviceIDProvider
+        sessionConfiguration: URLSessionConfiguration = .default
     ) -> APIClient {
         let refreshClient = APIClient(
             environment: environment,
-            session: Session(interceptor: nil)
+            session: Session(configuration: sessionConfiguration, interceptor: nil)
         )
 
         let interceptor = FillsaRequestInterceptor(
@@ -21,7 +19,7 @@ enum APIClientFactory {
                     method: .post,
                     path: APIEndpoint.refreshToken,
                     body: TokenRefreshRequest(
-                        deviceId: await deviceIDProvider(),
+                        deviceId: DeviceIDProvider.current(),
                         refreshToken: refreshToken
                     ),
                     requiresAuthorization: false
@@ -32,7 +30,7 @@ enum APIClientFactory {
 
         return APIClient(
             environment: environment,
-            session: Session(interceptor: interceptor)
+            session: Session(configuration: sessionConfiguration, interceptor: interceptor)
         )
     }
 

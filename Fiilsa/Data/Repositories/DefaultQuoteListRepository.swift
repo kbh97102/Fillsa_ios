@@ -3,7 +3,7 @@ import Foundation
 struct DefaultQuoteListRepository: QuoteListRepository {
     private let apiClient: APIClientProtocol
 
-    init(apiClient: APIClientProtocol = APIClientFactory.authenticated(deviceIDProvider: { "" })) {
+    init(apiClient: APIClientProtocol = APIClientFactory.authenticated()) {
         self.apiClient = apiClient
     }
 

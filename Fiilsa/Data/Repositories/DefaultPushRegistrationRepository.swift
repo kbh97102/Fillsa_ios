@@ -3,7 +3,7 @@ import Foundation
 struct DefaultPushRegistrationRepository: PushRegistrationRepository {
     private let apiClient: APIClientProtocol
 
-    init(apiClient: APIClientProtocol = APIClientFactory.authenticated(deviceIDProvider: { DeviceIDProvider.current() })) {
+    init(apiClient: APIClientProtocol = APIClientFactory.authenticated()) {
         self.apiClient = apiClient
     }
 
