@@ -6,7 +6,7 @@ import UIKit
 import Alamofire
 @testable import Fiilsa
 
-@Suite("HomeFeature")
+@Suite("HomeFeature", .serialized)
 struct HomeFeatureTests {
     @Test
     func weeklyDateWindowUsesServerAnchorAcrossMonthBoundary() {
@@ -47,6 +47,21 @@ struct HomeFeatureTests {
         #expect(second.query == "endDate=2026-08-31")
     }
 
+    @Test
+    func memberOnlyFeedUsesWeeklyEndpoint() async throws {
+        let configuration = URLSessionConfiguration.ephemeral
+        configuration.protocolClasses = [WeeklyRequestURLProtocol.self]
+        let repository = DefaultHomeRepository(apiClient: APIClient(session: Session(configuration: configuration)))
+        let result = try await LoadHomeFeedUseCase(homeRepository: repository)(
+            endDate: nil
+        )
+
+        guard case .member = result else {
+            Issue.record("Home must use the member endpoint without a guest fallback")
+            return
+        }
+    }
+
     @Test @MainActor
     func memberMovesWithinCachedWeekWithoutAnotherRequest() async throws {
         let week = try JSONDecoder().decode(MemberWeeklyQuoteResponse.self, from: Data("""
@@ -64,7 +79,7 @@ struct HomeFeatureTests {
         state.serverToday = "2026-08-12"
         state.weeklyWindows[week.endDate] = week
         let store = TestStore(initialState: state) { HomeFeature() } withDependencies: {
-            $0.homeUseCases.loadFeed = { _, _ in
+            $0.homeUseCases.loadFeed = { _ in
                 Issue.record("A cached date must not issue another request")
                 throw ErrorResponse.defaultError
             }
@@ -96,7 +111,7 @@ struct HomeFeatureTests {
         state.weeklyWindows[current.endDate] = current
         let calls = AsyncStream<String>.makeStream()
         let store = TestStore(initialState: state) { HomeFeature() } withDependencies: {
-            $0.homeUseCases.loadFeed = { endDate, _ in
+            $0.homeUseCases.loadFeed = { endDate in
                 calls.continuation.yield(endDate ?? "omitted")
                 return .member(older)
             }
@@ -115,6 +130,7 @@ struct HomeFeatureTests {
         await store.receive(.feedLoaded(1, .success(.member(older)))) {
             $0.feedRequestID = nil
             $0.weeklyWindows[older.endDate] = older
+            $0.completedWritingDates = ["2026-08-05"]
             $0.quote = older.day("2026-08-05")!.asDailyQuote
             $0.hasLoaded = true
             $0.isLoading = false
@@ -183,7 +199,7 @@ struct HomeFeatureTests {
         var state = HomeFeature.State()
         state.date = FillsaCalendarDateSupport.calendar.date(from: DateComponents(year: 2026, month: 8, day: 12))!
         let store = TestStore(initialState: state) { HomeFeature() } withDependencies: {
-            $0.homeUseCases.loadFeed = { endDate, _ in
+            $0.homeUseCases.loadFeed = { endDate in
                 calls.continuation.yield(endDate ?? "omitted")
                 return .member(week)
             }
@@ -191,7 +207,6 @@ struct HomeFeatureTests {
                 for await _ in streakGate.stream {}
                 return 0
             }
-            $0.streakClient.getAllLocal = { [] }
         }
 
         await store.send(.onAppear) {
@@ -214,7 +229,7 @@ struct HomeFeatureTests {
             $0.isLoading = false
         }
         streakGate.continuation.finish()
-        await store.receive(.completionStateLoaded(0, [])) { $0.isStreakStateLoaded = true }
+        await store.receive(.completionStateLoaded(0)) { $0.isStreakStateLoaded = true }
         await store.finish()
     }
 
@@ -237,7 +252,7 @@ struct HomeFeatureTests {
                 Issue.record("Selection during weekly load must not fall back to daily")
                 throw ErrorResponse.defaultError
             }
-            $0.homeUseCases.loadFeed = { _, _ in
+            $0.homeUseCases.loadFeed = { _ in
                 Issue.record("In-flight first week should serve its selected date")
                 throw ErrorResponse.defaultError
             }
@@ -295,25 +310,24 @@ struct HomeFeatureTests {
         let streakGate = AsyncStream<Void>.makeStream()
         let quoteStarted = AsyncStream<Void>.makeStream()
         let streakStarted = AsyncStream<Void>.makeStream()
-        let response = HomeDailyQuoteResult(
-            quote: DailyQuote(dailyQuoteSeq: 3, quoteDate: FillsaCalendarDateSupport.quoteDateString(for: Date())),
-            isLoggedIn: false
-        )
+        let quoteDate = FillsaCalendarDateSupport.quoteDateString(for: Date())
+        let response = try! JSONDecoder().decode(MemberWeeklyQuoteResponse.self, from: Data("""
+        {"startDate":"\(quoteDate)","endDate":"\(quoteDate)","days":[{"date":"\(quoteDate)","dayOfWeek":"TODAY","state":"today","dailyQuoteSeq":3}]}
+        """.utf8))
         let store = TestStore(initialState: HomeFeature.State()) {
             HomeFeature()
         } withDependencies: {
             $0.loadingClient = loadingTestClient(registry)
-            $0.homeUseCases.loadFeed = { _, _ in
+            $0.homeUseCases.loadFeed = { _ in
                 quoteStarted.continuation.yield(())
                 for await _ in quoteGate.stream {}
-                return .guest(response)
+                return .member(response)
             }
             $0.streakClient.getCurrentCount = {
                 streakStarted.continuation.yield(())
                 for await _ in streakGate.stream {}
                 return 2
             }
-            $0.streakClient.getAllLocal = { [] }
         }
         let task = await store.send(.onAppear) { $0.isLoading = true; $0.feedRequestID = 1; $0.nextFeedRequestID = 1 }
         let requestID = 1
@@ -323,15 +337,18 @@ struct HomeFeatureTests {
         _ = await streakEvents.next()
         #expect(await loadingCount(registry) == 1)
         quoteGate.continuation.finish()
-        await store.receive(.feedLoaded(requestID, .success(.guest(response)))) {
+        await store.receive(.feedLoaded(requestID, .success(.member(response)))) {
             $0.feedRequestID = nil
-            $0.quote = response.quote
+            $0.isLoggedIn = true
+            $0.serverToday = quoteDate
+            $0.weeklyWindows[quoteDate] = response
+            $0.quote = response.day(quoteDate)!.asDailyQuote
             $0.hasLoaded = true
             $0.isLoading = false
         }
         #expect(await loadingCount(registry) == 1)
         streakGate.continuation.finish()
-        await store.receive(.completionStateLoaded(2, [])) {
+        await store.receive(.completionStateLoaded(2)) {
             $0.streakCount = 2
             $0.isStreakStateLoaded = true
         }
@@ -348,13 +365,12 @@ struct HomeFeatureTests {
             HomeFeature()
         } withDependencies: {
             $0.loadingClient = loadingTestClient(registry)
-            $0.homeUseCases.loadFeed = { _, _ in throw ErrorResponse.defaultError }
+            $0.homeUseCases.loadFeed = { _ in throw ErrorResponse.defaultError }
             $0.streakClient.getCurrentCount = {
                 streakStarted.continuation.yield(())
                 for await _ in streakGate.stream {}
                 return 0
             }
-            $0.streakClient.getAllLocal = { [] }
         }
         let task = await store.send(.onAppear) { $0.isLoading = true; $0.feedRequestID = 1; $0.nextFeedRequestID = 1 }
         let requestID = 1
@@ -367,7 +383,7 @@ struct HomeFeatureTests {
         }
         #expect(await loadingCount(registry) == 1)
         streakGate.continuation.finish()
-        await store.receive(.completionStateLoaded(0, [])) {
+        await store.receive(.completionStateLoaded(0)) {
             $0.isStreakStateLoaded = true
         }
         await task.finish()
@@ -472,18 +488,18 @@ struct HomeFeatureTests {
     }
 
     @Test
-    func completionStateUsesOnlyGenuineCompletedWritingDates() async {
-        let completed = StreakInfo(date: "2026-08-10", streakDateCount: 3, isDailyWritingCompleted: true)
-        let incomplete = StreakInfo(date: "2026-08-11", streakDateCount: 3, isDailyWritingCompleted: false)
-        let store = TestStore(initialState: HomeFeature.State()) {
+    func streakCountDoesNotReplaceServerCompletionDates() async {
+        var state = HomeFeature.State()
+        state.completedWritingDates = ["2026-08-10"]
+        let store = TestStore(initialState: state) {
             HomeFeature()
         }
 
-        await store.send(.completionStateLoaded(3, [completed, incomplete])) {
+        await store.send(.completionStateLoaded(3)) {
             $0.streakCount = 3
             $0.isStreakStateLoaded = true
-            $0.completedWritingDates = ["2026-08-10"]
         }
+        #expect(store.state.completedWritingDates == ["2026-08-10"])
     }
 
     @Test
@@ -494,7 +510,7 @@ struct HomeFeatureTests {
             HomeFeature()
         }
 
-        await store.send(.completionStateLoaded(0, [])) {
+        await store.send(.completionStateLoaded(0)) {
             $0.streakCount = nil
             $0.isStreakStateLoaded = true
         }
@@ -506,7 +522,7 @@ struct HomeFeatureTests {
             HomeFeature()
         }
 
-        await store.send(.completionStateLoaded(0, [])) {
+        await store.send(.completionStateLoaded(0)) {
             $0.isStreakStateLoaded = true
         }
         await store.send(.calendarTriggerTapped) {
@@ -529,13 +545,13 @@ struct HomeFeatureTests {
         }
 
         await store.send(.streakStatusTapped)
-        await store.send(.completionStateLoaded(0, [])) {
+        await store.send(.completionStateLoaded(0)) {
             $0.isStreakStateLoaded = true
         }
         await store.send(.streakStatusTapped) {
             $0.isStreakTooltipPresented = true
         }
-        await store.send(.completionStateLoaded(2, [])) {
+        await store.send(.completionStateLoaded(2)) {
             $0.streakCount = 2
             $0.isStreakTooltipPresented = false
         }
@@ -595,17 +611,24 @@ struct HomeFeatureTests {
     }
 
     @Test
-    func answerRecordsInHomeSessionAndCanReturnToEditing() async {
-        let store = TestStore(initialState: HomeFeature.State()) {
+    func answerWithoutMemberFlagStillUsesServer() async {
+        var state = HomeFeature.State()
+        state.quote = DailyQuote(dailyQuoteSeq: 42)
+        let saved = AnswerResponse(memberQuoteSeq: 42, answer: "서버 답변", answeredAt: "2026-10-10")
+        let store = TestStore(initialState: state) {
             HomeFeature()
+        } withDependencies: {
+            $0.homeUseCases.saveAnswer = { _, _ in saved }
         }
 
-        await store.send(.answerDraftChanged("Home에서만 기록하는 답변")) {
-            $0.answerDraft = "Home에서만 기록하는 답변"
+        await store.send(.answerDraftChanged("서버 답변")) {
+            $0.answerDraft = "서버 답변"
         }
-        await store.send(.answerRecordTapped) {
-            $0.recordedAnswer = "Home에서만 기록하는 답변"
+        await store.send(.answerRecordTapped)
+        await store.receive(.answerSaved(42, .success(saved))) {
+            $0.recordedAnswer = "서버 답변"
             $0.isEditingAnswer = false
+            $0.quote = DailyQuote(dailyQuoteSeq: 42, answer: "서버 답변")
             $0.toastMessage = "답변을 기록했어요."
         }
         await store.send(.answerEditTapped) {

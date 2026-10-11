@@ -65,9 +65,15 @@ final class FillsaRequestInterceptor: RequestInterceptor {
             return
         }
 
+        let failedAccessTokenFingerprint = request.request?
+            .value(forHTTPHeaderField: "Authorization")
+            .flatMap { $0.hasPrefix("Bearer ") ? String($0.dropFirst("Bearer ".count)) : nil }
+            .map(SessionExpirationEvent.fingerprint(of:))
+
         guard request.retryCount == 0 else {
             sessionExpiredHandler(
-                SessionExpirationEvent(statusCode: statusCode, reason: .retryRejected)
+                SessionExpirationEvent(statusCode: statusCode, reason: .retryRejected,
+                                       failedAccessTokenFingerprint: failedAccessTokenFingerprint)
             )
             completion(.doNotRetryWithError(error))
             return
@@ -78,7 +84,8 @@ final class FillsaRequestInterceptor: RequestInterceptor {
                 let refreshToken = await tokenStore.refreshToken()
                 guard !refreshToken.isEmpty, let tokenInfo = try await refreshTokenHandler(refreshToken) else {
                     sessionExpiredHandler(
-                        SessionExpirationEvent(statusCode: statusCode, reason: .missingRefreshToken)
+                        SessionExpirationEvent(statusCode: statusCode, reason: .missingRefreshToken,
+                                               failedAccessTokenFingerprint: failedAccessTokenFingerprint)
                     )
                     completion(.doNotRetryWithError(error))
                     return
@@ -91,7 +98,8 @@ final class FillsaRequestInterceptor: RequestInterceptor {
                 completion(.retry)
             } catch {
                 sessionExpiredHandler(
-                    SessionExpirationEvent(statusCode: statusCode, reason: .refreshFailed)
+                    SessionExpirationEvent(statusCode: statusCode, reason: .refreshFailed,
+                                           failedAccessTokenFingerprint: failedAccessTokenFingerprint)
                 )
                 completion(.doNotRetryWithError(error))
             }

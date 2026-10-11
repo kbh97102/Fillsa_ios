@@ -1,5 +1,9 @@
 # [Home] `2.home`
 
+## 회원 전용 데이터 경로 — 구현 (2026-10-11)
+
+[회원 화면 진입 계획](1_login_member_only_followup_implementation_plan.md)과 [비회원 분기 정리 계획](1_login_guest_cleanup_implementation_plan.md)에 따라 비회원 일간 API, 로컬 좋아요·답변, 로그인 요구 모달을 제거했다. 완료 날짜는 회원 주간 응답에서 읽는다. 기존 회원 주간·일간 조회와 화면 구성은 유지한다. 아래 비회원 설명은 이전 구현 당시 기록이다. [검증 기록](../design-qa/2026-10-11-member-only-qa.md).
+
 ## Figma UI 기준
 
 - Figma URL: https://www.figma.com/design/VdFocqyqTgevMVCQxwAQ2X/2.home?node-id=2929-13556

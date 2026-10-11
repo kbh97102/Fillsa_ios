@@ -16,13 +16,4 @@ struct DefaultCalendarRepository: CalendarRepository {
         return try await apiClient.send(request, responseType: MemberMonthlyQuoteResponse.self)
     }
 
-    func getQuotesMonthlyNonMember(yearMonth: String) async throws -> [MonthlyQuoteResponse] {
-        let request = APIRequest<EmptyRequestBody>(
-            method: .get,
-            path: APIEndpoint.monthlyQuotes,
-            queryItems: [.init(name: "yearMonth", value: yearMonth)],
-            requiresAuthorization: false
-        )
-        return try await apiClient.send(request, responseType: [MonthlyQuoteResponse].self)
-    }
 }

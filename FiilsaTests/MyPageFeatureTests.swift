@@ -4,6 +4,21 @@ import XCTest
 
 @MainActor
 final class MyPageFeatureTests: XCTestCase {
+    func test_missingSessionOnMyPageRequestsRootLogin() async {
+        let store = TestStore(initialState: MyPageFeature.State(isLoggedIn: true, userName: "필사")) {
+            MyPageFeature()
+        } withDependencies: {
+            $0.sessionClient.isLoggedIn = { false }
+            $0.settingsClient.getUserName = { "필사" }
+            $0.settingsClient.getImageURI = { "" }
+            $0.settingsClient.getDarkModeType = { .light }
+        }
+        store.exhaustivity = .off
+
+        await store.send(.onAppear)
+        await store.receive(.loaded(isLoggedIn: false, userName: "필사", imagePath: "", selectedTheme: .light))
+        await store.receive(.delegate(.memberAccessLost))
+    }
     func test_logoutEmitsLoginNavigationAfterClearingMemberState() async {
         let store = TestStore(
             initialState: MyPageFeature.State(isLoggedIn: true, userName: "필사", imagePath: "profile")

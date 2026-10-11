@@ -23,7 +23,11 @@ extension SessionExpirationClient: DependencyKey {
                     }
 
                     continuation.yield(
-                        SessionExpirationEvent(statusCode: statusCode, reason: reason)
+                        SessionExpirationEvent(
+                            statusCode: statusCode,
+                            reason: reason,
+                            failedAccessTokenFingerprint: notification.userInfo?["failedAccessTokenFingerprint"] as? String
+                        )
                     )
                 }
 

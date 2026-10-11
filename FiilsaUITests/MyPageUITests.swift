@@ -4,13 +4,13 @@ import XCTest
 final class MyPageUITests: XCTestCase {
     private let app = XCUIApplication()
 
-    func test_guestLightFramePresenceAndThemeArrowAbsence() {
+    func test_guestFixtureOpensLoginInsteadOfMyPage() {
         launchMyPage(isMember: false, isDark: false)
 
-        assertSingleScreenInset(app.buttons[Identifier.guestCard], height: 114)
+        XCTAssertTrue(app.buttons["login.kakao"].waitForExistence(timeout: 3))
+        XCTAssertTrue(app.buttons["login.apple"].exists)
+        XCTAssertFalse(app.buttons[Identifier.guestCard].exists)
         XCTAssertFalse(app.otherElements[Identifier.memberCard].exists)
-        assertMenuFrames()
-        XCTAssertEqual(app.images.matching(identifier: Identifier.menuArrow).count, 2)
     }
 
     func test_memberLightFramePresence() {
@@ -20,10 +20,11 @@ final class MyPageUITests: XCTestCase {
         XCTAssertFalse(app.buttons[Identifier.guestCard].exists)
     }
 
-    func test_guestDarkFramePresence() {
+    func test_guestDarkFixtureOpensLogin() {
         launchMyPage(isMember: false, isDark: true)
 
-        assertSingleScreenInset(app.buttons[Identifier.guestCard], height: 114)
+        XCTAssertTrue(app.buttons["login.kakao"].waitForExistence(timeout: 3))
+        XCTAssertFalse(app.buttons[Identifier.guestCard].exists)
         XCTAssertFalse(app.otherElements[Identifier.memberCard].exists)
     }
 
@@ -108,7 +109,7 @@ final class MyPageUITests: XCTestCase {
     }
 
     func test_themeDialogShowsSelectsAndConfirms() {
-        launchMyPage(isMember: false, isDark: false)
+        launchMyPage(isMember: true, isDark: false)
 
         app.buttons[Identifier.themeMenu].tap()
 
@@ -136,7 +137,9 @@ final class MyPageUITests: XCTestCase {
             isDark ? "-ui-testing-my-page-dark" : "-ui-testing-my-page-light"
         ]
         app.launch()
-        XCTAssertTrue(app.otherElements[Identifier.screen].waitForExistence(timeout: 3))
+        if isMember {
+            XCTAssertTrue(app.otherElements[Identifier.screen].waitForExistence(timeout: 3))
+        }
     }
 
     private func assertMenuFrames(

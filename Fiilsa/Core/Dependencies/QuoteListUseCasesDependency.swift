@@ -14,13 +14,10 @@ struct QuoteListUseCases {
 extension QuoteListUseCases: DependencyKey {
     static let liveValue: QuoteListUseCases = {
         let quoteListRepository = LiveRepositories.quoteList
-        let localRepository = LiveRepositories.local
-
         return QuoteListUseCases(
             loadList: { page, size, likeYn, startDate, endDate in
                 try await LoadQuoteListUseCase(
-                    quoteListRepository: quoteListRepository,
-                    localRepository: localRepository
+                    quoteListRepository: quoteListRepository
                 )(
                     page: page,
                     size: size,
@@ -31,8 +28,7 @@ extension QuoteListUseCases: DependencyKey {
             },
             saveMemo: { memo, memberQuoteSeq in
                 try await SaveQuoteMemoUseCase(
-                    quoteListRepository: quoteListRepository,
-                    localRepository: localRepository
+                    quoteListRepository: quoteListRepository
                 )(
                     memo: memo,
                     memberQuoteSeq: memberQuoteSeq

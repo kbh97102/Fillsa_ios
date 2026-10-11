@@ -2,6 +2,18 @@ import XCTest
 
 final class OnboardingGuideUITests: XCTestCase {
     @MainActor
+    func testGuestGuideSkipReturnsToLogin() throws {
+        let app = XCUIApplication()
+        app.launchArguments = ["-ui-testing-onboarding-guide"]
+        app.launch()
+
+        app.buttons["건너뛰기"].tap()
+
+        XCTAssertTrue(app.buttons["login.kakao"].waitForExistence(timeout: 3))
+        XCTAssertTrue(app.buttons["login.apple"].exists)
+    }
+
+    @MainActor
     func testDarkModeLaunchShowsDarkGuideSurfaceAndEveryDarkGuideAsset() throws {
         let app = XCUIApplication()
         app.launchArguments = ["-ui-testing-onboarding-guide", "-ui-testing-onboarding-guide-dark"]

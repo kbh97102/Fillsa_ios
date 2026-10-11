@@ -16,20 +16,17 @@ struct CalendarView: View {
     let store: StoreOf<CalendarFeature>
     let openMyPage: () -> Void
     let openShare: (String, String) -> Void
-    let openLogin: () -> Void
 
     init(
         store: StoreOf<CalendarFeature> = Store(initialState: CalendarFeature.State()) {
             CalendarFeature()
         },
         openMyPage: @escaping () -> Void = {},
-        openShare: @escaping (String, String) -> Void = { _, _ in },
-        openLogin: @escaping () -> Void = {}
+        openShare: @escaping (String, String) -> Void = { _, _ in }
     ) {
         self.store = store
         self.openMyPage = openMyPage
         self.openShare = openShare
-        self.openLogin = openLogin
     }
 
     var body: some View {
@@ -135,16 +132,6 @@ struct CalendarView: View {
                         selectedPhotoItem: $selectedPhotoItem
                     )
                 }
-            }
-            .alert("로그인 후 사용하실 수 있습니다.", isPresented: Binding(
-                get: { viewStore.isLoginRequiredDialogPresented },
-                set: { if !$0 { viewStore.send(.loginRequiredDialogDismissed) } }
-            )) {
-                Button("로그인 하기") {
-                    viewStore.send(.loginRequiredDialogDismissed)
-                    openLogin()
-                }
-                Button("취소", role: .cancel) {}
             }
             .alert("이미지를 삭제하시겠습니까?", isPresented: Binding(
                 get: { viewStore.isDeleteImageConfirmationPresented },
