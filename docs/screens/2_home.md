@@ -1,5 +1,23 @@
 # [Home] `2.home`
 
+## 2026-10-09 iOS QA 대상
+
+- Figma 파일: https://www.figma.com/design/VdFocqyqTgevMVCQxwAQ2X
+- 전체 프레임: Light [`2929:13556`](https://www.figma.com/design/VdFocqyqTgevMVCQxwAQ2X?node-id=2929-13556), Dark [`3039:26518`](https://www.figma.com/design/VdFocqyqTgevMVCQxwAQ2X?node-id=3039-26518). Light 360×821pt, 오늘의 명언·한글/영문 선택 상태.
+- 대상 컴포넌트: 명언 카드 `2929:13642`, 언어 토글 `2929:13611`.
+- 전체 프레임 기준 이미지: `docs/design-qa/assets/ios-qa-preplan-2026-10-09/figma-home.png` (Light), `docs/design-qa/assets/home-figma-2929-9603/2026-09-07/figma-dark-3039-26518-default.png` (Dark). 루트 배경·상태바·하단 내비게이션을 포함한다.
+- QA 기록: [2026-10-11 Home QA](../design-qa/2026-10-11-home-qa.md), [사전 계획](../design-qa/2026-10-09-ios-qa-preplan.html).
+- 배치 원칙: 화면 부모가 카드·토글의 위치와 바깥 여백을 정하고, 본문·저자·언어 표시의 내부 패딩으로 크기를 정한다. Figma 60×28pt 토글은 360pt 기준 검증 결과이며 고정 프레임으로 지정하지 않는다. 긴 명언과 큰 글자에서도 내용이 잘리지 않아야 한다.
+- 표시 데이터/동작: 선택 언어의 명언과 저자, 저자 검색, 명언 카드 탭·스와이프, 한글/영문 토글을 유지한다. 명언 본문은 GangwonEduAll OTF Bold 16pt, 저자는 Pretendard Regular 12pt; 토글은 노란색 `#FFCB5C` 배경·흰색 선택 표시·`#212121` 글자다.
+
+| 컴포넌트 | Figma 노드 | 책임·상태 | 조립 위치 | 검증 상태 |
+|---|---|---|---|---|
+| `HomeQuoteCard` | `2929:13642` | Light/Dark 명언·저자, 한글/영문 줄바꿈·긴 문장 | `HomeView` | 부분 확인; 전체 화면 Blocked |
+| `HomeLocaleSwitch` | `2929:13611` | 한글/영문 선택, 배경·선택 표시·글자색 | `HomeView` | 부분 확인; 전체 화면 Blocked |
+| 전체 Home | `2929:13556`, `3039:26518` | 상태바부터 하단 내비게이션까지 조립 검증 | `AppView` | 부분 확인; 전체 화면 Blocked |
+
+- 2026-10-11 결과: 글꼴·토글·카드 여백 구현, Light/Dark 390×844pt 캡처 및 나란히 보기 확보. Figma 360×821pt와 크기가 달라 전체 화면 최종 결과는 [Blocked](../design-qa/2026-10-11-home-qa.md).
+
 ## Figma UI 기준
 
 - Figma URL: https://www.figma.com/design/VdFocqyqTgevMVCQxwAQ2X/2.home?node-id=2929-13556

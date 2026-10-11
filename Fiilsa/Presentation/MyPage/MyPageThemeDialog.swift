@@ -22,25 +22,25 @@ struct MyPageThemeDialog: View {
                     themeRow(title: "다크", theme: .dark)
                     themeRow(title: "시스템", theme: .system)
                 }
+                .padding(.horizontal, MyPageLayout.themeContentInset)
 
                 Button(action: confirm) {
                     Text("확인")
                         .font(FillsaTypography.subtitle1)
                         .foregroundStyle(FillsaColor.white)
-                        .frame(
-                            width: MyPageLayout.confirmButtonSize.width,
-                            height: MyPageLayout.confirmButtonSize.height
-                        )
+                        .frame(maxWidth: .infinity)
+                        .padding(.vertical, 15)
                         .background(
                             RoundedRectangle(cornerRadius: MyPageLayout.themeDialogCornerRadius)
                                 .fill(Color(hex: 0x5E67FD))
                         )
                 }
                 .buttonStyle(.plain)
-                .frame(height: 73)
+                .padding(MyPageLayout.themeContentInset)
                 .accessibilityIdentifier(MyPageAccessibilityIdentifier.themeConfirm)
             }
             .padding(.top, 20)
+            .frame(maxWidth: .infinity)
             .background(
                 RoundedRectangle(cornerRadius: MyPageLayout.themeDialogCornerRadius)
                     .fill(FillsaColor.backgroundContainer)
@@ -50,13 +50,11 @@ struct MyPageThemeDialog: View {
                     .stroke(FillsaColor.myPageCardOutline, lineWidth: 1)
             }
             .shadow(color: FillsaColor.myPageShadow, radius: 16, x: 0, y: 0)
-            .frame(
-                width: MyPageLayout.themeDialogSize.width,
-                height: MyPageLayout.themeDialogSize.height
-            )
             .accessibilityElement(children: .contain)
             .accessibilityIdentifier(MyPageAccessibilityIdentifier.themeDialog)
+            .padding(.horizontal, MyPageLayout.screenHorizontalInset)
         }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
     }
 
     private func themeRow(title: String, theme: DarkModeType) -> some View {
@@ -65,14 +63,14 @@ struct MyPageThemeDialog: View {
         } label: {
             HStack(spacing: 0) {
                 Text(title)
-                    .font(.system(size: 20, weight: .regular))
+                    .font(FillsaTypography.body1)
                     .foregroundStyle(FillsaColor.onBackground1)
 
                 Spacer()
 
                 radioIcon(isSelected: selectedTheme == theme)
             }
-            .frame(width: MyPageLayout.confirmButtonSize.width, height: MyPageLayout.themeOptionSize)
+            .frame(maxWidth: .infinity)
         }
         .buttonStyle(.plain)
         .accessibilityIdentifier(accessibilityIdentifier(for: theme))

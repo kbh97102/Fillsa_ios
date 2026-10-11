@@ -46,6 +46,7 @@ struct MyPageBottomButtonSection: View {
                     }
                     .frame(maxWidth: .infinity)
                     .frame(height: 50)
+                    .contentShape(Rectangle())
                 }
                 .buttonStyle(.plain)
                 .disabled(isProcessing)

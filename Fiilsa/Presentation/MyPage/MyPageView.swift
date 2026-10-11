@@ -11,18 +11,6 @@ struct MyPageView: View {
             ZStack {
                 content(viewStore: viewStore)
 
-                if viewStore.isThemeDialogPresented {
-                    MyPageThemeDialog(
-                        selectedTheme: Binding(
-                            get: { viewStore.selectedTheme },
-                            set: { viewStore.send(.themeSelected($0)) }
-                        ),
-                        confirm: {
-                            viewStore.send(.themeDialogConfirmed)
-                        }
-                    )
-                }
-
                 if viewStore.isResignDialogPresented {
                     MyPageResignDialog(
                         confirm: {

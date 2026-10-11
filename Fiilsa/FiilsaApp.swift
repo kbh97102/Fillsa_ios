@@ -321,7 +321,8 @@ struct FiilsaApp: App {
             Store(initialState: launchState) {
                 AppFeature()
             } withDependencies: {
-                $0.sessionClient.isLoggedIn = { true }
+                let isGuest = ProcessInfo.processInfo.arguments.contains("ui-testing-calendar-guest")
+                $0.sessionClient.isLoggedIn = { !isGuest }
             }
         } else {
             Store(initialState: launchState) {
@@ -474,6 +475,7 @@ private enum MyPageUITestLaunchConfiguration {
             imagePath: "",
             selectedTheme: selectedTheme
         )
+        state.myPage.isThemeDialogPresented = ProcessInfo.processInfo.arguments.contains("-ui-testing-my-page-theme-dialog")
         return state
     }
 }

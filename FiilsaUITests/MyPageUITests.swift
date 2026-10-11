@@ -34,6 +34,23 @@ final class MyPageUITests: XCTestCase {
         XCTAssertFalse(app.buttons[Identifier.guestCard].exists)
     }
 
+    func test_memberLogoutOpensLogin() {
+        launchMyPage(isMember: true, isDark: false)
+
+        let logout = app.buttons[Identifier.logout]
+        XCTAssertTrue(logout.waitForExistence(timeout: 3))
+        logout.tap()
+
+        XCTAssertTrue(app.buttons["login.kakao"].waitForExistence(timeout: 3))
+        XCTAssertTrue(app.buttons["login.apple"].exists)
+        XCTAssertFalse(app.otherElements[Identifier.screen].exists)
+
+        let attachment = XCTAttachment(screenshot: app.screenshot())
+        attachment.name = "Login after member logout"
+        attachment.lifetime = .keepAlways
+        add(attachment)
+    }
+
     func test_memberSeesDirectAccountDeletionAndGuestDoesNot() {
         launchMyPage(isMember: true, isDark: false)
 
@@ -97,6 +114,8 @@ final class MyPageUITests: XCTestCase {
 
         let dialog = app.otherElements[Identifier.themeDialog]
         XCTAssertTrue(dialog.waitForExistence(timeout: 2))
+        XCTAssertEqual(dialog.frame.width, app.frame.width - 40, accuracy: 1)
+        XCTAssertEqual(dialog.frame.minX, 20, accuracy: 1)
         XCTAssertEqual(dialog.frame.height, 237, accuracy: 1)
         let attachment = XCTAttachment(screenshot: app.screenshot())
         attachment.name = "My Page theme dialog"
@@ -209,6 +228,7 @@ private enum Identifier {
     static let themeLight = "myPage.theme.light"
     static let themeDark = "myPage.theme.dark"
     static let themeConfirm = "myPage.themeConfirm"
+    static let logout = "myPage.logout"
     static let resign = "myPage.resign"
     static let resignDialog = "myPage.resignDialog"
     static let resignConfirm = "myPage.resign.confirm"

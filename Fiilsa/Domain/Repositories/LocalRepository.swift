@@ -5,6 +5,7 @@ protocol LocalRepository {
     func getRefreshToken() async throws -> String
     func clearAuthentication() async throws
     func isLoggedIn() async throws -> Bool
+    func setLogoutRequested(_ requested: Bool) async throws
 
     func setImageURI(_ uri: String) async throws
     func getImageURI() async throws -> String

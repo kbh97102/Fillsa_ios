@@ -47,45 +47,41 @@ struct HomeQuoteCard: View {
 
     var body: some View {
         Button(action: navigate) {
-            ZStack {
-                palette.cardBackground.color
+            VStack(spacing: 0) {
+                Text(text)
+                    .font(.custom("GangwonEduAll-OTFBold", size: 16, relativeTo: .body))
+                    .foregroundStyle(palette.primaryText.color)
+                    .multilineTextAlignment(.center)
+                    .lineSpacing(4)
+                    .fixedSize(horizontal: false, vertical: true)
+                    .frame(maxWidth: .infinity)
+                    .padding(.top, 28)
+                    .padding(.horizontal, 10)
 
+                Spacer(minLength: 51)
+
+                Button(action: authorTapped) {
+                    HStack(spacing: 2) {
+                        Text(author)
+                            .font(FillsaTypography.body4)
+                            .underline()
+                        Image("home_author_search")
+                            .resizable()
+                            .scaledToFit()
+                            .frame(width: 16, height: 16)
+                    }
+                    .foregroundStyle(palette.primaryText.color)
+                }
+                .buttonStyle(.plain)
+                .padding(.bottom, 15)
+            }
+            .frame(maxWidth: .infinity)
+            .background {
+                palette.cardBackground.color
                 Image("home_quote_texture")
                     .resizable()
                     .scaledToFill()
-                    .frame(maxWidth: .infinity, maxHeight: .infinity)
-                    .clipped()
-
-                VStack(spacing: 0) {
-                    Text(text)
-                        .font(.custom("GangwonEduAll-Light", size: 16, relativeTo: .body).weight(.bold))
-                        .foregroundStyle(palette.primaryText.color)
-                        .multilineTextAlignment(.center)
-                        .lineSpacing(4)
-                        .fixedSize(horizontal: false, vertical: true)
-                        .frame(maxWidth: .infinity)
-                        .padding(.top, 28)
-                        .padding(.horizontal, 10)
-
-                    Spacer()
-
-                    Button(action: authorTapped) {
-                        HStack(spacing: 2) {
-                            Text(author)
-                                .font(FillsaTypography.body4)
-                                .underline()
-                            Image("home_author_search")
-                                .resizable()
-                                .scaledToFit()
-                                .frame(width: 16, height: 16)
-                        }
-                        .foregroundStyle(palette.primaryText.color)
-                    }
-                    .buttonStyle(.plain)
-                    .padding(.bottom, 15)
-                }
             }
-            .frame(minHeight: 150)
             .clipShape(RoundedRectangle(cornerRadius: 14))
             .overlay(RoundedRectangle(cornerRadius: 14).stroke(palette.cardBorder.color, lineWidth: 1))
             .shadow(color: colorScheme == .dark ? .clear : Color(hex: 0xCBC0A8, alpha: 0.7), radius: 8, y: 0)

@@ -8,6 +8,7 @@ struct SplashFeature {
         var hasCheckedPermission = false
         var hasPlayedAnimation = false
         var isReady = false
+        var isResolvingDestination = false
     }
 
     enum Action: Equatable {
@@ -58,41 +59,41 @@ struct SplashFeature {
 
             case .permissionChecked:
                 state.hasCheckedPermission = true
-                guard state.hasCheckedPermission, state.hasPlayedAnimation, !state.isReady else {
+                guard state.hasCheckedPermission, state.hasPlayedAnimation,
+                      !state.isReady, !state.isResolvingDestination else {
                     return .none
                 }
-                return .run { send in
-                    let isFirstOpen = (try? await sessionClient.isFirstOpen()) ?? true
-                    if isFirstOpen {
-                        try? await sessionClient.setFirstOpen(false)
-                        await send(.ready(.login(isOnboarding: false)))
-                    } else {
-                        await send(.ready(.home))
-                    }
-                }
+                state.isResolvingDestination = true
+                return resolveDestination()
 
             case .animationCompleted:
                 state.hasPlayedAnimation = true
-                guard state.hasCheckedPermission, state.hasPlayedAnimation, !state.isReady else {
+                guard state.hasCheckedPermission, state.hasPlayedAnimation,
+                      !state.isReady, !state.isResolvingDestination else {
                     return .none
                 }
-                return .run { send in
-                    let isFirstOpen = (try? await sessionClient.isFirstOpen()) ?? true
-                    if isFirstOpen {
-                        try? await sessionClient.setFirstOpen(false)
-                        await send(.ready(.login(isOnboarding: false)))
-                    } else {
-                        await send(.ready(.home))
-                    }
-                }
+                state.isResolvingDestination = true
+                return resolveDestination()
 
             case let .ready(destination):
                 state.isReady = true
+                state.isResolvingDestination = false
                 return .send(.delegate(.move(destination)))
 
             case .delegate:
                 return .none
             }
+        }
+    }
+
+    private func resolveDestination() -> Effect<Action> {
+        .run { send in
+            let isFirstOpen = (try? await sessionClient.isFirstOpen()) ?? true
+            if isFirstOpen {
+                try? await sessionClient.setFirstOpen(false)
+            }
+            let isLoggedIn = (try? await sessionClient.isLoggedIn()) ?? false
+            await send(.ready(isLoggedIn ? .home : .login(isOnboarding: false)))
         }
     }
 }
