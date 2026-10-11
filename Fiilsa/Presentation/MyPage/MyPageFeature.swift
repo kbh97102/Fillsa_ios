@@ -19,7 +19,6 @@ struct MyPageFeature {
         case onAppear
         case loaded(isLoggedIn: Bool, userName: String, imagePath: String, selectedTheme: DarkModeType)
         case logoTapped
-        case loginTapped
         case noticeTapped
         case alertTapped
         case themeTapped
@@ -37,7 +36,7 @@ struct MyPageFeature {
 
         enum Delegate: Equatable {
             case homeSelected
-            case loginSelected
+            case memberAccessLost
             case loggedOut
             case noticeSelected
             case alertSelected
@@ -74,6 +73,7 @@ struct MyPageFeature {
                 }
 
             case let .loaded(isLoggedIn, userName, imagePath, selectedTheme):
+                guard isLoggedIn else { return .send(.delegate(.memberAccessLost)) }
                 state.isLoggedIn = isLoggedIn
                 state.userName = userName
                 state.imagePath = imagePath
@@ -82,9 +82,6 @@ struct MyPageFeature {
 
             case .logoTapped:
                 return .send(.delegate(.homeSelected))
-
-            case .loginTapped:
-                return .send(.delegate(.loginSelected))
 
             case .noticeTapped:
                 return .send(.delegate(.noticeSelected))
@@ -145,16 +142,10 @@ struct MyPageFeature {
                         }
                     }
 
-                    guard !Task.isCancelled else { return }
-
                     do {
                         try await sessionClient.logout()
-                    } catch is CancellationError {
-                        await send(.resignCancelled)
-                        return
                     } catch {
                     }
-                    guard !Task.isCancelled else { return }
                     await send(.resignCompleted(.success(true)))
                 }
 

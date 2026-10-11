@@ -1,5 +1,6 @@
 import Foundation
 import SwiftUI
+import UIKit
 
 enum HomeOverlayAnchor: Hashable {
     case calendarTrigger
@@ -477,7 +478,15 @@ struct HomeQuestionAnswerCard: View {
                 .frame(maxWidth: .infinity, alignment: .trailing)
                 .padding(.top, -1)
 
-            Button(action: isEditing ? recordAnswer : editAnswer) {
+            Button {
+                if isEditing {
+                    isAnswerFocused = false
+                    UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
+                    recordAnswer()
+                } else {
+                    editAnswer()
+                }
+            } label: {
                 HStack(spacing: 4) {
                     Image("home_answer_record")
                         .resizable()

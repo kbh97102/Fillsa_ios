@@ -36,6 +36,7 @@ struct FiilsaApp: App {
         var state = AppFeature.State()
 
         if arguments.contains("ui-testing-calendar") {
+            state.memberAccess = .member
             state.screen = .main
             state.selectedTab = .calendar
             state.selectedTheme = arguments.contains("ui-testing-theme-dark") ? .dark : .light
@@ -69,6 +70,7 @@ struct FiilsaApp: App {
         }
 
         if arguments.contains("-ui-testing-home") {
+            state.memberAccess = .member
             let imageFixture = arguments.contains("-ui-testing-home-image-wide") ? "home-dialog-wide" :
                 arguments.contains("-ui-testing-home-image-tall") ? "home-dialog-tall" : nil
             let imagePath = imageFixture.flatMap {
@@ -133,6 +135,7 @@ struct FiilsaApp: App {
         }
 
         guard arguments.contains("-uiTestingQuoteList") else { return state }
+        state.memberAccess = .member
         state.screen = .main
         state.selectedTab = .quoteList
         state.selectedTheme = arguments.contains("-uiTestingDark") ? .dark : .light
@@ -159,47 +162,59 @@ struct FiilsaApp: App {
         case "splash":
             state.splash.isReady = true
         case "login":
-            state.screen = .login(isOnboarding: false)
-            state.login = LoginFeature.State(isOnboarding: false)
+            state.memberAccess = .loginRequired
+            state.screen = .login
+            state.login = LoginFeature.State()
         case "onboardingGuide":
             state.screen = .onboardingGuide
         case "home":
+            state.memberAccess = .member
             state.screen = .main
             state.home.date = Self.homeUITestDate
             state.home.hasLoaded = true
             state.home.isStreakStateLoaded = true
         case "quoteList":
+            state.memberAccess = .member
             state.screen = .main
             state.selectedTab = .quoteList
             state.quoteList.hasLoaded = true
             state.quoteList.list = QuoteListSampleData.items
         case "calendar":
+            state.memberAccess = .member
             state.screen = .main
             state.selectedTab = .calendar
             state.calendar.hasLoaded = true
         case "myPage":
+            state.memberAccess = .member
             state.screen = .main
             state.selectedTab = .myPage
         case "typing":
+            state.memberAccess = .member
             state.screen = .typing
             state.typing.hasLoaded = true
             state.typing.korQuote = "사랑이라는 선물은 억지로 줄 수 없고 받아들여지기를 기다릴 뿐이다."
             state.typing.korAuthor = "존 우든"
         case "share":
+            state.memberAccess = .member
             state.screen = .share(quote: "사랑이라는 선물은 억지로 줄 수 없고 받아들여지기를 기다릴 뿐이다.", author: "존 우든")
             state.share = ShareFeature.State(quote: "사랑이라는 선물은 억지로 줄 수 없고 받아들여지기를 기다릴 뿐이다.", author: "존 우든")
         case "quoteDetail":
+            state.memberAccess = .member
             state.screen = .quoteDetail(QuoteListSampleData.items[0])
         case "memoInsert":
+            state.memberAccess = .member
             state.screen = .memoInsert(savedMemo: "", memberQuoteSeq: 1)
             state.memoInsert = MemoInsertFeature.State(savedMemo: "", memberQuoteSeq: 1)
         case "notice":
+            state.memberAccess = .member
             state.screen = .notice
             state.notice.notices = NoticeSampleData.items
             state.notice.hasLoaded = true
         case "noticeDetail":
+            state.memberAccess = .member
             state.screen = .noticeDetail(NoticeSampleData.items[0])
         case "alert":
+            state.memberAccess = .member
             state.screen = .alert
         default:
             break
@@ -286,6 +301,7 @@ struct FiilsaApp: App {
                 $0.settingsClient.getAlarm = { false }
                 $0.settingsClient.getShareDescriptionVisible = { false }
                 $0.pushRegistrationClient.synchronize = { _ in }
+                $0.sessionClient.isLoggedIn = { true }
             }
         } else if OnboardingGuideUITestLaunchConfiguration.isEnabled {
             OnboardingGuideUITestLaunchConfiguration.makeStore()
@@ -314,6 +330,15 @@ struct FiilsaApp: App {
                         memberQuoteSeq: dailyQuoteSeq,
                         answer: answer,
                         answeredAt: "2026-10-07T12:00:00"
+                    )
+                }
+                $0.typingClient.getTyping = { _ in
+                    MemberTypingQuoteResponse(
+                        korQuote: nil,
+                        engQuote: nil,
+                        typingKorQuote: nil,
+                        typingEngQuote: nil,
+                        likeYn: "N"
                     )
                 }
             }
@@ -374,6 +399,7 @@ private enum MemoUITestLaunchConfiguration {
         let savedMemo = ProcessInfo.processInfo.arguments.contains(filledArgument)
             ? "명언을 보면 삶에 동기부여가 되어서 좋아요."
             : ""
+        state.memberAccess = .member
         state.screen = .memoInsert(savedMemo: savedMemo, memberQuoteSeq: 1)
         state.selectedTheme = ProcessInfo.processInfo.arguments.contains(darkArgument) ? .dark : .light
         state.memoInsert = MemoInsertFeature.State(savedMemo: savedMemo, memberQuoteSeq: 1)
@@ -397,9 +423,10 @@ private enum LoginUITestLaunchConfiguration {
 
     private static var initialState: AppFeature.State {
         var state = AppFeature.State()
-        state.screen = .login(isOnboarding: false)
+        state.memberAccess = .loginRequired
+        state.screen = .login
         state.selectedTheme = ProcessInfo.processInfo.arguments.contains(darkArgument) ? .dark : .light
-        state.login = LoginFeature.State(isOnboarding: false)
+        state.login = LoginFeature.State()
         return state
     }
 }
@@ -466,7 +493,8 @@ private enum MyPageUITestLaunchConfiguration {
 
     private static var initialState: AppFeature.State {
         var state = AppFeature.State()
-        state.screen = .main
+        state.memberAccess = isMember ? .member : .loginRequired
+        state.screen = isMember ? .main : .login
         state.selectedTab = .myPage
         state.selectedTheme = selectedTheme
         state.myPage = MyPageFeature.State(
@@ -496,6 +524,7 @@ private enum NoticeDetailUITestLaunchConfiguration {
 
     private static var initialState: AppFeature.State {
         var state = AppFeature.State()
+        state.memberAccess = .member
         state.screen = .noticeDetail(NoticeSampleData.items[0])
         state.selectedTheme = ProcessInfo.processInfo.arguments.contains(darkArgument) ? .dark : .light
         return state

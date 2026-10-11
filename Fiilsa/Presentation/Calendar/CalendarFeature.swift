@@ -16,10 +16,8 @@ struct CalendarFeature {
         var answerDraft = ""
         var recordedAnswer: String?
         var isEditingAnswer = true
-        var sessionAnswers: [String: String] = [:]
         var imageTargetSeq: Int?
         var isImageDialogPresented = false
-        var isLoginRequiredDialogPresented = false
         var isDeleteImageConfirmationPresented = false
         var imageUploadFailed = false
 
@@ -36,7 +34,6 @@ struct CalendarFeature {
         case imageTapped(Int)
         case imageAccessResolved(Int, Bool)
         case imageDialogDismissed
-        case loginRequiredDialogDismissed
         case deleteImageTapped
         case deleteImageCancelled
         case deleteImageConfirmed
@@ -55,6 +52,7 @@ struct CalendarFeature {
         enum Delegate: Equatable {
             case homeSelected(Date)
             case quoteListSelected(Date)
+            case memberAccessLost
         }
     }
 
@@ -154,17 +152,13 @@ struct CalendarFeature {
                     state.imageTargetSeq = dailyQuoteSeq
                     state.isImageDialogPresented = true
                 } else {
-                    state.isLoginRequiredDialogPresented = true
+                    return .send(.delegate(.memberAccessLost))
                 }
                 return .none
 
             case .imageDialogDismissed:
                 state.isImageDialogPresented = false
                 state.imageTargetSeq = nil
-                return .none
-
-            case .loginRequiredDialogDismissed:
-                state.isLoginRequiredDialogPresented = false
                 return .none
 
             case .deleteImageTapped:
@@ -275,28 +269,21 @@ struct CalendarFeature {
                 guard !answer.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty,
                       let record = selectedRecord(in: state),
                       CalendarWritingCompletion.isCompleted(record) else { return .none }
-                if state.isLoggedIn {
-                    let dailyQuoteSeq = record.dailyQuoteSeq
-                    return .runWithLoading { send in
-                        do {
-                            let response = try await homeUseCases.saveAnswer(answer, dailyQuoteSeq)
-                            await send(.answerSaved(dailyQuoteSeq, .success(response)))
-                        } catch is CancellationError {
-                            return
-                        } catch let error as ErrorResponse {
-                            guard !Task.isCancelled else { return }
-                            await send(.answerSaved(dailyQuoteSeq, .failure(error)))
-                        } catch {
-                            guard !Task.isCancelled else { return }
-                            await send(.answerSaved(dailyQuoteSeq, .failure(.defaultError)))
-                        }
+                let dailyQuoteSeq = record.dailyQuoteSeq
+                return .runWithLoading { send in
+                    do {
+                        let response = try await homeUseCases.saveAnswer(answer, dailyQuoteSeq)
+                        await send(.answerSaved(dailyQuoteSeq, .success(response)))
+                    } catch is CancellationError {
+                        return
+                    } catch let error as ErrorResponse {
+                        guard !Task.isCancelled else { return }
+                        await send(.answerSaved(dailyQuoteSeq, .failure(error)))
+                    } catch {
+                        guard !Task.isCancelled else { return }
+                        await send(.answerSaved(dailyQuoteSeq, .failure(.defaultError)))
                     }
                 }
-                state.answerDraft = answer
-                state.recordedAnswer = answer
-                state.isEditingAnswer = false
-                state.sessionAnswers[record.quoteDate] = answer
-                return .none
 
             case let .answerSaved(dailyQuoteSeq, .success(response)):
                 guard let index = state.memberQuotes.firstIndex(where: { $0.dailyQuoteSeq == dailyQuoteSeq }) else { return .none }
@@ -328,8 +315,7 @@ struct CalendarFeature {
     }
 
     private func restoreAnswer(state: inout State) {
-        let date = FillsaCalendarDateSupport.quoteDateString(for: state.selectedDay)
-        let answer = state.isLoggedIn ? selectedRecord(in: state)?.answer : state.sessionAnswers[date]
+        let answer = selectedRecord(in: state)?.answer
         state.recordedAnswer = answer
         state.answerDraft = answer ?? ""
         state.isEditingAnswer = answer == nil

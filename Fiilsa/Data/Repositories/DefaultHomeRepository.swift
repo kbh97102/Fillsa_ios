@@ -7,16 +7,6 @@ struct DefaultHomeRepository: HomeRepository {
         self.apiClient = apiClient
     }
 
-    func getDailyQuoteNoToken(quoteDate: String) async throws -> DailyQuoteNoToken {
-        let request = APIRequest<EmptyRequestBody>(
-            method: .get,
-            path: APIEndpoint.dailyQuoteNonMember,
-            queryItems: [.init(name: "quoteDate", value: quoteDate)],
-            requiresAuthorization: false
-        )
-        return try await apiClient.send(request, responseType: DailyQuoteNoToken.self)
-    }
-
     func getDailyQuote(quoteDate: String) async throws -> DailyQuote {
         let request = APIRequest<EmptyRequestBody>(
             method: .get,

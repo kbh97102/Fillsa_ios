@@ -24,7 +24,7 @@ enum AppTab: String, CaseIterable, Equatable, Identifiable {
 
 enum AppScreen: Equatable {
     case splash
-    case login(isOnboarding: Bool)
+    case login
     case onboardingGuide
     case main
     case typing

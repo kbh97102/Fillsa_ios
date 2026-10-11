@@ -7,13 +7,10 @@ struct CalendarUseCases {
 extension CalendarUseCases: DependencyKey {
     static let liveValue: CalendarUseCases = {
         let calendarRepository = LiveRepositories.calendar
-        let localRepository = LiveRepositories.local
-
         return CalendarUseCases(
             loadMonth: { yearMonth in
                 try await LoadCalendarMonthUseCase(
-                    calendarRepository: calendarRepository,
-                    localRepository: localRepository
+                    calendarRepository: calendarRepository
                 )(yearMonth: yearMonth)
             }
         )

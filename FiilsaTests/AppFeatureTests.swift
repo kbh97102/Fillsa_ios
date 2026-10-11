@@ -4,6 +4,127 @@ import XCTest
 
 @MainActor
 final class AppFeatureTests: XCTestCase {
+    func test_guestGuideCompletionCannotOpenHome() async {
+        var state = AppFeature.State()
+        state.screen = .onboardingGuide
+        let store = TestStore(initialState: state) { AppFeature() }
+        store.exhaustivity = .off
+
+        await store.send(.onboardingGuideFinished)
+
+        XCTAssertEqual(store.state.screen, .login)
+    }
+
+    func test_lateSplashHomeResultCannotReopenMemberScreen() async {
+        var state = AppFeature.State()
+        state.screen = .login
+        state.memberAccess = .loginRequired
+        let store = TestStore(initialState: state) { AppFeature() }
+        store.exhaustivity = .off
+
+        await store.send(.splash(.delegate(.move(.home))))
+
+        XCTAssertEqual(store.state.screen, .login)
+        XCTAssertEqual(store.state.memberAccess, .loginRequired)
+    }
+
+    func test_accountDeletionReturnsToLoginInsteadOfGuestHome() async {
+        var state = AppFeature.State()
+        state.screen = .main
+        state.selectedTab = .myPage
+        state.home.answerDraft = "private answer"
+        let store = TestStore(initialState: state) { AppFeature() }
+        store.exhaustivity = .off
+
+        await store.send(.myPage(.delegate(.resignCompleted)))
+
+        XCTAssertEqual(store.state.screen, .login)
+        XCTAssertEqual(store.state.home.answerDraft, "")
+    }
+
+    func test_lateNavigationAfterLogoutCannotReopenHome() async {
+        var state = AppFeature.State()
+        state.screen = .login
+        let store = TestStore(initialState: state) { AppFeature() }
+        store.exhaustivity = .off
+
+        await store.send(.selectedTabChanged(.home))
+        await store.send(.notice(.delegate(.back)))
+        await store.send(.homeTypingSelected)
+
+        XCTAssertEqual(store.state.screen, .login)
+    }
+
+    func test_sessionExpirationReturnsMemberToLogin() async {
+        var state = AppFeature.State()
+        state.memberAccess = .member
+        state.screen = .main
+        state.home.answerDraft = "private answer"
+        let store = TestStore(initialState: state) { AppFeature() } withDependencies: {
+            $0.sessionClient.getAccessToken = { "" }
+            $0.sessionClient.logout = {}
+        }
+        store.exhaustivity = .off
+
+        await store.send(.sessionExpired(SessionExpirationEvent(statusCode: 401, reason: .missingRefreshToken)))
+        await store.receive(.sessionExpiredHandled)
+
+        XCTAssertEqual(store.state.screen, .login)
+        XCTAssertEqual(store.state.home.answerDraft, "")
+    }
+
+    func test_unidentifiedExpirationDoesNotClearNewSession() async {
+        var state = AppFeature.State()
+        state.memberAccess = .member
+        state.screen = .main
+        let store = TestStore(initialState: state) { AppFeature() } withDependencies: {
+            $0.sessionClient.getAccessToken = { "new-session-token" }
+            $0.sessionClient.logout = { XCTFail("New session must stay signed in") }
+        }
+        store.exhaustivity = .off
+
+        await store.send(.sessionExpired(SessionExpirationEvent(statusCode: 401, reason: .retryRejected)))
+        await store.receive(.sessionExpirationIgnored)
+        XCTAssertEqual(store.state.screen, .main)
+    }
+
+    func test_matchingSessionExpirationClearsMemberSession() async {
+        var state = AppFeature.State()
+        state.memberAccess = .member
+        state.screen = .main
+        let store = TestStore(initialState: state) { AppFeature() } withDependencies: {
+            $0.sessionClient.getAccessToken = { "old-session-token" }
+            $0.sessionClient.logout = {}
+        }
+        store.exhaustivity = .off
+        let event = SessionExpirationEvent(
+            statusCode: 403, reason: .refreshFailed,
+            failedAccessTokenFingerprint: SessionExpirationEvent.fingerprint(of: "old-session-token")
+        )
+
+        await store.send(.sessionExpired(event))
+        await store.receive(.sessionExpiredHandled)
+
+        XCTAssertEqual(store.state.screen, .login)
+    }
+
+    func test_calendarAuthenticationLossReturnsToLogin() async {
+        var state = AppFeature.State()
+        state.memberAccess = .member
+        state.screen = .main
+        state.selectedTab = .calendar
+        let store = TestStore(initialState: state) { AppFeature() } withDependencies: {
+            $0.sessionClient.logout = {}
+        }
+        store.exhaustivity = .off
+
+        await store.send(.calendar(.delegate(.memberAccessLost)))
+        await store.receive(.memberAccessLost)
+        await store.receive(.memberAccessLostHandled)
+
+        XCTAssertEqual(store.state.screen, .login)
+    }
+
     func test_logoutFromMyPageOpensLoginAndClearsMemberScreens() async {
         var state = AppFeature.State()
         state.screen = .main
@@ -25,7 +146,7 @@ final class AppFeatureTests: XCTestCase {
 
         await store.send(.myPage(.delegate(.loggedOut)))
 
-        XCTAssertEqual(store.state.screen, .login(isOnboarding: false))
+        XCTAssertEqual(store.state.screen, .login)
         XCTAssertEqual(store.state.selectedTab, .home)
         XCTAssertEqual(store.state.selectedTheme, .dark)
         XCTAssertFalse(store.state.login.isProcessing)
@@ -43,23 +164,10 @@ final class AppFeatureTests: XCTestCase {
         XCTAssertFalse(store.state.generalPopup.hasLoaded)
     }
 
-    func test_nonmemberHomeReloadRestoresSelectedDaysSessionAnswer() async {
-        var state = AppFeature.State()
-        let date = FillsaCalendarDateSupport.quoteDateString(for: state.home.date)
-        state.calendar.sessionAnswers[date] = "세션에서 기록한 답변"
-        let store = TestStore(initialState: state) { AppFeature() }
-        store.exhaustivity = .off
-        let result = HomeDailyQuoteResult(quote: DailyQuote(dailyQuoteSeq: 42), isLoggedIn: false)
-
-        await store.send(.home(.dailyQuoteLoaded(.success(result))))
-
-        XCTAssertEqual(store.state.home.answerDraft, "세션에서 기록한 답변")
-        XCTAssertEqual(store.state.home.recordedAnswer, "세션에서 기록한 답변")
-        XCTAssertFalse(store.state.home.isEditingAnswer)
-    }
     func test_answerSaveInvalidatesTheOtherTabsCachedData() async {
         let saved = AnswerResponse(memberQuoteSeq: 42, answer: "서버 답변", answeredAt: "2025-03-21T12:00:00")
         var state = AppFeature.State()
+        state.memberAccess = .member
         state.home.quote = DailyQuote(dailyQuoteSeq: 42)
         state.home.isLoggedIn = true
         state.home.hasLoaded = true
@@ -71,6 +179,7 @@ final class AppFeatureTests: XCTestCase {
         XCTAssertFalse(store.state.calendar.hasLoaded)
 
         var calendarState = AppFeature.State()
+        calendarState.memberAccess = .member
         calendarState.home.hasLoaded = true
         calendarState.calendar.hasLoaded = true
         calendarState.calendar.memberQuotes = [
@@ -85,7 +194,7 @@ final class AppFeatureTests: XCTestCase {
     }
     func test_loadingCountControlsGlobalVisibility() async {
         var state = AppFeature.State()
-        state.screen = .login(isOnboarding: false)
+        state.screen = .login
         let store = TestStore(initialState: state) {
             AppFeature()
         }
@@ -144,6 +253,7 @@ final class AppFeatureTests: XCTestCase {
 
     func test_homeTypingUsesTheExistingQuoteRouteWithAnEmptyTranscript() async {
         var state = AppFeature.State()
+        state.memberAccess = .member
         state.home.quote = DailyQuote(
             likeYn: "N",
             dailyQuoteSeq: 42,
@@ -194,8 +304,41 @@ final class AppFeatureTests: XCTestCase {
         await store.finish()
     }
 
-    func test_accountDeletionFromMyPageReturnsToFreshHomeState() async {
+    func test_typingDoesNotReadLocalQuoteWhenSessionLookupFails() async {
+        let response = MemberTypingQuoteResponse(
+            korQuote: "명언", engQuote: "Quote", typingKorQuote: "서버 필사",
+            typingEngQuote: "Server typing", likeYn: "N"
+        )
+        let store = TestStore(initialState: TypingFeature.State(dailyQuoteSeq: 42)) {
+            TypingFeature()
+        } withDependencies: {
+            $0.sessionClient.isLoggedIn = { throw ErrorResponse.defaultError }
+            $0.typingClient.getTyping = { _ in response }
+        }
+        store.exhaustivity = .off
+
+        await store.send(.onAppear)
+        await store.receive(.typingLoaded(.success(response)))
+    }
+
+    func test_typingSaveFailureKeepsEditorOpen() async {
+        let store = TestStore(initialState: TypingFeature.State(dailyQuoteSeq: 42, korTyping: "필사")) {
+            TypingFeature()
+        } withDependencies: {
+            $0.typingClient.postTyping = { _, _ in throw ErrorResponse.defaultError }
+        }
+        store.exhaustivity = .off
+
+        await store.send(.saveAndBack)
+        await store.receive(.typingSaved(.failure(.defaultError)))
+
+        XCTAssertFalse(store.state.isSaving)
+        XCTAssertEqual(store.state.korTyping, "필사")
+    }
+
+    func test_accountDeletionFromMyPageReturnsToLogin() async {
         var state = AppFeature.State()
+        state.memberAccess = .member
         state.screen = .main
         state.selectedTab = .myPage
         state.myPage = MyPageFeature.State(isLoggedIn: true, userName: "필사")
@@ -211,10 +354,12 @@ final class AppFeatureTests: XCTestCase {
             $0.myPage = MyPageFeature.State(selectedTheme: $0.selectedTheme)
             $0.alert = AlertFeature.State()
         }
+        XCTAssertEqual(store.state.screen, .login)
     }
 
     func test_streakTooltipCalendarLinkClearsHomeOverlayBeforeSelectingCalendar() async {
         var state = AppFeature.State()
+        state.memberAccess = .member
         state.screen = .main
         state.home.isStreakTooltipPresented = true
         let store = TestStore(initialState: state) {

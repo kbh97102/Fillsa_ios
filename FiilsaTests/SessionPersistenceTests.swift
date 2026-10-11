@@ -107,6 +107,84 @@ final class SessionPersistenceTests: XCTestCase {
         XCTAssertTrue(isLoggedIn)
         try await tokens.clear()
     }
+
+    func test_loginDoesNotUploadOrDeleteLegacyLocalQuotes() async throws {
+        let suiteName = "SessionPersistenceTests.\(UUID().uuidString)"
+        let defaults = try XCTUnwrap(UserDefaults(suiteName: suiteName))
+        let directory = FileManager.default.temporaryDirectory.appendingPathComponent(suiteName)
+        defer {
+            defaults.removePersistentDomain(forName: suiteName)
+            try? FileManager.default.removeItem(at: directory)
+        }
+
+        let tokens = KeychainTokenStore(service: "\(suiteName).tokens")
+        let database = try SQLiteLocalStore(path: directory.appendingPathComponent("quotes.sqlite").path)
+        let repository = try DefaultLocalRepository(
+            tokenStore: tokens,
+            settingsStore: UserDefaultsLocalSettingsStore(userDefaults: defaults),
+            localStore: database
+        )
+        let legacyQuote = LocalQuoteInfo(
+            dailyQuoteSeq: 42, korQuote: "기존 명언", engQuote: "Old quote",
+            korAuthor: "작가", engAuthor: "Author", korTyping: "기존 필사",
+            engTyping: "Old typing", likeYn: "Y", memo: "기존 메모",
+            date: "2025-03-21", dayOfWeek: "FRIDAY"
+        )
+        try await repository.addLocalQuote(legacyQuote)
+        let response = LoginResponse(
+            accessToken: "new-access", refreshToken: "new-refresh", memberSeq: 1,
+            nickname: "필사", profileImageUrl: ""
+        )
+        let auth = RecordingAuthRepository(response: response)
+        let login = LoginUseCase(
+            authRepository: auth, localRepository: repository,
+            currentPushToken: { nil }, currentPushAgreement: { false }
+        )
+
+        _ = try await login(user: SocialAuthUser(provider: "KAKAO", oauthID: "42", nickname: "필사", profileImageURL: ""))
+
+        let request = await auth.request
+        XCTAssertEqual(request?.syncData, [])
+        let remaining = try await repository.getLocalQuotes()
+        XCTAssertEqual(remaining, [legacyQuote])
+        let isLoggedIn = try await repository.isLoggedIn()
+        XCTAssertTrue(isLoggedIn)
+
+        let failedLogin = LoginUseCase(
+            authRepository: FailingAuthRepository(), localRepository: repository,
+            currentPushToken: { nil }, currentPushAgreement: { false }
+        )
+        do {
+            _ = try await failedLogin(user: SocialAuthUser(provider: "KAKAO", oauthID: "42", nickname: "필사", profileImageURL: ""))
+            XCTFail("Expected server login failure")
+        } catch SessionPersistenceTestError.loginFailed {
+        }
+        let afterFailure = try await repository.getLocalQuotes()
+        XCTAssertEqual(afterFailure, [legacyQuote])
+        try await tokens.clear()
+    }
+}
+
+private actor RecordingAuthRepository: AuthRepository {
+    let response: LoginResponse
+    private(set) var request: LoginRequest?
+
+    init(response: LoginResponse) { self.response = response }
+
+    func login(_ request: LoginRequest) async throws -> LoginResponse {
+        self.request = request
+        return response
+    }
+
+    func refreshToken(_ request: TokenRefreshRequest) async throws -> TokenInfo? { nil }
+}
+
+private struct FailingAuthRepository: AuthRepository {
+    func login(_ request: LoginRequest) async throws -> LoginResponse {
+        throw SessionPersistenceTestError.loginFailed
+    }
+
+    func refreshToken(_ request: TokenRefreshRequest) async throws -> TokenInfo? { nil }
 }
 
 private struct SuccessfulAuthRepository: AuthRepository {
@@ -125,4 +203,5 @@ private actor FailingClearTokenStore: TokenStore {
 
 private enum SessionPersistenceTestError: Error {
     case clearFailed
+    case loginFailed
 }

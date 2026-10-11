@@ -44,10 +44,6 @@ struct LoginView: View {
         viewStore: ViewStore<LoginFeature.State, LoginFeature.Action>
     ) -> some View {
         VStack(spacing: 0) {
-            if viewStore.isOnboarding {
-                topSection(viewStore: viewStore)
-            }
-
             Image(colorScheme == .dark ? "icn_top_logo_dark" : "icn_top_logo")
                 .resizable()
                 .scaledToFit()
@@ -109,25 +105,6 @@ struct LoginView: View {
         .background(FillsaColor.background.ignoresSafeArea())
     }
 
-    private func topSection(
-        viewStore: ViewStore<LoginFeature.State, LoginFeature.Action>
-    ) -> some View {
-        HStack {
-            Spacer()
-
-            Button {
-                viewStore.send(.closeTapped)
-            } label: {
-                Image(systemName: "xmark")
-                    .font(.system(size: 20, weight: .semibold))
-                    .foregroundStyle(FillsaColor.onBackground1)
-                    .frame(width: 44, height: 44)
-            }
-            .buttonStyle(.plain)
-        }
-        .padding(.vertical, 13)
-    }
-
     private func toast(_ message: String) -> some View {
         VStack {
             Spacer()
@@ -147,7 +124,7 @@ struct LoginView: View {
 
 #Preview {
     LoginView(
-        store: Store(initialState: LoginFeature.State(isOnboarding: false)) {
+        store: Store(initialState: LoginFeature.State()) {
             LoginFeature()
         }
     )

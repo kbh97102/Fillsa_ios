@@ -19,11 +19,11 @@ final class SplashFeatureTests: XCTestCase {
             $0.hasPlayedAnimation = true
             $0.isResolvingDestination = true
         }
-        await store.receive(.ready(.login(isOnboarding: false))) {
+        await store.receive(.ready(.login)) {
             $0.isReady = true
             $0.isResolvingDestination = false
         }
-        await store.receive(.delegate(.move(.login(isOnboarding: false))))
+        await store.receive(.delegate(.move(.login)))
     }
 
     func testFirstOpenLoggedOutUserGoesToLoginAndMarksVisit() async {
@@ -41,11 +41,11 @@ final class SplashFeatureTests: XCTestCase {
             $0.hasPlayedAnimation = true
             $0.isResolvingDestination = true
         }
-        await store.receive(.ready(.login(isOnboarding: false))) {
+        await store.receive(.ready(.login)) {
             $0.isReady = true
             $0.isResolvingDestination = false
         }
-        await store.receive(.delegate(.move(.login(isOnboarding: false))))
+        await store.receive(.delegate(.move(.login)))
         let recordedVisits = await visits.values
         XCTAssertEqual(recordedVisits, [false])
     }
@@ -107,11 +107,11 @@ final class SplashFeatureTests: XCTestCase {
             $0.hasPlayedAnimation = true
             $0.isResolvingDestination = true
         }
-        await store.receive(.ready(.login(isOnboarding: false))) {
+        await store.receive(.ready(.login)) {
             $0.isReady = true
             $0.isResolvingDestination = false
         }
-        await store.receive(.delegate(.move(.login(isOnboarding: false))))
+        await store.receive(.delegate(.move(.login)))
     }
 
     func testRepeatedCompletionDoesNotChooseDestinationTwice() async {
@@ -133,11 +133,11 @@ final class SplashFeatureTests: XCTestCase {
         }
         await store.send(.permissionChecked)
         gate.continuation.finish()
-        await store.receive(.ready(.login(isOnboarding: false))) {
+        await store.receive(.ready(.login)) {
             $0.isReady = true
             $0.isResolvingDestination = false
         }
-        await store.receive(.delegate(.move(.login(isOnboarding: false))))
+        await store.receive(.delegate(.move(.login)))
         await store.finish()
     }
 }

@@ -50,12 +50,3 @@ struct MonthlySummaryData: Codable, Equatable {
     let likeCount: Int
     let streakCount: Int
 }
-
-struct MonthlyQuoteResponse: Codable, Equatable, Identifiable {
-    var id: Int { dailyQuoteSeq }
-
-    let dailyQuoteSeq: Int
-    let quoteDate: String
-    let quote: String
-    let author: String
-}

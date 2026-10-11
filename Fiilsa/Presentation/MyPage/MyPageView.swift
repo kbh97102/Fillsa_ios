@@ -51,14 +51,10 @@ struct MyPageView: View {
             .accessibilityIdentifier(MyPageAccessibilityIdentifier.logo)
 
             MyPageLoginSection(
-                isLogged: viewStore.isLoggedIn,
                 userName: viewStore.userName,
-                imagePath: viewStore.imagePath,
-                loginEvent: {
-                    viewStore.send(.loginTapped)
-                }
+                imagePath: viewStore.imagePath
             )
-            .padding(.top, viewStore.isLoggedIn ? 20 : 10)
+            .padding(.top, 20)
 
             VStack(spacing: MyPageLayout.menuSpacing) {
                 MyPageItem(
@@ -92,7 +88,6 @@ struct MyPageView: View {
             .padding(.top, 20)
 
             MyPageBottomButtonSection(
-                isLogged: viewStore.isLoggedIn,
                 isProcessing: viewStore.isProcessing,
                 logout: {
                     viewStore.send(.logoutTapped)

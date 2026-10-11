@@ -93,12 +93,12 @@ struct SplashFeature {
                 try? await sessionClient.setFirstOpen(false)
             }
             let isLoggedIn = (try? await sessionClient.isLoggedIn()) ?? false
-            await send(.ready(isLoggedIn ? .home : .login(isOnboarding: false)))
+            await send(.ready(isLoggedIn ? .home : .login))
         }
     }
 }
 
 enum SplashDestination: Equatable {
-    case login(isOnboarding: Bool)
+    case login
     case home
 }

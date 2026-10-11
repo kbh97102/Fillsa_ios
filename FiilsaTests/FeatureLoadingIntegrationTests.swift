@@ -50,11 +50,7 @@ struct FeatureLoadingIntegrationTests {
             TypingFeature()
         } withDependencies: {
             $0.loadingClient = loadingTestClient(registry)
-            $0.sessionClient.isLoggedIn = { throw CancellationError() }
-            $0.localQuoteClient.findById = { _ in
-                Issue.record("Local write path must not follow cancellation")
-                return nil
-            }
+            $0.typingClient.postTyping = { _, _ in throw CancellationError() }
         }
         let task = await store.send(.saveAndBack) { $0.isSaving = true }
         await store.receive(.saveCancelled) { $0.isSaving = false }
@@ -63,7 +59,7 @@ struct FeatureLoadingIntegrationTests {
     }
 
     @Test @MainActor
-    func typingLocalLoadUsesOneScope() async {
+    func typingMemberLoadUsesOneScope() async {
         let registry = LoadingRegistry()
         let gate = AsyncStream<Void>.makeStream()
         let started = AsyncStream<Void>.makeStream()
@@ -71,11 +67,13 @@ struct FeatureLoadingIntegrationTests {
             TypingFeature()
         } withDependencies: {
             $0.loadingClient = loadingTestClient(registry)
-            $0.sessionClient.isLoggedIn = { false }
-            $0.localQuoteClient.findById = { _ in
+            $0.typingClient.getTyping = { _ in
                 started.continuation.yield(())
                 for await _ in gate.stream {}
-                return nil
+                return MemberTypingQuoteResponse(
+                    korQuote: "명언", engQuote: "Quote", typingKorQuote: "필사",
+                    typingEngQuote: "Typing", likeYn: "N"
+                )
             }
         }
         let task = await store.send(.onAppear)
@@ -83,7 +81,16 @@ struct FeatureLoadingIntegrationTests {
         _ = await events.next()
         #expect(await loadingCount(registry) == 1)
         gate.continuation.finish()
-        await store.receive(.localTypingLoaded(nil)) { $0.hasLoaded = true }
+        await store.receive(.typingLoaded(.success(MemberTypingQuoteResponse(
+            korQuote: "명언", engQuote: "Quote", typingKorQuote: "필사",
+            typingEngQuote: "Typing", likeYn: "N"
+        )))) {
+            $0.korQuote = "명언"
+            $0.engQuote = "Quote"
+            $0.korTyping = "필사"
+            $0.engTyping = "Typing"
+            $0.hasLoaded = true
+        }
         await task.finish()
         #expect(await loadingCount(registry) == 0)
     }

@@ -11,7 +11,6 @@ struct HomeFeature {
         var hasLoaded = false
         var isLoading = false
         var isImageDialogPresented = false
-        var isLoginRequiredDialogPresented = false
         var isDeleteImageConfirmationPresented = false
         var toastMessage: String?
         var streakCount: Int?
@@ -40,7 +39,6 @@ struct HomeFeature {
         case likeUpdated(Result<Int, ErrorResponse>)
         case imageTapped
         case imageDialogDismissed
-        case loginRequiredDialogDismissed
         case deleteImageTapped
         case deleteImageCancelled
         case deleteImageConfirmed
@@ -49,7 +47,7 @@ struct HomeFeature {
         case imageUploaded(Int, Result<MemberQuoteImageResponse, ErrorResponse>)
         case copyCompleted
         case toastDismissed
-        case completionStateLoaded(Int, [StreakInfo])
+        case completionStateLoaded(Int)
         case calendarTriggerTapped
         case calendarDismissed
         case calendarMonthChanged(Date)
@@ -75,12 +73,11 @@ struct HomeFeature {
                 state.nextFeedRequestID += 1
                 let requestID = state.nextFeedRequestID
                 state.feedRequestID = requestID
-                let quoteDate = FillsaCalendarDateSupport.quoteDateString(for: state.date)
                 return .run { send in
                     guard !Task.isCancelled else { return }
                     let token = await loadingClient.begin()
                     if !Task.isCancelled {
-                        async let quote: Void = fetchFeed(endDate: nil, quoteDate: quoteDate, requestID: requestID, send: send)
+                        async let quote: Void = fetchFeed(endDate: nil, requestID: requestID, send: send)
                         async let completion: Void = fetchCompletionState(send: send)
                         _ = await (quote, completion)
                     }
@@ -127,19 +124,13 @@ struct HomeFeature {
                 guard state.feedRequestID == requestID else { return .none }
                 state.feedRequestID = nil
                 switch result {
-                case let .guest(daily):
-                    state.weeklyWindows = [:]
-                    state.serverToday = nil
-                    if daily.quote.quoteDate != FillsaCalendarDateSupport.quoteDateString(for: state.date) {
-                        state.isLoggedIn = false
-                        return load(state: &state)
-                    }
-                    applyDailyResult(daily, state: &state)
-                    return .none
                 case let .member(week):
                     state.isLoggedIn = true
                     if state.serverToday == nil { state.serverToday = week.endDate }
                     state.weeklyWindows[week.endDate] = week
+                    state.completedWritingDates.formUnion(
+                        week.days.filter { $0.completed == true || $0.state == "done" }.map(\.date)
+                    )
                     let key = FillsaCalendarDateSupport.quoteDateString(for: state.date)
                     if let day = week.day(key) {
                         applyDailyResult(HomeDailyQuoteResult(quote: day.asDailyQuote, isLoggedIn: true), state: &state)
@@ -210,19 +201,11 @@ struct HomeFeature {
                 return .none
 
             case .imageTapped:
-                guard state.isLoggedIn else {
-                    state.isLoginRequiredDialogPresented = true
-                    return .none
-                }
                 state.isImageDialogPresented = true
                 return .none
 
             case .imageDialogDismissed:
                 state.isImageDialogPresented = false
-                return .none
-
-            case .loginRequiredDialogDismissed:
-                state.isLoginRequiredDialogPresented = false
                 return .none
 
             case .deleteImageTapped:
@@ -306,17 +289,12 @@ struct HomeFeature {
                 state.toastMessage = nil
                 return .none
 
-            case let .completionStateLoaded(streakCount, streakInfos):
+            case let .completionStateLoaded(streakCount):
                 state.streakCount = streakCount > 0 ? streakCount : nil
                 state.isStreakStateLoaded = true
                 if streakCount > 0 {
                     state.isStreakTooltipPresented = false
                 }
-                state.completedWritingDates = Set(
-                    streakInfos
-                        .filter(\.isDailyWritingCompleted)
-                        .map(\.date)
-                )
                 return .none
 
             case .calendarTriggerTapped:
@@ -367,32 +345,23 @@ struct HomeFeature {
 
             case .answerRecordTapped:
                 let answer = HomeAnswerInput.limit(state.answerDraft)
-                guard !answer.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else {
-                    return .none
-                }
-                if state.isLoggedIn {
-                    guard state.quote.dailyQuoteSeq > 0 else { return .none }
-                    let dailyQuoteSeq = state.quote.dailyQuoteSeq
-                    return .runWithLoading { send in
-                        do {
-                            let response = try await homeUseCases.saveAnswer(answer, dailyQuoteSeq)
-                            await send(.answerSaved(dailyQuoteSeq, .success(response)))
-                        } catch is CancellationError {
-                            return
-                        } catch let error as ErrorResponse {
-                            guard !Task.isCancelled else { return }
-                            await send(.answerSaved(dailyQuoteSeq, .failure(error)))
-                        } catch {
-                            guard !Task.isCancelled else { return }
-                            await send(.answerSaved(dailyQuoteSeq, .failure(.defaultError)))
-                        }
+                guard !answer.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty,
+                      state.quote.dailyQuoteSeq > 0 else { return .none }
+                let dailyQuoteSeq = state.quote.dailyQuoteSeq
+                return .runWithLoading { send in
+                    do {
+                        let response = try await homeUseCases.saveAnswer(answer, dailyQuoteSeq)
+                        await send(.answerSaved(dailyQuoteSeq, .success(response)))
+                    } catch is CancellationError {
+                        return
+                    } catch let error as ErrorResponse {
+                        guard !Task.isCancelled else { return }
+                        await send(.answerSaved(dailyQuoteSeq, .failure(error)))
+                    } catch {
+                        guard !Task.isCancelled else { return }
+                        await send(.answerSaved(dailyQuoteSeq, .failure(.defaultError)))
                     }
                 }
-                state.answerDraft = answer
-                state.recordedAnswer = answer
-                state.isEditingAnswer = false
-                state.toastMessage = "답변을 기록했어요."
-                return .none
 
             case let .answerSaved(dailyQuoteSeq, .success(response)):
                 updateCachedDay(state: &state, dailyQuoteSeq: dailyQuoteSeq) {
@@ -444,7 +413,7 @@ struct HomeFeature {
             let requestID = state.nextFeedRequestID
             state.feedRequestID = requestID
             return .runWithLoading { send in
-                await fetchFeed(endDate: endDate, quoteDate: quoteDate, requestID: requestID, send: send)
+                await fetchFeed(endDate: endDate, requestID: requestID, send: send)
             }
         }
         return .runWithLoading { send in
@@ -482,9 +451,9 @@ struct HomeFeature {
         }
     }
 
-    private func fetchFeed(endDate: String?, quoteDate: String, requestID: Int, send: Send<Action>) async {
+    private func fetchFeed(endDate: String?, requestID: Int, send: Send<Action>) async {
         do {
-            let result = try await homeUseCases.loadFeed(endDate, quoteDate)
+            let result = try await homeUseCases.loadFeed(endDate)
             guard !Task.isCancelled else { return }
             await send(.feedLoaded(requestID, .success(result)))
         } catch is CancellationError {
@@ -517,9 +486,7 @@ struct HomeFeature {
     private func fetchCompletionState(send: Send<Action>) async {
         let streakCount = await streakClient.getCurrentCount()
         guard !Task.isCancelled else { return }
-        let streakInfos = (try? await streakClient.getAllLocal()) ?? []
-        guard !Task.isCancelled else { return }
-        await send(.completionStateLoaded(streakCount, streakInfos))
+        await send(.completionStateLoaded(streakCount))
     }
 
     private func dayOfWeekString(for date: Date) -> String {

@@ -36,6 +36,8 @@
 | [0_onboarding.md](screens/0_onboarding.md) | 랜딩 페이지 (알림 허용) |
 | [0_onboarding_guide.md](screens/0_onboarding_guide.md) | 가이드 페이지 |
 | [1_login.md](screens/1_login.md) | 온보딩 / 로그인 |
+| [1_login_member_only_followup_implementation_plan.md](screens/1_login_member_only_followup_implementation_plan.md) | 회원 화면 진입·세션 종료 후속 계획 |
+| [1_login_guest_cleanup_implementation_plan.md](screens/1_login_guest_cleanup_implementation_plan.md) | 비회원 화면·저장 분기 정리 계획 |
 | [2_home.md](screens/2_home.md) | Home (명언, 타이핑, 사진, 공유) |
 | [3_calendar.md](screens/3_calendar.md) | Calendar |
 | [4_list.md](screens/4_list.md) | List (목록, 상세, 메모) |

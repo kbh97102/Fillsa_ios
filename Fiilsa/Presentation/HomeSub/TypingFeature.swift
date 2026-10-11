@@ -21,7 +21,6 @@ struct TypingFeature {
     enum Action: Equatable {
         case onAppear
         case typingLoaded(Result<MemberTypingQuoteResponse, ErrorResponse>)
-        case localTypingLoaded(LocalQuoteInfo?)
         case korTypingChanged(String)
         case engTypingChanged(String)
         case likeTapped(Bool)
@@ -37,8 +36,6 @@ struct TypingFeature {
     }
 
     @Dependency(\.typingClient) private var typingClient
-    @Dependency(\.sessionClient) private var sessionClient
-    @Dependency(\.localQuoteClient) private var localQuoteClient
     @Dependency(\.homeUseCases) private var homeUseCases
 
     var body: some Reducer<State, Action> {
@@ -50,24 +47,9 @@ struct TypingFeature {
 
                 return .runWithLoading { send in
                     do {
-                        let isLoggedIn: Bool
-                        do {
-                            isLoggedIn = try await sessionClient.isLoggedIn()
-                        } catch is CancellationError {
-                            return
-                        } catch {
-                            isLoggedIn = false
-                        }
+                        let response = try await typingClient.getTyping(dailyQuoteSeq)
                         guard !Task.isCancelled else { return }
-                        if isLoggedIn {
-                            let response = try await typingClient.getTyping(dailyQuoteSeq)
-                            guard !Task.isCancelled else { return }
-                            await send(.typingLoaded(.success(response)))
-                        } else {
-                            let localQuote = try await localQuoteClient.findById(dailyQuoteSeq)
-                            guard !Task.isCancelled else { return }
-                            await send(.localTypingLoaded(localQuote))
-                        }
+                        await send(.typingLoaded(.success(response)))
                     } catch is CancellationError {
                         return
                     } catch let error as ErrorResponse {
@@ -85,13 +67,6 @@ struct TypingFeature {
                 state.korTyping = response.typingKorQuote ?? ""
                 state.engTyping = response.typingEngQuote ?? ""
                 state.likeYn = response.likeYn
-                state.hasLoaded = true
-                return .none
-
-            case let .localTypingLoaded(localQuote):
-                state.korTyping = localQuote?.korTyping ?? ""
-                state.engTyping = localQuote?.engTyping ?? ""
-                state.likeYn = localQuote?.likeYn ?? state.likeYn
                 state.hasLoaded = true
                 return .none
 
@@ -153,65 +128,13 @@ struct TypingFeature {
                 }
                 state.isSaving = true
                 let dailyQuoteSeq = state.dailyQuoteSeq
-                let localQuote = LocalQuoteInfo(
-                    dailyQuoteSeq: dailyQuoteSeq,
-                    korQuote: state.korQuote,
-                    engQuote: state.engQuote,
-                    korAuthor: state.korAuthor,
-                    engAuthor: state.engAuthor,
-                    korTyping: state.korTyping,
-                    engTyping: state.engTyping,
-                    likeYn: state.likeYn,
-                    memo: "",
-                    date: state.quoteDate,
-                    dayOfWeek: state.dayOfWeek
-                )
                 let request = TypingQuoteRequest(typingKorQuote: state.korTyping, typingEngQuote: state.engTyping)
 
                 return .runWithLoading { send in
                     do {
-                        let isLoggedIn: Bool
-                        do {
-                            isLoggedIn = try await sessionClient.isLoggedIn()
-                        } catch is CancellationError {
-                            await send(.saveCancelled)
-                            return
-                        } catch {
-                            isLoggedIn = false
-                        }
+                        let response = try await typingClient.postTyping(dailyQuoteSeq, request)
                         guard !Task.isCancelled else { return }
-                        if isLoggedIn {
-                            let response = try await typingClient.postTyping(dailyQuoteSeq, request)
-                            guard !Task.isCancelled else { return }
-                            await send(.typingSaved(.success(response)))
-                        } else {
-                            let storedQuote = try await localQuoteClient.findById(dailyQuoteSeq)
-                            guard !Task.isCancelled else { return }
-                            if localQuote.korTyping.isEmpty,
-                               localQuote.engTyping.isEmpty,
-                               storedQuote?.memo.isEmpty == true,
-                               storedQuote?.likeYn != "Y" {
-                                try await localQuoteClient.deleteBySeq(dailyQuoteSeq)
-                            } else {
-                                try await localQuoteClient.add(
-                                    LocalQuoteInfo(
-                                        dailyQuoteSeq: localQuote.dailyQuoteSeq,
-                                        korQuote: localQuote.korQuote,
-                                        engQuote: localQuote.engQuote,
-                                        korAuthor: localQuote.korAuthor,
-                                        engAuthor: localQuote.engAuthor,
-                                        korTyping: localQuote.korTyping,
-                                        engTyping: localQuote.engTyping,
-                                        likeYn: localQuote.likeYn,
-                                        memo: storedQuote?.memo ?? localQuote.memo,
-                                        date: localQuote.date,
-                                        dayOfWeek: localQuote.dayOfWeek
-                                    )
-                                )
-                            }
-                            guard !Task.isCancelled else { return }
-                            await send(.typingSaved(.success(1)))
-                        }
+                        await send(.typingSaved(.success(response)))
                     } catch is CancellationError {
                         await send(.saveCancelled)
                         return
@@ -224,9 +147,13 @@ struct TypingFeature {
                     }
                 }
 
-            case .typingSaved:
+            case .typingSaved(.success):
                 state.isSaving = false
                 return .send(.delegate(.back))
+
+            case .typingSaved(.failure):
+                state.isSaving = false
+                return .none
 
             case .saveCancelled:
                 state.isSaving = false

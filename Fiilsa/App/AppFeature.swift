@@ -5,6 +5,9 @@ import Foundation
 struct AppFeature {
     @ObservableState
     struct State: Equatable {
+        enum MemberAccess: Equatable { case unknown, member, loginRequired }
+
+        var memberAccess: MemberAccess = .unknown
         var screen: AppScreen = .splash
         var splash = SplashFeature.State()
         var login = LoginFeature.State()
@@ -23,6 +26,23 @@ struct AppFeature {
         var isHandlingSessionExpiration = false
         var activeLoadingCount = 0
         var isGlobalLoading: Bool { activeLoadingCount > 0 && screen != .splash }
+
+        mutating func routeToLoginAndClearMemberState() {
+            memberAccess = .loginRequired
+            screen = .login
+            login = LoginFeature.State()
+            home = HomeFeature.State()
+            quoteList = QuoteListFeature.State()
+            calendar = CalendarFeature.State()
+            myPage = MyPageFeature.State(selectedTheme: selectedTheme)
+            notice = NoticeFeature.State()
+            alert = AlertFeature.State()
+            memoInsert = MemoInsertFeature.State()
+            typing = TypingFeature.State()
+            share = ShareFeature.State()
+            generalPopup = GeneralPopupFeature.State()
+            selectedTab = .home
+        }
     }
 
     enum Action: Equatable {
@@ -41,9 +61,8 @@ struct AppFeature {
         case typing(TypingFeature.Action)
         case share(ShareFeature.Action)
         case generalPopup(GeneralPopupFeature.Action)
-        case loginClosed
-        case loginNonMemberSelected
-        case loginSelected
+        case memberAccessLost
+        case memberAccessLostHandled
         case homeTabSelected
         case quoteListTabSelected
         case homeTypingSelected
@@ -58,6 +77,7 @@ struct AppFeature {
         case selectedTabChanged(AppTab)
         case sessionExpired(SessionExpirationEvent)
         case sessionExpiredHandled
+        case sessionExpirationIgnored
         case fcmTokenUpdated(String)
     }
 
@@ -120,6 +140,18 @@ struct AppFeature {
         }
 
         Reduce { state, action in
+            if state.memberAccess != .member {
+                switch action {
+                case .home, .quoteList, .calendar, .notice, .alert, .memoInsert, .typing, .share,
+                     .myPage, .homeTabSelected, .quoteListTabSelected, .homeTypingSelected,
+                     .shareSelected, .quoteDetailSelected, .memoSelected, .noticeSelected,
+                     .noticeDetailSelected, .alertSelected, .backToMain, .selectedTabChanged:
+                    state.routeToLoginAndClearMemberState()
+                    return .none
+                default:
+                    break
+                }
+            }
             switch action {
             case .task:
                 let loadingSubscription: Effect<Action> = .run { send in
@@ -174,11 +206,12 @@ struct AppFeature {
                 }
 
             case let .splash(.delegate(.move(destination))):
+                guard state.screen == .splash, state.memberAccess == .unknown else { return .none }
                 switch destination {
-                case let .login(isOnboarding):
-                    state.screen = .login(isOnboarding: isOnboarding)
-                    state.login = LoginFeature.State(isOnboarding: isOnboarding)
+                case .login:
+                    state.routeToLoginAndClearMemberState()
                 case .home:
+                    state.memberAccess = .member
                     state.screen = .main
                     state.selectedTab = .home
                     return .send(.generalPopup(.loadIfNeeded))
@@ -188,21 +221,13 @@ struct AppFeature {
             case .splash:
                 return .none
 
-            case .login(.delegate(.close)):
-                state.screen = .main
-                state.selectedTab = .home
-                return .send(.generalPopup(.loadIfNeeded))
-
             case .login(.delegate(.moveHome)):
+                state.memberAccess = .member
                 state.screen = .main
                 state.selectedTab = .home
                 state.myPage = MyPageFeature.State(selectedTheme: state.selectedTheme)
                 state.home = HomeFeature.State()
                 return .send(.generalPopup(.loadIfNeeded))
-
-            case .login(.delegate(.moveOnboardingGuide)):
-                state.screen = .onboardingGuide
-                return .none
 
             case .login:
                 return .none
@@ -268,6 +293,9 @@ struct AppFeature {
                 state.quoteList.endDate = min(endOfMonth(for: date), Date())
                 return .none
 
+            case .calendar(.delegate(.memberAccessLost)):
+                return .send(.memberAccessLost)
+
             case .home(.likeUpdated(.success)):
                 guard state.screen == .main, state.selectedTab == .quoteList else {
                     state.quoteList.hasLoaded = false
@@ -275,45 +303,12 @@ struct AppFeature {
                 }
                 return .send(.quoteList(.refresh))
 
-            case let .home(.dailyQuoteLoaded(.success(result))):
-                if !result.isLoggedIn {
-                    let date = FillsaCalendarDateSupport.quoteDateString(for: state.home.date)
-                    if let answer = state.calendar.sessionAnswers[date] {
-                        state.home.answerDraft = answer
-                        state.home.recordedAnswer = answer
-                        state.home.isEditingAnswer = false
-                    }
-                }
-                return .none
-
             case .home(.answerSaved(_, .success)):
                 state.calendar.hasLoaded = false
                 return .none
 
             case .calendar(.answerSaved(_, .success)):
                 state.home.hasLoaded = false
-                return .none
-
-            case .home(.answerRecordTapped):
-                if !state.home.isLoggedIn, let answer = state.home.recordedAnswer {
-                    let date = FillsaCalendarDateSupport.quoteDateString(for: state.home.date)
-                    state.calendar.sessionAnswers[date] = answer
-                    if FillsaCalendarDateSupport.quoteDateString(for: state.calendar.selectedDay) == date {
-                        state.calendar.answerDraft = answer
-                        state.calendar.recordedAnswer = answer
-                        state.calendar.isEditingAnswer = false
-                    }
-                }
-                return .none
-
-            case .calendar(.answerRecordTapped):
-                if !state.calendar.isLoggedIn, let answer = state.calendar.recordedAnswer,
-                   FillsaCalendarDateSupport.quoteDateString(for: state.home.date)
-                    == FillsaCalendarDateSupport.quoteDateString(for: state.calendar.selectedDay) {
-                    state.home.answerDraft = answer
-                    state.home.recordedAnswer = answer
-                    state.home.isEditingAnswer = false
-                }
                 return .none
 
             case .home, .quoteList, .calendar:
@@ -324,25 +319,11 @@ struct AppFeature {
                 state.selectedTab = .home
                 return .send(.generalPopup(.loadIfNeeded))
 
-            case .myPage(.delegate(.loginSelected)):
-                state.screen = .login(isOnboarding: false)
-                state.login = LoginFeature.State(isOnboarding: false)
-                return .none
+            case .myPage(.delegate(.memberAccessLost)):
+                return .send(.memberAccessLost)
 
             case .myPage(.delegate(.loggedOut)):
-                state.screen = .login(isOnboarding: false)
-                state.selectedTab = .home
-                state.login = LoginFeature.State(isOnboarding: false)
-                state.home = HomeFeature.State()
-                state.quoteList = QuoteListFeature.State()
-                state.calendar = CalendarFeature.State()
-                state.myPage = MyPageFeature.State(selectedTheme: state.selectedTheme)
-                state.notice = NoticeFeature.State()
-                state.alert = AlertFeature.State()
-                state.memoInsert = MemoInsertFeature.State()
-                state.typing = TypingFeature.State()
-                state.share = ShareFeature.State()
-                state.generalPopup = GeneralPopupFeature.State()
+                state.routeToLoginAndClearMemberState()
                 return .none
 
             case .myPage(.delegate(.noticeSelected)):
@@ -360,30 +341,23 @@ struct AppFeature {
                 return .none
 
             case .myPage(.delegate(.resignCompleted)):
-                state.screen = .main
-                state.selectedTab = .home
-                state.home = HomeFeature.State()
-                state.quoteList = QuoteListFeature.State()
-                state.calendar = CalendarFeature.State()
-                state.myPage = MyPageFeature.State(selectedTheme: state.selectedTheme)
-                state.alert = AlertFeature.State()
+                state.routeToLoginAndClearMemberState()
                 return .none
 
             case .myPage:
                 return .none
 
-            case .loginClosed:
-                state.screen = .main
-                state.selectedTab = .home
-                return .send(.generalPopup(.loadIfNeeded))
+            case .memberAccessLost:
+                guard state.memberAccess == .member, !state.isHandlingSessionExpiration else { return .none }
+                state.isHandlingSessionExpiration = true
+                return .run { send in
+                    try? await sessionClient.logout()
+                    await send(.memberAccessLostHandled)
+                }
 
-            case .loginNonMemberSelected:
-                state.screen = .onboardingGuide
-                return .none
-
-            case .loginSelected:
-                state.screen = .login(isOnboarding: false)
-                state.login = LoginFeature.State(isOnboarding: false)
+            case .memberAccessLostHandled:
+                state.isHandlingSessionExpiration = false
+                state.routeToLoginAndClearMemberState()
                 return .none
 
             case .homeTabSelected:
@@ -436,6 +410,10 @@ struct AppFeature {
                 return .none
 
             case .onboardingGuideFinished:
+                guard state.memberAccess == .member else {
+                    state.routeToLoginAndClearMemberState()
+                    return .none
+                }
                 state.screen = .main
                 state.selectedTab = .home
                 return .send(.generalPopup(.loadIfNeeded))
@@ -450,26 +428,29 @@ struct AppFeature {
                 }
                 return .none
 
-            case .sessionExpired:
-                guard !state.isHandlingSessionExpiration else {
+            case let .sessionExpired(event):
+                guard state.memberAccess == .member, !state.isHandlingSessionExpiration else {
                     return .none
                 }
                 state.isHandlingSessionExpiration = true
                 return .run { send in
-                    try await sessionClient.logout()
-                    await send(.sessionExpiredHandled)
-                } catch: { _, send in
+                    if let currentToken = try? await sessionClient.getAccessToken(), !currentToken.isEmpty {
+                        guard event.failedAccessTokenFingerprint == SessionExpirationEvent.fingerprint(of: currentToken) else {
+                            await send(.sessionExpirationIgnored)
+                            return
+                        }
+                    }
+                    try? await sessionClient.logout()
                     await send(.sessionExpiredHandled)
                 }
 
+            case .sessionExpirationIgnored:
+                state.isHandlingSessionExpiration = false
+                return .none
+
             case .sessionExpiredHandled:
                 state.isHandlingSessionExpiration = false
-                state.screen = .main
-                state.selectedTab = .home
-                state.home = HomeFeature.State()
-                state.quoteList = QuoteListFeature.State()
-                state.calendar = CalendarFeature.State()
-                state.myPage = MyPageFeature.State(selectedTheme: state.selectedTheme)
+                state.routeToLoginAndClearMemberState()
                 return .none
             }
         }

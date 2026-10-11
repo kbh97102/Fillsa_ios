@@ -1,0 +1,119 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Fiilsa iOS 회원 전용 전환 · As-Is / To-Be</title>
+  <style>
+    :root { color-scheme: light; --ink:#202024; --muted:#62636b; --line:#e2e1e8; --purple:#5559cf; --pale:#f1f0ff; --cream:#fff8e9; --green:#156b55; }
+    * { box-sizing:border-box; }
+    body { margin:0; background:#f6f6f9; color:var(--ink); font:16px/1.65 -apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Noto Sans KR",sans-serif; }
+    main { max-width:1060px; margin:0 auto; padding:32px 24px 80px; }
+    header { background:linear-gradient(125deg,#33369e,#6d6ee5); color:white; border-radius:24px; padding:42px 44px; }
+    header .eyebrow { margin:0 0 10px; font-size:13px; font-weight:700; letter-spacing:.12em; opacity:.78; }
+    h1 { margin:0; font-size:clamp(28px,4vw,42px); line-height:1.22; letter-spacing:-.035em; }
+    header p { max-width:720px; margin:18px 0 0; opacity:.94; }
+    .meta { display:flex; flex-wrap:wrap; gap:8px; margin-top:24px; }
+    .meta span { border:1px solid #ffffff5e; border-radius:999px; padding:5px 12px; font-size:13px; }
+    section { background:white; border:1px solid var(--line); border-radius:20px; padding:28px 32px; margin-top:22px; }
+    h2 { margin:0 0 18px; font-size:23px; letter-spacing:-.025em; }
+    h3 { margin:22px 0 9px; font-size:17px; }
+    p { margin:10px 0; }
+    .lead { color:var(--muted); }
+    .flow { display:flex; align-items:center; flex-wrap:wrap; gap:10px; font-weight:700; }
+    .step { background:var(--pale); color:#34379b; border-radius:11px; padding:10px 15px; }
+    .arrow { color:#8989a3; }
+    .table-wrap { overflow-x:auto; }
+    table { border-collapse:collapse; width:100%; min-width:720px; }
+    th,td { text-align:left; vertical-align:top; padding:14px 14px; border-bottom:1px solid var(--line); }
+    th { background:#f6f6fc; font-size:13px; color:#4b4b61; }
+    td:first-child { width:18%; font-weight:700; }
+    td:nth-child(2),td:nth-child(3) { width:41%; }
+    .as-is { color:#7b4b26; }
+    .to-be { color:var(--green); }
+    .callout { border-left:4px solid var(--purple); background:var(--pale); border-radius:0 10px 10px 0; padding:14px 18px; margin-top:20px; }
+    .evidence { display:grid; grid-template-columns:minmax(0,1fr) minmax(240px,310px); gap:24px; align-items:start; }
+    .phone { border:9px solid #202024; border-radius:26px; overflow:hidden; background:#fff; box-shadow:0 15px 32px #26263f24; }
+    .phone img { display:block; width:100%; }
+    .caption { color:var(--muted); font-size:13px; margin-top:9px; }
+    ul { padding-left:22px; }
+    li { margin:7px 0; }
+    code { background:#f1f1f5; border-radius:4px; padding:1px 5px; font-size:.91em; }
+    a { color:#3538a9; }
+    .small { color:var(--muted); font-size:14px; }
+    footer { color:var(--muted); font-size:13px; padding:25px 4px 0; }
+    @media(max-width:720px) { main{padding:14px 12px 42px} header,section{padding:24px 20px} .evidence{grid-template-columns:1fr} .phone{max-width:310px} }
+    @media print { body{background:white} main{max-width:none;padding:0} header,section{break-inside:avoid;box-shadow:none} a{color:inherit} }
+  </style>
+</head>
+<body>
+<main>
+  <header>
+    <p class="eyebrow">FIILSA · IOS CHANGE REPORT</p>
+    <h1>회원 전용 전환<br>As-Is / To-Be 결과 보고서</h1>
+    <p>iOS에서 비회원 사용 경로를 닫고, 로그아웃·세션 만료·회원 탈퇴 뒤 로그인 화면으로 돌아가도록 정리했습니다. 예전 기기에 저장된 비회원 필사는 동기화하거나 자동 삭제하지 않습니다.</p>
+    <div class="meta"><span>2026.10.11</span><span>fix/비회원_로직_제거</span><span>iPhone 17e · iOS 26.4.1</span></div>
+  </header>
+
+  <section aria-labelledby="flow-title">
+    <h2 id="flow-title">최종 진입 흐름</h2>
+    <div class="flow"><span class="step">스플래시</span><span class="arrow">→</span><span class="step">회원 세션 확인</span><span class="arrow">→</span><span class="step">로그인 또는 Home</span></div>
+    <p class="lead">로그인 전에는 회원 화면으로 이동할 수 없습니다. 로그아웃·유효한 세션 만료·탈퇴 완료는 모두 로그인 화면으로 이동하고 화면에 남아 있던 회원 상태를 초기화합니다.</p>
+  </section>
+
+  <section aria-labelledby="comparison-title">
+    <h2 id="comparison-title">As-Is / To-Be</h2>
+    <div class="table-wrap"><table>
+      <thead><tr><th>영역</th><th class="as-is">As-Is · 변경 전</th><th class="to-be">To-Be · 변경 후</th></tr></thead>
+      <tbody>
+        <tr><td>로그인 진입</td><td>화면에서 숨긴 닫기·비회원 시작 액션과 가이드 종료를 통한 Home 진입 가능성이 남아 있었습니다.</td><td>카카오·Apple 로그인만 진입 수단으로 남기고, 로그인 성공 전 Home 이동을 차단했습니다.</td></tr>
+        <tr><td>스플래시와 로그아웃</td><td>첫 실행·세션 판정과 로그아웃 후 로그인 이동은 선행 작업에서 구현됐지만, 늦은 화면 응답을 막는 공통 접근 상태는 없었습니다.</td><td>회원 접근 상태를 루트에서 검사합니다. 로그아웃 후 늦게 도착한 스플래시·탭 액션도 Home을 다시 열지 못합니다.</td></tr>
+        <tr><td>세션 만료·탈퇴</td><td>세션 만료 또는 탈퇴 뒤 비회원 Home으로 이어지는 경로가 남아 있었습니다. 이전 요청의 만료 응답이 새 로그인에 영향을 줄 수 있었습니다.</td><td>두 경우 모두 로그인으로 이동합니다. 만료된 요청의 토큰 지문을 현재 세션과 비교해 이전 세션 응답을 무시합니다.</td></tr>
+        <tr><td>이전 비회원 필사</td><td>로그인할 때 로컬 필사를 읽어 서버 요청에 동기화하고, 성공 후 지우는 코드가 있었습니다.</td><td>로컬 필사를 읽거나 전송하거나 자동 삭제하지 않습니다. 서버 계약상 필요한 <code>syncData</code>는 빈 배열로 보냅니다.</td></tr>
+        <tr><td>Home·Calendar·List·필사</td><td>비회원 API와 기기 로컬 저장소를 쓰는 fallback이 회원 동작과 함께 남아 있었습니다.</td><td>회원 API만 사용합니다. 서버 저장 실패를 로컬 성공으로 대체하지 않습니다.</td></tr>
+        <tr><td>My Page</td><td>비회원 카드와 로그인 이동 분기가 남아 있었습니다.</td><td>회원 카드만 표시합니다. 인증이 사라지면 로그인 화면으로 이동합니다.</td></tr>
+      </tbody>
+    </table></div>
+    <div class="callout"><strong>기존 기기 데이터 처리</strong><br>SQLite 파일과 스키마는 유지합니다. 따라서 기존 데이터는 자동 삭제되지 않지만, 변경 후 앱 화면에서는 접근할 수 없습니다.</div>
+  </section>
+
+  <section aria-labelledby="impact-title">
+    <h2 id="impact-title">변경 영향과 부작용</h2>
+    <div class="table-wrap"><table>
+      <thead><tr><th>항목</th><th>사용자에게 생기는 변화</th><th>확인 상태</th></tr></thead>
+      <tbody>
+        <tr><td>기존 비회원 데이터</td><td>기기 SQLite에는 남지만 앱에서 열거나 새 계정으로 동기화할 수 없습니다. 자동 삭제도 하지 않습니다.</td><td>로그인 성공·실패 테스트에서 무전송·보존 확인</td></tr>
+        <tr><td>오프라인·서버 오류</td><td>비회원 API와 로컬 저장 대체 경로가 없어 조회·저장이 서버 응답에 의존합니다. 필사 저장 실패 때는 편집 화면을 유지합니다.</td><td>의도한 동작 변화 · 실제 운영 서버 장애 상황은 미검증</td></tr>
+        <tr><td>인증 해제</td><td>로그아웃·현재 세션 만료·탈퇴 뒤 로그인으로 돌아가며, 화면에 있던 회원 상태는 초기화됩니다.</td><td>reducer·UI 테스트 확인</td></tr>
+        <tr><td>화면 회귀</td><td>확인된 제품 화면 회귀는 없습니다. 전체 테스트에서 로딩 표시의 접근성 좌표가 10pt 어긋난 사례가 있었으나 녹화 화면은 중앙이었고, 세로 방향을 고정한 단독 검사는 통과했습니다.</td><td>전체 순서 재검증은 사용자 지시에 따라 중단 · 잔여 테스트 위험</td></tr>
+      </tbody>
+    </table></div>
+  </section>
+
+  <section aria-labelledby="evidence-title">
+    <h2 id="evidence-title">화면과 검증 근거</h2>
+    <div class="evidence">
+      <div>
+        <h3>로그아웃 후 로그인 화면</h3>
+        <p>My Page에서 로그아웃한 뒤 카카오·Apple 로그인 버튼이 보이고 My Page가 사라진 상태를 UI 테스트에서 캡처했습니다.</p>
+        <p><strong>최종 시뮬레이터 빌드 통과</strong> · iPhone 17e, iOS 26.4.1 대상. 변경 관련 검사는 새 빌드에서 <strong>143/143건 통과</strong>했고, 이후 전역 로딩 화면 단독 검사도 통과했습니다.</p>
+        <ul>
+          <li>회원 상태·세션 만료·탈퇴: TCA reducer 단위 테스트</li>
+          <li>예전 로컬 필사 무전송·보존: SQLite를 사용한 로그인 성공·실패 테스트</li>
+          <li>로그인·My Page·가이드 화면: XCUITest</li>
+        </ul>
+        <p class="small">자세한 검사 항목과 실행 결과는 <a href="../design-qa/2026-10-11-member-only-qa.md">회원 전용 QA 기록</a>에 남겼습니다.</p>
+      </div>
+      <figure style="margin:0"><div class="phone"><img src="../design-qa/evidence/2026-10-11-member-logout-login.png" alt="로그아웃 후 카카오 및 Apple 로그인 버튼만 보이는 iOS 로그인 화면"></div><figcaption class="caption">iPhone 17e Simulator · 라이트 모드 · UI 테스트 첨부 이미지</figcaption></figure>
+    </div>
+  </section>
+
+  <section aria-labelledby="scope-title">
+    <h2 id="scope-title">판정 범위</h2>
+    <p>사용자 지시에 따라 이번 회원 전용 이동과 비회원 상태 제거는 Figma 대조 없이 진행했습니다. 실제 카카오·Apple 계정과 운영 서버의 종단 간 로그인은 실행하지 않았고, 인증 및 API 경계는 주입한 테스트 응답으로 확인했습니다.</p>
+    <p>최신 전체 실행은 183건 중 181건 통과, 2건 실패였습니다. 하나는 이번 변경 전에도 실패한 Home 툴팁 화살표 좌표 검사이고, 하나는 전역 로딩 표시의 접근성 좌표 검사입니다. 후자는 화면 녹화에서 시각적 중앙 배치를 확인하고 시뮬레이터 방향을 고정한 단독 검사에서 통과했습니다. 사용자 지시에 따라 전체 테스트를 다시 완료하지 않았으므로 전체 통과로 판정하지 않습니다.</p>
+  </section>
+  <footer>Fiilsa iOS · 회원 전용 전환 구현 기록</footer>
+</main>
+</body>
+</html>

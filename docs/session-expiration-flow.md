@@ -20,10 +20,12 @@ API request
 -> refresh token request
 -> success: token update + original request retry
 -> failure: SessionExpirationEvent emit
--> AppFeature receives event
+-> AppFeature compares failed-request token fingerprint with current token
+-> stale event: ignore
+-> current session event: AppFeature receives event
 -> SessionClient.logout()
 -> Home/MyPage/List/Calendar state reset
--> member UI becomes guest UI
+-> login screen
 ```
 
 ## 코드 흐름
@@ -62,17 +64,17 @@ Android 비교:
 
 `AppFeature.task`는 `sessionExpirationClient.events()`를 구독한다. 이벤트가 오면 `.sessionExpired(event)` action을 다시 보낸다.
 
-`AppFeature.sessionExpired`는 중복 처리를 막기 위해 `isHandlingSessionExpiration`이 `false`일 때만 동작한다.
+`AppFeature.sessionExpired`는 회원 상태이고 `isHandlingSessionExpiration`이 `false`일 때만 동작한다. 실패 요청의 Bearer 토큰 SHA-256 지문과 현재 Keychain access token 지문이 다르면 이전 세션에서 늦게 도착한 이벤트로 보고 무시한다. 토큰 원문은 이벤트에 싣지 않는다.
 
 처리 순서:
 
 1. `SessionClient.logout()` 호출
 2. access token / refresh token 삭제
-3. 화면을 `main`으로 이동
-4. 선택 탭을 `home`으로 변경
-5. `HomeFeature`, `QuoteListFeature`, `CalendarFeature`, `MyPageFeature` state 재생성
+3. 화면을 `login`으로 이동
+4. 선택 탭을 `home`으로 초기화
+5. 회원 화면의 feature state 재생성
 
-로그인 상태는 token 존재 여부로 판단하므로, state를 다시 만들면 각 화면이 비회원 기준으로 다시 로드된다.
+로그인 전에는 회원 화면으로 다시 진입하지 않는다. 토큰 삭제가 실패해도 로그아웃 요청 기록이 재진입을 막는다.
 
 ## 공통 에러 정책
 
@@ -95,3 +97,7 @@ Android 비교:
 - `404` 네트워크 에러 dialog
 
 이 작업은 토큰 만료/세션 정리에 집중했다. 나머지 공통 에러 UI는 별도 작업으로 분리하는 편이 안전하다.
+
+## 회원 전용 2차 변경 — 구현 (2026-10-11)
+
+`sessionExpiredHandled`는 수동 로그아웃과 같은 상태 정리를 사용해 로그인 화면으로 이동한다. 인증 정보 삭제 오류가 나도 로그인 화면에 남으며, 이전 세션 요청의 지연 이벤트는 토큰 지문 비교로 새 로그인을 보호한다. [검증 기록](design-qa/2026-10-11-member-only-qa.md).

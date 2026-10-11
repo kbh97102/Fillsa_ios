@@ -179,9 +179,6 @@ struct AppView: View {
                 openShare: { quote, author in
                     viewStore.send(.shareSelected(quote: quote, author: author))
                 },
-                openLogin: {
-                    viewStore.send(.loginSelected)
-                },
                 openMyPage: {
                     viewStore.send(.selectedTabChanged(.myPage))
                 },
@@ -207,9 +204,6 @@ struct AppView: View {
                 },
                 openShare: { quote, author in
                     viewStore.send(.shareSelected(quote: quote, author: author))
-                },
-                openLogin: {
-                    viewStore.send(.loginSelected)
                 }
             )
         case .myPage:

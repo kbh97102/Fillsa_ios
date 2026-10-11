@@ -5,14 +5,9 @@ import Foundation
 struct LoginFeature {
     @ObservableState
     struct State: Equatable {
-        var isOnboarding = false
         var isProcessing = false
         var isKakaoTalkInstallDialogPresented = false
         var toastMessage: String?
-
-        init(isOnboarding: Bool = false) {
-            self.isOnboarding = isOnboarding
-        }
     }
 
     enum Action: Equatable {
@@ -21,16 +16,12 @@ struct LoginFeature {
         case appleTapped
         case appleAuthenticationCompleted(Result<SocialAuthUser, LoginError>)
         case kakaoTalkInstallDialogDismissed
-        case nonMemberTapped
-        case closeTapped
         case socialLoginCompleted(Result<LoginResponse, LoginError>)
         case toastDismissed
         case delegate(Delegate)
 
         enum Delegate: Equatable {
-            case close
             case moveHome
-            case moveOnboardingGuide
         }
     }
 
@@ -43,7 +34,6 @@ struct LoginFeature {
 
     @Dependency(\.socialAuthClient) private var socialAuthClient
     @Dependency(\.authUseCases) private var authUseCases
-    @Dependency(\.sessionClient) private var sessionClient
     @Dependency(\.pushRegistrationClient) private var pushRegistrationClient
 
     var body: some Reducer<State, Action> {
@@ -88,16 +78,6 @@ struct LoginFeature {
 
             case let .appleAuthenticationCompleted(.failure(error)):
                 return .send(.socialLoginCompleted(.failure(error)))
-
-            case .nonMemberTapped:
-                return .run { send in
-                    try? await sessionClient.setAccessToken("")
-                    try? await sessionClient.setRefreshToken("")
-                    await send(.delegate(.moveOnboardingGuide))
-                }
-
-            case .closeTapped:
-                return .send(.delegate(.close))
 
             case .socialLoginCompleted(.success):
                 state.isProcessing = false

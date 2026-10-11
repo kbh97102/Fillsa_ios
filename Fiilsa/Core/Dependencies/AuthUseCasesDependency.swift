@@ -44,7 +44,6 @@ struct LoginUseCase {
     let currentPushAgreement: @Sendable () async -> Bool
 
     func callAsFunction(user: SocialAuthUser) async throws -> LoginResponse {
-        let localQuotes = try await GetLocalQuoteListUseCase(localRepository: localRepository)()
         let pushToken = await currentPushToken()
         let request = LoginRequest(
             loginData: LoginData(
@@ -64,17 +63,7 @@ struct LoginUseCase {
                     profileImageUrl: user.profileImageURL
                 )
             ),
-            syncData: localQuotes.map {
-                DailySyncData(
-                    dailyQuoteSeq: $0.dailyQuoteSeq,
-                    typingQuoteRequest: TypingQuoteRequest(
-                        typingKorQuote: $0.korTyping,
-                        typingEngQuote: $0.engTyping
-                    ),
-                    memoRequest: MemoRequest(memo: $0.memo),
-                    likeRequest: LikeRequest(likeYn: $0.likeYn)
-                )
-            }
+            syncData: []
         )
 
         let response = try await authRepository.login(request)
@@ -82,7 +71,6 @@ struct LoginUseCase {
         try await SetRefreshTokenUseCase(localRepository: localRepository)(response.refreshToken)
         try await SetUserNameUseCase(localRepository: localRepository)(response.nickname)
         try await localRepository.setImageURI(response.profileImageUrl)
-        try await ClearLocalDataUseCase(localRepository: localRepository)()
         try await localRepository.setLogoutRequested(false)
         return response
     }

@@ -42,7 +42,6 @@ struct LoginButton: View {
 enum LoginButtonIcon {
     case kakao
     case apple
-    case pencil
 }
 
 private struct LoginIcon: View {
@@ -64,11 +63,6 @@ private struct LoginIcon: View {
                 .scaledToFit()
                 .frame(width: 15, height: 19)
 
-        case .pencil:
-            Image(colorScheme == .dark ? "login_guest_dark" : "login_guest_light")
-                .resizable()
-                .scaledToFit()
-                .frame(width: 18, height: 18)
         }
     }
 }

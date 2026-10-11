@@ -1,12 +1,3 @@
-struct DailyQuoteNoToken: Codable, Equatable {
-    let dailyQuoteSeq: Int
-    let korQuote: String?
-    let engQuote: String?
-    let korAuthor: String?
-    let engAuthor: String?
-    let authorUrl: String?
-}
-
 struct DailyQuote: Codable, Equatable {
     let likeYn: String
     let imagePath: String?

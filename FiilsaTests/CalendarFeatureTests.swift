@@ -69,19 +69,24 @@ struct CalendarFeatureTests {
     }
 
     @Test
-    func nonmemberAnswerStaysInSessionWhenSwitchingSelectedDates() async {
+    func memberAnswerUsesServerAndRestoresWhenSwitchingSelectedDates() async {
         let day = fixtureDate(year: 2025, month: 3, day: 21)
         let otherDay = fixtureDate(year: 2025, month: 3, day: 22)
         var initial = CalendarFeature.State()
         initial.selectedDay = day
         initial.memberQuotes = [answerRecord()]
-        initial.answerDraft = "세션 답변"
-        let store = TestStore(initialState: initial) { CalendarFeature() }
+        initial.answerDraft = "서버 답변"
+        let saved = AnswerResponse(memberQuoteSeq: 81, answer: "서버 답변", answeredAt: "2025-03-21")
+        let store = TestStore(initialState: initial) { CalendarFeature() } withDependencies: {
+            $0.homeUseCases.saveAnswer = { _, _ in saved }
+        }
 
-        await store.send(.answerRecordTapped) {
-            $0.recordedAnswer = "세션 답변"
+        await store.send(.answerRecordTapped)
+        await store.receive(.answerSaved(81, .success(saved))) {
+            $0.memberQuotes[0].answer = "서버 답변"
+            $0.answerDraft = "서버 답변"
+            $0.recordedAnswer = "서버 답변"
             $0.isEditingAnswer = false
-            $0.sessionAnswers["2025-03-21"] = "세션 답변"
         }
         await store.send(.daySelected(otherDay)) {
             $0.selectedDay = otherDay
@@ -91,8 +96,8 @@ struct CalendarFeatureTests {
         }
         await store.send(.daySelected(day)) {
             $0.selectedDay = day
-            $0.answerDraft = "세션 답변"
-            $0.recordedAnswer = "세션 답변"
+            $0.answerDraft = "서버 답변"
+            $0.recordedAnswer = "서버 답변"
             $0.isEditingAnswer = false
         }
     }

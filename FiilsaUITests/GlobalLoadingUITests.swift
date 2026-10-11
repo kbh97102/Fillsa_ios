@@ -54,6 +54,7 @@ final class GlobalLoadingUITests: XCTestCase {
 
     @MainActor
     func testSpinnerCoversRoutableScreensExceptSplash() throws {
+        XCUIDevice.shared.orientation = .portrait
         let routes: [(name: String, marker: String)] = [
             ("login", "login.kakao"),
             ("onboardingGuide", "건너뛰기"),

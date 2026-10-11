@@ -18,14 +18,13 @@ struct HomeView: View {
     let date: Date
     let openTyping: () -> Void
     let openShare: (String, String) -> Void
-    let openLogin: () -> Void
     let openMyPage: () -> Void
     let openCalendar: () -> Void
     @Environment(\.openURL) private var openURL
     @Environment(\.colorScheme) private var colorScheme
 
-    init(store: StoreOf<HomeFeature> = Store(initialState: HomeFeature.State()) { HomeFeature() }, date: Date = Date(), openTyping: @escaping () -> Void = {}, openShare: @escaping (String, String) -> Void = { _, _ in }, openLogin: @escaping () -> Void = {}, openMyPage: @escaping () -> Void = {}, openCalendar: @escaping () -> Void = {}) {
-        self.store = store; self.date = date; self.openTyping = openTyping; self.openShare = openShare; self.openLogin = openLogin; self.openMyPage = openMyPage; self.openCalendar = openCalendar
+    init(store: StoreOf<HomeFeature> = Store(initialState: HomeFeature.State()) { HomeFeature() }, date: Date = Date(), openTyping: @escaping () -> Void = {}, openShare: @escaping (String, String) -> Void = { _, _ in }, openMyPage: @escaping () -> Void = {}, openCalendar: @escaping () -> Void = {}) {
+        self.store = store; self.date = date; self.openTyping = openTyping; self.openShare = openShare; self.openMyPage = openMyPage; self.openCalendar = openCalendar
     }
 
     var body: some View {
@@ -51,16 +50,6 @@ struct HomeView: View {
 
     private func alertContent(viewStore: ViewStore<HomeFeature.State, HomeFeature.Action>) -> some View {
         baseContent(viewStore: viewStore)
-            .alert("로그인 후 사용하실 수 있습니다.", isPresented: Binding(
-                get: { viewStore.isLoginRequiredDialogPresented },
-                set: { if !$0 { viewStore.send(.loginRequiredDialogDismissed) } }
-            )) {
-                Button("로그인 하기") {
-                    viewStore.send(.loginRequiredDialogDismissed)
-                    openLogin()
-                }
-                Button("취소", role: .cancel) {}
-            }
             .alert("이미지를 삭제하시겠습니까?", isPresented: Binding(
                 get: { viewStore.isDeleteImageConfirmationPresented },
                 set: { if !$0 { viewStore.send(.deleteImageCancelled) } }

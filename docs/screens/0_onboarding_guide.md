@@ -1,5 +1,9 @@
 # [가이드 페이지] `0.onboarding_guide`
 
+## 회원 전용 전환 — 구현 (2026-10-11)
+
+프로덕션 스플래시는 이 가이드로 이동하지 않는다. 비회원 시작 액션을 제거했고, UI 테스트 fixture에서 가이드를 건너뛰거나 마쳐도 미로그인 상태라면 로그인 화면으로 이동한다. 기존 가이드 화면과 fixture는 보존한다. [검증 기록](../design-qa/2026-10-11-member-only-qa.md).
+
 ## Figma UI 기준
 
 - Figma URL: https://www.figma.com/design/VdFocqyqTgevMVCQxwAQ2X?node-id=3088-30089

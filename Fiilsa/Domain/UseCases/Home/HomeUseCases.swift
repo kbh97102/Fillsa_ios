@@ -7,60 +7,29 @@ struct HomeDailyQuoteResult: Equatable {
 
 enum HomeFeedResult: Equatable {
     case member(MemberWeeklyQuoteResponse)
-    case guest(HomeDailyQuoteResult)
 }
 
 struct LoadHomeFeedUseCase {
     let homeRepository: HomeRepository
-    let localRepository: LocalRepository
 
-    func callAsFunction(endDate: String?, guestQuoteDate: String) async throws -> HomeFeedResult {
-        if try await GetLoginStatusUseCase(localRepository: localRepository)() {
-            return .member(try await homeRepository.getWeeklyQuotes(endDate: endDate))
-        }
-        return .guest(try await LoadHomeDailyQuoteUseCase(
-            homeRepository: homeRepository,
-            localRepository: localRepository
-        )(quoteDate: guestQuoteDate))
+    func callAsFunction(endDate: String?) async throws -> HomeFeedResult {
+        .member(try await homeRepository.getWeeklyQuotes(endDate: endDate))
     }
 }
 
 struct LoadHomeDailyQuoteUseCase {
     let homeRepository: HomeRepository
-    let localRepository: LocalRepository
 
     func callAsFunction(quoteDate: String) async throws -> HomeDailyQuoteResult {
-        let isLoggedIn = try await GetLoginStatusUseCase(localRepository: localRepository)()
-
-        if isLoggedIn {
-            return HomeDailyQuoteResult(
-                quote: try await GetDailyQuoteUseCase(homeRepository: homeRepository)(quoteDate: quoteDate),
-                isLoggedIn: true
-            )
-        }
-
-        let response = try await GetDailyQuoteNoTokenUseCase(homeRepository: homeRepository)(quoteDate: quoteDate)
-        let localQuote = try await FindLocalQuoteByIdUseCase(localRepository: localRepository)(seq: response.dailyQuoteSeq)
-
         return HomeDailyQuoteResult(
-            quote: DailyQuote(
-                likeYn: localQuote?.likeYn ?? "N",
-                dailyQuoteSeq: response.dailyQuoteSeq,
-                korQuote: response.korQuote,
-                engQuote: response.engQuote,
-                korAuthor: response.korAuthor,
-                engAuthor: response.engAuthor,
-                authorUrl: response.authorUrl,
-                quoteDate: quoteDate
-            ),
-            isLoggedIn: false
+            quote: try await GetDailyQuoteUseCase(homeRepository: homeRepository)(quoteDate: quoteDate),
+            isLoggedIn: true
         )
     }
 }
 
 struct UpdateHomeLikeUseCase {
     let homeRepository: HomeRepository
-    let localRepository: LocalRepository
 
     func callAsFunction(
         isLike: Bool,
@@ -68,46 +37,10 @@ struct UpdateHomeLikeUseCase {
         quoteDate: String,
         dayOfWeek: String
     ) async throws -> Int {
-        let isLoggedIn = try await GetLoginStatusUseCase(localRepository: localRepository)()
-
-        if isLoggedIn {
-            return try await PostLikeUseCase(homeRepository: homeRepository)(
-                LikeRequest(likeYn: isLike ? "Y" : "N"),
-                dailyQuoteSeq: quote.dailyQuoteSeq
-            )
-        }
-
-        if try await FindLocalQuoteByIdUseCase(localRepository: localRepository)(seq: quote.dailyQuoteSeq) == nil {
-            try await AddLocalQuoteUseCase(localRepository: localRepository)(
-                LocalQuoteInfo(
-                    dailyQuoteSeq: quote.dailyQuoteSeq,
-                    korQuote: quote.korQuote ?? "",
-                    engQuote: quote.engQuote ?? "",
-                    korAuthor: quote.korAuthor ?? "",
-                    engAuthor: quote.engAuthor ?? "",
-                    korTyping: "",
-                    engTyping: "",
-                    likeYn: isLike ? "Y" : "N",
-                    memo: "",
-                    date: quoteDate,
-                    dayOfWeek: dayOfWeek
-                )
-            )
-            return 1
-        }
-
-        return try await UpdateLocalQuoteLikeUseCase(localRepository: localRepository)(
-            likeYN: isLike ? .yes : .no,
-            seq: quote.dailyQuoteSeq
+        try await PostLikeUseCase(homeRepository: homeRepository)(
+            LikeRequest(likeYn: isLike ? "Y" : "N"),
+            dailyQuoteSeq: quote.dailyQuoteSeq
         )
-    }
-}
-
-struct GetDailyQuoteNoTokenUseCase {
-    let homeRepository: HomeRepository
-
-    func callAsFunction(quoteDate: String) async throws -> DailyQuoteNoToken {
-        try await homeRepository.getDailyQuoteNoToken(quoteDate: quoteDate)
     }
 }
 

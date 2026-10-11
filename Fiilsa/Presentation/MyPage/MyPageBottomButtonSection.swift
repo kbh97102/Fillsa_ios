@@ -8,20 +8,17 @@
 import SwiftUI
 
 struct MyPageBottomButtonSection: View {
-    let isLogged: Bool
     let version: String
     let isProcessing: Bool
     let logout: () -> Void
     let resign: () -> Void
 
     init(
-        isLogged: Bool,
         version: String = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "",
         isProcessing: Bool = false,
         logout: @escaping () -> Void = {},
         resign: @escaping () -> Void = {}
     ) {
-        self.isLogged = isLogged
         self.version = version
         self.isProcessing = isProcessing
         self.logout = logout
@@ -30,8 +27,7 @@ struct MyPageBottomButtonSection: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
-            if isLogged {
-                Button(action: logout) {
+            Button(action: logout) {
                     HStack {
                         Text("로그아웃")
                             .font(FillsaTypography.subtitle1)
@@ -51,7 +47,6 @@ struct MyPageBottomButtonSection: View {
                 .buttonStyle(.plain)
                 .disabled(isProcessing)
                 .accessibilityIdentifier(MyPageAccessibilityIdentifier.logout)
-            }
 
             HStack {
                 Text("버전")
@@ -68,8 +63,7 @@ struct MyPageBottomButtonSection: View {
             .frame(height: 50)
             .accessibilityIdentifier(MyPageAccessibilityIdentifier.version)
 
-            if isLogged {
-                Button(action: resign) {
+            Button(action: resign) {
                     HStack {
                         Text("회원탈퇴")
                             .font(FillsaTypography.body2)
@@ -83,7 +77,6 @@ struct MyPageBottomButtonSection: View {
                 .buttonStyle(.plain)
                 .disabled(isProcessing)
                 .accessibilityIdentifier(MyPageAccessibilityIdentifier.resign)
-            }
         }
         .frame(maxWidth: .infinity, alignment: .leading)
         .padding(.horizontal, 12)
@@ -91,7 +84,7 @@ struct MyPageBottomButtonSection: View {
 }
 
 #Preview {
-    MyPageBottomButtonSection(isLogged: true, version: "1.0")
+    MyPageBottomButtonSection(version: "1.0")
         .padding()
         .background(FillsaColor.background)
 }

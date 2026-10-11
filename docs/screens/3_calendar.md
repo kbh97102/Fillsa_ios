@@ -19,6 +19,10 @@
 
 - 2026-10-11 잔여 차이: Figma 2025년 3월 활성 날짜와 앱의 2025년 6월 시작 제한이 충돌한다. 과거 날짜 선택 계약 결정 전까지 현재 제한을 유지한다.
 
+## 회원 전용 데이터 경로 — 구현 (2026-10-11)
+
+[회원 화면 진입 계획](1_login_member_only_followup_implementation_plan.md)과 [비회원 분기 정리 계획](1_login_guest_cleanup_implementation_plan.md)에 따라 비회원 월간 API·로컬 병합·세션 답변을 제거했다. 인증 소실을 확인하면 로그인 화면으로 이동한다. 회원 월간 응답, 날짜 선택, 완료 카드 UI는 유지한다. 아래 비회원 API 설명은 이전 구현 당시 기록이다. [검증 기록](../design-qa/2026-10-11-member-only-qa.md).
+
 ## Figma UI 기준 (2026-09-20 변경 디자인)
 
 - Figma URL:

@@ -1,5 +1,9 @@
 # [List] `4.list`
 
+## 회원 전용 데이터 경로 — 구현 (2026-10-11)
+
+[회원 화면 진입 계획](1_login_member_only_followup_implementation_plan.md)과 [비회원 분기 정리 계획](1_login_guest_cleanup_implementation_plan.md)에 따라 로컬 목록·메모 저장 fallback을 제거했다. 회원 목록 API, 필터, 상세·메모 UI는 유지한다. [검증 기록](../design-qa/2026-10-11-member-only-qa.md).
+
 ## 검색 조건
 
 ### V1
