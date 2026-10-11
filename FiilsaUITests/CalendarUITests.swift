@@ -66,6 +66,24 @@ final class CalendarUITests: XCTestCase {
     }
 
     @MainActor
+    func testGuestCompletedQuoteActionsOpenShareAndLoginPrompt() throws {
+        let app = XCUIApplication()
+        app.launchArguments = ["ui-testing-calendar", "ui-testing-theme-light", "ui-testing-calendar-completed", "ui-testing-calendar-guest"]
+        app.launch()
+
+        let copy = app.buttons["calendar.copy"]
+        XCTAssertTrue(copy.waitForExistence(timeout: 3))
+        copy.tap()
+
+        app.buttons["calendar.image"].tap()
+        XCTAssertTrue(app.alerts["로그인 후 사용하실 수 있습니다."].waitForExistence(timeout: 3))
+        app.buttons["취소"].tap()
+
+        app.buttons["calendar.share"].tap()
+        XCTAssertTrue(app.staticTexts["배경을 선택해주세요."].waitForExistence(timeout: 3))
+    }
+
+    @MainActor
     func testLightCalendarCompletedActionLabelUsesFigmaColor() throws {
         assertCompletedActionLabelColor(
             theme: "light",

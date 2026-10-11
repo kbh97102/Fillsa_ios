@@ -18,6 +18,18 @@ struct AppView: View {
                 )
                 .allowsHitTesting(!viewStore.isGlobalLoading)
 
+                if viewStore.screen == .main,
+                   viewStore.selectedTab == .myPage,
+                   viewStore.myPage.isThemeDialogPresented {
+                    MyPageThemeDialog(
+                        selectedTheme: Binding(
+                            get: { viewStore.myPage.selectedTheme },
+                            set: { viewStore.send(.myPage(.themeSelected($0))) }
+                        ),
+                        confirm: { viewStore.send(.myPage(.themeDialogConfirmed)) }
+                    )
+                }
+
                 if viewStore.isGlobalLoading {
                     GlobalLoadingOverlay()
                 }

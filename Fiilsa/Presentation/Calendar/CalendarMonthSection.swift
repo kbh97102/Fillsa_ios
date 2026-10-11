@@ -14,9 +14,7 @@ struct CalendarMonthSection: View {
     let changeMonth: (Date) -> Void
     let selectDay: (Date) -> Void
 
-    /// Figma 2985:21952: seven 36pt columns with six 11pt gutters fit the
-    /// 320pt calendar shell without letting a flexible grid redistribute cells.
-    private let weekColumns = Array(repeating: GridItem(.fixed(36), spacing: 11), count: 7)
+    private let weekColumns = Array(repeating: GridItem(.flexible(minimum: 0), spacing: 11), count: 7)
     private let weekdays = ["일", "월", "화", "수", "목", "금", "토"]
 
     var body: some View {
@@ -26,7 +24,7 @@ struct CalendarMonthSection: View {
                 goToPrevious: moveToPreviousMonth,
                 goToNext: moveToNextMonth
             )
-            .frame(height: 30)
+            .padding(.vertical, 3)
             .padding(.top, 8)
             .padding(.horizontal, 16)
 
@@ -35,10 +33,10 @@ struct CalendarMonthSection: View {
                     Text(weekday)
                         .font(FillsaTypography.subtitle2)
                         .foregroundStyle(FillsaColor.onBackground1)
-                        .frame(width: 36, height: 40)
+                        .frame(maxWidth: .infinity)
+                        .padding(.vertical, 10)
                 }
             }
-            .frame(height: 40)
             .padding(.top, 10)
 
             LazyVGrid(columns: weekColumns, spacing: 0) {
@@ -55,7 +53,6 @@ struct CalendarMonthSection: View {
                     )
                 }
             }
-            .frame(height: 300)
             .padding(.bottom, 8)
         }
         .background(
@@ -66,7 +63,7 @@ struct CalendarMonthSection: View {
             RoundedRectangle(cornerRadius: 12)
                 .stroke(FillsaColor.dynamic(light: FillsaColor.yellow02, dark: FillsaColor.gray500), lineWidth: 1)
         }
-        .frame(width: 320)
+        .frame(maxWidth: .infinity)
         .accessibilityIdentifier(FillsaAccessibilityIdentifier.calendarMonthCard)
     }
 
@@ -162,7 +159,6 @@ private struct CalendarNavigationButton: View {
         changeMonth: { _ in },
         selectDay: { _ in }
     )
-    .frame(height: 430)
     .padding(20)
     .background(FillsaColor.background)
 }

@@ -1,0 +1,180 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Fiilsa iOS QA 수정 사전 계획 · 2026-10-09</title>
+  <style>
+    :root { font-family: -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", sans-serif; color: #212121; background: #f7f5ef; }
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body { margin: 0; }
+    a { color: #424bce; text-underline-offset: 3px; }
+    button { font: inherit; cursor: pointer; }
+    .hero { background: #212121; color: white; padding: 42px max(24px, calc((100vw - 1160px) / 2)); }
+    .eyebrow { margin: 0 0 12px; color: #bfc2ff; font-size: 12px; font-weight: 750; letter-spacing: .12em; }
+    h1 { margin: 0; font-size: clamp(28px, 4vw, 44px); line-height: 1.18; }
+    .hero p:last-child { max-width: 760px; margin: 17px 0 0; color: #e4e4e4; line-height: 1.65; }
+    main { max-width: 1160px; margin: auto; padding: 28px 24px 80px; }
+    .notice { border-left: 4px solid #5c65ff; border-radius: 0 10px 10px 0; background: #eeefff; padding: 16px 19px; line-height: 1.65; }
+    .notice strong { display: block; margin-bottom: 2px; }
+    .toc { display: flex; flex-wrap: wrap; gap: 9px; margin: 22px 0 32px; }
+    .toc a { background: white; border: 1px solid #e0dfd9; border-radius: 99px; padding: 9px 13px; color: #212121; font-size: 13px; font-weight: 650; text-decoration: none; }
+    .toc a:hover, .toc a:focus-visible { border-color: #5c65ff; color: #424bce; }
+    .issue { background: white; border: 1px solid #e6e4dd; border-radius: 18px; box-shadow: 0 7px 26px #2121210a; margin: 0 0 24px; padding: 25px; scroll-margin-top: 16px; }
+    .issue-header { display: flex; justify-content: space-between; align-items: start; gap: 16px; }
+    .issue h2 { margin: 0; font-size: clamp(22px, 2.8vw, 28px); }
+    .number { display: block; margin-bottom: 7px; color: #5c65ff; font-size: 12px; font-weight: 800; letter-spacing: .08em; }
+    .badge { flex: none; border-radius: 99px; background: #e9eaff; color: #3942b4; padding: 7px 10px; font-size: 12px; font-weight: 750; }
+    .badge.pending { background: #fff1d5; color: #845600; }
+    .lead { max-width: 850px; margin: 13px 0 20px; line-height: 1.65; }
+    .screens { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
+    figure { min-width: 0; margin: 0; background: #faf9f5; border: 1px solid #eae8e1; border-radius: 12px; padding: 15px; }
+    figure h3 { margin: 0 0 4px; font-size: 15px; }
+    .source { min-height: 34px; margin: 0 0 12px; color: #666; font-size: 12px; line-height: 1.45; }
+    .shot { display: block; width: auto; max-width: 100%; height: 520px; margin: auto; border-radius: 8px; object-fit: contain; background: #eae7df; box-shadow: 0 7px 18px #21212120; }
+    .image-button { display: block; width: fit-content; margin: 11px auto 0; border: 1px solid #cac8c1; border-radius: 8px; background: white; padding: 7px 11px; color: #303030; font-size: 12px; }
+    .image-button:hover, .image-button:focus-visible { border-color: #5c65ff; }
+    .detail { margin-top: 15px; border: 1px solid #eae8e1; border-radius: 12px; overflow: hidden; }
+    .detail summary { cursor: pointer; padding: 13px 16px; background: #f7f6f1; font-size: 13px; font-weight: 750; }
+    .detail .screens { padding: 15px; }
+    .detail figure { background: white; }
+    .detail img { display: block; width: 100%; max-width: 430px; height: auto; max-height: 310px; margin: 0 auto; object-fit: contain; }
+    .analysis { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; margin: 21px 0; }
+    .analysis section { border: 1px solid #e9e7df; border-radius: 11px; padding: 15px; line-height: 1.6; }
+    .analysis h3 { margin: 0 0 7px; font-size: 14px; }
+    .analysis p { margin: 0; font-size: 13px; }
+    .analysis .fix { border-color: #c9cbff; background: #f4f4ff; }
+    .review { border-top: 1px solid #eceae4; padding-top: 17px; }
+    .review h3 { margin: 0 0 10px; font-size: 14px; }
+    .checks { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px 22px; }
+    .checks label { display: flex; gap: 8px; align-items: start; font-size: 13px; line-height: 1.5; }
+    .checks input { flex: none; margin: 3px 0 0; accent-color: #5c65ff; }
+    .links { display: flex; flex-wrap: wrap; gap: 8px 18px; margin-top: 18px; color: #666; font-size: 12px; }
+    .links a { overflow-wrap: anywhere; }
+    code { background: #f0f0f5; border-radius: 4px; padding: 1px 4px; font-size: .92em; }
+    .closing { background: #fff7e4; border: 1px solid #efddb6; border-radius: 14px; padding: 21px; line-height: 1.65; }
+    .closing h2 { margin: 0 0 7px; font-size: 18px; }
+    .closing p { margin: 0 0 10px; }
+    .closing ul { margin: 0; padding-left: 20px; }
+    footer { margin-top: 26px; color: #686868; font-size: 12px; line-height: 1.6; }
+    dialog { width: min(96vw, 1120px); max-height: 96vh; border: 0; border-radius: 12px; padding: 14px; box-shadow: 0 16px 70px #0008; }
+    dialog::backdrop { background: #101010b8; }
+    dialog img { display: block; max-width: 100%; max-height: calc(96vh - 75px); margin: auto; object-fit: contain; }
+    .dialog-close { float: right; margin-bottom: 10px; border: 0; background: #212121; color: white; border-radius: 7px; padding: 7px 10px; }
+    @media (max-width: 780px) { .screens, .analysis, .checks { grid-template-columns: 1fr; } .issue { padding: 17px; } .shot { height: 470px; } }
+    @media print { :root { background: white; } .hero { background: white; color: #212121; padding: 0; } .hero p:last-child, .eyebrow { color: #555; } main { padding: 18px 0; } .toc, .image-button { display: none; } .issue { box-shadow: none; break-inside: avoid; } .shot { height: 330px; } .detail:not([open]) { display: none; } }
+  </style>
+</head>
+<body>
+  <header class="hero">
+    <p class="eyebrow">REVIEW DRAFT · 2026.10.09 · iOS 5건</p>
+    <h1>Fiilsa QA 수정 사전 계획서</h1>
+    <p>10월 9일 Notion QA의 iOS 항목을 화면별로 대조했습니다. 각 화면의 차이, 수정 위치, 완료 판단 조건을 검토한 뒤 구현 범위를 확정하는 문서입니다.</p>
+  </header>
+  <main>
+    <aside class="notice">
+      <strong>이미지 출처와 비교 범위</strong>
+      왼쪽은 Figma QA 보드에 업로드된 iOS 캡처 원본(1170×2532px)입니다. 현재 저장소를 새로 빌드한 캡처는 아니므로 앱 빌드 일치는 미확인입니다. 오른쪽은 QA 주석에서 연결한 Figma 디자인 노드입니다. 기기 크기와 표시 날짜·문장이 달라 구성요소와 상태를 비교하며, 픽셀 겹침 검증은 구현 후 동일 조건에서 수행합니다.
+    </aside>
+    <aside class="notice" style="margin-top: 12px">
+      <strong>레이아웃 구현 원칙</strong>
+      부모는 화면 가장자리와 구성요소 사이의 여백을, 자식은 콘텐츠와 배경 사이의 내부 패딩을 담당합니다. 내용과 간격을 합쳐 크기가 정해지도록 하고, 남는 가로 공간은 부모 너비에 맞춰 사용합니다. 아래의 320×237pt·60×28pt 등은 Figma 360pt 화면에서 측정한 검증값이지 고정 <code>frame(width:height:)</code> 지시가 아닙니다.
+    </aside>
+    <nav class="toc" aria-label="이슈 바로가기">
+      <a href="#theme">01 테마 팝업</a><a href="#calendar-states">02 캘린더 상태</a><a href="#calendar-actions">03 캘린더 액션</a><a href="#home-font">04 홈 폰트</a><a href="#home-locale">05 한/영 토글</a>
+    </nav>
+
+    <article class="issue" id="theme">
+      <div class="issue-header"><div><span class="number">01 · MY PAGE</span><h2>테마 선택 팝업</h2></div><span class="badge">차이 확인</span></div>
+      <p class="lead">부모의 화면 여백과 카드 내부 패딩으로 팝업 경계를 맞추고, 팝업이 열린 동안 하단 탭까지 같은 딤으로 덮습니다. 테마 선택과 확인 동작은 유지합니다.</p>
+      <div class="screens">
+        <figure><h3>QA에 제출된 현재 화면</h3><p class="source">iOS 캡처 · 테마 팝업 열림</p><img class="shot" src="assets/ios-qa-preplan-2026-10-09/qa-current-theme.png" alt="현재 테마 팝업과 밝게 남은 하단 탭"><button class="image-button" data-image="assets/ios-qa-preplan-2026-10-09/qa-current-theme.png">원본 크게 보기</button></figure>
+        <figure><h3>Figma 기준 화면</h3><p class="source">노드 2929:11178 · 360×634pt · 팝업 320×237pt</p><img class="shot" src="assets/ios-qa-preplan-2026-10-09/figma-theme.png" alt="Figma 테마 팝업 전체 프레임"><button class="image-button" data-image="assets/ios-qa-preplan-2026-10-09/figma-theme.png">원본 크게 보기</button></figure>
+      </div>
+      <details class="detail"><summary>팝업 영역 확대 비교</summary><div class="screens"><figure><h3>QA 캡처</h3><img src="assets/ios-qa-preplan-2026-10-09/qa-detail-theme.png" alt="현재 팝업 확대"></figure><figure><h3>Figma 팝업</h3><img src="assets/ios-qa-preplan-2026-10-09/figma-detail-theme.png" alt="Figma 팝업 확대"></figure></div></details>
+      <div class="analysis"><section><h3>이슈 목적</h3><p>360pt 화면에서 부모 좌우 여백 20pt로 카드가 320pt가 되고, 라이트·다크·시스템 행과 확인 버튼은 카드 안에서 좌우 12pt 여백을 갖습니다. 팝업 밖 화면 전체에 딤이 적용됩니다.</p></section><section><h3>확인한 원인</h3><p><code>MyPageThemeDialog</code>는 배경을 내용 폭 296pt에 그린 뒤 바깥 프레임을 320pt로 만듭니다. 딤은 <code>MyPageView</code> 내부라 앱 하단 탭을 덮지 못합니다.</p></section><section class="fix"><h3>수정 계획</h3><p>팝업의 부모에 좌우 20pt 여백을 주고 카드는 남는 너비를 채웁니다. 카드 자식에 좌우 12pt 및 Figma의 세로 패딩·행 간격을 적용한 뒤, 완성된 카드 경계에 배경·테두리를 둡니다. 높이는 내용으로 결정하고 237pt는 기준 화면의 검증값으로 사용합니다. 팝업과 딤은 하단 탭의 공통 부모인 <code>AppView</code>에 올려 기존 TCA 테마 선택·확인 액션에 연결합니다.</p></section></div>
+      <div class="review"><h3>누락 점검</h3><div class="checks"><label><input type="checkbox">부모 좌우 20pt·자식 좌우 12pt 패딩으로 기준 화면에서 카드 320×237pt 확인</label><label><input type="checkbox">상태바·하단 탭·홈 인디케이터까지 딤 범위 확인</label><label><input type="checkbox">라이트·다크·시스템 선택 표시와 확인 동작</label><label><input type="checkbox">좁은·넓은 화면 및 큰 글자에서 잘림 없이 배치</label><label><input type="checkbox">라이트·다크 모드 전체 화면 캡처 대조</label></div></div>
+      <div class="links"><a href="https://app.notion.com/p/3f4e639fc7a480b2be86dfa02239f612">Notion QA</a><a href="https://www.figma.com/design/VdFocqyqTgevMVCQxwAQ2X?node-id=2929-11178">Figma 기준</a><a href="../../Fiilsa/Presentation/MyPage/MyPageThemeDialog.swift">팝업 코드</a><a href="../../Fiilsa/App/AppView.swift">앱 화면 계층</a></div>
+    </article>
+
+    <article class="issue" id="calendar-states">
+      <div class="issue-header"><div><span class="number">02 · CALENDAR</span><h2>필사 완료·미완료 화면</h2></div><span class="badge">차이 확인</span></div>
+      <p class="lead">두 상태 모두 화면의 좌우 여백을 뺀 공간에 달력과 카드가 맞춰지도록 합니다. 완료 상태의 가로 구분선, 미완료 상태의 안내 글자 굵기와 명언 카드 테두리를 각각 맞춥니다.</p>
+      <div class="screens">
+        <figure><h3>QA에 제출된 현재 화면 · 완료</h3><p class="source">iOS 캡처 · 필사 기록이 있는 날짜</p><img class="shot" src="assets/ios-qa-preplan-2026-10-09/qa-current-calendar-completed.png" alt="현재 완료 날짜 캘린더"><button class="image-button" data-image="assets/ios-qa-preplan-2026-10-09/qa-current-calendar-completed.png">원본 크게 보기</button></figure>
+        <figure><h3>Figma 기준 화면 · 완료</h3><p class="source">노드 2987:22796 · 360×1101pt</p><img class="shot" src="assets/ios-qa-preplan-2026-10-09/figma-calendar-completed.png" alt="Figma 완료 날짜 캘린더"><button class="image-button" data-image="assets/ios-qa-preplan-2026-10-09/figma-calendar-completed.png">원본 크게 보기</button></figure>
+        <figure><h3>QA에 제출된 현재 화면 · 미완료</h3><p class="source">iOS 캡처 · 필사 기록이 없는 날짜</p><img class="shot" src="assets/ios-qa-preplan-2026-10-09/qa-current-calendar-incomplete.png" alt="현재 미완료 날짜 캘린더"><button class="image-button" data-image="assets/ios-qa-preplan-2026-10-09/qa-current-calendar-incomplete.png">원본 크게 보기</button></figure>
+        <figure><h3>Figma 기준 화면 · 미완료</h3><p class="source">노드 2985:21952 · 360×816pt</p><img class="shot" src="assets/ios-qa-preplan-2026-10-09/figma-calendar-incomplete.png" alt="Figma 미완료 날짜 캘린더"><button class="image-button" data-image="assets/ios-qa-preplan-2026-10-09/figma-calendar-incomplete.png">원본 크게 보기</button></figure>
+      </div>
+      <details class="detail"><summary>완료·미완료 카드 영역 확대 비교</summary><div class="screens"><figure><h3>완료 · QA</h3><img src="assets/ios-qa-preplan-2026-10-09/qa-detail-calendar-completed.png" alt="현재 완료 카드 확대"></figure><figure><h3>완료 · Figma</h3><img src="assets/ios-qa-preplan-2026-10-09/figma-detail-calendar-completed.png" alt="Figma 완료 카드 확대"></figure><figure><h3>미완료 · QA</h3><img src="assets/ios-qa-preplan-2026-10-09/qa-detail-calendar-incomplete.png" alt="현재 미완료 카드 확대"></figure><figure><h3>미완료 · Figma</h3><img src="assets/ios-qa-preplan-2026-10-09/figma-detail-calendar-incomplete.png" alt="Figma 미완료 카드 확대"></figure></div></details>
+      <div class="analysis"><section><h3>이슈 목적</h3><p>360pt 디자인에서 부모 좌우 여백 20pt를 뺀 달력 너비는 320pt입니다. 다른 화면 너비에서도 7개 날짜 열이 함께 확장되어야 합니다. 미완료 안내는 Bold 14pt, 카드 테두리는 보라색입니다.</p></section><section><h3>확인한 원인</h3><p><code>CalendarMonthSection</code>과 <code>CalendarDayCell</code>의 폭은 320pt·36pt로 고정됐습니다. 달력의 세로 영역도 고정 높이에 의존합니다. 안내 글자는 Regular, 라이트 미완료 카드 테두리는 투명, 완료 카드 가로선은 진회색입니다.</p></section><section class="fix"><h3>수정 계획</h3><p>화면 부모에 좌우 20pt 여백을 두고 달력은 그 안을 채웁니다. 요일·날짜는 부모 너비를 7개 열에 균등 배분하며 셀 내부 패딩과 행 간격으로 크기를 정합니다. 달력 높이도 월 제목·요일·날짜 행의 내용과 세로 패딩으로 결정합니다. 완료·미완료 카드는 부모 너비와 내부 패딩을 따릅니다. 안내를 Figma Bold 14pt, 미완료 카드 테두리를 <code>#5C65FF</code>, 완료 카드 가로선을 QA 지정 <code>#E7E2D8</code>로 맞춥니다.</p></section></div>
+      <div class="review"><h3>누락 점검</h3><div class="checks"><label><input type="checkbox">완료·미완료에서 부모 여백 20pt, 달력·카드 너비와 7개 열 정렬</label><label><input type="checkbox">고정된 달력·셀 높이 대신 자식 세로 패딩과 행 간격 확인</label><label><input type="checkbox">완료 카드 가로 구분선 <code>#E7E2D8</code></label><label><input type="checkbox">미완료 안내 Bold 14pt와 보라색 카드 테두리</label><label><input type="checkbox">좁은·넓은 기기와 큰 글자, 라이트·다크 화면 비교</label><label><input type="checkbox">날짜 선택·기록 아이콘·월 이동 동작 유지</label><label><input type="checkbox">선택 날짜 데이터와 질문 카드 위치 확인</label></div></div>
+      <div class="links"><a href="https://app.notion.com/p/3f4e639fc7a48041825ad5283902ab44">Notion QA</a><a href="https://www.figma.com/design/VdFocqyqTgevMVCQxwAQ2X?node-id=2987-22796">Figma 완료</a><a href="https://www.figma.com/design/VdFocqyqTgevMVCQxwAQ2X?node-id=2985-21952">Figma 미완료</a><a href="../../Fiilsa/Presentation/Calendar/CalendarMonthSection.swift">달력 코드</a><a href="../../Fiilsa/Presentation/Calendar/CalendarSelectedQuoteSection.swift">상태 카드 코드</a></div>
+    </article>
+
+    <article class="issue" id="calendar-actions">
+      <div class="issue-header"><div><span class="number">03 · CALENDAR</span><h2>복사·공유·이미지 등록 동작</h2></div><span class="badge pending">원인 미확정</span></div>
+      <p class="lead">QA는 회원·비회원에서 세 기능이 실행되지 않는다고 기록했습니다. 현재 저장소에는 10월 7일 연결된 버튼과 테스트가 있으므로, QA 앱 빌드와 실제 선택 날짜 데이터를 먼저 확인합니다.</p>
+      <div class="screens">
+        <figure><h3>QA에 제출된 현재 화면</h3><p class="source">완료 날짜의 하단 액션 행 · 실제 탭 결과는 정지 화면에 없음</p><img class="shot" src="assets/ios-qa-preplan-2026-10-09/qa-current-calendar-completed.png" alt="QA 캘린더 액션 행"><button class="image-button" data-image="assets/ios-qa-preplan-2026-10-09/qa-current-calendar-completed.png">원본 크게 보기</button></figure>
+        <figure><h3>Figma 기준 화면</h3><p class="source">노드 2987:22796 · 완료 날짜의 복사·공유·좋아요·이미지 등록</p><img class="shot" src="assets/ios-qa-preplan-2026-10-09/figma-calendar-completed.png" alt="Figma 캘린더 액션 행"><button class="image-button" data-image="assets/ios-qa-preplan-2026-10-09/figma-calendar-completed.png">원본 크게 보기</button></figure>
+      </div>
+      <details class="detail"><summary>액션 행 확대 비교</summary><div class="screens"><figure><h3>QA 캡처</h3><img src="assets/ios-qa-preplan-2026-10-09/qa-detail-calendar-completed.png" alt="현재 캘린더 액션 행 확대"></figure><figure><h3>Figma</h3><img src="assets/ios-qa-preplan-2026-10-09/figma-detail-calendar-completed.png" alt="Figma 캘린더 액션 행 확대"></figure></div></details>
+      <div class="analysis"><section><h3>이슈 목적</h3><p>완료 날짜의 복사는 선택 명언을 클립보드로, 공유는 기존 공유 화면으로 연결합니다. 이미지 등록은 회원 상태에서 선택한 명언을 대상으로 하고, 비회원은 기존 로그인 안내 조건을 확인합니다.</p></section><section><h3>현재까지의 근거</h3><p><code>CalendarView</code>에 세 동작이 연결돼 있고 10월 7일 UI fixture 테스트는 복사 탭·공유 이동·이미지 팝업을 통과했습니다. QA 캡처의 채워진 좋아요 아이콘도 해당 테스트 캡처와 달라 앱 빌드 확인이 필요합니다.</p></section><section class="fix"><h3>조사 후 수정 계획</h3><p>QA 앱 버전과 저장소 빌드를 대조하고 회원·비회원의 완료 날짜에서 직접 재현합니다. 구버전이면 배포 경로를 정리하고, 현 버전에서도 실패하면 선택 레코드·완료 상태·명언 ID·액션 이벤트 경계를 추적해 확인된 원인만 수정합니다.</p></section></div>
+      <div class="review"><h3>누락 점검</h3><div class="checks"><label><input type="checkbox">QA 앱의 버전·빌드와 현재 코드 대조</label><label><input type="checkbox">회원 완료 날짜: 복사 결과·공유 화면·이미지 보기/등록</label><label><input type="checkbox">비회원 완료 날짜: 복사·공유·이미지의 로그인 안내</label><label><input type="checkbox">날짜를 바꾼 직후 액션이 선택 명언 ID를 사용</label><label><input type="checkbox">fixture 테스트와 실제 서버 데이터 결과 구분</label><label><input type="checkbox">액션 행의 시각 차이는 상태별 Figma와 별도 확인</label></div></div>
+      <div class="links"><a href="https://app.notion.com/p/3f4e639fc7a480de8625cff94440d08d">Notion QA</a><a href="https://www.figma.com/design/VdFocqyqTgevMVCQxwAQ2X?node-id=2987-22796">Figma 기준</a><a href="../../Fiilsa/Presentation/Calendar/CalendarView.swift">이벤트 연결</a><a href="2026-10-07-calendar-actions-qa.md">기존 테스트 기록</a></div>
+    </article>
+
+    <article class="issue" id="home-font">
+      <div class="issue-header"><div><span class="number">04 · HOME</span><h2>오늘의 필사 글꼴</h2></div><span class="badge">차이 확인</span></div>
+      <p class="lead">명언 카드 본문에 Figma가 지정한 GangwonEduAll OTF Bold 16pt를 표시합니다. 화면의 명언 문장은 날짜에 따라 다르므로 글꼴 모양과 줄바꿈을 비교합니다.</p>
+      <div class="screens">
+        <figure><h3>QA에 제출된 현재 화면</h3><p class="source">iOS 홈 · 명언 카드에 대체 글꼴로 보이는 본문</p><img class="shot" src="assets/ios-qa-preplan-2026-10-09/qa-current-home.png" alt="현재 홈의 오늘의 필사 명언"><button class="image-button" data-image="assets/ios-qa-preplan-2026-10-09/qa-current-home.png">원본 크게 보기</button></figure>
+        <figure><h3>Figma 기준 화면</h3><p class="source">홈 2929:13556 · 명언 카드 2929:13642</p><img class="shot" src="assets/ios-qa-preplan-2026-10-09/figma-home.png" alt="Figma 홈의 명언 카드"><button class="image-button" data-image="assets/ios-qa-preplan-2026-10-09/figma-home.png">원본 크게 보기</button></figure>
+      </div>
+      <details class="detail"><summary>명언 카드 확대 비교</summary><div class="screens"><figure><h3>QA 캡처</h3><img src="assets/ios-qa-preplan-2026-10-09/qa-detail-home-quote.png" alt="현재 명언 카드 확대"></figure><figure><h3>Figma 카드</h3><img src="assets/ios-qa-preplan-2026-10-09/figma-home-quote-card.png" alt="Figma 명언 카드 확대"></figure></div></details>
+      <div class="analysis"><section><h3>이슈 목적</h3><p>명언 본문을 Figma의 GangwonEduAll OTF Bold 16pt로 표시합니다. 저자명은 별도 Pretendard Regular 12pt 기준입니다.</p></section><section><h3>확인한 원인</h3><p><code>HomeQuoteCard</code>는 <code>GangwonEduAll-Light</code>에 합성 Bold를 적용합니다. 앱에는 글꼴 파일과 <code>UIAppFonts</code> 등록이 없어 지정 글꼴을 로드할 수 없습니다.</p></section><section class="fix"><h3>수정 계획</h3><p>Figma의 Bold 글꼴 파일을 앱 리소스로 포함·등록하고 실제 PostScript 이름으로 본문 글꼴을 지정합니다. 합성 Bold를 제거하며, 명언 본문과 저자명의 내부 패딩으로 카드 크기가 정해지도록 한·영 문장 및 긴 명언의 줄바꿈을 비교합니다.</p></section></div>
+      <div class="review"><h3>누락 점검</h3><div class="checks"><label><input type="checkbox">Bold 글꼴 파일·앱 번들 등록·런타임 로드 확인</label><label><input type="checkbox">Figma 16pt 굵기·행간·줄바꿈 대조</label><label><input type="checkbox">한글·영문·긴 명언과 저자명, 카드 내부 패딩 확인</label><label><input type="checkbox">라이트·다크 카드 전체 화면 비교</label></div></div>
+      <div class="links"><a href="https://app.notion.com/p/3f4e639fc7a48054a2dbe32da15014b4">Notion QA</a><a href="https://www.figma.com/design/VdFocqyqTgevMVCQxwAQ2X?node-id=2929-13642">Figma 명언 카드</a><a href="../../Fiilsa/Presentation/Home/DailyQuoteSection.swift">현재 카드 코드</a><a href="../../Fiilsa/Info.plist">글꼴 등록 위치</a></div>
+    </article>
+
+    <article class="issue" id="home-locale">
+      <div class="issue-header"><div><span class="number">05 · HOME</span><h2>한/영 전환 토글 색상</h2></div><span class="badge">차이 확인</span></div>
+      <p class="lead">토글 배경을 Figma의 노란색으로 맞춥니다. 선택된 언어 표시와 전환 동작은 유지합니다.</p>
+      <div class="screens">
+        <figure><h3>QA에 제출된 현재 화면</h3><p class="source">iOS 홈 · 연보라색 토글 배경</p><img class="shot" src="assets/ios-qa-preplan-2026-10-09/qa-current-home.png" alt="현재 홈의 한영 토글"><button class="image-button" data-image="assets/ios-qa-preplan-2026-10-09/qa-current-home.png">원본 크게 보기</button></figure>
+        <figure><h3>Figma 기준 화면</h3><p class="source">홈 2929:13556 · 토글 2929:13611 · 60×28pt</p><img class="shot" src="assets/ios-qa-preplan-2026-10-09/figma-home.png" alt="Figma 홈의 한영 토글"><button class="image-button" data-image="assets/ios-qa-preplan-2026-10-09/figma-home.png">원본 크게 보기</button></figure>
+      </div>
+      <details class="detail" open><summary>토글 확대 비교</summary><div class="screens"><figure><h3>QA 캡처</h3><img src="assets/ios-qa-preplan-2026-10-09/qa-detail-home-locale.png" alt="현재 연보라색 한영 토글 확대"></figure><figure><h3>Figma 토글</h3><img src="assets/ios-qa-preplan-2026-10-09/figma-home-locale.png" alt="Figma 노란색 한영 토글 확대"></figure></div></details>
+      <div class="analysis"><section><h3>이슈 목적</h3><p>Figma 기준 화면에서 60×28pt로 측정되는 토글의 배경은 <code>#FFCB5C</code>, 선택 손잡이는 흰색, 글자는 <code>#212121</code>입니다.</p></section><section><h3>확인한 원인</h3><p><code>HomeLocaleSwitch</code>가 토글 배경에 공용 연보라색 <code>secondaryContainer</code>(<code>#D3D5FF</code>)를 사용합니다.</p></section><section class="fix"><h3>수정 계획</h3><p>이 토글의 배경만 Figma 노란색 토큰으로 바꿉니다. 부모의 위치 여백과 두 언어 표시의 내부 패딩으로 외곽 크기를 만들고, 60×28pt는 기준 화면에서 확인합니다. 한글·영문 선택 상태의 손잡이·글자색·전환 후 명언 표시를 함께 확인합니다.</p></section></div>
+      <div class="review"><h3>누락 점검</h3><div class="checks"><label><input type="checkbox">배경 <code>#FFCB5C</code>와 흰색 선택 손잡이</label><label><input type="checkbox">한글 선택·영문 선택 두 상태</label><label><input type="checkbox">글자색·부모/자식 패딩과 기준 화면의 60×28pt 결과</label><label><input type="checkbox">언어 전환 후 명언·저자 데이터와 다크 모드</label></div></div>
+      <div class="links"><a href="https://app.notion.com/p/3f4e639fc7a4805cb6f9c474cb5f9ced">Notion QA</a><a href="https://www.figma.com/design/VdFocqyqTgevMVCQxwAQ2X?node-id=2929-13611">Figma 토글</a><a href="../../Fiilsa/Presentation/Home/HomeLocaleSwitch.swift">현재 토글 코드</a></div>
+    </article>
+
+    <aside class="closing">
+      <h2>구현 전에 확정할 범위</h2>
+      <p>QA 주석의 링크는 대부분 QA 보드 제목을 가리킵니다. 이 문서의 오른쪽 이미지는 주석 안의 실제 디자인 링크를 따라 추출했습니다.</p>
+      <ul>
+        <li>화면·카드·셀·토글의 고정 폭·높이는 계획에 사용하지 않습니다. Figma 측정값은 기준 화면에서의 결과로만 확인하고, 기기 너비와 글자 크기가 달라져도 부모 여백·자식 패딩·간격이 유지되는지 점검합니다.</li>
+        <li>테마 팝업의 Figma 전체 프레임에는 과거 4탭·광고 영역이 있습니다. 이번 범위는 QA가 지목한 팝업과 딤이며, 현재 승인된 3탭 구조는 유지합니다.</li>
+        <li>캘린더·홈의 Figma 날짜와 QA 캡처 날짜가 다릅니다. 구현 검증은 같은 화면 크기·데이터·선택 상태로 다시 캡처합니다.</li>
+        <li>이 문서의 화면 비교는 QA가 연결한 라이트 상태입니다. 다크 검증에는 <a href="https://www.figma.com/design/VdFocqyqTgevMVCQxwAQ2X?node-id=2929-11694">테마 팝업</a>, <a href="https://www.figma.com/design/VdFocqyqTgevMVCQxwAQ2X?node-id=3051-899">캘린더 완료</a>, <a href="https://www.figma.com/design/VdFocqyqTgevMVCQxwAQ2X?node-id=3039-26518">홈</a> 프레임을 사용하고, 미완료·영문 선택 등 추가 상태의 대상 노드는 구현 전 화면 문서에 기록합니다.</li>
+        <li>캘린더 액션 실패는 테스트 데이터에서 재현되지 않았습니다. QA 앱 빌드와 회원·비회원 실제 데이터 확인 후 원인을 확정합니다.</li>
+        <li>UI 수정 전 화면별 계획 문서에 각 노드·상태·컴포넌트·QA 기록을 반영하고, 수정 후 영향 컴포넌트와 전체 화면을 Figma 절차의 최대 5회 안에서 검증합니다.</li>
+      </ul>
+    </aside>
+    <footer>이 문서는 구현 전 검토용입니다. 체크박스는 이 페이지에서 임시로 표시되며 저장되지 않습니다. 이미지는 이 HTML 파일을 기준으로 한 상대 경로에 있습니다.</footer>
+  </main>
+  <dialog id="image-dialog" aria-label="이미지 크게 보기"><button class="dialog-close" type="button">닫기</button><img alt="확대한 비교 이미지"></dialog>
+  <script>
+    const dialog = document.getElementById('image-dialog');
+    document.querySelectorAll('[data-image]').forEach(button => button.addEventListener('click', () => {
+      dialog.querySelector('img').src = button.dataset.image;
+      dialog.showModal();
+    }));
+    dialog.querySelector('button').addEventListener('click', () => dialog.close());
+    dialog.addEventListener('click', event => { if (event.target === dialog) dialog.close(); });
+  </script>
+</body>
+</html>

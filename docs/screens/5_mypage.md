@@ -1,5 +1,21 @@
 # [마이 페이지] `5.mypage`
 
+## 2026-10-09 iOS 테마 팝업 QA 대상
+
+- Figma 파일: https://www.figma.com/design/VdFocqyqTgevMVCQxwAQ2X
+- 전체 프레임: Light [`2929:11178`](https://www.figma.com/design/VdFocqyqTgevMVCQxwAQ2X?node-id=2929-11178), Dark [`2929:11694`](https://www.figma.com/design/VdFocqyqTgevMVCQxwAQ2X?node-id=2929-11694); Light 기준 360×634pt, 테마 팝업 표시 상태.
+- Light 전체 프레임 기준 이미지: `docs/design-qa/assets/ios-qa-preplan-2026-10-09/figma-theme.png` (루트 배경·상태바·하단 내비게이션 포함). Dark 프레임은 Figma MCP에서 재조회했고 [QA 기록](../design-qa/2026-10-11-mypage-qa.md)에 노드 참조를 남겼다.
+- QA 기록: [2026-10-11 My Page QA](../design-qa/2026-10-11-mypage-qa.md), [사전 계획](../design-qa/2026-10-09-ios-qa-preplan.html).
+- 배치 원칙: 팝업 부모의 좌우 20pt 화면 여백, 카드 자식의 좌우 12pt 내부 패딩과 세로 간격으로 크기를 정한다. Figma의 320×237pt는 360pt 화면에서의 검증값이며 고정 프레임으로 사용하지 않는다. 배경·테두리는 내부 패딩까지 포함한 카드 경계에 적용한다.
+- 표시/동작: Light/Dark/System 선택, 확인 액션, 팝업 표시 중 상태바·하단 내비게이션·홈 인디케이터까지 전체 딤. 현재 승인된 3탭 구조를 유지한다.
+
+| 컴포넌트 | Figma 노드 | 책임·상태 | 조립 위치 | 검증 상태 |
+|---|---|---|---|---|
+| `MyPageThemeDialog` | Light `2929:11178`, Dark `2929:11694`의 팝업 | 선택 행·확인 버튼, Light/Dark/System | `AppView` 오버레이 | 부분 확인; 전체 화면 Blocked |
+| 전체 My Page | `2929:11178`, `2929:11694` | 하단 내비게이션을 포함한 딤·팝업 위치 | `AppView` | 부분 확인; 전체 화면 Blocked |
+
+- 2026-10-11 결과: 팝업 패딩과 전체 딤을 구현하고 Light/Dark 390×844pt 캡처를 확보했다. Figma 360×634pt와 크기 및 회원 데이터가 달라 [전체 화면 결과는 Blocked](../design-qa/2026-10-11-mypage-qa.md).
+
 ## 공통 (비회원 / 회원)
 
 | 항목 | 동작 |
@@ -13,7 +29,7 @@
 
 - Figma 360pt 캔버스에서 본문 카드의 x=20, width=320은 화면 좌우 20pt 여백을 뜻한다.
 - 회원 정보, 로그인, 메뉴 카드는 320pt로 고정하지 않는다. 화면 루트에서 좌우 20pt를 한 번만 적용하고, 카드는 남은 너비를 채운다.
-- 테마 선택 팝업처럼 Figma에서 독립된 고정 크기로 정의한 모달만 해당 크기를 유지한다.
+- 2026-10-09 테마 선택 팝업은 부모 여백과 자식 패딩으로 크기를 정하고, Figma 측정값은 비교에 사용한다.
 
 ## 비회원
 

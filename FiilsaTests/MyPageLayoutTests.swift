@@ -8,9 +8,7 @@ final class MyPageLayoutTests: XCTestCase {
         XCTAssertEqual(MyPageLayout.memberCardHeight, 80)
         XCTAssertEqual(MyPageLayout.guestCardHeight, 114)
         XCTAssertEqual(MyPageLayout.menuHeight, 60)
-        XCTAssertEqual(MyPageLayout.themeDialogSize.width, 320)
-        XCTAssertEqual(MyPageLayout.themeDialogSize.height, 237)
-        XCTAssertEqual(MyPageLayout.confirmButtonSize.width, 296)
-        XCTAssertEqual(MyPageLayout.confirmButtonSize.height, 49)
+        XCTAssertEqual(MyPageLayout.screenHorizontalInset, 20)
+        XCTAssertEqual(MyPageLayout.themeContentInset, 12)
     }
 }

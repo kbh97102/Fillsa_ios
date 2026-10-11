@@ -1,5 +1,24 @@
 # [Calendar] `3.calendar`
 
+## 2026-10-09 iOS QA 대상
+
+- Figma 파일: https://www.figma.com/design/VdFocqyqTgevMVCQxwAQ2X
+- 전체 프레임: Light 미완료 [`2985:21952`](https://www.figma.com/design/VdFocqyqTgevMVCQxwAQ2X?node-id=2985-21952) 360×816pt, Light 완료 [`2987:22796`](https://www.figma.com/design/VdFocqyqTgevMVCQxwAQ2X?node-id=2987-22796) 360×1101pt, Dark 완료 [`3051:899`](https://www.figma.com/design/VdFocqyqTgevMVCQxwAQ2X?node-id=3051-899) 360×1101pt.
+- 전체 프레임 기준 이미지: `docs/design-qa/assets/ios-qa-preplan-2026-10-09/figma-calendar-incomplete.png`, `docs/design-qa/assets/ios-qa-preplan-2026-10-09/figma-calendar-completed.png`, `docs/design-qa/assets/calendar-figma/2026-09-20/calendar-handwriting-3051-899-reference.png`. 루트 배경·상태바·하단 내비게이션을 포함한다.
+- QA 기록: [2026-10-11 Calendar QA](../design-qa/2026-10-11-calendar-qa.md), [사전 계획](../design-qa/2026-10-09-ios-qa-preplan.html).
+- 배치 원칙: 화면 부모의 좌우 20pt 여백을 뺀 공간에 달력·상태 카드를 채운다. 일곱 날짜 열은 이용 가능한 너비를 함께 나누고, 날짜·아이콘은 셀 내부 패딩과 행 간격으로 배치한다. 월 카드 높이는 제목·요일·날짜 행과 세로 패딩의 합으로 정한다. 기존 문서 아래의 320pt 카드·36pt 열·고정 높이 지시는 이 QA 범위에서는 Figma 360pt 기준 측정값으로만 사용한다.
+- 검증 상태: 390×844pt Light/Dark 런타임과 360pt Figma 비교 부분 확인. 전체 화면 최종 결과는 [Blocked](../design-qa/2026-10-11-calendar-qa.md).
+- 표시 데이터/동작: 월 이동·날짜 선택·기록 아이콘·월 통계·완료 카드 액션·질문 답변을 유지한다. 완료 카드 가로선은 `#E7E2D8`, 미완료 안내는 Pretendard Bold 14pt, Light 미완료 명언 카드는 `#5C65FF` 테두리다. 복사·공유·이미지 등록 실패는 회원·비회원의 실제 데이터에서 재현하고 원인 확인 후 수정한다.
+
+| 컴포넌트 | Figma 노드 | 책임·상태 | 조립 위치 | 검증 상태 |
+|---|---|---|---|---|
+| `CalendarMonthSection` / `CalendarDayCell` | Light `2985:21952`, `2987:22796`; Dark `3051:899`의 월 카드 | 7열, 날짜 선택·기록 아이콘·월 이동, 완료/미완료 | `CalendarView` | 부분 확인; 전체 화면 Blocked |
+| `CalendarSelectedDaySection` | Light `2985:21952`, `2987:22796`; Dark `3051:899`의 선택일 영역 | 미완료 안내·명언 테두리, 완료 카드 구분선 | `CalendarView` | 부분 확인; 전체 화면 Blocked |
+| `CalendarQuoteActionRow` | 완료 `2987:22796`, `3051:899`의 명언 작업 행 | 복사·공유·좋아요·이미지 등록, 회원/비회원 | 완료 카드 | 부분 확인; 전체 화면 Blocked |
+| 전체 Calendar | `2985:21952`, `2987:22796`, `3051:899` | 상태바부터 하단 내비게이션까지 조립 검증 | `AppView` | 부분 확인; 전체 화면 Blocked |
+
+- 2026-10-11 잔여 차이: Figma 2025년 3월 활성 날짜와 앱의 2025년 6월 시작 제한이 충돌한다. 과거 날짜 선택 계약 결정 전까지 현재 제한을 유지한다.
+
 ## Figma UI 기준 (2026-09-20 변경 디자인)
 
 - Figma URL:
@@ -82,7 +101,7 @@
 - 날짜별로 필사(또는 사진) 여부 및 좋아요 여부 아이콘 표시
 - 특정 날짜 클릭 시 하단에 해당일 명언 노출
 - 캘린더 화면의 좌우 여백은 360pt Figma 기준 20pt이며, 월 카드 자체는 정확히 320pt다.
-- 날짜 열은 같은 비율로 확장하지 않는다. Figma의 고정 36pt 폭과 11pt 간격을 보존한다.
+- 2026-10-09 QA에서는 날짜 열이 부모의 사용 가능한 너비를 함께 나눈다. 36pt 폭과 11pt 간격은 360pt Figma 화면에서의 비교값이다.
 
 ## 하단 명언 영역
 

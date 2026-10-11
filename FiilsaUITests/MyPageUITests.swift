@@ -114,6 +114,8 @@ final class MyPageUITests: XCTestCase {
 
         let dialog = app.otherElements[Identifier.themeDialog]
         XCTAssertTrue(dialog.waitForExistence(timeout: 2))
+        XCTAssertEqual(dialog.frame.width, app.frame.width - 40, accuracy: 1)
+        XCTAssertEqual(dialog.frame.minX, 20, accuracy: 1)
         XCTAssertEqual(dialog.frame.height, 237, accuracy: 1)
         let attachment = XCTAttachment(screenshot: app.screenshot())
         attachment.name = "My Page theme dialog"

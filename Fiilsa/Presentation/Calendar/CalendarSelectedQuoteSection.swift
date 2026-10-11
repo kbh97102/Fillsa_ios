@@ -28,7 +28,6 @@ struct CalendarSelectedDaySection: View {
         VStack(spacing: presentation == .incomplete ? -16 : 10) {
             if presentation == .incomplete {
                 CalendarNoWritingMessage()
-                    .frame(height: 100)
             }
 
             CalendarSelectedQuoteSection(
@@ -66,7 +65,7 @@ private struct CalendarNoWritingMessage: View {
                 .frame(width: 100, height: 100)
 
             Text("필사하지 않은 날이에요.\n아래 필사를 선택하여 기록해주세요!")
-                .font(FillsaTypography.body3)
+                .font(FillsaTypography.subtitle2)
                 .foregroundStyle(FillsaColor.dynamic(light: FillsaColor.purple01, dark: FillsaColor.yellow02))
                 .multilineTextAlignment(.leading)
                 .fixedSize(horizontal: false, vertical: true)
@@ -112,8 +111,7 @@ struct CalendarSelectedQuoteSection: View {
         VStack(spacing: 0) {
             Button(action: onClick) {
                 quoteContent
-                    .frame(height: 80)
-                    .frame(height: isCompleted ? 90 : 80, alignment: .top)
+                    .padding(.vertical, isCompleted ? 26 : 21)
             }
             .buttonStyle(.plain)
 
@@ -124,7 +122,6 @@ struct CalendarSelectedQuoteSection: View {
                     onLike: onLike,
                     onImage: onImage
                 )
-                    .frame(height: 43)
             }
         }
         .background(
@@ -170,7 +167,8 @@ struct CalendarSelectedQuoteSection: View {
     }
 
     private var cardBorder: Color {
-        colorScheme == .dark && !isCompleted ? FillsaColor.yellow02 : .clear
+        if isCompleted { return .clear }
+        return colorScheme == .dark ? FillsaColor.yellow02 : FillsaColor.purple01
     }
 }
 
@@ -183,23 +181,22 @@ private struct CalendarQuoteActionRow: View {
     var body: some View {
         VStack(spacing: 0) {
             Rectangle()
-                .fill(FillsaColor.gray500)
+                .fill(FillsaColor.dynamic(light: Color(hex: 0xE7E2D8), dark: FillsaColor.gray500))
                 .frame(height: 1)
 
             HStack(spacing: 0) {
                 action("home_action_copy", "복사", identifier: "calendar.copy", action: onCopy)
-                    .frame(width: 70)
+                    .frame(maxWidth: .infinity)
                 divider
                 action("home_action_share", "공유", identifier: "calendar.share", action: onShare)
-                    .frame(width: 70)
+                    .frame(maxWidth: .infinity)
                 divider
                 likeAction
-                    .frame(width: 70)
+                    .frame(maxWidth: .infinity)
                 divider
                 action("home_action_camera", "이미지 등록", identifier: "calendar.image", action: onImage)
-                    .frame(width: 107)
+                    .padding(.horizontal, 10)
             }
-            .frame(height: 42)
         }
         .foregroundStyle(FillsaColor.dynamic(light: HomeFigmaColorToken.lightActionText.color, dark: FillsaColor.gray400))
         .accessibilityElement(children: .contain)
@@ -217,8 +214,9 @@ private struct CalendarQuoteActionRow: View {
                     .frame(width: 16, height: 16)
                 Text(title)
                     .font(FillsaTypography.body4)
+                    .fixedSize(horizontal: true, vertical: false)
             }
-            .frame(maxWidth: .infinity, maxHeight: .infinity)
+            .padding(.vertical, 12)
         }
         .buttonStyle(.plain)
         .accessibilityIdentifier(identifier)
@@ -234,7 +232,7 @@ private struct CalendarQuoteActionRow: View {
                 Text("좋아요")
                     .font(FillsaTypography.body4)
             }
-            .frame(maxWidth: .infinity, maxHeight: .infinity)
+            .padding(.vertical, 12)
         }
         .buttonStyle(.plain)
         .accessibilityIdentifier("calendar.like")

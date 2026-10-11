@@ -62,8 +62,6 @@ struct CalendarView: View {
                             viewStore.send(.daySelected($0))
                         }
                     )
-                    .frame(height: 396)
-
                     CalendarCountSection(
                         likeCount: viewStore.monthlySummary.likeCount,
                         writingCount: viewStore.monthlySummary.typingCount,

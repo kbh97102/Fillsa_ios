@@ -29,14 +29,14 @@ struct HomeLocaleSwitch: View {
             }
             .padding(.horizontal, 3)
             .padding(.vertical, 4)
-            .background(Capsule().fill(FillsaColor.secondaryContainer))
+            .background(Capsule().fill(FillsaColor.yellow02))
         }
         .buttonStyle(.plain)
     }
 
     private func localeItem(_ title: String, isSelected: Bool) -> some View {
         Text(title)
-            .font(FillsaTypography.subtitle2)
+            .font(.custom(title == "A" ? "Poppins-Bold" : "Pretendard-Bold", size: 12))
             .foregroundStyle(FillsaColor.onSecondaryContainer1)
             .padding(.horizontal, 8)
             .padding(.vertical, 2)

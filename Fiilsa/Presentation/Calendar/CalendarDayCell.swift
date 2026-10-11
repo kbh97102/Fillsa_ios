@@ -35,7 +35,8 @@ struct CalendarDayCell: View {
                 .padding(.top, 3)
                 .padding(.horizontal, 5)
             }
-            .frame(width: 36, height: 50)
+            .frame(maxWidth: .infinity)
+            .padding(.vertical, 9)
             .background {
                 if isSelected {
                     RoundedRectangle(cornerRadius: 10)
@@ -45,7 +46,7 @@ struct CalendarDayCell: View {
         }
         .buttonStyle(.plain)
         .disabled(!isEnabled)
-        .frame(width: 36, height: 50)
+        .frame(maxWidth: .infinity)
     }
 
     private var dayTextColor: Color {
