@@ -181,6 +181,49 @@ struct CalendarFeatureTests {
     }
 
     @Test
+    func reenteringCalendarReplacesCachedIncompleteDayWithSavedWriting() async {
+        let day = fixtureDate(year: 2025, month: 3, day: 21)
+        let oldQuote = MemberQuotesData(
+            dailyQuoteSeq: 21, quoteDate: "2025-03-21", quote: "명언", author: "작가",
+            completed: false, likeYn: "N", todayCompleted: false
+        )
+        let savedQuote = MemberQuotesData(
+            dailyQuoteSeq: 21, quoteDate: "2025-03-21", quote: "명언", author: "작가",
+            completed: true, likeYn: "N", todayCompleted: true
+        )
+        let response = MemberMonthlyQuoteResponse(
+            memberQuotes: [savedQuote],
+            monthlySummary: MonthlySummaryData(typingCount: 1, likeCount: 0, streakCount: 1)
+        )
+        var initialState = CalendarFeature.State()
+        initialState.currentMonth = fixtureDate(year: 2025, month: 3, day: 1)
+        initialState.selectedDay = day
+        initialState.memberQuotes = [oldQuote]
+        initialState.hasLoaded = true
+        initialState.isLoggedIn = true
+        let store = TestStore(initialState: initialState) {
+            CalendarFeature()
+        } withDependencies: {
+            $0.calendarUseCases.loadMonth = { yearMonth in
+                #expect(yearMonth == "2025-03")
+                return response
+            }
+        }
+
+        await store.send(.onAppear) {
+            $0.isLoading = true
+        }
+        await store.receive(.monthlyQuotesLoaded(.success(response))) {
+            $0.memberQuotes = [savedQuote]
+            $0.monthlySummary = response.monthlySummary
+            $0.displayStreakCount = 1
+            $0.isLoading = false
+        }
+        #expect(CalendarWritingCompletion.isCompleted(store.state.memberQuotes[0]))
+        #expect(store.state.monthlySummary.typingCount == 1)
+    }
+
+    @Test
     func changingMonthResetsSelectionAndLoadsTheNewMonth() async {
         let response = fixtureResponse(streakCount: 7)
         let targetMonth = fixtureDate(year: 2025, month: 4, day: 1)

@@ -65,7 +65,7 @@ struct CalendarFeature {
         Reduce { state, action in
             switch action {
             case .onAppear:
-                guard !state.hasLoaded, !state.isLoading else { return .none }
+                guard !state.isLoading else { return .none }
                 return load(state: &state)
 
             case let .monthChanged(month):
