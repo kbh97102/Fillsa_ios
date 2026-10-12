@@ -1,5 +1,12 @@
 # [Calendar] `3.calendar`
 
+## 재진입 시 월간 데이터 갱신 (2026-10-12)
+
+- Figma 기준: [미필사 `3039:24906`](https://www.figma.com/design/VdFocqyqTgevMVCQxwAQ2X?node-id=3039-24906), [필사 완료 Light `2987:22796`](https://www.figma.com/design/VdFocqyqTgevMVCQxwAQ2X?node-id=2987-22796), [필사 완료 Dark `3051:899`](https://www.figma.com/design/VdFocqyqTgevMVCQxwAQ2X?node-id=3051-899). 전체 프레임 기준 이미지는 아래 `Figma UI 기준`의 경로를 사용한다.
+- 대상 상태: 오늘 미필사 상태로 캘린더 방문 → 홈에서 오늘 필사 저장 → 캘린더 재진입 시 오늘 완료 상태와 월간 통계를 새 서버 응답으로 표시한다.
+- 구성: `CalendarView` 진입 이벤트 → `CalendarFeature` 월간 조회 → 월 카드, 선택일 카드, 통계 표시. 기존 레이아웃·문구·액션은 그대로 사용한다.
+- QA 기록: [캘린더 재진입 갱신](../design-qa/2026-10-12-calendar-entry-refresh-qa.md).
+
 ## 회원 전용 데이터 경로 — 구현 (2026-10-11)
 
 [회원 화면 진입 계획](1_login_member_only_followup_implementation_plan.md)과 [비회원 분기 정리 계획](1_login_guest_cleanup_implementation_plan.md)에 따라 비회원 월간 API·로컬 병합·세션 답변을 제거했다. 인증 소실을 확인하면 로그인 화면으로 이동한다. 회원 월간 응답, 날짜 선택, 완료 카드 UI는 유지한다. 아래 비회원 API 설명은 이전 구현 당시 기록이다. [검증 기록](../design-qa/2026-10-11-member-only-qa.md).
