@@ -2,7 +2,7 @@
 
 ## 재진입 시 월간 데이터 갱신 (2026-10-12)
 
-- Figma 기준: [미필사 `2985:21952`](https://www.figma.com/design/VdFocqyqTgevMVCQxwAQ2X?node-id=2985-21952), [필사 완료 Light `2987:22796`](https://www.figma.com/design/VdFocqyqTgevMVCQxwAQ2X?node-id=2987-22796), [필사 완료 Dark `3051:899`](https://www.figma.com/design/VdFocqyqTgevMVCQxwAQ2X?node-id=3051-899). 전체 프레임 기준 이미지는 아래 iOS QA 섹션의 경로를 사용한다.
+- Figma 기준: [미필사 Light `2985:21952`](https://www.figma.com/design/VdFocqyqTgevMVCQxwAQ2X?node-id=2985-21952), [미필사 Dark `3039:24906`](https://www.figma.com/design/VdFocqyqTgevMVCQxwAQ2X?node-id=3039-24906), [필사 완료 Light `2987:22796`](https://www.figma.com/design/VdFocqyqTgevMVCQxwAQ2X?node-id=2987-22796), [필사 완료 Dark `3051:899`](https://www.figma.com/design/VdFocqyqTgevMVCQxwAQ2X?node-id=3051-899). 전체 프레임 기준 이미지는 아래 iOS QA·Figma UI 기준 섹션의 경로를 사용한다.
 - 대상 상태: 오늘 미필사 상태로 캘린더 방문 → 홈에서 오늘 필사 저장 → 캘린더 재진입 시 오늘 완료 상태와 월간 통계를 새 서버 응답으로 표시한다.
 - 구성: `CalendarView`의 화면 진입 이벤트 → `CalendarFeature` 월간 조회 → 월 카드, 선택일 카드, 통계 표시. 기존 레이아웃·문구·액션은 그대로 사용한다.
 - QA 기록: [캘린더 재진입 갱신](../design-qa/2026-10-12-calendar-entry-refresh-qa.md).
