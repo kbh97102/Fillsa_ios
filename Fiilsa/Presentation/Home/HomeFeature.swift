@@ -12,6 +12,7 @@ struct HomeFeature {
         var isLoading = false
         var isImageDialogPresented = false
         var isDeleteImageConfirmationPresented = false
+        var toastID = 0
         var toastMessage: String?
         var streakCount: Int?
         var isStreakStateLoaded = false
@@ -282,6 +283,7 @@ struct HomeFeature {
                 return .none
 
             case .copyCompleted:
+                state.toastID += 1
                 state.toastMessage = "복사되었습니다."
                 return .none
 

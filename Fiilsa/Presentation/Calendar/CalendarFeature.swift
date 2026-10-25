@@ -20,10 +20,14 @@ struct CalendarFeature {
         var isImageDialogPresented = false
         var isDeleteImageConfirmationPresented = false
         var imageUploadFailed = false
+        var toastID = 0
+        var toastMessage: String?
 
     }
 
     enum Action: Equatable {
+        case copyCompleted
+        case toastDismissed
         case onAppear
         case monthChanged(Date)
         case daySelected(Date)
@@ -64,6 +68,15 @@ struct CalendarFeature {
     var body: some Reducer<State, Action> {
         Reduce { state, action in
             switch action {
+            case .copyCompleted:
+                state.toastID += 1
+                state.toastMessage = "복사되었습니다."
+                return .none
+
+            case .toastDismissed:
+                state.toastMessage = nil
+                return .none
+
             case .onAppear:
                 guard !state.isLoading else { return .none }
                 return load(state: &state)

@@ -73,6 +73,8 @@ struct AppFeature {
         case noticeDetailSelected(NoticeResponse)
         case alertSelected
         case backToMain
+        case onboardingStatusLoaded(Bool)
+        case onboardingCompletionSaved
         case onboardingGuideFinished
         case selectedTabChanged(AppTab)
         case sessionExpired(SessionExpirationEvent)
@@ -212,9 +214,7 @@ struct AppFeature {
                     state.routeToLoginAndClearMemberState()
                 case .home:
                     state.memberAccess = .member
-                    state.screen = .main
-                    state.selectedTab = .home
-                    return .send(.generalPopup(.loadIfNeeded))
+                    return checkOnboarding()
                 }
                 return .none
 
@@ -223,11 +223,16 @@ struct AppFeature {
 
             case .login(.delegate(.moveHome)):
                 state.memberAccess = .member
-                state.screen = .main
-                state.selectedTab = .home
                 state.myPage = MyPageFeature.State(selectedTheme: state.selectedTheme)
                 state.home = HomeFeature.State()
-                return .send(.generalPopup(.loadIfNeeded))
+                return checkOnboarding()
+
+            case let .onboardingStatusLoaded(completed):
+                guard state.memberAccess == .member,
+                      state.screen == .login || state.screen == .splash else { return .none }
+                state.screen = completed ? .main : .onboardingGuide
+                state.selectedTab = .home
+                return completed ? .send(.generalPopup(.loadIfNeeded)) : .none
 
             case .login:
                 return .none
@@ -414,6 +419,18 @@ struct AppFeature {
                     state.routeToLoginAndClearMemberState()
                     return .none
                 }
+                guard state.screen == .onboardingGuide else { return .none }
+                return .run { send in
+                    do {
+                        try await sessionClient.completeOnboarding()
+                        await send(.onboardingCompletionSaved)
+                    } catch {
+                        // Keep the guide available for retry when persistence fails.
+                    }
+                }
+
+            case .onboardingCompletionSaved:
+                guard state.memberAccess == .member, state.screen == .onboardingGuide else { return .none }
                 state.screen = .main
                 state.selectedTab = .home
                 return .send(.generalPopup(.loadIfNeeded))
@@ -453,6 +470,13 @@ struct AppFeature {
                 state.routeToLoginAndClearMemberState()
                 return .none
             }
+        }
+    }
+
+    private func checkOnboarding() -> Effect<Action> {
+        .run { send in
+            let completed = (try? await sessionClient.isOnboardingCompleted()) ?? false
+            await send(.onboardingStatusLoaded(completed))
         }
     }
 

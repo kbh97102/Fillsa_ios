@@ -4,6 +4,8 @@ import Foundation
 import UIKit
 import KakaoSDKCommon
 import KakaoSDKUser
+import GoogleSignIn
+import FirebaseCore
 
 struct SocialAuthUser: Equatable {
     let provider: String
@@ -13,12 +15,14 @@ struct SocialAuthUser: Equatable {
 }
 
 struct SocialAuthClient {
+    var signInWithGoogle: @Sendable () async throws -> SocialAuthUser
     var signInWithApple: @Sendable () async throws -> SocialAuthUser
     var signInWithKakao: @Sendable () async throws -> SocialAuthUser
 }
 
 extension SocialAuthClient: DependencyKey {
     static let liveValue = SocialAuthClient(
+        signInWithGoogle: { try await GoogleSocialAuthClient.signIn() },
         signInWithApple: {
             try await AppleSocialAuthClient().signIn()
         },
@@ -192,5 +196,38 @@ private final class AppleSignInCoordinator: NSObject, ASAuthorizationControllerD
     private static func displayName(from components: PersonNameComponents?) -> String {
         guard let components else { return "" }
         return PersonNameComponentsFormatter().string(from: components)
+    }
+}
+
+@MainActor
+private enum GoogleSocialAuthClient {
+    static func signIn() async throws -> SocialAuthUser {
+        guard let clientID = FirebaseApp.app()?.options.clientID, !clientID.isEmpty else {
+            throw SocialAuthError.missingConfiguration
+        }
+        guard let scene = UIApplication.shared.connectedScenes
+            .compactMap({ $0 as? UIWindowScene })
+            .first(where: { $0.activationState == .foregroundActive }),
+              var presenter = scene.windows.first(where: \.isKeyWindow)?.rootViewController else {
+            throw SocialAuthError.invalidUserResponse
+        }
+        while let presented = presenter.presentedViewController {
+            presenter = presented
+        }
+        GIDSignIn.sharedInstance.configuration = GIDConfiguration(clientID: clientID)
+        do {
+            let result = try await GIDSignIn.sharedInstance.signIn(withPresenting: presenter)
+            guard let userID = result.user.userID, !userID.isEmpty else {
+                throw SocialAuthError.invalidUserResponse
+            }
+            return SocialAuthUser(
+                provider: "GOOGLE",
+                oauthID: userID,
+                nickname: result.user.profile?.name ?? "",
+                profileImageURL: result.user.profile?.imageURL(withDimension: 256)?.absoluteString ?? ""
+            )
+        } catch let error as NSError where error.domain == kGIDSignInErrorDomain && error.code == GIDSignInError.canceled.rawValue {
+            throw SocialAuthError.cancelled
+        }
     }
 }

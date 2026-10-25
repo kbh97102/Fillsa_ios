@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import GoogleSignIn
 import ComposableArchitecture
 import KakaoSDKAuth
 import IssueReporting
@@ -21,6 +22,7 @@ struct FiilsaApp: App {
                     store: appStore
                 )
                 .onOpenURL { url in
+                    if GIDSignIn.sharedInstance.handle(url) { return }
                     guard AuthApi.isKakaoTalkLoginUrl(url) else { return }
                     _ = AuthController.handleOpenUrl(url: url)
                 }
@@ -341,6 +343,23 @@ struct FiilsaApp: App {
                         likeYn: "N"
                     )
                 }
+                if let resultArgument = ProcessInfo.processInfo.arguments.first(where: { $0.hasPrefix("-ui-testing-typing-result=") }) {
+                    let result = String(resultArgument.split(separator: "=").last ?? "incomplete")
+                    let quoteDate = FillsaCalendarDateSupport.quoteDateString(for: Self.homeUITestDate)
+                    $0.date.now = result == "streak" ? Self.homeUITestDate : Self.homeUITestDate.addingTimeInterval(86400)
+                    $0.typingClient.postTyping = { _, _ in
+                        TypingSaveResponse(memberQuoteSeq: 1, completedChanged: false, todayCompletedChanged: false)
+                    }
+                    $0.calendarUseCases.loadMonth = { _ in
+                        MemberMonthlyQuoteResponse(memberQuotes: [MemberQuotesData(
+                            dailyQuoteSeq: 1, quoteDate: quoteDate, quote: "필사", author: "작가",
+                            completed: result != "incomplete", likeYn: "N", todayCompleted: result == "streak"
+                        )], monthlySummary: MonthlySummaryData(typingCount: 0, likeCount: 0, streakCount: 0))
+                    }
+                    $0.commonClient.getMemberStreaks = {
+                        MemberStreakResponse(currentStreak: 1, isTodayWritten: result == "streak" || result == "completed")
+                    }
+                }
             }
         } else if ProcessInfo.processInfo.arguments.contains("ui-testing-calendar") {
             Store(initialState: launchState) {
@@ -467,6 +486,8 @@ private enum MyPageUITestLaunchConfiguration {
                 emitTokenExpired: { _ in }
             )
             $0.sessionClient = SessionClient(
+                isOnboardingCompleted: { true },
+                completeOnboarding: {},
                 isFirstOpen: { false },
                 setFirstOpen: { _ in },
                 isLoggedIn: { isMember },

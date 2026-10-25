@@ -87,7 +87,7 @@ struct HomeInlineCalendar: View {
                 ForEach(yearRange, id: \.self) { year in
                     let target = month(year: year, month: displayedMonthNumber)
                     if HomeCalendarMonthRange.isSelectable(target) {
-                        Button("\(year)년") { changeMonth(target) }
+                        Button("\(String(year))년") { changeMonth(target) }
                     }
                 }
             } label: {

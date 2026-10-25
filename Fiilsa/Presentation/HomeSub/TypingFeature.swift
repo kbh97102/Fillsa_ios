@@ -16,6 +16,7 @@ struct TypingFeature {
         var dayOfWeek = ""
         var hasLoaded = false
         var isSaving = false
+        var saveResult: TypingSaveResult?
     }
 
     enum Action: Equatable {
@@ -26,7 +27,10 @@ struct TypingFeature {
         case likeTapped(Bool)
         case likeUpdated(Result<Int, ErrorResponse>)
         case saveAndBack
-        case typingSaved(Result<Int, ErrorResponse>)
+        case saveTapped
+        case typingSaved(Result<TypingSaveResult?, ErrorResponse>)
+        case resultConfirmed
+        case resultCancelled
         case saveCancelled
         case delegate(Delegate)
 
@@ -37,6 +41,9 @@ struct TypingFeature {
 
     @Dependency(\.typingClient) private var typingClient
     @Dependency(\.homeUseCases) private var homeUseCases
+    @Dependency(\.calendarUseCases) private var calendarUseCases
+    @Dependency(\.commonClient) private var commonClient
+    @Dependency(\.date.now) private var now
 
     var body: some Reducer<State, Action> {
         Reduce { state, action in
@@ -122,19 +129,42 @@ struct TypingFeature {
             case .likeUpdated:
                 return .none
 
-            case .saveAndBack:
+            case .saveAndBack, .saveTapped:
+                guard !state.isSaving, state.saveResult == nil else { return .none }
                 guard state.dailyQuoteSeq > 0 else {
-                    return .send(.delegate(.back))
+                    return action == .saveAndBack ? .send(.delegate(.back)) : .none
                 }
                 state.isSaving = true
                 let dailyQuoteSeq = state.dailyQuoteSeq
+                let quoteDate = state.quoteDate
+                let showsResult = action == .saveTapped
                 let request = TypingQuoteRequest(typingKorQuote: state.korTyping, typingEngQuote: state.engTyping)
 
                 return .runWithLoading { send in
                     do {
-                        let response = try await typingClient.postTyping(dailyQuoteSeq, request)
+                        _ = try await typingClient.postTyping(dailyQuoteSeq, request)
                         guard !Task.isCancelled else { return }
-                        await send(.typingSaved(.success(response)))
+                        guard showsResult else {
+                            await send(.typingSaved(.success(nil)))
+                            return
+                        }
+                        // Change flags cannot distinguish an incomplete quote from a completed re-save.
+                        guard quoteDate.count == 10 else { throw ErrorResponse.defaultError }
+                        let records = try await calendarUseCases.loadMonth(String(quoteDate.prefix(7)))
+                        guard records.isLoggedIn else { throw ErrorResponse.defaultError }
+                        let completed = records.memberQuotes.first { $0.dailyQuoteSeq == dailyQuoteSeq }?.completed == true
+                        let today = await FillsaCalendarDateSupport.quoteDateString(for: now)
+                        let result: TypingSaveResult
+                        if !completed {
+                            result = .incomplete
+                        } else if quoteDate == today {
+                            result = .streak
+                        } else {
+                            let writingStatus = try await commonClient.getMemberStreaks()
+                            result = writingStatus.isTodayWritten ? .completed : .encouragement
+                        }
+                        guard !Task.isCancelled else { return }
+                        await send(.typingSaved(.success(result)))
                     } catch is CancellationError {
                         await send(.saveCancelled)
                         return
@@ -147,9 +177,20 @@ struct TypingFeature {
                     }
                 }
 
-            case .typingSaved(.success):
+            case let .typingSaved(.success(result)):
+                guard state.isSaving else { return .none }
                 state.isSaving = false
-                return .send(.delegate(.back))
+                state.saveResult = result
+                return result == nil ? .send(.delegate(.back)) : .none
+
+            case .resultConfirmed:
+                guard let result = state.saveResult else { return .none }
+                state.saveResult = nil
+                return result == .incomplete ? .none : .send(.delegate(.back))
+
+            case .resultCancelled:
+                state.saveResult = nil
+                return .none
 
             case .typingSaved(.failure):
                 state.isSaving = false

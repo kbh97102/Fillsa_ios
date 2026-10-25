@@ -3,6 +3,21 @@ import UIKit
 
 final class LoginDarkModeUITests: XCTestCase {
     @MainActor
+    func testLightLoginShowsThreeProvidersAndLinkedTerms() throws {
+        let app = XCUIApplication()
+        app.launchArguments = ["-ui-testing-login"]
+        app.launch()
+        XCTAssertTrue(app.images["login.logo.light"].waitForExistence(timeout: 3))
+        XCTAssertTrue(app.buttons["login.google"].exists)
+        XCTAssertTrue(app.links["이용약관"].exists)
+        XCTAssertTrue(app.links["개인정보 처리방침"].exists)
+        let attachment = XCTAttachment(screenshot: app.screenshot())
+        attachment.name = "login-light-full-frame"
+        attachment.lifetime = .keepAlways
+        add(attachment)
+    }
+
+    @MainActor
     func testKakaoLoginShowsInstallKakaoTalkDialogWhenUnavailable() throws {
         let app = XCUIApplication()
         app.launchArguments = ["-ui-testing-login"]
@@ -36,14 +51,22 @@ final class LoginDarkModeUITests: XCTestCase {
         XCTAssertTrue(apple.exists)
         XCTAssertTrue(kakao.exists)
         XCTAssertFalse(guest.exists)
+        let google = app.buttons["login.google"]
+        XCTAssertTrue(google.exists)
+        XCTAssertLessThan(apple.frame.midY, kakao.frame.midY)
+        XCTAssertLessThan(kakao.frame.midY, google.frame.midY)
+        let attachment = XCTAttachment(screenshot: app.screenshot())
+        attachment.name = "login-dark-full-frame"
+        attachment.lifetime = .keepAlways
+        add(attachment)
 
         let screenshot = app.screenshot().image
-        assertColor(at: CGPoint(x: 80, y: 380), in: screenshot, equals: .white)
-        assertColor(at: CGPoint(x: 80, y: 330), in: screenshot, equals: UIColor(red: 1, green: 230 / 255, blue: 0, alpha: 1))
+        assertColor(at: CGPoint(x: apple.frame.minX + 12, y: apple.frame.midY), in: screenshot, appFrame: app.frame, equals: .white)
+        assertColor(at: CGPoint(x: kakao.frame.minX + 12, y: kakao.frame.midY), in: screenshot, appFrame: app.frame, equals: UIColor(red: 1, green: 230 / 255, blue: 0, alpha: 1))
     }
 
     @MainActor
-    private func assertColor(at point: CGPoint, in image: UIImage, equals expected: UIColor) {
+    private func assertColor(at point: CGPoint, in image: UIImage, appFrame: CGRect, equals expected: UIColor) {
         var actualRed: CGFloat = 0
         var actualGreen: CGFloat = 0
         var actualBlue: CGFloat = 0
@@ -52,7 +75,7 @@ final class LoginDarkModeUITests: XCTestCase {
         var expectedGreen: CGFloat = 0
         var expectedBlue: CGFloat = 0
         var expectedAlpha: CGFloat = 0
-        XCTAssertTrue(color(at: point, in: image).getRed(&actualRed, green: &actualGreen, blue: &actualBlue, alpha: &actualAlpha))
+        XCTAssertTrue(color(at: point, in: image, appFrame: appFrame).getRed(&actualRed, green: &actualGreen, blue: &actualBlue, alpha: &actualAlpha))
         XCTAssertTrue(expected.getRed(&expectedRed, green: &expectedGreen, blue: &expectedBlue, alpha: &expectedAlpha))
         XCTAssertEqual(actualRed, expectedRed, accuracy: 0.01)
         XCTAssertEqual(actualGreen, expectedGreen, accuracy: 0.01)
@@ -61,13 +84,13 @@ final class LoginDarkModeUITests: XCTestCase {
     }
 
     @MainActor
-    private func color(at point: CGPoint, in image: UIImage) -> UIColor {
+    private func color(at point: CGPoint, in image: UIImage, appFrame: CGRect) -> UIColor {
         guard let cgImage = image.cgImage else {
             XCTFail("Unable to read login screenshot")
             return .clear
         }
 
-        let scale = CGFloat(cgImage.width) / UIScreen.main.bounds.width
+        let scale = CGFloat(cgImage.width) / appFrame.width
         let x = Int(point.x * scale)
         let y = Int(point.y * scale)
         let bytesPerPixel = 4

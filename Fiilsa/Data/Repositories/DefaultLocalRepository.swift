@@ -70,6 +70,14 @@ final class DefaultLocalRepository: LocalRepository {
         settingsStore.isShareDescriptionVisible()
     }
 
+    func isOnboardingCompleted() async throws -> Bool {
+        settingsStore.isOnboardingCompleted()
+    }
+
+    func setOnboardingCompleted() async throws {
+        settingsStore.setOnboardingCompleted()
+    }
+
     func isFirstOpen() async throws -> Bool {
         settingsStore.isFirstOpen()
     }

@@ -22,6 +22,17 @@ struct TypingQuoteView: View {
                 topSection(viewStore: viewStore)
 
                 VStack(spacing: 0) {
+                    VStack(spacing: 0) {
+                        Image(colorScheme == .dark ? "typing_prompt_dark" : "typing_prompt_light")
+                            .resizable().scaledToFit()
+                            .frame(width: 60, height: 60)
+                            .accessibilityHidden(true)
+                        Text("오늘의 문장을 따라 써주세요.")
+                            .font(FillsaTypography.subtitle1)
+                            .foregroundStyle(FillsaColor.purple01)
+                            .frame(height: 24)
+                    }
+                    .accessibilityIdentifier("typing.prompt")
                     TypingQuoteBodySection(
                         quote: quote(from: viewStore),
                         write: Binding(
@@ -36,7 +47,7 @@ struct TypingQuoteView: View {
                                 }
                             }
                         ),
-                        isInputEnabled: isInputEnabled
+                        isInputEnabled: isInputEnabled && !viewStore.isSaving && viewStore.saveResult == nil
                     )
                     .padding(.top, 20)
 
@@ -48,7 +59,19 @@ struct TypingQuoteView: View {
                 .frame(maxWidth: .infinity)
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
-            .background(FillsaColor.background.ignoresSafeArea())
+            .background(FillsaColor.dynamic(light: .white, dark: FillsaColor.gray700).ignoresSafeArea())
+            .disabled(viewStore.isSaving || viewStore.saveResult != nil)
+            .accessibilityHidden(viewStore.saveResult != nil)
+            .overlay {
+                if let result = viewStore.saveResult {
+                    TypingResultPopup(
+                        result: result,
+                        confirm: { viewStore.send(.resultConfirmed) },
+                        cancel: { viewStore.send(.resultCancelled) }
+                    )
+                    .ignoresSafeArea()
+                }
+            }
             .onAppear {
                 viewStore.send(.onAppear)
             }
@@ -95,7 +118,7 @@ struct TypingQuoteView: View {
             Spacer()
 
             Button {
-                viewStore.send(.saveAndBack)
+                viewStore.send(.saveTapped)
             } label: {
                 Text("저장하기")
                     .font(FillsaTypography.body3)

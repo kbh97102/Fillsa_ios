@@ -31,4 +31,8 @@ enum APIEndpoint {
     static func typing(dailyQuoteSeq: Int) -> String {
         "/api/v1/member-quotes/\(dailyQuoteSeq)/typing"
     }
+
+    static func saveTyping(dailyQuoteSeq: Int) -> String {
+        "/api/v2/member-quotes/\(dailyQuoteSeq)/typing"
+    }
 }

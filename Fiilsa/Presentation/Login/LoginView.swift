@@ -4,9 +4,7 @@ import SwiftUI
 struct LoginView: View {
     let store: StoreOf<LoginFeature>
 
-    @Environment(\.openURL) private var openURL
     @Environment(\.colorScheme) private var colorScheme
-    @State private var testClickCount = 0
 
     var body: some View {
         WithViewStore(store, observe: { $0 }) { viewStore in
@@ -43,65 +41,56 @@ struct LoginView: View {
     private func content(
         viewStore: ViewStore<LoginFeature.State, LoginFeature.Action>
     ) -> some View {
-        VStack(spacing: 0) {
-            Image(colorScheme == .dark ? "icn_top_logo_dark" : "icn_top_logo")
-                .resizable()
-                .scaledToFit()
-                .frame(width: 154, height: 70)
-                .padding(.top, 154)
-                .accessibilityIdentifier(colorScheme == .dark ? "login.logo.dark" : "login.logo.light")
-                .onTapGesture {
-                    testClickCount += 1
+        GeometryReader { proxy in
+            ScrollView {
+                VStack(spacing: 0) {
+                    Image(colorScheme == .dark ? "login_brand_dark" : "login_brand_light")
+                        .resizable().scaledToFit()
+                        .frame(width: 180, height: 150)
+                        .accessibilityLabel("나만의 필사로 채우다, Fillsa")
+                        .accessibilityIdentifier(colorScheme == .dark ? "login.logo.dark" : "login.logo.light")
+                        .padding(.top, max(0, 162 - proxy.safeAreaInsets.top))
+
+                    Text("로그인 후, 나만의 필사를 안전하게 저장할 수 있습니다.")
+                        .font(FillsaTypography.body2)
+                        .foregroundStyle(FillsaColor.onBackground1)
+                        .multilineTextAlignment(.center)
+                        .lineSpacing(5)
+                        .frame(minHeight: 48)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .fixedSize(horizontal: false, vertical: true)
+                        .padding(.top, 10)
+
+                    VStack(spacing: 12) {
+                        LoginButton(icon: .apple, text: "애플 계정으로 시작하기",
+                                    backgroundColor: colorScheme == .dark ? .white : FillsaColor.gray700,
+                                    textColor: colorScheme == .dark ? FillsaColor.gray700 : .white,
+                                    isDarkMode: colorScheme == .dark, accessibilityIdentifier: "login.apple") {
+                            viewStore.send(.appleTapped)
+                        }
+                        LoginButton(icon: .kakao, text: "카카오 계정으로 시작하기",
+                                    backgroundColor: Color(hex: 0xFFE600), textColor: Color(hex: 0x371D1E),
+                                    isDarkMode: colorScheme == .dark, accessibilityIdentifier: "login.kakao") {
+                            viewStore.send(.kakaoTapped)
+                        }
+                        LoginButton(icon: .google, text: "구글 계정으로 시작하기",
+                                    backgroundColor: Color(hex: 0xEEEEEF), textColor: FillsaColor.gray700,
+                                    isDarkMode: colorScheme == .dark, accessibilityIdentifier: "login.google") {
+                            viewStore.send(.googleTapped)
+                        }
+                    }
+                    .disabled(viewStore.isProcessing)
+                    .padding(.top, 12)
+
+                    LoginAgreementText()
+                        .padding(.top, 12)
+                        .padding(.bottom, 24)
                 }
-
-            Text("로그인 후, 나만의 필사를 안전하게 저장할 수 있습니다.")
-                .font(FillsaTypography.body2)
-                .foregroundStyle(FillsaColor.onBackground1)
-                .padding(.top, 80)
-
-            LoginButton(
-                icon: .kakao,
-                text: "카카오 계정으로 시작하기",
-                backgroundColor: Color(hex: 0xFFE600),
-                textColor: Color(hex: 0x371D1E),
-                isDarkMode: colorScheme == .dark,
-                accessibilityIdentifier: "login.kakao",
-                onClick: {
-                    viewStore.send(.kakaoTapped)
-                }
-            )
-            .padding(.top, 12)
-            .disabled(viewStore.isProcessing)
-
-            LoginButton(
-                icon: .apple,
-                text: "Apple로 시작하기",
-                backgroundColor: colorScheme == .dark ? FillsaColor.white : FillsaColor.gray700,
-                textColor: colorScheme == .dark ? FillsaColor.gray700 : FillsaColor.white,
-                isDarkMode: colorScheme == .dark,
-                accessibilityIdentifier: "login.apple",
-                onClick: {
-                    viewStore.send(.appleTapped)
-                }
-            )
-            .padding(.top, 16)
-            .disabled(viewStore.isProcessing)
-
-            LoginAgreementText(
-                openTerms: {
-                    openURL(URL(string: "https://home.fillsa.store/7vgjr4m1n5gkk2dwpy86")!)
-                },
-                openPrivacy: {
-                    openURL(URL(string: "https://home.fillsa.store/3p4kj92yn5qwkm57q1x8")!)
-                }
-            )
-            .padding(.top, 12)
-            .padding(.bottom, 50)
-
-            Spacer()
+                .padding(.horizontal, 20)
+                .frame(maxWidth: .infinity)
+            }
+            .scrollBounceBehavior(.basedOnSize)
         }
-        .padding(.horizontal, 20)
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
         .background(FillsaColor.background.ignoresSafeArea())
     }
 

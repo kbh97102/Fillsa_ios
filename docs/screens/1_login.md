@@ -106,7 +106,7 @@ POST /api/v1/auth/login
 
 ### iOS 전환 결정
 
-- Android 원본은 Google/Kakao 로그인을 제공하지만, iOS 앱에서는 Google 로그인을 제거하고 Apple/Kakao 로그인으로 구성한다.
+- 이전 iOS 결정은 Apple/Kakao만 제공하는 것이었으나, 2026-10-25 QA와 사용자 제공 Figma에 따라 Apple/Kakao/Google로 갱신한다.
 - Apple 로그인은 `AuthenticationServices`의 `ASAuthorizationAppleIDProvider`를 사용한다.
 - Apple 로그인 결과의 `credential.user`를 서버 로그인 요청의 `oAuthId`로 전달하고, provider 값은 `"APPLE"`을 사용한다.
 - Apple 인증 성공 후 카카오와 동일하게 `POST /api/v1/auth/login`을 호출하고, 응답의 access/refresh token과 사용자 정보를 로컬에 저장한다.
@@ -124,3 +124,17 @@ POST /api/v1/auth/refresh
 **Response: `TokenInfo`**
 
 - 401/403 응답 수신 시 자동 토큰 갱신 후 재시도
+
+## 2026-10-25 iOS QA 수정 기준
+
+- Figma URL: https://www.figma.com/design/VdFocqyqTgevMVCQxwAQ2X
+- 사용자 제공 페이지 `2438:3437`, iOS Light `2438:4854`/Dark `2438:6471` (360×720). 로고 `2438:4899`/`2438:6516`, Google 버튼 `2438:4865`/`2812:1508`, 약관 `2438:4898`/`2438:6515`. 컴포넌트: 로고, Apple/Kakao/Google 버튼, 개별 약관 링크. 기존 Google 제외 결정은 이번 QA와 사용자 제공 Figma에 따라 갱신한다. 비회원 시작은 사용자 지시에 따라 계속 제외한다. 대상: Light/Dark 및 인증 성공/실패/취소.
+- 기준 이미지/QA: [2026-10-25 QA](../design-qa/2026-10-25-ios-qa.md). 구현·기능 테스트 및 전체 캡처 비교 완료. 컴포넌트 부분 통과, 동일 크기 프레임·폰트 차이로 조립 화면 최종 수용 Blocked.
+- 구현 계획: [iOS QA](../superpowers/plans/2026-10-25-ios-qa.md).
+
+### 인증 연결 및 진입 정책
+
+- GoogleSignIn 10.1.0의 공식 인증창을 사용하고 `GoogleService-Info.plist`의 client ID 및 대응 URL scheme을 연결한다. provider `GOOGLE`과 SDK user ID를 기존 로그인 API로 전달한다.
+- 약관/개인정보 링크는 `https://www.fillsa.com/terms/`, `https://www.fillsa.com/privacy/`. 전체 문단의 투명 버튼 대신 해당 문자열에만 링크를 부여한다.
+- Apple/Kakao/Google 인증 성공 뒤 가이드 완료 기록을 확인한다. 설치 후 처음이면 가이드, 완료/건너뛰기 기록이 있으면 홈. [온보딩 정책](0_onboarding_guide.md).
+- Google SDK 구성 참고: https://developers.google.com/identity/sign-in/ios/sign-in, https://github.com/google/GoogleSignIn-iOS/releases/tag/10.1.0 . 실제 계정의 OAuth 및 서버 연동은 별도 실기기 확인 대상.

@@ -13,12 +13,12 @@ struct DefaultTypingRepository: TypingRepository {
         return try await apiClient.send(request, responseType: MemberTypingQuoteResponse.self)
     }
 
-    func postTyping(dailyQuoteSeq: Int, request requestBody: TypingQuoteRequest) async throws -> Int {
+    func postTyping(dailyQuoteSeq: Int, request requestBody: TypingQuoteRequest) async throws -> TypingSaveResponse {
         let request = APIRequest(
             method: .post,
-            path: APIEndpoint.typing(dailyQuoteSeq: dailyQuoteSeq),
+            path: APIEndpoint.saveTyping(dailyQuoteSeq: dailyQuoteSeq),
             body: requestBody
         )
-        return try await apiClient.send(request, responseType: Int.self)
+        return try await apiClient.send(request, responseType: TypingSaveResponse.self)
     }
 }

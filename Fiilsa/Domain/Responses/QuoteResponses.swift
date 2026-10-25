@@ -105,6 +105,12 @@ struct MemberTypingQuoteResponse: Codable, Equatable {
     let likeYn: String
 }
 
+struct TypingSaveResponse: Codable, Equatable {
+    let memberQuoteSeq: Int
+    let completedChanged: Bool
+    let todayCompletedChanged: Bool
+}
+
 struct MemberQuoteImageResponse: Codable, Equatable {
     let memberQuoteSeq: Int
     let imagePath: String

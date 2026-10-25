@@ -35,6 +35,8 @@ struct CalendarSelectedDaySection: View {
                 selectedDayQuote: selectedDayRecord?.quote ?? "",
                 selectedDay: selectedDay,
                 isCompleted: presentation == .completed,
+                isLike: selectedDayRecord?.likeYn == "Y",
+                imagePath: selectedDayRecord?.imagePath,
                 onClick: onClick,
                 onCopy: onCopy,
                 onShare: onShare,
@@ -80,6 +82,8 @@ struct CalendarSelectedQuoteSection: View {
     let selectedDayQuote: String
     let selectedDay: Date
     let isCompleted: Bool
+    let isLike: Bool
+    let imagePath: String?
     let onClick: () -> Void
     let onCopy: () -> Void
     let onShare: () -> Void
@@ -92,6 +96,8 @@ struct CalendarSelectedQuoteSection: View {
         selectedDayQuote: String,
         selectedDay: Date,
         isCompleted: Bool = false,
+        isLike: Bool = false,
+        imagePath: String? = nil,
         onClick: @escaping () -> Void = {},
         onCopy: @escaping () -> Void = {},
         onShare: @escaping () -> Void = {},
@@ -101,6 +107,8 @@ struct CalendarSelectedQuoteSection: View {
         self.selectedDayQuote = selectedDayQuote
         self.selectedDay = selectedDay
         self.isCompleted = isCompleted
+        self.isLike = isLike
+        self.imagePath = imagePath
         self.onClick = onClick
         self.onCopy = onCopy
         self.onShare = onShare
@@ -119,7 +127,8 @@ struct CalendarSelectedQuoteSection: View {
 
             if isCompleted {
                 CalendarQuoteActionRow(
-                    onCopy: onCopy,
+                    isLike: isLike,
+                    imagePath: imagePath,                    onCopy: onCopy,
                     onShare: onShare,
                     onLike: onLike,
                     onImage: onImage
@@ -175,6 +184,8 @@ struct CalendarSelectedQuoteSection: View {
 }
 
 private struct CalendarQuoteActionRow: View {
+    let isLike: Bool
+    let imagePath: String?
     let onCopy: () -> Void
     let onShare: () -> Void
     let onLike: () -> Void
@@ -196,8 +207,13 @@ private struct CalendarQuoteActionRow: View {
                 likeAction
                     .frame(width: 70)
                 divider
-                action("home_action_camera", "이미지 등록", identifier: "calendar.image", action: onImage)
-                    .frame(width: 107)
+                Button(action: onImage) {
+                    QuoteImageActionLabel(imagePath: imagePath)
+                        .frame(width: 107, height: 42)
+                        .contentShape(Rectangle())
+                }
+                .buttonStyle(.plain)
+                .accessibilityIdentifier("calendar.image")
             }
             .frame(height: 42)
         }
@@ -227,10 +243,14 @@ private struct CalendarQuoteActionRow: View {
     private var likeAction: some View {
         Button(action: onLike) {
             HStack(spacing: 4) {
-                Image("home_action_like")
-                    .resizable()
-                    .scaledToFit()
-                    .frame(width: 16, height: 16)
+                if isLike {
+                    HeartActionIcon(isFilled: true)
+                        .frame(width: 16, height: 16)
+                } else {
+                    Image("home_action_like")
+                        .resizable().scaledToFit()
+                        .frame(width: 16, height: 16)
+                }
                 Text("좋아요")
                     .font(FillsaTypography.body4)
             }
@@ -238,6 +258,7 @@ private struct CalendarQuoteActionRow: View {
         }
         .buttonStyle(.plain)
         .accessibilityIdentifier("calendar.like")
+        .accessibilityValue(isLike ? "선택됨" : "선택 안 됨")
     }
 
     private var divider: some View {

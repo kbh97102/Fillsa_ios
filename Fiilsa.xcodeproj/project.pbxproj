@@ -12,6 +12,7 @@
 		51D6A0212FDD793200E49226 /* Lottie in Frameworks */ = {isa = PBXBuildFile; productRef = 51D6A0222FDD793200E49226 /* Lottie */; };
 		51D6A0312FDD793200E49226 /* FirebaseMessaging in Frameworks */ = {isa = PBXBuildFile; productRef = 51D6A0322FDD793200E49226 /* FirebaseMessaging */; };
 		51D6A0412FDD793200E49226 /* KakaoSDKUser in Frameworks */ = {isa = PBXBuildFile; productRef = 51D6A0422FDD793200E49226 /* KakaoSDKUser */; };
+		51D6A0512FDD793200E49226 /* GoogleSignIn in Frameworks */ = {isa = PBXBuildFile; productRef = 51D6A0522FDD793200E49226 /* GoogleSignIn */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -77,6 +78,7 @@
 				51D6A0012FDD793200E49226 /* ComposableArchitecture in Frameworks */,
 				51D6A0312FDD793200E49226 /* FirebaseMessaging in Frameworks */,
 				51D6A0412FDD793200E49226 /* KakaoSDKUser in Frameworks */,
+				51D6A0512FDD793200E49226 /* GoogleSignIn in Frameworks */,
 				51D6A0212FDD793200E49226 /* Lottie in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -143,6 +145,7 @@
 				51D6A0322FDD793200E49226 /* FirebaseMessaging */,
 				51D6A0222FDD793200E49226 /* Lottie */,
 				51D6A0422FDD793200E49226 /* KakaoSDKUser */,
+				51D6A0522FDD793200E49226 /* GoogleSignIn */,
 			);
 			productName = Fiilsa;
 			productReference = 51D6017D2FDD793100E49226 /* Fiilsa.app */;
@@ -237,6 +240,7 @@
 				51D6A0332FDD793200E49226 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */,
 				51D6A0232FDD793200E49226 /* XCRemoteSwiftPackageReference "lottie-spm" */,
 				51D6A0432FDD793200E49226 /* XCRemoteSwiftPackageReference "kakao-ios-sdk" */,
+				51D6A0532FDD793200E49226 /* XCRemoteSwiftPackageReference "GoogleSignIn-iOS" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 51D6017E2FDD793100E49226 /* Products */;
@@ -661,6 +665,11 @@
 				minimumVersion = 2.28.0;
 			};
 		};
+		51D6A0532FDD793200E49226 /* XCRemoteSwiftPackageReference "GoogleSignIn-iOS" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/google/GoogleSignIn-iOS.git";
+			requirement = { kind = upToNextMajorVersion; minimumVersion = 10.1.0; };
+		};
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
@@ -688,6 +697,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 51D6A0432FDD793200E49226 /* XCRemoteSwiftPackageReference "kakao-ios-sdk" */;
 			productName = KakaoSDKUser;
+		};
+		51D6A0522FDD793200E49226 /* GoogleSignIn */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 51D6A0532FDD793200E49226 /* XCRemoteSwiftPackageReference "GoogleSignIn-iOS" */;
+			productName = GoogleSignIn;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};

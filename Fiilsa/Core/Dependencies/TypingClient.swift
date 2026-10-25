@@ -2,7 +2,7 @@ import ComposableArchitecture
 
 struct TypingClient {
     var getTyping: @Sendable (_ dailyQuoteSeq: Int) async throws -> MemberTypingQuoteResponse
-    var postTyping: @Sendable (_ dailyQuoteSeq: Int, _ request: TypingQuoteRequest) async throws -> Int
+    var postTyping: @Sendable (_ dailyQuoteSeq: Int, _ request: TypingQuoteRequest) async throws -> TypingSaveResponse
 }
 
 extension TypingClient: DependencyKey {

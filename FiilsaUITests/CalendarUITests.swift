@@ -3,6 +3,20 @@ import XCTest
 
 final class CalendarUITests: XCTestCase {
     @MainActor
+    func testCopyShowsConfirmationAndLikedRecordShowsSelection() throws {
+        let app = launchCalendar(theme: "light", state: "completed")
+        let like = app.buttons["calendar.like"]
+        XCTAssertTrue(like.waitForExistence(timeout: 3))
+        XCTAssertEqual(like.value as? String, "선택됨")
+        app.buttons["calendar.copy"].tap()
+        XCTAssertTrue(app.staticTexts["복사되었습니다."].waitForExistence(timeout: 2))
+        let attachment = XCTAttachment(screenshot: app.screenshot())
+        attachment.name = "calendar-copy-full-frame"
+        attachment.lifetime = .keepAlways
+        add(attachment)
+    }
+
+    @MainActor
     func testDarkCalendarNoWritingShowsRenewalNavigationWithoutAd() throws {
         let app = launchCalendar(theme: "dark", state: "no-writing")
 

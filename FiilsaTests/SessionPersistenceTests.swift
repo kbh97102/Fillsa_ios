@@ -4,6 +4,18 @@ import XCTest
 
 @MainActor
 final class SessionPersistenceTests: XCTestCase {
+    func test_onboardingCompletionPersistsAcrossLogoutAndRecreation() async throws {
+        let suiteName = "Onboarding.\(UUID().uuidString)"
+        let defaults = try XCTUnwrap(UserDefaults(suiteName: suiteName))
+        defer { defaults.removePersistentDomain(forName: suiteName) }
+        let settings = UserDefaultsLocalSettingsStore(userDefaults: defaults)
+        XCTAssertFalse(settings.isOnboardingCompleted())
+        settings.setOnboardingCompleted()
+        settings.setLogoutRequested(true)
+        let reopened = UserDefaultsLocalSettingsStore(userDefaults: try XCTUnwrap(UserDefaults(suiteName: suiteName)))
+        XCTAssertTrue(reopened.isOnboardingCompleted())
+    }
+
     func test_logoutRequestBlocksPersistedTokensAfterRepositoryRecreation() async throws {
         let suiteName = "SessionPersistenceTests.\(UUID().uuidString)"
         let defaults = try XCTUnwrap(UserDefaults(suiteName: suiteName))

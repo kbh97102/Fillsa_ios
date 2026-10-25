@@ -11,6 +11,8 @@ struct LoginFeature {
     }
 
     enum Action: Equatable {
+        case googleTapped
+        case googleAuthenticationCompleted(Result<SocialAuthUser, LoginError>)
         case kakaoTapped
         case kakaoAuthenticationCompleted(Result<SocialAuthUser, LoginError>)
         case appleTapped
@@ -59,6 +61,24 @@ struct LoginFeature {
                 return login(user: user)
 
             case let .kakaoAuthenticationCompleted(.failure(error)):
+                return .send(.socialLoginCompleted(.failure(error)))
+
+            case .googleTapped:
+                guard !state.isProcessing else { return .none }
+                state.isProcessing = true
+                return .run { send in
+                    do {
+                        let user = try await socialAuthClient.signInWithGoogle()
+                        await send(.googleAuthenticationCompleted(.success(user)))
+                    } catch {
+                        await send(.googleAuthenticationCompleted(.failure(map(error))))
+                    }
+                }
+
+            case let .googleAuthenticationCompleted(.success(user)):
+                return login(user: user)
+
+            case let .googleAuthenticationCompleted(.failure(error)):
                 return .send(.socialLoginCompleted(.failure(error)))
 
             case .appleTapped:

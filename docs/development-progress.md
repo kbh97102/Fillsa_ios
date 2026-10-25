@@ -1,5 +1,14 @@
 # Development Progress
 
+## 2026-10-25 · iOS 신규 QA
+
+- 2026-10-20 등록 iOS 관련 8건의 원인 분석·해결 계획을 Notion에 기록하고 상태를 In progress로 변경했다.
+- 로그인 Google·로고·약관, 첫 로그인 온보딩, 저장 결과 팝업, 복사 토스트, 이미지 보기 표현, 연도 쉼표, Calendar 좋아요, 타이핑 안내를 구현했다.
+- 사용자 결정: 온보딩 설치 후 첫 로그인 1회 / 저장 팝업 재저장 재노출 / 확인 Home·취소 팝업만 닫기 / 일반 완료도 리뉴얼 팝업 사용.
+- 기능 검증: 기존 7건 140 테스트 통과, 로그인 최종 Light/Dark 2건 통과, 저장 결과 포함 전체 단위·팝업 UI 142건 통과. 각 실행은 중복을 포함하므로 합산하지 않는다.
+- 전체 Figma 시각 수용은 Blocked. 360/390pt 프레임, 미등록 폰트 및 기존 배경 화면 차이가 남아 있다. 실계정 OAuth·실서버 v2 저장·이미지 업로드/삭제는 미검증.
+- [QA 기록](design-qa/2026-10-25-ios-qa.md) · [원문·원인·수정 HTML 보고서](design-qa/2026-10-25-ios-qa-report.html). Notion은 최종 완료로 전환하지 않았다.
+
 ## Current Phase
 
 Phase 2: Local Storage And Session

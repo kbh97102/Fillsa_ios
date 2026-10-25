@@ -4,6 +4,44 @@ import XCTest
 
 @MainActor
 final class AppFeatureTests: XCTestCase {
+    func test_firstLoginShowsGuideAndCompletionSurvivesAnotherLogin() async {
+        let completed = LockIsolated(false)
+        var state = AppFeature.State()
+        state.screen = .login
+        state.memberAccess = .loginRequired
+        let store = TestStore(initialState: state) { AppFeature() } withDependencies: {
+            $0.sessionClient.isOnboardingCompleted = { completed.value }
+            $0.sessionClient.completeOnboarding = { completed.setValue(true) }
+            $0.hiddenPopupClient.clearAllIfNeeded = {}
+            $0.commonClient.getPopupGeneral = { throw ErrorResponse.defaultError }
+            $0.commonClient.getPopupVersionUpdate = { _ in throw ErrorResponse.defaultError }
+
+        }
+        store.exhaustivity = .off
+        await store.send(.login(.delegate(.moveHome)))
+        await store.receive(.onboardingStatusLoaded(false))
+        XCTAssertEqual(store.state.screen, .onboardingGuide)
+        await store.send(.onboardingGuideFinished)
+        await store.receive(.onboardingCompletionSaved)
+        await store.finish()
+        XCTAssertTrue(completed.value)
+        XCTAssertEqual(store.state.screen, .main)
+        await store.send(.myPage(.delegate(.loggedOut)))
+        await store.send(.login(.delegate(.moveHome)))
+        await store.receive(.onboardingStatusLoaded(true))
+        await store.finish()
+        XCTAssertEqual(store.state.screen, .main)
+    }
+
+    func test_lateOnboardingResponseAfterLogoutCannotOpenHome() async {
+        var state = AppFeature.State()
+        state.memberAccess = .loginRequired
+        state.screen = .login
+        let store = TestStore(initialState: state) { AppFeature() }
+        await store.send(.onboardingStatusLoaded(true))
+        await store.send(.onboardingCompletionSaved)
+    }
+
     func test_guestGuideCompletionCannotOpenHome() async {
         var state = AppFeature.State()
         state.screen = .onboardingGuide
