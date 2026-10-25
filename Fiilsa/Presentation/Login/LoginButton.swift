@@ -40,6 +40,7 @@ struct LoginButton: View {
 }
 
 enum LoginButtonIcon {
+    case google
     case kakao
     case apple
 }
@@ -51,6 +52,10 @@ private struct LoginIcon: View {
 
     var body: some View {
         switch icon {
+        case .google:
+            Image("login_google")
+                .resizable().scaledToFit()
+                .frame(width: 18, height: 19)
         case .kakao:
             Image("login_kakao")
                 .resizable()

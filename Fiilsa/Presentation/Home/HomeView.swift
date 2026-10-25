@@ -7,7 +7,7 @@ enum HomeToastPresentation: Equatable {
     case success
 
     static func resolve(message: String) -> Self {
-        message == "답변을 기록했어요." ? .success : .standard
+        ["답변을 기록했어요.", "복사되었습니다."].contains(message) ? .success : .standard
     }
 }
 
@@ -135,6 +135,7 @@ struct HomeView: View {
                 },
                 share: { openShare(quote(from: viewStore.quote), author(from: viewStore.quote)) },
                 isLike: viewStore.quote.likeYn == "Y",
+                imagePath: viewStore.quote.imagePath,
                 setIsLike: { viewStore.send(.likeTapped($0)) },
                 registerImage: { viewStore.send(.imageTapped) }
             )
@@ -206,14 +207,15 @@ struct HomeView: View {
                 )
             }
             if let message = viewStore.toastMessage {
-                toast(message, presentation: .resolve(message: message))
+                QuoteToast(message: message, presentation: .resolve(message: message))
                     .transition(.opacity)
-                    .onAppear {
+                    .id(message)
+                    .task(id: viewStore.toastID) {
                         guard !isQuestionDoneFixture else { return }
-                        Task {
-                            try? await Task.sleep(nanoseconds: 1_600_000_000)
-                            await viewStore.send(.toastDismissed).finish()
-                        }
+                        do {
+                            try await Task.sleep(for: .milliseconds(1600))
+                            viewStore.send(.toastDismissed)
+                        } catch {}
                     }
             }
         }
@@ -232,29 +234,6 @@ struct HomeView: View {
             do { try jpeg.write(to: url, options: .atomic); return url } catch { return nil }
         }.value
     }
-    private func toast(_ message: String, presentation: HomeToastPresentation) -> some View {
-        VStack {
-            Spacer()
-            HStack(spacing: 8) {
-                if presentation == .success {
-                    Image(systemName: "checkmark.circle.fill")
-                        .font(.system(size: 20, weight: .semibold))
-                        .foregroundStyle(FillsaColor.onToastMessage2)
-                        .frame(width: 24, height: 24)
-                }
-                Text(message)
-                    .font(FillsaTypography.body2)
-                    .foregroundStyle(FillsaColor.onToastMessage1)
-            }
-            .padding(.horizontal, presentation == .success ? 12 : 16)
-            .frame(maxWidth: presentation == .success ? .infinity : nil, alignment: .leading)
-            .frame(height: presentation == .success ? 50 : 36)
-            .background(FillsaColor.toastMessageBackground, in: RoundedRectangle(cornerRadius: 8))
-            .padding(.horizontal, presentation == .success ? 20 : 0)
-            .padding(.bottom, 28)
-        }
-    }
-
     private var isQuestionDoneFixture: Bool {
         ProcessInfo.processInfo.arguments.contains("-ui-testing-home-question-done")
     }

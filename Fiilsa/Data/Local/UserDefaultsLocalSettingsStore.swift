@@ -4,6 +4,7 @@ struct UserDefaultsLocalSettingsStore {
     private enum Key {
         static let imageURI = "image_uri"
         static let userName = "user_name"
+        static let onboardingCompleted = "onboarding_completed"
         static let isFirstOpen = "is_first_open"
         static let logoutRequested = "logout_requested"
         static let alarm = "alarm_key"
@@ -34,6 +35,14 @@ struct UserDefaultsLocalSettingsStore {
 
     func userName() -> String {
         userDefaults.string(forKey: Key.userName) ?? ""
+    }
+
+    func isOnboardingCompleted() -> Bool {
+        userDefaults.bool(forKey: Key.onboardingCompleted)
+    }
+
+    func setOnboardingCompleted() {
+        userDefaults.set(true, forKey: Key.onboardingCompleted)
     }
 
     func setFirstOpen(_ value: Bool) {

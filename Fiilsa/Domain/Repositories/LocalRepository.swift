@@ -11,6 +11,8 @@ protocol LocalRepository {
     func getImageURI() async throws -> String
     func setShareDescriptionVisible(_ isVisible: Bool) async throws
     func getShareDescriptionVisible() async throws -> Bool
+    func isOnboardingCompleted() async throws -> Bool
+    func setOnboardingCompleted() async throws
     func isFirstOpen() async throws -> Bool
     func setFirstOpen(_ value: Bool) async throws
     func setAlarm(_ value: Bool) async throws

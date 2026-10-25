@@ -1,49 +1,24 @@
-//
-//  LoginAgreementText.swift
-//  Fiilsa
-//
-//  Created by Codex on 6/15/26.
-//
-
 import SwiftUI
 
 struct LoginAgreementText: View {
-    let openTerms: () -> Void
-    let openPrivacy: () -> Void
-
     var body: some View {
-        VStack(spacing: 0) {
-            Text("로그인 시, ")
-                + Text("이용약관")
-                .underline()
-                .font(FillsaTypography.subtitle2)
-                + Text(" 및 ")
-                + Text("개인정보 처리방침")
-                .underline()
-                .font(FillsaTypography.subtitle2)
-                + Text("에 동의하는 것으로 간주됩니다.")
-        }
-        .font(FillsaTypography.body3)
-        .foregroundStyle(FillsaColor.dynamic(light: FillsaColor.gray500, dark: FillsaColor.white))
-        .multilineTextAlignment(.center)
-        .overlay {
-            HStack(spacing: 0) {
-                Button(action: openTerms) {
-                    Color.clear
-                }
-                .buttonStyle(.plain)
+        Text(agreement)
+            .font(FillsaTypography.body3)
+            .foregroundStyle(FillsaColor.dynamic(light: FillsaColor.gray500, dark: FillsaColor.white))
+            .tint(FillsaColor.dynamic(light: FillsaColor.gray500, dark: FillsaColor.white))
+            .multilineTextAlignment(.center)
+    }
 
-                Button(action: openPrivacy) {
-                    Color.clear
-                }
-                .buttonStyle(.plain)
+    private var agreement: AttributedString {
+        var text = AttributedString("로그인 시, 이용약관 및 개인정보 처리방침에 동의하는 것으로 간주됩니다.")
+        for (title, url) in [("이용약관", "https://www.fillsa.com/terms/"),
+                             ("개인정보 처리방침", "https://www.fillsa.com/privacy/")] {
+            if let range = text.range(of: title) {
+                text[range].link = URL(string: url)
+                text[range].underlineStyle = .single
+                text[range].font = FillsaTypography.subtitle2
             }
         }
+        return text
     }
-}
-
-#Preview {
-    LoginAgreementText(openTerms: {}, openPrivacy: {})
-        .padding()
-        .background(FillsaColor.background)
 }

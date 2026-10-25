@@ -4,6 +4,42 @@ import XCTest
 
 @MainActor
 final class LoginFeatureTests: XCTestCase {
+    func testGoogleTapAuthenticatesThenLogsIntoBackend() async {
+        let user = SocialAuthUser(
+            provider: "GOOGLE",
+            oauthID: "42",
+            nickname: "필사",
+            profileImageURL: "https://example.com/profile.png"
+        )
+        let response = LoginResponse(
+            accessToken: "access",
+            refreshToken: "refresh",
+            memberSeq: 1,
+            nickname: "필사",
+            profileImageUrl: "https://example.com/profile.png"
+        )
+        let store = TestStore(initialState: LoginFeature.State()) {
+            LoginFeature()
+        } withDependencies: {
+            $0.socialAuthClient.signInWithGoogle = { user }
+            $0.authUseCases.login = { receivedUser in
+                XCTAssertEqual(receivedUser, user)
+                return response
+            }
+            $0.pushRegistrationClient.synchronize = { _ in }
+        }
+
+        await store.send(.googleTapped) {
+            $0.isProcessing = true
+        }
+        await store.receive(.googleAuthenticationCompleted(.success(user)))
+        await store.receive(.socialLoginCompleted(.success(response))) {
+            $0.isProcessing = false
+        }
+        await store.receive(.delegate(.moveHome))
+        await store.finish()
+    }
+
     func testKakaoTapAuthenticatesThenLogsIntoBackend() async {
         let user = SocialAuthUser(
             provider: "KAKAO",
@@ -59,6 +95,25 @@ final class LoginFeatureTests: XCTestCase {
         }
         await store.send(.kakaoTalkInstallDialogDismissed) {
             $0.isKakaoTalkInstallDialogPresented = false
+        }
+        await store.finish()
+    }
+
+    func testGoogleCancellationLeavesLoginScreenWithoutMessage() async {
+        let store = TestStore(initialState: LoginFeature.State()) {
+            LoginFeature()
+        } withDependencies: {
+            $0.socialAuthClient.signInWithGoogle = {
+                throw SocialAuthError.cancelled
+            }
+        }
+
+        await store.send(.googleTapped) {
+            $0.isProcessing = true
+        }
+        await store.receive(.googleAuthenticationCompleted(.failure(.cancelled)))
+        await store.receive(.socialLoginCompleted(.failure(.cancelled))) {
+            $0.isProcessing = false
         }
         await store.finish()
     }

@@ -1,6 +1,8 @@
 import ComposableArchitecture
 
 struct SessionClient {
+    var isOnboardingCompleted: @Sendable () async throws -> Bool
+    var completeOnboarding: @Sendable () async throws -> Void
     var isFirstOpen: @Sendable () async throws -> Bool
     var setFirstOpen: @Sendable (_ isFirstOpen: Bool) async throws -> Void
     var isLoggedIn: @Sendable () async throws -> Bool
@@ -16,6 +18,8 @@ extension SessionClient: DependencyKey {
         let repository = LiveRepositories.local
 
         return SessionClient(
+            isOnboardingCompleted: { try await repository.isOnboardingCompleted() },
+            completeOnboarding: { try await repository.setOnboardingCompleted() },
             isFirstOpen: {
                 try await CheckFirstOpenUseCase(localRepository: repository)()
             },

@@ -6,6 +6,17 @@ import Testing
 @Suite("CalendarFeature")
 struct CalendarFeatureTests {
     @Test
+    func repeatedCopyRestartsTheConfirmationLifetime() async {
+        let store = TestStore(initialState: CalendarFeature.State()) { CalendarFeature() }
+        await store.send(.copyCompleted) {
+            $0.toastID = 1
+            $0.toastMessage = "복사되었습니다."
+        }
+        await store.send(.copyCompleted) { $0.toastID = 2 }
+        await store.send(.toastDismissed) { $0.toastMessage = nil }
+    }
+
+    @Test
     func monthlyResponseDecodesQuestionAndAnswerWithoutRequiringThemOnOlderRecords() throws {
         let json = """
         {"memberQuotes":[

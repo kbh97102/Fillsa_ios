@@ -2,6 +2,56 @@ import XCTest
 
 final class HomeUITests: XCTestCase {
     @MainActor
+    func testYearMenuDoesNotGroupDigits() throws {
+        let app = XCUIApplication()
+        app.launchArguments = ["-ui-testing-home", "-ui-testing-home-calendar-open"]
+        app.launch()
+        let year = app.buttons["2026년"]
+        XCTAssertTrue(year.waitForExistence(timeout: 3))
+        year.tap()
+        XCTAssertTrue(app.buttons["2025년"].waitForExistence(timeout: 2))
+        XCTAssertFalse(app.buttons["2,025년"].exists)
+        let attachment = XCTAttachment(screenshot: app.screenshot())
+        attachment.name = "home-year-menu-full-frame"
+        attachment.lifetime = .keepAlways
+        add(attachment)
+    }
+
+    @MainActor
+    func testCopyAndTypingPrompt() throws {
+        let app = XCUIApplication()
+        app.launchArguments = ["-ui-testing-home"]
+        app.launch()
+        XCTAssertTrue(app.buttons["home.copy"].waitForExistence(timeout: 3))
+        app.buttons["home.copy"].tap()
+        XCTAssertTrue(app.staticTexts["복사되었습니다."].waitForExistence(timeout: 2))
+        let copy = XCTAttachment(screenshot: app.screenshot())
+        copy.name = "home-copy-full-frame"
+        copy.lifetime = .keepAlways
+        add(copy)
+        app.buttons["home.quoteCard"].tap()
+        XCTAssertTrue(app.staticTexts["오늘의 문장을 따라 써주세요."].waitForExistence(timeout: 2))
+        let typing = XCTAttachment(screenshot: app.screenshot())
+        typing.name = "typing-prompt-full-frame"
+        typing.lifetime = .keepAlways
+        add(typing)
+    }
+
+    @MainActor
+    func testRegisteredImageShowsViewLabel() throws {
+        let app = XCUIApplication()
+        app.launchArguments = ["-ui-testing-home", "-ui-testing-home-image-wide"]
+        app.launch()
+        let image = app.buttons["home.registerImage"]
+        XCTAssertTrue(image.waitForExistence(timeout: 3))
+        XCTAssertTrue(image.label.contains("이미지 보기"))
+        let attachment = XCTAttachment(screenshot: app.screenshot())
+        attachment.name = "home-image-registered-full-frame"
+        attachment.lifetime = .keepAlways
+        add(attachment)
+    }
+
+    @MainActor
     func testCachedWeeklyDatesChangeQuoteWithoutLoadingOverlay() throws {
         let app = XCUIApplication()
         app.launchArguments = ["-ui-testing-home", "-ui-testing-home-weekly-cache"]

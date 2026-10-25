@@ -89,6 +89,7 @@ struct CalendarView: View {
                         onCopy: {
                             guard let selectedRecord else { return }
                             UIPasteboard.general.string = "\(selectedRecord.quote) - \(selectedRecord.author)"
+                            viewStore.send(.copyCompleted)
                         },
                         onShare: {
                             guard let selectedRecord else { return }
@@ -129,6 +130,17 @@ struct CalendarView: View {
                         delete: { viewStore.send(.deleteImageTapped) },
                         selectedPhotoItem: $selectedPhotoItem
                     )
+                }
+            }
+            .overlay {
+                if let message = viewStore.toastMessage {
+                    QuoteToast(message: message, presentation: .success)
+                        .task(id: viewStore.toastID) {
+                            do {
+                                try await Task.sleep(for: .milliseconds(1600))
+                                viewStore.send(.toastDismissed)
+                            } catch {}
+                        }
                 }
             }
             .alert("이미지를 삭제하시겠습니까?", isPresented: Binding(

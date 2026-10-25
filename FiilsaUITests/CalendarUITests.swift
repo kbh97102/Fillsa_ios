@@ -3,6 +3,20 @@ import XCTest
 
 final class CalendarUITests: XCTestCase {
     @MainActor
+    func testCopyShowsConfirmationAndLikedRecordShowsSelection() throws {
+        let app = launchCalendar(theme: "light", state: "completed")
+        let like = app.buttons["calendar.like"]
+        XCTAssertTrue(like.waitForExistence(timeout: 3))
+        XCTAssertEqual(like.value as? String, "선택됨")
+        app.buttons["calendar.copy"].tap()
+        XCTAssertTrue(app.staticTexts["복사되었습니다."].waitForExistence(timeout: 2))
+        let attachment = XCTAttachment(screenshot: app.screenshot())
+        attachment.name = "calendar-copy-full-frame"
+        attachment.lifetime = .keepAlways
+        add(attachment)
+    }
+
+    @MainActor
     func testDarkCalendarNoWritingShowsRenewalNavigationWithoutAd() throws {
         let app = launchCalendar(theme: "dark", state: "no-writing")
 
@@ -66,7 +80,7 @@ final class CalendarUITests: XCTestCase {
     }
 
     @MainActor
-    func testGuestCompletedQuoteActionsOpenShareAndLoginPrompt() throws {
+    func testImageActionWithoutMemberSessionRoutesToLogin() throws {
         let app = XCUIApplication()
         app.launchArguments = ["ui-testing-calendar", "ui-testing-theme-light", "ui-testing-calendar-completed", "ui-testing-calendar-guest"]
         app.launch()
@@ -76,11 +90,10 @@ final class CalendarUITests: XCTestCase {
         copy.tap()
 
         app.buttons["calendar.image"].tap()
-        XCTAssertTrue(app.alerts["로그인 후 사용하실 수 있습니다."].waitForExistence(timeout: 3))
-        app.buttons["취소"].tap()
-
-        app.buttons["calendar.share"].tap()
-        XCTAssertTrue(app.staticTexts["배경을 선택해주세요."].waitForExistence(timeout: 3))
+        XCTAssertTrue(app.buttons["login.apple"].waitForExistence(timeout: 5))
+        XCTAssertTrue(app.buttons["login.kakao"].exists)
+        XCTAssertFalse(app.buttons["calendar.image"].exists)
+        XCTAssertFalse(app.otherElements["home.imageDialog"].exists)
     }
 
     @MainActor

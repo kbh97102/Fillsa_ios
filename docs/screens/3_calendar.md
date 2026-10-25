@@ -163,3 +163,10 @@ GET /api/v2/member-quotes/monthly?yearMonth={yearMonth}
 | yearMonth | String | `2025-06` |
 
 **Response: `MemberMonthlyQuoteResponse`**
+
+## 2026-10-25 iOS QA 수정 기준
+
+- Figma URL: https://www.figma.com/design/VdFocqyqTgevMVCQxwAQ2X
+- 완료 Light `2987:22796`, Dark `3051:899`. 컴포넌트: 완료 카드 액션 행(좋아요 선택, 이미지 등록/보기), 복사 완료 토스트. 대상: 선택/해제, 이미지 등록/삭제, 날짜 전환, 요청 성공/실패.
+- 기준 이미지/QA: [2026-10-25 QA](../design-qa/2026-10-25-ios-qa.md). 구현·기능 테스트 및 전체 캡처 비교 완료. 컴포넌트 부분 통과, 동일 크기 프레임·폰트 차이로 조립 화면 최종 수용 Blocked.
+- 구현 계획: [iOS QA](../superpowers/plans/2026-10-25-ios-qa.md).

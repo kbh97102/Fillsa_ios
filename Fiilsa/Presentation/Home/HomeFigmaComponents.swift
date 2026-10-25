@@ -529,6 +529,7 @@ struct HomeQuoteActionRow: View {
     let copy: () -> Void
     let share: () -> Void
     let isLike: Bool
+    let imagePath: String?
     let setIsLike: (Bool) -> Void
     let registerImage: () -> Void
     @Environment(\.colorScheme) private var colorScheme
@@ -548,12 +549,13 @@ struct HomeQuoteActionRow: View {
                 likeAction(width: standardWidth)
                     .accessibilityIdentifier("home.like")
                 divider
-                action(
-                    "home_action_camera",
-                    "이미지 등록",
-                    width: buttonWidth - standardWidth * 3,
-                    handler: registerImage
-                )
+                Button(action: registerImage) {
+                    QuoteImageActionLabel(imagePath: imagePath)
+                        .foregroundStyle(palette.actionText.color)
+                        .frame(width: buttonWidth - standardWidth * 3, height: 42)
+                        .contentShape(Rectangle())
+                }
+                    .buttonStyle(.plain)
                     .accessibilityIdentifier("home.registerImage")
             }
         }
