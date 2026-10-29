@@ -1,0 +1,21 @@
+{
+  "checkedAt": "2026-10-29T10:20:09Z",
+  "pageId": "3ffe639f-c7a4-8026-9f40-daf8cf01f20c",
+  "pageCommentCount": 1,
+  "queriedChildBlocks": 42,
+  "blockCommentCount": 0,
+  "comments": [
+    {
+      "id": "408e639f-c7a4-80d4-b073-001de5dc6a9a",
+      "discussionId": "9f2e639f-c7a4-8337-bb0d-03de03232746",
+      "author": "SooJi",
+      "createdAt": "2026-10-29T06:27:00.000Z",
+      "editedAt": "2026-10-29T06:43:00.000Z",
+      "text": "@보훈 강 보훈님, 캐릭터 이제 잘 나옵니당. 다만, 아래의 내용들이 적용되어 있지 않아 확인 부탁드립니다!\n\n  1. iOS에서 ‘오늘의 문장을 따라 써주세요.’ 텍스트 부분 bold 로 수정이 필요합니당(현재 폰트 regular 적용되어 있음)\n\n  2. iOS에서 필사 작성 화면 > 복사하기 버튼이 작동하지 않으며, 복사하기 버튼에 노란 컬가 들어간 부분이 있어서 디자인과 같이 수정 부탁드립니다.",
+      "attachmentFiles": [
+        "comment-408e639f-original.heic"
+      ]
+    }
+  ],
+  "coverage": "조회 가능한 페이지 및 중첩42블록 댓글 전체. API에 노출되지 않는 해결된 댓글 등은 범위 밖."
+}

@@ -24,9 +24,12 @@ struct TypingQuoteBodySection: View {
         ZStack(alignment: .top) {
             Text(displayText)
                 .font(FillsaTypography.body1)
+                .lineSpacing(lineSpacing)
+                .padding(.vertical, lineSpacing / 2)
                 .multilineTextAlignment(.center)
                 .lineLimit(nil)
                 .frame(maxWidth: .infinity)
+                .accessibilityIdentifier("typing.quote")
 
             TypingQuoteInputView(
                 quote: quote,
@@ -49,6 +52,10 @@ struct TypingQuoteBodySection: View {
         .onChange(of: composingWrite) { _, _ in
             cursorVisible = true
         }
+    }
+
+    private var lineSpacing: CGFloat {
+        max(0, 30 - (UIFont(name: "Pretendard-Regular", size: 20)?.lineHeight ?? 20))
     }
 
     private var displayText: AttributedString {

@@ -1,0 +1,28 @@
+{
+  "pageId": "3ffe639f-c7a4-8026-9f40-daf8cf01f20c",
+  "title": "필사 작성 화면 >  캐릭터 미적용",
+  "url": "https://app.notion.com/p/3ffe639fc7a480269f40daf8cf01f20c",
+  "lastEdited": "2026-10-29T06:32:00.000Z",
+  "readAt": "2026-10-29T10:20:09Z",
+  "status": "In progress",
+  "priority": "낮음",
+  "platforms": [
+    "Android",
+    "iOS"
+  ],
+  "markdownTruncated": false,
+  "unknownBlocks": [],
+  "comments": {
+    "pageCount": 1,
+    "queriedBlockCount": 42,
+    "blockCommentCount": 0,
+    "failedQueries": [],
+    "coverage": "조회 가능한 페이지와 중첩42개 블록. 댓글 페이지네이션 완료. 해결된 댓글 등 API 비노출 범위는 확인 불가."
+  },
+  "approval": "approved",
+  "planVersion": "2",
+  "approvalQuote": "좋아 진행하자",
+  "responsiveLayoutApprovalQuote": "사이즈를 하드코딩하지말고 패딩으로 조절했으면하는데 그러면 기기대응 원활하잖아 compose개발하듯이",
+  "approvedScope": "iOS issue 1, shared Pretendard registration and regression, parent-driven padding layout; other issues remain separate; body-only vertical scrolling while guide and actions remain visible; comment follow-up 2026-10-29 pending implementation-plan review; v2 local reproduction and verification approved 2026-10-29, external QA build identity remains unknown",
+  "bodyScrollApprovalQuote": "본문만 스크롤하도록 허용"
+}

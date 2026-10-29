@@ -1,0 +1,11 @@
+{
+  "head": "1b7335156ebe5b6a54a4002089a9dcfe993ef47c",
+  "files": {
+    "Fiilsa/Presentation/HomeSub/TypingQuoteView.swift": "b672da400c09c176872328df2754c33e1328c6088db67d8ca3357a7f464588e4",
+    "Fiilsa/Core/DesignSystem/FillsaTypography.swift": "04672958488fc8543beb01fa030b6ed1b707009025c16c438b7adf7614c67f6b",
+    "Fiilsa/Info.plist": "38372021d12edde92afaceb17e0221b2da1f91daf314b300b3f0e3484421058f",
+    "FiilsaUITests/HomeUITests.swift": "d7ea7380ce69fb1214640916b7667d84767d9425fc83b76b53e8ecc38187106f"
+  },
+  "fontFiles": [],
+  "UIAppFontsPresent": false
+}

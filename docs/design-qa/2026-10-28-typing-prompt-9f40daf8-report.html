@@ -1,0 +1,170 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>QA 1 · 필사 안내와 기기 대응</title>
+  <style>
+    :root { color-scheme: light; --ink:#182331; --muted:#526174; --line:#dce2e9; --paper:#fff; --accent:#165b50; }
+    * { box-sizing:border-box; }
+    body { margin:0; color:var(--ink); background:#f3f5f7; font:16px/1.65 -apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo",sans-serif; }
+    main { max-width:1280px; margin:auto; padding:48px 24px 80px; }
+    header { margin-bottom:28px; }
+    h1 { margin:8px 0 16px; font-size:clamp(28px,4vw,44px); line-height:1.25; }
+    h2 { margin:0 0 16px; font-size:25px; } h3 { margin-top:28px; }
+    a { color:#165caa; overflow-wrap:anywhere; }
+    .eyebrow { color:var(--accent); font-weight:700; letter-spacing:.1em; }
+    .meta, figcaption { color:var(--muted); font-size:14px; }
+    .notice { padding:16px 20px; border-left:4px solid #a96613; background:#fff6e4; }
+    .panel, article { margin-top:24px; padding:28px; background:var(--paper); border:1px solid var(--line); border-radius:16px; }
+    .comparison { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:20px; }
+    .overview { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:16px; }
+    .overview section { padding:16px; border:1px solid var(--line); border-radius:10px; }
+    .overview h3 { margin:0 0 8px; font-size:17px; }
+    .overview p { margin:0; }
+    .source-body, .comments { overflow-wrap:anywhere; }
+    figure { margin:0; padding:16px; border:1px solid var(--line); border-radius:10px; }
+    figure h3 { font-size:16px; margin:0 0 12px; }
+    img { display:block; max-width:100%; height:auto; margin:0 auto 12px; }
+    .missing { border:1px dashed #bac4d0; padding:24px 12px; color:var(--muted); }
+    .table-wrap { overflow-x:auto; }
+    table { border-collapse:collapse; width:100%; text-align:left; }
+    th,td { border-bottom:1px solid var(--line); padding:12px; vertical-align:top; }
+    th { background:#f3f6f8; }
+    code { overflow-wrap:anywhere; } pre { white-space:pre-wrap; overflow-wrap:anywhere; padding:16px; background:#f3f6f8; }
+    .status { display:inline-block; border:1px solid var(--line); border-radius:6px; padding:3px 10px; font-weight:600; }
+    @media(max-width:800px) { main { padding:24px 16px 48px; } .comparison, .overview { grid-template-columns:1fr; } .panel, article { padding:20px; } }
+    @media print { body { background:white; } main { padding:0; } .panel,article { border-radius:0; } figure, tr { break-inside:avoid; } }
+  </style>
+</head>
+<body><main>
+  <header>
+    <div class="eyebrow">QA / AS-IS → TO-BE</div>
+    <h1>QA 1 · 필사 안내와 기기 대응</h1>
+    <p>원본 이슈 → 원인 → 적용한 수정 → 실제 AS-IS/TO-BE. iOS 이슈 1의 독립 보고서입니다. 큰 글자·긴 문장의 본문 스크롤 승인과 재검증을 포함합니다.</p>
+    <p class="meta">2026-10-29 19:20 KST · HEAD 1b7335156ebe5b6a54a4002089a9dcfe993ef47c + 기존 이슈1 로컬 변경 · v2 Simulator iPhone 17e / iOS 26.4.1</p>
+    <div class="notice">v1 UI 수정 뒤 추가된 Notion 댓글을 v2 승인 범위로 재검증했습니다. 현재 로컬 작업본에서는 안내 Bold·단색 복사 아이콘·복사 동작이 모두 확인됐습니다. 댓글을 남긴 QA 설치 빌드의 버전은 확인되지 않아 Notion 상태와 전체 UI 수용은 완료 처리하지 않습니다.</div>
+  </header>
+  <section class="panel" aria-label="이슈 한눈에 보기">
+    <h2>이슈 한눈에 보기</h2>
+    <div class="overview">
+      <section><h3><a href="#notion-source">원본 이슈</a></h3><p>필사 작성 화면 위 캐릭터와 “오늘의 문장을 따라 써주세요.” 요청. 이번 작업 시작 시 안내는 이미 존재했습니다.</p><p class="meta"><a href="#notion-comments">페이지와 하위42블록 재조회: 댓글1건 · 로컬 재현 완료, QA 설치 빌드 식별 대기</a></p></section>
+      <section><h3><a href="#issue-cause">이슈 원인</a></h3><p>최초 제보의 폰트 미등록은 v1에서 해결. 새 댓글 증상은 현재 작업본에서 재현되지 않으며 제보 빌드/커밋이 미확인입니다.</p></section>
+      <section><h3><a href="#issue-solution">해결방법</a></h3><p>v1 변경을 재검증했습니다. 복사 버튼 UI 테스트 후 simulator pasteboard를 읽는 반복 검사도 추가했습니다. 댓글 증상에 대한 production UI 추가 수정은 없습니다.</p></section>
+      <section><h3><a href="#issue-comparison">AS-IS → TO-BE</a></h3><p>현재 iPhone 17e 작업본 캡처는 안내 Bold·Figma 단색 아이콘과 일치하고 복사 결과가 클립보드에 기록됩니다. 댓글 첨부의 QA 설치 빌드는 식별되지 않았습니다.</p></section>
+    </div>
+  </section>
+  <section class="panel" aria-label="선택 이슈와 승인 범위">
+    <h2>선택 이슈와 승인 범위</h2>
+    <p>설계 v1. “1번으로 해봐” 및 후속 “사이즈를 하드코딩하지말고 패딩으로…” 지시를 적용했습니다. “본문만 스크롤하도록 허용”도 추가 승인했습니다. 이슈1·공통 Pretendard 등록·회귀가 범위입니다. <a href="../screens/2026-10-28-typing-prompt-9f40daf8-plan.md">독립 설계/승인 기록</a></p>
+    <div class="table-wrap"><table>
+      <thead><tr><th>이슈</th><th>구현</th><th>기능 검증</th><th>UI 검증</th><th>최종 상태</th></tr></thead>
+      <tbody><tr><td>1 · 캐릭터 미적용</td><td>반영</td><td>필사 관련 통과, 전체 회귀1건 실패</td><td>부분 통과</td><td>최종 수용 보류</td></tr></tbody>
+    </table></div>
+  </section>
+  <!-- One issue per report. Copy this template for each issue and replace every token with verified content. -->
+  <article id="typing-prompt-9f40daf8">
+    <span class="status">구현 반영 · 최종 UI 수용 보류</span>
+    <h2>필사 작성 화면 &gt;  캐릭터 미적용</h2>
+    <p><a href="https://www.notion.so/3ffe639fc7a480269f40daf8cf01f20c">Notion QA 원문</a></p>
+    <section id="notion-source">
+      <h3>Notion 원본 이슈</h3>
+      <p class="meta">page ID 3ffe639f-c7a4-8026-9f40-daf8cf01f20c · 원본 수정 2026-10-29T06:32:00.000Z · 원문·댓글 최신 재조회 2026-10-29T10:20:09Z · 본문 잘림 없음 · 본문 잘림 없음</p>
+      <p>원본 상태: In progress · 우선순위: 낮음 · 원본 플랫폼: Android/iOS · 이번 수정: iOS</p>
+      <div class="source-body"><details><summary>Notion 본문 전문 · 최초 제보와 이후 진행 기록</summary><pre>&lt;columns&gt;
+	&lt;column ratio=&quot;50&quot;&gt;
+		\[AS-IS\]
+		- AOS
+		![](https://prod-files-secure.s3.us-west-2.amazonaws.com/85af4297-5730-41f3-9c59-bd67af28d670/785655a8-3152-4d74-a06a-5618a43b4702/IMG_1538.heic)
+		- iOS
+		![](https://prod-files-secure.s3.us-west-2.amazonaws.com/85af4297-5730-41f3-9c59-bd67af28d670/aa27475e-f516-4093-82c3-e53d2f9d1e30/IMG_1537.png)
+	&lt;/column&gt;
+	&lt;column ratio=&quot;50&quot;&gt;
+		\[TO-BE\]
+		- 상단 캐릭터 +  ‘오늘의 문장을 따라 써주세요.’
+		![](https://prod-files-secure.s3.us-west-2.amazonaws.com/85af4297-5730-41f3-9c59-bd67af28d670/261b05d6-3818-4f37-a92e-c3fe06035932/%E1%84%89%E1%85%B3%E1%84%8F%E1%85%B3%E1%84%85%E1%85%B5%E1%86%AB%E1%84%89%E1%85%A3%E1%86%BA_2026-10-20_%E1%84%8B%E1%85%A9%E1%84%8C%E1%85%A5%E1%86%AB_11.29.21.png)
+		&lt;empty-block/&gt;
+	&lt;/column&gt;
+&lt;/columns&gt;
+## iOS 원인 분석 및 해결 계획 · 2026-10-25
+분석일: 2026-10-25 (KST) \| 대상: iOS \| 코드 기준: Fiilsa 현재 checkout, HEAD 790e92a.&lt;br&gt;이번 기록은 원인 분석·해결 계획이다. 앱 코드는 수정하지 않았고 시뮬레이터/실기기·실서버 테스트도 실행하지 않았다. 코드로 확인된 사실과 런타임 확인이 필요한 추론을 구분했다. TCA의 State/Action/Reducer는 Android MVI의 화면 상태/이벤트/ViewModel 처리에 대응하며, View는 Jetpack Compose처럼 상태를 받아 화면을 그리는 부분이다.
+### 원인과 근거
+확인: TypingQuoteView.swift:21–45의 구성은 상단 뒤로가기/언어 전환 → TypingQuoteBodySection → Spacer → 하단 액션이다. topSection(:58–76)에도 캐릭터나 &#x27;오늘의 문장을 따라 써주세요.&#x27; 문구가 없다. TypingQuoteBodySection은 명언과 입력/커서만 그린다. 자산을 읽지 못한 문제가 아니라 해당 안내 영역이 화면 구성에 빠져 있다.&lt;br&gt;현재 2_home.md 타이핑 기획의 상단 설명에도 이 안내 영역이 명시되지 않아 화면 계획 보완이 필요하다.
+### 해결 방안
+최신 Figma의 해당 캐릭터·안내 문구 영역을 확인하고 원본 자산/색상 모드/위치를 화면 문서에 기록한다. TypingQuoteView의 해당 위치에 작은 안내 영역을 추가하거나 기존에 같은 Figma 컴포넌트가 있으면 재사용한다. 정적인 표시이므로 불필요한 TCA 상태나 별도 도메인 기능은 만들지 않는다. 입력창 포커스·한글 조합·언어 전환·저장 흐름을 보존한다.
+### 영향 범위와 검증 계획
+TypingQuoteView, 필요한 Bundle Assets, docs/screens/2_home.md의 타이핑 컴포넌트 목록 및 QA 기록. HomeUITests의 타이핑 fixture와 GlobalLoadingUITests의 키보드 시나리오를 활용해 Light/Dark, 키보드 노출, 작은 화면, 긴 명언, 글자 크기 확대 상태에서 안내와 저장 버튼 가림을 확인한다.
+### Figma 기준 및 확인 사항
+타이핑 Light https://www.figma.com/design/VdFocqyqTgevMVCQxwAQ2X Dark https://www.figma.com/design/VdFocqyqTgevMVCQxwAQ2X 기존 기준 이미지 docs/design-qa/assets/home-figma/2026-09-20-typing-light-2929-17920.png. 현재 Figma에 QA의 안내 영역이 반영되어 있는지 하위 레이어를 다시 확인한다. Android 캡처/자산은 iOS UI 기준으로 사용하지 않는다.
+### 미검증 사항과 주의점
+이 티켓은 Android/iOS 공통이지만 이번 분석 및 후속 작업 범위는 iOS다. 이번 상태 변경은 티켓 전체의 In progress이며 Android 해결·최종 완료를 의미하지 않는다. 실제 키보드/레이아웃 검증은 미실시.
+구현 시작 전 화면별 기획에 Figma URL·프레임·컴포넌트·상태·QA 기록 링크를 확정한다. Figma 원본 전체 프레임을 확보하고 컴포넌트부터 수정한 뒤 조립 화면을 대조한다. docs/ui-redesign-workflow.md의 최대 5회 검증을 따르며 실제 캡처 대조 전에는 완료/Pass로 바꾸지 않는다.
+## iOS 구현 진행 및 검증 · 2026-10-25
+iOS TypingQuoteView에 Figma Light/Dark 원본 60pt 캐릭터와 ‘오늘의 문장을 따라 써주세요.’를 추가했다. Light 배경을 대상 Figma의 흰색으로 맞췄다. 입력 조합 처리 UIViewRepresentable은 유지한다.
+필사 화면 진입·안내문구 UI 테스트 통과. 한글 키보드가 열린 전체 화면에서 캐릭터·안내·저장 버튼이 보이는 캡처 확보. Android 구현은 이번 작업 범위가 아니다.
+공통 검증: iPhone 17e iOS 26.4.1에서 자동 테스트 140건 통과. QA 기록: docs/design-qa/2026-10-25-ios-qa.md. Figma 360pt와 런타임 390pt 및 기존 폰트/레이아웃 차이로 전체 화면 최종 수용은 Blocked이며, 티켓 상태는 In progress를 유지한다. 저장 팝업은 별도로 정책 확인 대기.
+## iOS 구현 결과 정리 · 2026-10-25
+iOS TypingQuoteView에 Figma Light/Dark 원본 60pt 캐릭터와 ‘오늘의 문장을 따라 써주세요.’를 추가했다. Light 배경을 대상 Figma의 흰색으로 맞췄다. 입력 조합 처리 UIViewRepresentable은 유지한다.&lt;br&gt;검증: 필사 화면 진입·안내문구 UI 테스트 통과. 한글 키보드가 열린 전체 화면에서 캐릭터·안내·저장 버튼이 보이는 캡처 확보. Android 구현은 이번 작업 범위가 아니다.
+전체 단위·저장 팝업 UI 회귀: 142건 통과, 실패·skip 0 (Fiilsa-popup-final.xcresult). QA 원문·첨부·원인·수정·검증 결과를 docs/design-qa/2026-10-25-ios-qa-report.html에 정리한다. 시각 검증은 360/390pt 프레임·미등록 폰트·기존 배경 레이아웃 차이로 Blocked. 실계정 OAuth·실서버 v2·이미지 업로드/삭제는 미검증. 상태는 In progress 유지하며 UI 최종 완료를 의미하지 않는다.
+## Android 원인 분석 및 해결 계획 · 2026-10-25
+상태: Android 원인 분석·해결 방안 문서화 완료. 앱 수정·수정 후 검증 미실시. 이 페이지의 기존 iOS 구현 결과와 별도이며, 공통 티켓 전체 완료를 뜻하지 않습니다. 소스 stage HEAD 4934a13 + 기존 로컬 변경. 기존 설치 Android 1.0.31 (25), emulator-5554, API 35, 360×720px/160dpi에서 안내 누락을 확인했습니다. 설치 APK와 미커밋 소스의 동일성은 미확인입니다.
+원인: TypingQuoteView.kt:177–212는 TopSection → top padding 28dp → BodySection으로 조립합니다. TopSection은 뒤로가기/언어 전환만, TypingQuoteBodySection은 명언/입력/커서만 표시합니다. 캐릭터 이미지 로딩 실패가 아니라 캐릭터·안내 문구를 그리는 영역 자체가 없습니다. 저장 결과 팝업의 별도 캐릭터는 입력 화면에 연결되지 않았습니다.
+Figma 직접 확인: Light https://www.figma.com/design/VdFocqyqTgevMVCQxwAQ2X / Dark https://www.figma.com/design/VdFocqyqTgevMVCQxwAQ2X 안내 그룹 Light 3087:28754 / Dark 3087:28984. Handwriting 캐릭터 60×60(3087:28737 / 3087:28985), ‘오늘의 문장을 따라 써주세요.’ Pretendard Bold 16/24, #5C65FF(3087:28753 / 3087:29001). 전체 360×720, 안내·본문 컨테이너 x20/y80/폭320, 안내 이후 본문 간격20.
+해결 계획: 안내만 담당하는 작은 Compose 컴포넌트를 추가하고 TopSection과 BodySection 사이에 조립합니다. Figma 원본 자산을 사용하며 기존 팝업 자산 재사용은 동일성 확인 후 결정합니다. 현재 28dp 여백을 함께 조정해 Figma 위치를 맞춥니다. 정적 표시이므로 새 API·Repository·저장 상태는 필요하지 않습니다. BasicTextField 한글 조합/포커스/커서와 저장 계약은 유지합니다.
+검증 계획: 안내 컴포넌트 Light/Dark Preview → 안내+본문 Preview → 360×720 실제 전체 화면 IME 열림/닫힘 비교. 한/영 전환·긴 문장·글자 크기 확대·한글 조합·저장 성공/실패/미완료·Home 복귀를 회귀 확인합니다. 영역 부족으로 Figma에 없는 스크롤/축소가 필요해지는 경우 제품 결정을 확인합니다. 이번에는 새 자동 테스트·Preview 렌더를 실행하지 않았고 증상 재현 캡처만 확보했습니다.
+보고서: docs/design-qa/2026-10-25-android-new-qa-report.html#typing. QA 접수 원문과 AOS/iOS/TO-BE 첨부를 보존하고 Android 코드 근거·Figma 원본·재현 캡처·수정 계획을 포함했습니다. 근거 폴더: docs/design-qa/artifacts/2026-10-25-android-new-qa/. 현재 실제 해결 기록은 분석과 계획 수립이며 앱 구현 완료가 아닙니다.
+### 제공 페이지 추가 조사 · 2026-10-25
+사용자 제공 ‘v. 3.0’ 페이지(2438:3437)의 필사 Light2438:12875 / Dark2438:10034를 캡처했으며 캐릭터와 안내 문구가 없습니다. QA 원문에 대응하는 ‘리뉴얼 ver.1.0’의 기존 기준 2929:17920 / 3087:28815를 유지하고 버전 차이를 보고서에 기록했습니다.
+안내 그룹 Light3087:28754 / Dark3087:28984에서 원본 SVG를 추출했습니다. 두 SVG는 width60/height60/viewBox0 0 60 60이고 SHA-256이 동일하여 단일 원본 재사용 가능합니다. 문구 ‘오늘의 문장을 따라 써주세요.’는 Pretendard Bold16/24, #5C65FF, 안내 그룹296×84, 안내 다음 본문 간격20입니다. 자산 및 조사 JSON: docs/design-qa/artifacts/2026-10-25-android-new-qa/. 보고서: docs/design-qa/2026-10-25-android-new-qa-report.html#figma-extraction. 이번에는 자산 추출·문서화까지 했으며 앱 연결·수정 후 검증은 미실시입니다.</pre></details></div>
+      <p>제보 당시 첨부 3건입니다. 현재 구현 결과와 구분하며 Android 자료는 iOS UI 판단에 사용하지 않았습니다.</p><ul><li><a href="assets/qa-selected-2026-10-28/typing-prompt-9f40daf8/reported-android.heic">reported-android · 원본 파일</a></li><li><a href="assets/qa-selected-2026-10-28/typing-prompt-9f40daf8/reported-ios.png">reported-ios · 원본 파일</a></li><li><a href="assets/qa-selected-2026-10-28/typing-prompt-9f40daf8/requested-reference.png">requested-reference · 원본 파일</a></li></ul><details><summary>iOS 제보 이미지와 요청 이미지 보기</summary><a href="assets/qa-selected-2026-10-28/typing-prompt-9f40daf8/reported-ios.png"><img src="assets/qa-selected-2026-10-28/typing-prompt-9f40daf8/reported-ios.png" alt="제보 당시 iOS" loading="lazy"></a><a href="assets/qa-selected-2026-10-28/typing-prompt-9f40daf8/requested-reference.png"><img src="assets/qa-selected-2026-10-28/typing-prompt-9f40daf8/requested-reference.png" alt="Notion 요청 이미지" loading="lazy"></a></details>
+    </section>
+    <section id="notion-comments">
+      <h3>Notion 댓글</h3>
+      <p class="meta">조회 가능한 페이지 댓글 1건, 중첩42블록 댓글 0건. 페이지네이션 끝까지 확인했고 실패0. API에 노출되지 않는 해결된 댓글 등은 확인 범위 밖입니다. 마지막 재조회 2026-10-29T10:20:09Z.</p>
+      <div class="comments">
+        <article><p><strong>SooJi · @보훈 강</strong></p><p class="meta">작성 2026-10-29 06:27 UTC · 수정 2026-10-29 06:43 UTC</p>
+          <p>보훈님, 캐릭터 이제 잘 나옵니당. 다만, 아래의 내용들이 적용되어 있지 않아 확인 부탁드립니다!</p>
+          <ol><li>iOS에서 ‘오늘의 문장을 따라 써주세요.’ 텍스트 부분 bold 로 수정이 필요합니당(현재 폰트 regular 적용되어 있음)</li><li>iOS에서 필사 작성 화면 &gt; 복사하기 버튼이 작동하지 않으며, 복사하기 버튼에 노란 컬가 들어간 부분이 있어서 디자인과 같이 수정 부탁드립니다.</li></ol>
+          <a href="assets/qa-selected-2026-10-28/typing-prompt-9f40daf8/comments-2026-10-29/comment-408e639f-preview.png"><img src="assets/qa-selected-2026-10-28/typing-prompt-9f40daf8/comments-2026-10-29/comment-408e639f-preview.png" alt="2026-10-29 Notion 댓글 첨부 화면" loading="lazy"></a>
+          <p><a href="assets/qa-selected-2026-10-28/typing-prompt-9f40daf8/comments-2026-10-29/comment-408e639f-original.heic">댓글 첨부 원본 HEIC</a> · <a href="assets/qa-selected-2026-10-28/typing-prompt-9f40daf8/comments.json">댓글 API 조회 기록</a></p>
+        </article>
+        <p>현재 작업본은 댓글의 세 항목을 재현하지 못했습니다. Bold 안내가 보이고, Figma 복사 노드와 현재 아이콘은 노란 채움 없는 단색이며, 클립보드 검사에서 선택 문장+줄바꿈+저자를 확인했습니다. 댓글 첨부 화면은 달라 보이지만 그 캡처의 앱 버전/커밋이 없어 동일 작업본인지 판별할 수 없습니다. v2에서 앱 UI 코드는 바꾸지 않고 재현 UI 테스트와 스크립트만 추가했습니다. Notion은 In progress로 유지합니다.</p>
+          <div class="comparison"><figure><h3>댓글 당시 QA 첨부</h3><a href="assets/qa-selected-2026-10-28/typing-prompt-9f40daf8/comments-2026-10-29/comment-408e639f-preview.png"><img src="assets/qa-selected-2026-10-28/typing-prompt-9f40daf8/comments-2026-10-29/comment-408e639f-preview.png" alt="QA 담당자가 첨부한 화면" loading="lazy"></a><figcaption>노란 채움의 복사 아이콘과 가는 안내 글꼴이 보입니다. 캡처 빌드 식별 정보는 제공되지 않았습니다.</figcaption></figure><figure><h3>Figma 현재 Light 기준</h3><a href="assets/qa-selected-2026-10-28/figma-2929-17920.png"><img src="assets/qa-selected-2026-10-28/figma-2929-17920.png" alt="Figma 필사 입력 화면 기준" loading="lazy"></a><figcaption>Figma `2929:17920`, 360×720. 안내 Bold16/24, 단색 복사 윤곽.</figcaption></figure><figure><h3>현재 작업본 · 복사 버튼 실행 후</h3><a href="assets/qa-selected-2026-10-28/typing-prompt-9f40daf8/comments-2026-10-29/current-run/typing-copy-button-tapped-full-frame.png"><img src="assets/qa-selected-2026-10-28/typing-prompt-9f40daf8/comments-2026-10-29/current-run/typing-copy-button-tapped-full-frame.png" alt="iPhone 17e 현재 필사 화면" loading="lazy"></a><figcaption>iPhone 17e / iOS 26.4.1 / 390×844pt. 키보드가 열린 상태. 프레임 크기가 Figma와 다르므로 전체 픽셀 일치 판정은 아닙니다.</figcaption></figure></div>
+          <p>실행 증거: <a href="assets/qa-selected-2026-10-28/typing-prompt-9f40daf8/comments-2026-10-29/current-run/typing-layout-light-normal.png">현재 Light</a> · <a href="assets/qa-selected-2026-10-28/typing-prompt-9f40daf8/comments-2026-10-29/current-run/typing-layout-dark-normal.png">현재 Dark</a> · <a href="assets/qa-selected-2026-10-28/typing-prompt-9f40daf8/comments-2026-10-29/current-run/figma-copy-node.png">Figma 복사 노드</a> · <a href="../../scripts/test-typing-copy.sh">복사 회귀 검사 스크립트</a> · <a href="../screens/2026-10-29-typing-prompt-9f40daf8-plan-v2.md">v2 조사·승인·검증 기록</a>.</p>
+      </div>
+    </section>
+    <h3>댓글 v2 재현·회귀 검증 · 2026-10-29</h3>
+    <div class="table-wrap"><table><thead><tr><th>대상</th><th>실행·환경</th><th>결과</th><th>증거</th></tr></thead><tbody>
+      <tr><td>복사 버튼 / 클립보드</td><td><code>scripts/test-typing-copy.sh 6C263489-FBEE-4DC7-9904-55D99393D4EC</code><br>iPhone 17e / iOS 26.4.1 / ko_KR</td><td>통과. 버튼 탭 후 `사랑이라는 선물은 억지로 줄 수 없고 받아들여지기를 기다릴 뿐이다.` + 줄바꿈 + `존우든` 확인.</td><td><a href="assets/qa-selected-2026-10-28/typing-prompt-9f40daf8/comments-2026-10-29/current-run/v2-summary.json">실행별 xcresult 요약·클립보드 확인</a></td></tr>
+      <tr><td>안내·언어·본문 스크롤</td><td><code>TypingLayoutUITests.testPromptAndSaveRemainAccessibleWithKeyboard</code><br>Light/Dark, ko/en, 기본/긴 문장</td><td>1 통과 / 0 실패 / 0 skip. 안내·저장 접근성 및 본문 스크롤 전후 확인.</td><td><a href="assets/qa-selected-2026-10-28/typing-prompt-9f40daf8/comments-2026-10-29/current-run/typing-layout-light-normal.png">Light</a> · <a href="assets/qa-selected-2026-10-28/typing-prompt-9f40daf8/comments-2026-10-29/current-run/typing-layout-dark-normal.png">Dark</a></td></tr>
+      <tr><td>Pretendard Regular/Bold 리소스</td><td><code>TypographyResourceTests</code></td><td>2 통과 / 0 실패 / 0 skip. Bold16 font load 포함.</td><td><a href="assets/qa-selected-2026-10-28/typing-prompt-9f40daf8/comments-2026-10-29/current-run/v2-summary.json">현재 실행 요약</a></td></tr>
+    </tbody></table></div><p class="meta">XCUITest runner에서 UIPasteboard를 직접 읽을 때 iOS가 앱 간 붙여넣기 허용을 요청해 대기했습니다. 같은 앱 동작을 바꾸지 않고 Simulator CLI의 <code>simctl pbpaste</code>로 실제 값을 확인하도록 스크립트에 묶었습니다. QA 담당자가 확인한 설치 앱의 빌드/커밋은 미확인입니다. 보고서 HTML은 로컬 참조 76개·깨진 링크 0·중복 앵커 0·미치환 토큰 0으로 정적 검사했습니다. 브라우저 연결이 없어 넓은/좁은 화면 미리보기는 실행하지 못했습니다.</p>
+    <h3>문제와 재현 조건</h3>
+    <p>Home fixture 실행 → 문장 카드 탭 → 필사 진입 → 키보드 표시 → 안내·저장 확인 → 한/영 전환. Light/Dark, 기본/긴 문장을 두 기기에서 실행했습니다. 최초 캐릭터 누락은 이미 이전 구현에서 해결되어 현재 재현되지 않았습니다. 실제 View를 사용한 fixture 검증이며 실계정·실서버 검증은 아닙니다.</p>
+    <h3 id="issue-cause">이슈 원인</h3>
+    <p>코드는 Pretendard를 이름으로 요청했으나 번들에 원본 글꼴과 UIAppFonts 등록이 없어 UIFont 로드가 nil이었습니다. 파일 등록 후 Regular/Bold의 실제 이름이 확인됐습니다. 기존 헤더는58pt, 목표는50pt이며 본문에는30pt 줄 높이 보정이 없었습니다. 하단의 수작업 아이콘도 원본과 달랐습니다.</p><p>폰트 로드 검사는 등록 전 2건 실패 → 등록 후 2건 통과했습니다. 등록을 끈 대조 빌드에서도 UIFont 로드 실패를 다시 확인했습니다. <a href="assets/qa-selected-2026-10-28/typing-prompt-9f40daf8/font-red.log">최초 실패 로그</a> · <a href="assets/qa-selected-2026-10-28/typing-prompt-9f40daf8/font-control-summary.json">대조 실험</a></p>
+    <h3 id="issue-solution">해결방법과 실제 수정</h3>
+    <ul><li><code>Info.plist</code>, <code>Resources/Fonts</code>: Pretendard Regular/Bold 및 SIL OFL 라이선스 등록. <a href="https://github.com/orioncactus/pretendard/releases/tag/v1.3.9">공식 원본 v1.3.9</a></li><li><code>TypingQuoteView</code>: 안내 컴포넌트 분리, 원본 캐릭터 색상 유지, 헤더와 하단 패딩·원본 아이콘 적용. 본문만 ScrollView로 감싸고 안내·하단 액션은 바깥에 유지. 스크롤 중 키보드 유지.</li><li><code>TypingQuoteBodySection</code>: 본문 줄 높이 여백 보정. 입력 조합 및 TCA reducer 계약 유지.</li><li><code>TypographyResourceTests</code>, <code>TypingLayoutUITests</code>: 번들 로드와 실제 키보드·언어·기기 배치 검증.</li></ul><p>Compose의 fillMaxSize + padding + weight + verticalScroll처럼 부모가 제공한 공간을 사용합니다. 본문 ScrollView가 남는 높이를 채우며, fixedSize(horizontal:false, vertical:true)는 숫자로 크기를 고정하는 기능이 아니라 본문이 필요한 높이를 모두 사용하게 하는 설정입니다. SwiftUI의 frame(maxWidth/maxHeight: .infinity)는 고정 크기 지정이 아니라 사용 가능한 공간을 채우는 요청입니다. 아이콘·캐릭터는 원본 고유 크기를 유지합니다.</p>
+    <h3 id="issue-comparison">수정 전 · 목표 기준 · 수정 후</h3>
+    <div class="comparison">
+      <figure><h3>AS-IS · 수정 전 실제 결과</h3><a href="assets/qa-selected-2026-10-28/prompt-attachments/typing-prompt-full-frame.png"><img src="assets/qa-selected-2026-10-28/prompt-attachments/typing-prompt-full-frame.png" alt="수정 전 실제 필사 화면" loading="lazy"></a><figcaption>2026-10-28 수정 전 동일 HEAD · HomeUITests.testCopyAndTypingPrompt · iPhone17e/iOS26.4.1/390×844pt(1170×2532px), Light/한글 키보드/빈 입력. 캐릭터는 이미 표시됨. 기존 manifest 촬영 시각 보존.</figcaption></figure>
+      <figure><h3>Figma · 목표 기준</h3><a href="assets/qa-selected-2026-10-28/figma-2929-17920.png"><img src="assets/qa-selected-2026-10-28/figma-2929-17920.png" alt="Figma 목표 전체 프레임" loading="lazy"></a><figcaption>Figma VdFocqyqTgevMVCQxwAQ2X · 2929:17920 · 360×720 전체. 원문 문장·부분 입력·설계 키보드. 현재 fixture와 문장·입력 상태는 다름.</figcaption></figure>
+      <figure><h3>TO-BE · 수정 후 실제 결과</h3><a href="assets/qa-selected-2026-10-28/typing-prompt-9f40daf8/round2/typing-prompt-full-frame.png"><img src="assets/qa-selected-2026-10-28/typing-prompt-9f40daf8/round2/typing-prompt-full-frame.png" alt="수정 후 같은 테스트의 실제 필사 화면" loading="lazy"></a><figcaption>2026-10-28 수정 후 · 같은 HomeUITests.testCopyAndTypingPrompt · 같은 iPhone17e/iOS26.4.1/390×844pt, Light/한글 키보드/빈 입력. 실제 캡처이며 상태 바·키보드를 재구성하지 않음.</figcaption></figure>
+    </div>
+    <h3>검증 결과</h3>
+    <div class="table-wrap"><table>
+      <thead><tr><th>검증 항목</th><th>실행 명령·절차·시각</th><th>실제 결과</th><th>증거</th></tr></thead>
+      <tbody><tr><td>최종 본문 스크롤·저장·로딩 회귀</td><td>TypographyResourceTests + TypingLayoutUITests + TypingResultUITests + GlobalLoadingUITests + 관련 Home 3건<br>2026-10-28 21:45 KST</td><td>13 통과 / 0 실패 / 0 제외</td><td><a href="assets/qa-selected-2026-10-28/typing-prompt-9f40daf8/round2-summary.json">실행 요약</a></td></tr><tr><td>최종 작은 기기 배치</td><td>375×667 / 본문 스크롤, 안내·저장 위치 유지<br>2026-10-28 21:46 KST</td><td>1 통과 / 0 실패 / 0 제외</td><td><a href="assets/qa-selected-2026-10-28/typing-prompt-9f40daf8/scroll-compact-summary.json">실행 요약</a></td></tr><tr><td>최종 큰 글자·긴 문장</td><td>375×667 / extra-extra-extra-large / 본문 스크롤 전후<br>2026-10-28 21:46 KST</td><td>1 통과 / 0 실패 / 0 제외</td><td><a href="assets/qa-selected-2026-10-28/typing-prompt-9f40daf8/scroll-large-summary.json">실행 요약</a></td></tr><tr><td>1차 단위·Home·저장·로딩·기기 배치</td><td>FiilsaTests + HomeUITests + TypingResultUITests + GlobalLoadingUITests + TypingLayoutUITests<br>2026-10-28 21:28 KST</td><td>167 통과 / 1 실패 / 0 제외</td><td><a href="assets/qa-selected-2026-10-28/typing-prompt-9f40daf8/round1-summary.json">실행 요약</a></td></tr><tr><td>작은 기기 · 375×667pt</td><td>iPhone SE 3 / TypingLayoutUITests / Light·Dark, 기본·긴 문장, 한·영<br>2026-10-28 21:32 KST</td><td>1 통과 / 0 실패 / 0 제외</td><td><a href="assets/qa-selected-2026-10-28/typing-prompt-9f40daf8/compact-summary.json">실행 요약</a></td></tr><tr><td>작은 기기 · 큰 글자</td><td>같은 기기 / extra-extra-extra-large / TypingLayoutUITests<br>2026-10-28 21:39 KST</td><td>1 통과 / 0 실패 / 0 제외</td><td><a href="assets/qa-selected-2026-10-28/typing-prompt-9f40daf8/large-text-summary.json">실행 요약</a></td></tr><tr><td>공통 글꼴 화면 회귀</td><td>iPhone 17e / FullScreenAuditUITests / 실제 View fixture 캡처<br>2026-10-28 21:36 KST</td><td>8 통과 / 0 실패 / 0 제외</td><td><a href="assets/qa-selected-2026-10-28/typing-prompt-9f40daf8/font-audit-summary.json">실행 요약</a></td></tr><tr><td>툴팁 대조 · 등록 OFF</td><td>빌드 복사본의 UIAppFonts만 제거, 동일 SE 기기에서 툴팁 검사<br>2026-10-28 21:37 KST</td><td>0 통과 / 1 실패 / 0 제외</td><td><a href="assets/qa-selected-2026-10-28/typing-prompt-9f40daf8/tooltip-control-summary.json">실행 요약</a></td></tr><tr><td>툴팁 대조 · 등록 ON</td><td>정상 빌드, 동일 SE 기기에서 동일 툴팁 검사<br>2026-10-28 21:38 KST</td><td>0 통과 / 1 실패 / 0 제외</td><td><a href="assets/qa-selected-2026-10-28/typing-prompt-9f40daf8/tooltip-registered-summary.json">실행 요약</a></td></tr></tbody>
+    </table></div>
+    <div class="table-wrap"><table><thead><tr><th>컴포넌트</th><th>검증 결과</th></tr></thead><tbody>
+<tr><td>캐릭터·안내</td><td>Light/Dark 원본 SVG 해시 일치. 자연 크기 60pt, Bold16, 보라색 안내. 수정 후 실제 화면에서 얼굴·연필·문구 표시 확인.</td></tr>
+<tr><td>부모 배치</td><td>고정 화면/본문 폭·높이 없음. 좌우20pt, 안내→본문20pt, 남는 높이는 본문 ScrollView. 390×844 및 375×667에서 키보드 위 저장 접근 확인.</td></tr>
+<tr><td>본문·입력</td><td>Pretendard Regular20, 기본 줄 높이30 기준 여백. 한·영 전환과 기존 상태 유지. 큰 글자는 본문만 스크롤. 커서 문자 폭에 따른 줄바꿈 차이는 남음.</td></tr>
+<tr><td>상단·액션</td><td>원본 뒤로가기/복사/공유/하트 적용. 저장 텍스트+패딩. 기존 공용 언어 토글은 자연 크기가 Figma70×36보다 작아 정합성 미완료.</td></tr>
+</tbody></table></div><h3>기기·상태별 실제 화면</h3><a href="assets/qa-selected-2026-10-28/typing-prompt-9f40daf8/device-comparison.png"><img src="assets/qa-selected-2026-10-28/typing-prompt-9f40daf8/device-comparison.png" alt="두 기기의 라이트 다크 기본 긴 문장 영문 비교" loading="lazy"></a><p>위 모음은 비율을 유지한 축소 보기입니다. <a href="assets/qa-selected-2026-10-28/typing-prompt-9f40daf8/round2/manifest.json">390pt 원본·촬영 시각</a> · <a href="assets/qa-selected-2026-10-28/typing-prompt-9f40daf8/scroll-compact/manifest.json">375pt 원본·촬영 시각</a></p><div class="comparison"><figure><h3>Dark · Figma360×720</h3><a href="assets/qa-selected-2026-10-28/figma-3087-28815.png"><img src="assets/qa-selected-2026-10-28/figma-3087-28815.png" alt="Dark Figma 원본" loading="lazy"></a></figure><figure><h3>Dark · 실제390×844</h3><a href="assets/qa-selected-2026-10-28/typing-prompt-9f40daf8/round2/typing-layout-dark-normal.png"><img src="assets/qa-selected-2026-10-28/typing-prompt-9f40daf8/round2/typing-layout-dark-normal.png" alt="Dark 실제 입력 화면" loading="lazy"></a></figure><figure><h3>작은 화면 · 긴 문장375×667</h3><a href="assets/qa-selected-2026-10-28/typing-prompt-9f40daf8/scroll-compact/typing-layout-light-long.png"><img src="assets/qa-selected-2026-10-28/typing-prompt-9f40daf8/scroll-compact/typing-layout-light-long.png" alt="작은 화면 긴 문장" loading="lazy"></a></figure></div><h3>큰 글자·긴 문장 · 본문 스크롤 전후</h3><div class="comparison"><figure><h3>1차 · 본문 잘림</h3><a href="assets/qa-selected-2026-10-28/typing-prompt-9f40daf8/large-text/typing-layout-light-long.png"><img src="assets/qa-selected-2026-10-28/typing-prompt-9f40daf8/large-text/typing-layout-light-long.png" alt="스크롤 적용 전 본문 잘림" loading="lazy"></a></figure><figure><h3>2차 · 본문 시작</h3><a href="assets/qa-selected-2026-10-28/typing-prompt-9f40daf8/scroll-large/typing-layout-light-long.png"><img src="assets/qa-selected-2026-10-28/typing-prompt-9f40daf8/scroll-large/typing-layout-light-long.png" alt="본문 스크롤 시작" loading="lazy"></a></figure><figure><h3>2차 · 아래로 스크롤</h3><a href="assets/qa-selected-2026-10-28/typing-prompt-9f40daf8/scroll-large/typing-layout-light-long-scrolled.png"><img src="assets/qa-selected-2026-10-28/typing-prompt-9f40daf8/scroll-large/typing-layout-light-long-scrolled.png" alt="본문 마지막 문장과 고정 안내 저장" loading="lazy"></a></figure></div><details><summary>공통 글꼴 회귀 · 대표 화면</summary><a href="assets/qa-selected-2026-10-28/typing-prompt-9f40daf8/font-audit-contact.png"><img src="assets/qa-selected-2026-10-28/typing-prompt-9f40daf8/font-audit-contact.png" alt="공통 글꼴 영향 화면 모음" loading="lazy"></a></details><p>1차: 하위 안내·본문320/350pt 렌더와 조립 화면을 비교했습니다. 컴포넌트 렌더의 1px 입력 뷰 표시는 ImageRenderer 한계로 실제 전체 화면과 구분했습니다. Dark 이미지에는 original 렌더링을 지정한 뒤 얼굴·연필 표시를 실제 화면으로 재확인했습니다. 2차: 본문 스크롤 승인 후 두 기기의 기본·큰 글자·긴 문장·언어 전환 관련15건이 통과했습니다. 큰 글자의 마지막 문장까지 스크롤로 접근하는 것을 실제 캡처로 확인했습니다. 360×720과 실제 기기 크기는 다르므로 전체 픽셀 일치로 판정하지 않습니다.</p>
+    <h3>남은 항목과 다음 행동</h3>
+    <ul><li><strong>1차에서 발견한 작은 기기+큰 글자+긴 문장의 본문 잘림.</strong> 안내·저장 접근 검사 자체는 통과했으나 전체 문장 가독성은 통과하지 못했습니다. 이후 “본문만 스크롤하도록 허용” 승인을 받아 2차에서 본문만 스크롤하도록 수정했습니다. 아래 전후 캡처와 최종 실행 결과를 참조하십시오.</li><li>공용 언어 토글의 Figma 크기 차이, 커서 폭에 따른 동일 문장 줄바꿈, 공통 폰트 적용 화면의 기존 시각 차이가 남아 전체 UI 수용은 보류입니다.</li><li>홈 툴팁 위치 검사는 글꼴 등록 ON/OFF 모두 같은 기기에서55 vs63.5로 실패했습니다. 이번 등록만으로 생긴 실패는 아니며 이슈1에서 홈 툴팁을 수정하지 않았습니다.</li><li>실기기, 접근성 최대 글자 크기, 임의 길이 문장, 실제 한글 조합·실서버 저장은 이번 검증으로 보장하지 않습니다.</li><li>이슈2 저장 팝업, 3 온보딩, 4 로그인은 각각 독립 설계·승인 후 진행합니다. Notion 내용·상태는 변경하지 않았습니다.</li></ul>
+  </article>
+  <footer class="meta"><p><a href="../screens/2026-10-28-typing-prompt-9f40daf8-plan.md">설계 v1</a> · <a href="../screens/2026-10-29-typing-prompt-9f40daf8-plan-v2.md">댓글 후속 계획 v2</a> · <a href="2026-10-28-typing-prompt-9f40daf8-qa.md">QA 기록</a> · <a href="2026-10-28-selected-ios-qa-index.md">이슈 색인</a> · <a href="assets/qa-selected-2026-10-28/typing-prompt-9f40daf8/source.json">원문 조회 기록</a> · <a href="assets/qa-selected-2026-10-28/typing-prompt-9f40daf8/font-impact-inventory.json">공통 글꼴 영향48파일</a> · <a href="assets/qa-selected-2026-10-28/typing-prompt-9f40daf8/font-audit-review.md">100화면 회귀 검토</a></p></footer>
+</main></body>
+</html>

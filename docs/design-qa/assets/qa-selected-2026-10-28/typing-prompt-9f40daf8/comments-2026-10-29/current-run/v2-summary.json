@@ -1,0 +1,76 @@
+{
+  "checkedAt": "2026-10-29T10:20:09Z",
+  "pageId": "3ffe639f-c7a4-8026-9f40-daf8cf01f20c",
+  "planVersion": "2",
+  "approvalQuote": "좋아 진행하자",
+  "testRuns": {
+    "copy": {
+      "result": "Passed",
+      "passedTests": 1,
+      "failedTests": 0,
+      "skippedTests": 0,
+      "device": {
+        "architecture": "arm64",
+        "deviceId": "6C263489-FBEE-4DC7-9904-55D99393D4EC",
+        "deviceName": "iPhone 17e",
+        "modelName": "iPhone 17e",
+        "osBuildNumber": "23E254a",
+        "osVersion": "26.4.1",
+        "platform": "iOS Simulator"
+      }
+    },
+    "layout": {
+      "result": "Passed",
+      "passedTests": 1,
+      "failedTests": 0,
+      "skippedTests": 0,
+      "device": {
+        "architecture": "arm64",
+        "deviceId": "6C263489-FBEE-4DC7-9904-55D99393D4EC",
+        "deviceName": "iPhone 17e",
+        "modelName": "iPhone 17e",
+        "osBuildNumber": "23E254a",
+        "osVersion": "26.4.1",
+        "platform": "iOS Simulator"
+      }
+    },
+    "typography": {
+      "result": "Passed",
+      "passedTests": 2,
+      "failedTests": 0,
+      "skippedTests": 0,
+      "device": {
+        "architecture": "arm64",
+        "deviceId": "6C263489-FBEE-4DC7-9904-55D99393D4EC",
+        "deviceName": "iPhone 17e",
+        "modelName": "iPhone 17e",
+        "osBuildNumber": "23E254a",
+        "osVersion": "26.4.1",
+        "platform": "iOS Simulator"
+      }
+    }
+  },
+  "clipboardVerification": {
+    "command": "scripts/test-typing-copy.sh 6C263489-FBEE-4DC7-9904-55D99393D4EC",
+    "result": "Passed",
+    "expected": "사랑이라는 선물은 억지로 줄 수 없고 받아들여지기를 기다릴 뿐이다.\n존우든",
+    "verification": "XCUITest tapped 복사; xcrun simctl pbpaste matched expected text"
+  },
+  "productionUiChangedForComment": false,
+  "limitation": "QA attachment build/commit is unknown; Figma 360x720 differs from iPhone 17e 390x844 full frame.",
+  "htmlReportValidation": {
+    "localReferences": 76,
+    "brokenLocalReferences": 0,
+    "duplicateAnchors": 0,
+    "unreplacedTemplateTokens": 0,
+    "browserPreview": "Unavailable: no browser connected in session"
+  },
+  "notionRefresh": {
+    "pageLastEdited": "2026-10-29T06:32:00.000Z",
+    "pageCommentCount": 1,
+    "queriedChildBlocks": 42,
+    "childBlockCommentCount": 0,
+    "failedQueries": 0,
+    "readAt": "2026-10-29T10:20:09Z"
+  }
+}

@@ -1,0 +1,68 @@
+[
+  {
+    "attachments": [
+      {
+        "configurationName": "Test Scheme Action",
+        "deviceId": "9F28BE3B-66DD-4461-BE87-9525560CB329",
+        "deviceName": "Fiilsa QA compact",
+        "exportedFileName": "4B8D5E81-E3D1-46BA-A0BF-962AF13827B8.png",
+        "isAssociatedWithFailure": false,
+        "suggestedHumanReadableName": "typing-layout-dark-long_0_4C3CBBA5-CC11-4310-A9C7-3469382E6A4B.png",
+        "timestamp": 1793190790.353,
+        "localFileName": "typing-layout-dark-long.png"
+      },
+      {
+        "configurationName": "Test Scheme Action",
+        "deviceId": "9F28BE3B-66DD-4461-BE87-9525560CB329",
+        "deviceName": "Fiilsa QA compact",
+        "exportedFileName": "792F971F-E054-49D2-86DF-282ABEC732E4.png",
+        "isAssociatedWithFailure": false,
+        "suggestedHumanReadableName": "typing-layout-dark-english_0_B9641581-A30B-459B-BEC4-E3BA1421FF20.png",
+        "timestamp": 1793190782.577,
+        "localFileName": "typing-layout-dark-english.png"
+      },
+      {
+        "configurationName": "Test Scheme Action",
+        "deviceId": "9F28BE3B-66DD-4461-BE87-9525560CB329",
+        "deviceName": "Fiilsa QA compact",
+        "exportedFileName": "9B6554E1-F9C5-4AC2-9A98-46979ABBB196.png",
+        "isAssociatedWithFailure": false,
+        "suggestedHumanReadableName": "typing-layout-dark-normal_0_97DAAF67-A55D-403E-8D11-09AA1304CFCF.png",
+        "timestamp": 1793190781.043,
+        "localFileName": "typing-layout-dark-normal.png"
+      },
+      {
+        "configurationName": "Test Scheme Action",
+        "deviceId": "9F28BE3B-66DD-4461-BE87-9525560CB329",
+        "deviceName": "Fiilsa QA compact",
+        "exportedFileName": "2CFE870F-D0B2-46C8-A5AC-8F1AE2D80655.png",
+        "isAssociatedWithFailure": false,
+        "suggestedHumanReadableName": "typing-layout-light-long_0_73891446-245F-4F98-AB3C-0F71762FE673.png",
+        "timestamp": 1793190771.693,
+        "localFileName": "typing-layout-light-long.png"
+      },
+      {
+        "configurationName": "Test Scheme Action",
+        "deviceId": "9F28BE3B-66DD-4461-BE87-9525560CB329",
+        "deviceName": "Fiilsa QA compact",
+        "exportedFileName": "463A2AC7-E69A-4DE0-BAC2-52F0181C568D.png",
+        "isAssociatedWithFailure": false,
+        "suggestedHumanReadableName": "typing-layout-light-english_0_4F378005-8068-4604-8890-A1BCE9A938CD.png",
+        "timestamp": 1793190763.935,
+        "localFileName": "typing-layout-light-english.png"
+      },
+      {
+        "configurationName": "Test Scheme Action",
+        "deviceId": "9F28BE3B-66DD-4461-BE87-9525560CB329",
+        "deviceName": "Fiilsa QA compact",
+        "exportedFileName": "CFF8A863-4765-4060-AFE6-99A668B4D932.png",
+        "isAssociatedWithFailure": false,
+        "suggestedHumanReadableName": "typing-layout-light-normal_0_C8CD5A6E-DC51-4DDC-8C76-99DE3FEE2E6B.png",
+        "timestamp": 1793190762.389,
+        "localFileName": "typing-layout-light-normal.png"
+      }
+    ],
+    "testIdentifier": "TypingLayoutUITests/testPromptAndSaveRemainAccessibleWithKeyboard()",
+    "testIdentifierURL": "test://com.apple.xcode/Fiilsa/FiilsaUITests/TypingLayoutUITests/testPromptAndSaveRemainAccessibleWithKeyboard"
+  }
+]
