@@ -1,0 +1,27 @@
+{
+  "images": [
+    {
+      "filename": "typing_copy-light.svg",
+      "idiom": "universal",
+      "scale": "1x"
+    },
+    {
+      "filename": "typing_copy-dark.svg",
+      "idiom": "universal",
+      "scale": "1x",
+      "appearances": [
+        {
+          "appearance": "luminosity",
+          "value": "dark"
+        }
+      ]
+    }
+  ],
+  "info": {
+    "author": "xcode",
+    "version": 1
+  },
+  "properties": {
+    "preserves-vector-representation": true
+  }
+}

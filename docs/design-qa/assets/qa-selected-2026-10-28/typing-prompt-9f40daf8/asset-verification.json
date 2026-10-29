@@ -1,0 +1,96 @@
+[
+  {
+    "name": "back",
+    "theme": "light",
+    "path": "/tmp/qa1-figma-assets/back-light.svg",
+    "width": "32",
+    "height": "32",
+    "sha256": "c204b95b578f9dea1449e18dd3048e0c5d96d70f8f4c1406171748791a415223",
+    "existingMatches": []
+  },
+  {
+    "name": "copy",
+    "theme": "light",
+    "path": "/tmp/qa1-figma-assets/copy-light.svg",
+    "width": "19.2001",
+    "height": "19.2001",
+    "sha256": "d895ad311b5f46d21ff42bebac81d765264e7aa5da7fc1f3f9c7c300cf38fc41",
+    "existingMatches": []
+  },
+  {
+    "name": "share",
+    "theme": "light",
+    "path": "/tmp/qa1-figma-assets/share-light.svg",
+    "width": "16",
+    "height": "19",
+    "sha256": "bf5db8b3a950061fbb6ad84cd11558556d9b93581d58e2f5142150dc03ec650b",
+    "existingMatches": []
+  },
+  {
+    "name": "like",
+    "theme": "light",
+    "path": "/tmp/qa1-figma-assets/like-light.svg",
+    "width": "24",
+    "height": "24",
+    "sha256": "c9cc9369af6b0c761a3ac1d308fd25623d98bbddc264fb38a2f54acc61e8a9f2",
+    "existingMatches": []
+  },
+  {
+    "name": "prompt",
+    "theme": "light",
+    "path": "/tmp/qa1-figma-assets/prompt-light.svg",
+    "width": "60",
+    "height": "60",
+    "sha256": "7035d02729ea8fe7dc7c81e78acdc6929d7487149cf530c10fada14dbd32c4cd",
+    "existingMatches": [
+      "Fiilsa/Assets.xcassets/typing_prompt_light.imageset/typing_prompt_light.svg"
+    ]
+  },
+  {
+    "name": "back",
+    "theme": "dark",
+    "path": "/tmp/qa1-figma-assets/back-dark.svg",
+    "width": "32",
+    "height": "32",
+    "sha256": "657275a87b6f443751fe062e0aec7e8c536e81465aa186c3dea17392599a7d71",
+    "existingMatches": []
+  },
+  {
+    "name": "copy",
+    "theme": "dark",
+    "path": "/tmp/qa1-figma-assets/copy-dark.svg",
+    "width": "19.2",
+    "height": "19.2",
+    "sha256": "2b008f2ee6a97d979bdcb42ed308c0c6cd0ef4e3addabfb198f6d63000061d2f",
+    "existingMatches": []
+  },
+  {
+    "name": "share",
+    "theme": "dark",
+    "path": "/tmp/qa1-figma-assets/share-dark.svg",
+    "width": "16",
+    "height": "19",
+    "sha256": "67767ba2e19e771f4957bb1a860276dcd778dae89d97276d68463028f1d7530f",
+    "existingMatches": []
+  },
+  {
+    "name": "like",
+    "theme": "dark",
+    "path": "/tmp/qa1-figma-assets/like-dark.svg",
+    "width": "24",
+    "height": "24",
+    "sha256": "6ca4d2209fc77400a2d0e8c1cc3fe237f07b1ef950d6c9035846eb424b6ea0b3",
+    "existingMatches": []
+  },
+  {
+    "name": "prompt",
+    "theme": "dark",
+    "path": "/tmp/qa1-figma-assets/prompt-dark.svg",
+    "width": "60",
+    "height": "60",
+    "sha256": "cfea44c7c6157517dcd0d527d4764b500db93d44d77b6fbe64e5fc4689b548cd",
+    "existingMatches": [
+      "Fiilsa/Assets.xcassets/typing_prompt_dark.imageset/typing_prompt_dark.svg"
+    ]
+  }
+]

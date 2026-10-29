@@ -1,0 +1,95 @@
+[
+  {
+    "attachments": [
+      {
+        "configurationName": "Test Scheme Action",
+        "deviceId": "6C263489-FBEE-4DC7-9904-55D99393D4EC",
+        "deviceName": "iPhone 17e",
+        "exportedFileName": "472AD80A-EC17-4987-AF62-F4EA1B355F84.png",
+        "isAssociatedWithFailure": false,
+        "suggestedHumanReadableName": "typing-copy-button-tapped-full-frame_0_6AD4A101-49B4-4803-85C7-31EF33E328B9.png",
+        "timestamp": 1793268987.028
+      }
+    ],
+    "testIdentifier": "TypingLayoutUITests/testCopyButtonCanBeTappedOnTypingScreen()",
+    "testIdentifierURL": "test://com.apple.xcode/Fiilsa/FiilsaUITests/TypingLayoutUITests/testCopyButtonCanBeTappedOnTypingScreen"
+  },
+  {
+    "attachments": [
+      {
+        "configurationName": "Test Scheme Action",
+        "deviceId": "6C263489-FBEE-4DC7-9904-55D99393D4EC",
+        "deviceName": "iPhone 17e",
+        "exportedFileName": "32245604-D164-43D5-908C-9417A06048FB.png",
+        "isAssociatedWithFailure": false,
+        "suggestedHumanReadableName": "typing-layout-dark-long-scrolled_0_7839B180-D2CD-40B2-B3AF-3EE282300473.png",
+        "timestamp": 1793269057.729
+      },
+      {
+        "configurationName": "Test Scheme Action",
+        "deviceId": "6C263489-FBEE-4DC7-9904-55D99393D4EC",
+        "deviceName": "iPhone 17e",
+        "exportedFileName": "2F0A14EE-71C0-4901-BD22-A4FF950F7E24.png",
+        "isAssociatedWithFailure": false,
+        "suggestedHumanReadableName": "typing-layout-dark-long_0_34509559-62F5-432B-A83B-FD804C4C65A0.png",
+        "timestamp": 1793269056.944
+      },
+      {
+        "configurationName": "Test Scheme Action",
+        "deviceId": "6C263489-FBEE-4DC7-9904-55D99393D4EC",
+        "deviceName": "iPhone 17e",
+        "exportedFileName": "78785F1A-5B44-4F7F-A53B-67EBDBAA482E.png",
+        "isAssociatedWithFailure": false,
+        "suggestedHumanReadableName": "typing-layout-dark-english_0_F203C5C1-35F4-4C25-B43A-EDCC2022A318.png",
+        "timestamp": 1793269049.069
+      },
+      {
+        "configurationName": "Test Scheme Action",
+        "deviceId": "6C263489-FBEE-4DC7-9904-55D99393D4EC",
+        "deviceName": "iPhone 17e",
+        "exportedFileName": "C74C5891-879F-494B-8178-B1212F53DF4B.png",
+        "isAssociatedWithFailure": false,
+        "suggestedHumanReadableName": "typing-layout-dark-normal_0_DAB8F97D-EE64-4269-9A44-F1855B3377EB.png",
+        "timestamp": 1793269047.452
+      },
+      {
+        "configurationName": "Test Scheme Action",
+        "deviceId": "6C263489-FBEE-4DC7-9904-55D99393D4EC",
+        "deviceName": "iPhone 17e",
+        "exportedFileName": "EF9F32F0-A6D8-45F6-89D8-E51FDB732B22.png",
+        "isAssociatedWithFailure": false,
+        "suggestedHumanReadableName": "typing-layout-light-long-scrolled_0_F3344D92-74AB-4CB7-B3DA-3AEF3C1A65EF.png",
+        "timestamp": 1793269037.885
+      },
+      {
+        "configurationName": "Test Scheme Action",
+        "deviceId": "6C263489-FBEE-4DC7-9904-55D99393D4EC",
+        "deviceName": "iPhone 17e",
+        "exportedFileName": "FC569716-07CA-4104-9651-0A98F1C3862C.png",
+        "isAssociatedWithFailure": false,
+        "suggestedHumanReadableName": "typing-layout-light-long_0_1A3EC7CA-6AD8-4EAD-B150-2E78DBE46A42.png",
+        "timestamp": 1793269037.093
+      },
+      {
+        "configurationName": "Test Scheme Action",
+        "deviceId": "6C263489-FBEE-4DC7-9904-55D99393D4EC",
+        "deviceName": "iPhone 17e",
+        "exportedFileName": "1985E307-2FFB-4A5F-AEB6-C9D15B99E578.png",
+        "isAssociatedWithFailure": false,
+        "suggestedHumanReadableName": "typing-layout-light-english_0_3071C42D-CF46-49AC-93A6-1B61FD2CA00D.png",
+        "timestamp": 1793269029.037
+      },
+      {
+        "configurationName": "Test Scheme Action",
+        "deviceId": "6C263489-FBEE-4DC7-9904-55D99393D4EC",
+        "deviceName": "iPhone 17e",
+        "exportedFileName": "B923FDF7-B388-4C4D-BA2F-335681F3ADDD.png",
+        "isAssociatedWithFailure": false,
+        "suggestedHumanReadableName": "typing-layout-light-normal_0_D5CB5394-139D-44A9-B9B9-D88F24B80E2D.png",
+        "timestamp": 1793269027.456
+      }
+    ],
+    "testIdentifier": "TypingLayoutUITests/testPromptAndSaveRemainAccessibleWithKeyboard()",
+    "testIdentifierURL": "test://com.apple.xcode/Fiilsa/FiilsaUITests/TypingLayoutUITests/testPromptAndSaveRemainAccessibleWithKeyboard"
+  }
+]

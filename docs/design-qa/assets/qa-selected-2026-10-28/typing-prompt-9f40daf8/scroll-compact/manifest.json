@@ -1,0 +1,88 @@
+[
+  {
+    "attachments": [
+      {
+        "configurationName": "Test Scheme Action",
+        "deviceId": "9F28BE3B-66DD-4461-BE87-9525560CB329",
+        "deviceName": "Fiilsa QA compact",
+        "exportedFileName": "97A51593-4E97-4E26-9660-15E5A6B29BFC.png",
+        "isAssociatedWithFailure": false,
+        "suggestedHumanReadableName": "typing-layout-dark-long-scrolled_0_482DE36E-5681-4206-89A6-50DEB07D3256.png",
+        "timestamp": 1793191609.743,
+        "localFileName": "typing-layout-dark-long-scrolled.png"
+      },
+      {
+        "configurationName": "Test Scheme Action",
+        "deviceId": "9F28BE3B-66DD-4461-BE87-9525560CB329",
+        "deviceName": "Fiilsa QA compact",
+        "exportedFileName": "B1A39744-6CB2-4148-B54E-89720810CDC6.png",
+        "isAssociatedWithFailure": false,
+        "suggestedHumanReadableName": "typing-layout-dark-long_0_B1BE5297-8828-4BD5-AEDA-C9C1873EFB18.png",
+        "timestamp": 1793191609.062,
+        "localFileName": "typing-layout-dark-long.png"
+      },
+      {
+        "configurationName": "Test Scheme Action",
+        "deviceId": "9F28BE3B-66DD-4461-BE87-9525560CB329",
+        "deviceName": "Fiilsa QA compact",
+        "exportedFileName": "D567FA4D-1785-4DE5-BD30-303CA92B1359.png",
+        "isAssociatedWithFailure": false,
+        "suggestedHumanReadableName": "typing-layout-dark-english_0_752631FD-7E65-48CA-914C-2C27DC8848E8.png",
+        "timestamp": 1793191601.388,
+        "localFileName": "typing-layout-dark-english.png"
+      },
+      {
+        "configurationName": "Test Scheme Action",
+        "deviceId": "9F28BE3B-66DD-4461-BE87-9525560CB329",
+        "deviceName": "Fiilsa QA compact",
+        "exportedFileName": "FB1DC3E3-7E5E-40FF-ADFE-3FF37F497BBC.png",
+        "isAssociatedWithFailure": false,
+        "suggestedHumanReadableName": "typing-layout-dark-normal_0_CB086BD1-1129-42A9-8524-E68DBCFC794B.png",
+        "timestamp": 1793191599.862,
+        "localFileName": "typing-layout-dark-normal.png"
+      },
+      {
+        "configurationName": "Test Scheme Action",
+        "deviceId": "9F28BE3B-66DD-4461-BE87-9525560CB329",
+        "deviceName": "Fiilsa QA compact",
+        "exportedFileName": "5EC47B83-C8BD-415D-9C62-9A294BF73DFA.png",
+        "isAssociatedWithFailure": false,
+        "suggestedHumanReadableName": "typing-layout-light-long-scrolled_0_E8B98843-C65F-45EB-B5F0-5AF9894B5E7A.png",
+        "timestamp": 1793191590.546,
+        "localFileName": "typing-layout-light-long-scrolled.png"
+      },
+      {
+        "configurationName": "Test Scheme Action",
+        "deviceId": "9F28BE3B-66DD-4461-BE87-9525560CB329",
+        "deviceName": "Fiilsa QA compact",
+        "exportedFileName": "CBE065A6-42E7-4983-A3A6-F86A294DD0C2.png",
+        "isAssociatedWithFailure": false,
+        "suggestedHumanReadableName": "typing-layout-light-long_0_7BD07C38-F1A0-47ED-B7C6-33CBDB5A7A37.png",
+        "timestamp": 1793191589.846,
+        "localFileName": "typing-layout-light-long.png"
+      },
+      {
+        "configurationName": "Test Scheme Action",
+        "deviceId": "9F28BE3B-66DD-4461-BE87-9525560CB329",
+        "deviceName": "Fiilsa QA compact",
+        "exportedFileName": "81C4DCBC-CEA5-450E-932A-D6980E9EB887.png",
+        "isAssociatedWithFailure": false,
+        "suggestedHumanReadableName": "typing-layout-light-english_0_791B4694-196A-4453-AF4E-5E1E36890664.png",
+        "timestamp": 1793191581.971,
+        "localFileName": "typing-layout-light-english.png"
+      },
+      {
+        "configurationName": "Test Scheme Action",
+        "deviceId": "9F28BE3B-66DD-4461-BE87-9525560CB329",
+        "deviceName": "Fiilsa QA compact",
+        "exportedFileName": "FC3C6451-A0F2-4DBD-966F-59193DB2AB41.png",
+        "isAssociatedWithFailure": false,
+        "suggestedHumanReadableName": "typing-layout-light-normal_0_37FB87C2-4A0D-4F62-8A9B-11F88EF108B9.png",
+        "timestamp": 1793191580.419,
+        "localFileName": "typing-layout-light-normal.png"
+      }
+    ],
+    "testIdentifier": "TypingLayoutUITests/testPromptAndSaveRemainAccessibleWithKeyboard()",
+    "testIdentifierURL": "test://com.apple.xcode/Fiilsa/FiilsaUITests/TypingLayoutUITests/testPromptAndSaveRemainAccessibleWithKeyboard"
+  }
+]

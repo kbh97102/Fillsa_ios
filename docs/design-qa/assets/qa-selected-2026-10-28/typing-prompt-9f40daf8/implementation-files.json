@@ -1,0 +1,82 @@
+[
+  {
+    "path": "Fiilsa/Info.plist",
+    "sha256": "14807ddc7fda99d5588b0476ad2d1a357d48e16a4fdd9707066fa23e0b8093c0"
+  },
+  {
+    "path": "Fiilsa/Presentation/HomeSub/TypingQuoteView.swift",
+    "sha256": "ed6d90b65c13c8fb064e7f7b00434a06c63f5a3c5483cbab9038ca58ab543a95"
+  },
+  {
+    "path": "Fiilsa/Presentation/HomeSub/TypingQuoteBodySection.swift",
+    "sha256": "ca25ee3e75c25caecd1fb62a9e516e939361aefa6cb298fbd791d07a0ef7371d"
+  },
+  {
+    "path": "FiilsaTests/TypographyResourceTests.swift",
+    "sha256": "b441b95f8ba96d38bb693bb20981220beb2122d04d68f2653ed4c4435ecb45e4"
+  },
+  {
+    "path": "FiilsaUITests/TypingLayoutUITests.swift",
+    "sha256": "8a06c689096bbcdaab5d02a2f2be75dda627584f1399251d45c94cb1b5a8e618"
+  },
+  {
+    "path": "Fiilsa/Resources/Fonts/Pretendard-Regular.otf",
+    "sha256": "3ffbacde6ab8411f1d2db54bb9b1f0b3ee2a738932033722cf0388c06aed1c93"
+  },
+  {
+    "path": "Fiilsa/Resources/Fonts/Pretendard-LICENSE.txt",
+    "sha256": "b04538c9abec39a3db75108cf0af0fd9c77032fe8aa2cf38345b4d250e98e38e"
+  },
+  {
+    "path": "Fiilsa/Resources/Fonts/Pretendard-Bold.otf",
+    "sha256": "2e91915fab54df71cc9598ebf608b2bdb54c6fe3c066ac61dff0bc44fca71cc7"
+  },
+  {
+    "path": "Fiilsa/Assets.xcassets/typing_back.imageset/typing_back-dark.svg",
+    "sha256": "657275a87b6f443751fe062e0aec7e8c536e81465aa186c3dea17392599a7d71"
+  },
+  {
+    "path": "Fiilsa/Assets.xcassets/typing_back.imageset/Contents.json",
+    "sha256": "ed8fe99afd71816fcd362e3da13f39fde3e7c705252de32dbf76dcbd7aa45221"
+  },
+  {
+    "path": "Fiilsa/Assets.xcassets/typing_back.imageset/typing_back-light.svg",
+    "sha256": "c204b95b578f9dea1449e18dd3048e0c5d96d70f8f4c1406171748791a415223"
+  },
+  {
+    "path": "Fiilsa/Assets.xcassets/typing_copy.imageset/typing_copy-dark.svg",
+    "sha256": "2b008f2ee6a97d979bdcb42ed308c0c6cd0ef4e3addabfb198f6d63000061d2f"
+  },
+  {
+    "path": "Fiilsa/Assets.xcassets/typing_copy.imageset/typing_copy-light.svg",
+    "sha256": "d895ad311b5f46d21ff42bebac81d765264e7aa5da7fc1f3f9c7c300cf38fc41"
+  },
+  {
+    "path": "Fiilsa/Assets.xcassets/typing_copy.imageset/Contents.json",
+    "sha256": "2614d8e694513036347b544fc182d88904923834020bf55192442a3ee0b44771"
+  },
+  {
+    "path": "Fiilsa/Assets.xcassets/typing_share.imageset/typing_share-dark.svg",
+    "sha256": "67767ba2e19e771f4957bb1a860276dcd778dae89d97276d68463028f1d7530f"
+  },
+  {
+    "path": "Fiilsa/Assets.xcassets/typing_share.imageset/Contents.json",
+    "sha256": "9d9cbfe1de3dc2f6fee131d08797df70359d1b2022520841683f4764d86877ed"
+  },
+  {
+    "path": "Fiilsa/Assets.xcassets/typing_share.imageset/typing_share-light.svg",
+    "sha256": "bf5db8b3a950061fbb6ad84cd11558556d9b93581d58e2f5142150dc03ec650b"
+  },
+  {
+    "path": "Fiilsa/Assets.xcassets/typing_like.imageset/typing_like-light.svg",
+    "sha256": "c9cc9369af6b0c761a3ac1d308fd25623d98bbddc264fb38a2f54acc61e8a9f2"
+  },
+  {
+    "path": "Fiilsa/Assets.xcassets/typing_like.imageset/typing_like-dark.svg",
+    "sha256": "6ca4d2209fc77400a2d0e8c1cc3fe237f07b1ef950d6c9035846eb424b6ea0b3"
+  },
+  {
+    "path": "Fiilsa/Assets.xcassets/typing_like.imageset/Contents.json",
+    "sha256": "f4a0b7b077de570bf93ad0d789df8e9a3fa078ec1db6e7a91757913ce2718f24"
+  }
+]

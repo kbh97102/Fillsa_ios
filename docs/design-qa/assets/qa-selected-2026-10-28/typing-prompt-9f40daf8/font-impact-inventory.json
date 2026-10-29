@@ -1,0 +1,319 @@
+[
+  {
+    "file": "Fiilsa/Core/DesignSystem/FillsaTypography.swift",
+    "tokens": []
+  },
+  {
+    "file": "Fiilsa/Presentation/Home/DailyQuoteSection.swift",
+    "tokens": [
+      "body4"
+    ]
+  },
+  {
+    "file": "Fiilsa/Presentation/Home/HomeStreakTooltip.swift",
+    "tokens": [
+      "body4",
+      "subtitle2"
+    ]
+  },
+  {
+    "file": "Fiilsa/Presentation/Home/HomeView.swift",
+    "tokens": [
+      "body3"
+    ]
+  },
+  {
+    "file": "Fiilsa/Presentation/Home/HomeFigmaComponents.swift",
+    "tokens": [
+      "body3",
+      "body4",
+      "subtitle1",
+      "subtitle2"
+    ]
+  },
+  {
+    "file": "Fiilsa/Presentation/Home/DateSection.swift",
+    "tokens": [
+      "subtitle2"
+    ]
+  },
+  {
+    "file": "Fiilsa/Presentation/Home/HomeTopBar.swift",
+    "tokens": [
+      "body1"
+    ]
+  },
+  {
+    "file": "Fiilsa/Presentation/Home/HomeLocaleSwitch.swift",
+    "tokens": [
+      "subtitle2"
+    ]
+  },
+  {
+    "file": "Fiilsa/Presentation/Home/HomeInlineCalendar.swift",
+    "tokens": [
+      "body4",
+      "subtitle2"
+    ]
+  },
+  {
+    "file": "Fiilsa/Presentation/Splash/SplashView.swift",
+    "tokens": [
+      "quote"
+    ]
+  },
+  {
+    "file": "Fiilsa/Presentation/Calendar/CalendarMonthSection.swift",
+    "tokens": [
+      "heading4",
+      "subtitle2"
+    ]
+  },
+  {
+    "file": "Fiilsa/Presentation/Calendar/CalendarDayCell.swift",
+    "tokens": [
+      "body3"
+    ]
+  },
+  {
+    "file": "Fiilsa/Presentation/Calendar/CalendarSelectedQuoteSection.swift",
+    "tokens": [
+      "body3",
+      "body4",
+      "heading4"
+    ]
+  },
+  {
+    "file": "Fiilsa/Presentation/Calendar/CalendarCountSection.swift",
+    "tokens": [
+      "body3"
+    ]
+  },
+  {
+    "file": "Fiilsa/Presentation/MyPageSub/AlertSwitchSection.swift",
+    "tokens": [
+      "body3",
+      "subtitle1"
+    ]
+  },
+  {
+    "file": "Fiilsa/Presentation/MyPageSub/NoticeListSection.swift",
+    "tokens": [
+      "body3",
+      "heading4"
+    ]
+  },
+  {
+    "file": "Fiilsa/Presentation/MyPageSub/NoticeDetailView.swift",
+    "tokens": [
+      "body3",
+      "subtitle1"
+    ]
+  },
+  {
+    "file": "Fiilsa/Presentation/MyPageSub/AlertView.swift",
+    "tokens": [
+      "body2"
+    ]
+  },
+  {
+    "file": "Fiilsa/Presentation/QuoteList/QuoteListDateSelectSection.swift",
+    "tokens": [
+      "body2"
+    ]
+  },
+  {
+    "file": "Fiilsa/Presentation/QuoteList/QuoteListItem.swift",
+    "tokens": [
+      "body4",
+      "subtitle2"
+    ]
+  },
+  {
+    "file": "Fiilsa/Presentation/QuoteList/QuoteListLikeFilterSection.swift",
+    "tokens": [
+      "body2"
+    ]
+  },
+  {
+    "file": "Fiilsa/Presentation/QuoteList/QuoteListDurationCalendarSection.swift",
+    "tokens": [
+      "heading4",
+      "subtitle1",
+      "subtitle2"
+    ]
+  },
+  {
+    "file": "Fiilsa/Presentation/QuoteList/QuoteListEmptySection.swift",
+    "tokens": [
+      "body2",
+      "subtitle1"
+    ]
+  },
+  {
+    "file": "Fiilsa/Presentation/Common/QuoteToast.swift",
+    "tokens": [
+      "body2"
+    ]
+  },
+  {
+    "file": "Fiilsa/Presentation/Common/QuoteImageActionLabel.swift",
+    "tokens": [
+      "body4"
+    ]
+  },
+  {
+    "file": "Fiilsa/Presentation/Common/PlaceholderScreen.swift",
+    "tokens": [
+      "body3",
+      "heading3"
+    ]
+  },
+  {
+    "file": "Fiilsa/Presentation/Common/FillsaBottomNavigationBar.swift",
+    "tokens": [
+      "body4"
+    ]
+  },
+  {
+    "file": "Fiilsa/Presentation/Common/HeaderSection.swift",
+    "tokens": [
+      "subtitle1"
+    ]
+  },
+  {
+    "file": "Fiilsa/Presentation/Common/GeneralPopupView.swift",
+    "tokens": [
+      "body2",
+      "heading4",
+      "subtitle2"
+    ]
+  },
+  {
+    "file": "Fiilsa/Presentation/MyPage/MyPageThemeDialog.swift",
+    "tokens": [
+      "subtitle1"
+    ]
+  },
+  {
+    "file": "Fiilsa/Presentation/MyPage/MyPageResignDialog.swift",
+    "tokens": [
+      "body2",
+      "heading4",
+      "subtitle1"
+    ]
+  },
+  {
+    "file": "Fiilsa/Presentation/MyPage/MyPageItem.swift",
+    "tokens": [
+      "subtitle1"
+    ]
+  },
+  {
+    "file": "Fiilsa/Presentation/MyPage/MyPageLoginSection.swift",
+    "tokens": [
+      "subtitle1"
+    ]
+  },
+  {
+    "file": "Fiilsa/Presentation/MyPage/MyPageBottomButtonSection.swift",
+    "tokens": [
+      "body2",
+      "subtitle1"
+    ]
+  },
+  {
+    "file": "Fiilsa/Presentation/MyPage/MyPageView.swift",
+    "tokens": [
+      "body2"
+    ]
+  },
+  {
+    "file": "Fiilsa/Presentation/HomeSub/TypingQuoteBodySection.swift",
+    "tokens": [
+      "body1"
+    ]
+  },
+  {
+    "file": "Fiilsa/Presentation/HomeSub/TypingQuoteView.swift",
+    "tokens": [
+      "body3",
+      "subtitle1"
+    ]
+  },
+  {
+    "file": "Fiilsa/Presentation/HomeSub/ShareView.swift",
+    "tokens": [
+      "body2",
+      "body3",
+      "heading4",
+      "subtitle1"
+    ]
+  },
+  {
+    "file": "Fiilsa/Presentation/HomeSub/TypingResultPopup.swift",
+    "tokens": [
+      "heading4",
+      "subtitle1"
+    ]
+  },
+  {
+    "file": "Fiilsa/Presentation/HomeSub/HomeImageDialog.swift",
+    "tokens": [
+      "body2",
+      "subtitle1"
+    ]
+  },
+  {
+    "file": "Fiilsa/Presentation/QuoteListSub/MemoInsertView.swift",
+    "tokens": [
+      "body1",
+      "body3"
+    ]
+  },
+  {
+    "file": "Fiilsa/Presentation/QuoteListSub/MemoQuoteSection.swift",
+    "tokens": [
+      "body2"
+    ]
+  },
+  {
+    "file": "Fiilsa/Presentation/QuoteListSub/MemoSection.swift",
+    "tokens": [
+      "body2",
+      "body3"
+    ]
+  },
+  {
+    "file": "Fiilsa/Presentation/Login/LoginAgreementText.swift",
+    "tokens": [
+      "body3",
+      "subtitle2"
+    ]
+  },
+  {
+    "file": "Fiilsa/Presentation/Login/LoginView.swift",
+    "tokens": [
+      "body2"
+    ]
+  },
+  {
+    "file": "Fiilsa/Presentation/Login/LoginButton.swift",
+    "tokens": [
+      "subtitle2"
+    ]
+  },
+  {
+    "file": "Fiilsa/Presentation/OnboardingGuide/OnboardingGuideView.swift",
+    "tokens": [
+      "body3",
+      "subtitle1"
+    ]
+  },
+  {
+    "file": "Fiilsa/Presentation/OnboardingGuide/OnboardingGuideIndicatorSection.swift",
+    "tokens": [
+      "heading4"
+    ]
+  }
+]

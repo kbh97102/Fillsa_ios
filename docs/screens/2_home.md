@@ -170,6 +170,20 @@
 - Dark target: https://www.figma.com/design/VdFocqyqTgevMVCQxwAQ2X/%E2%9C%92%EF%B8%8F%ED%95%84%EC%82%AC?node-id=3087-28815 (`3087:28815`)
 - QA 기록: `docs/design-qa/2026-08-29-home-figma-ui-qa.md`, `docs/design-qa/2026-09-07-ios-home-dark-root-qa.md`
 
+### Figma UI 기준 · 댓글 후속 검증 2026-10-29
+
+- Figma URL: https://www.figma.com/design/VdFocqyqTgevMVCQxwAQ2X
+- 대상 프레임/노드: Light `2929:17920`, Dark `3087:28815`; 안내 `3087:28753` / `3087:29001`; 복사 아이콘 `3087:28758` → `3087:28759`.
+- 대상 상태: Light/Dark, 한국어/영어, 키보드 표시, 복사 버튼 터치 후 문장+저자 클립보드 복사.
+- 기준 이미지: `docs/design-qa/assets/qa-selected-2026-10-28/figma-2929-17920.png`, `figma-3087-28815.png`.
+- QA 기록: `docs/design-qa/2026-10-28-typing-prompt-9f40daf8-qa.md`; 댓글 계획: `docs/screens/2026-10-29-typing-prompt-9f40daf8-plan-v2.md`.
+- 검증 상태: 댓글의 현재 빌드 재현과 복사 액션 검증 중.
+
+| 컴포넌트 | Figma 노드 | 책임 | 조립 위치 | 검증 상태 |
+|---|---|---|---|---|
+| 안내 문구 | `3087:28753`, `3087:29001` | Pretendard Bold16/24, #5C65FF | `TypingPromptSection` | 로컬 코드/캡처 부분 확인, 현재 런타임 재검증 중 |
+| 복사 버튼 | `3087:28758`, `3087:28759` | 원본 19.2pt 아이콘, 선택 locale 문장+저자 복사 | `TypingQuoteView.bottomSection` | 자산 부분 확인, 실제 클립보드 검증 중 |
+
 ### 상단
 
 - 명언 노출, 타이핑 시 글자별 색상 변경
@@ -366,3 +380,22 @@ GET /api/v1/member-quotes/{dailyQuoteSeq}/typing
 - `completedChanged`/`todayCompletedChanged`는 현재 완료가 아닌 변경 여부이므로 재저장 판정에는 사용하지 않는다. 기존 월간 조회의 `completed`와 과거 문장일 때 회원 streak의 `isTodayWritten`으로 결과를 정한다.
 - `saveTapped`는 결과 팝업, `saveAndBack`은 저장 후 즉시 복귀. 팝업 표시 중 배경 접근성과 입력을 막고 키보드를 숨긴다. 저장·조회 실패 시 입력을 유지한다.
 - 전체 단위+팝업 UI 142건 통과. 상세 증거·최종 시각 제한은 [QA 기록](../design-qa/2026-10-25-ios-qa.md), 원문 포함 결과는 [HTML 보고서](../design-qa/2026-10-25-ios-qa-report.html).
+
+
+## 2026-10-25 전체 화면 비교 보고서
+
+현재 선택 QA 1 실행 기준: [필사 안내 독립 설계 v1](2026-10-28-typing-prompt-9f40daf8-plan.md) · [독립 QA](../design-qa/2026-10-28-typing-prompt-9f40daf8-qa.md). 이슈 2 저장 팝업은 별도 승인 대상이다.
+
+후속 선택 QA: [2026-10-28 필사 안내·저장 팝업 상세 계획 v1](2_home_qa_2026-10-28_typing.md) · [AS-IS QA 기록](../design-qa/2026-10-28-selected-ios-qa.md). 계획 검토 대기이며, 아래의 과거 비교 기록과 구분한다.
+
+- 기준: [Figma 리뉴얼 페이지 2929:3720](https://www.figma.com/design/VdFocqyqTgevMVCQxwAQ2X?node-id=2929-3720). 대상: 2929:13556, 3139:1501, 3110:33783/34152/34293/34438, 3223:4982/4647/4773.
+- [iOS 전체 화면 HTML](../design-qa/2026-10-25-full-screen-audit.html) · [QA 기록 및 컴포넌트 범위](../design-qa/2026-10-25-full-screen-audit-qa.md).
+- Light/Dark 전체 실행 캡처와 기준 이미지는 QA의 manifest에서 연결한다. 이번 작업은 수정 후보를 추리는 조사이며 UI 구현은 변경하지 않는다. 승인 정책·fixture 데이터·시스템 크기 차이를 별도로 기록하고, 미확보 상태를 Pass로 처리하지 않는다.
+
+
+### 2026-10-28 · 이슈1 패딩 기반 기기 대응
+
+- 승인: 이슈1 + 공통 Pretendard 등록, 부모 공간/패딩 방식, “본문만 스크롤하도록 허용”.
+- 필사 안내·액션은 유지하고 본문만 남는 영역에서 스크롤한다. 기본/큰 글자·긴 문장을 iPhone17e 및 SE3에서 검증한다. TCA 상태·입력 조합·저장 계약은 유지한다.
+- [독립 설계](2026-10-28-typing-prompt-9f40daf8-plan.md) · [검증/남은 시각 차이](../design-qa/2026-10-28-typing-prompt-9f40daf8-qa.md) · [원본·댓글·AS-IS/TO-BE HTML](../design-qa/2026-10-28-typing-prompt-9f40daf8-report.html).
+- 공용 토글·커서 줄바꿈 등 기존 차이 때문에 전체 UI 최종 수용과 구분한다. 저장 팝업 이슈2의 고유 수정은 포함하지 않는다.
